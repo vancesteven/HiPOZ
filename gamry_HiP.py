@@ -39,7 +39,8 @@ if PAN_DATA:
     dates = ['nan']
 else:
     # dates = ['20220922','20220923','20220924','20221010','20221011','20230223']
-    dates = ['20231214'] # values read at 5e-4S/m
+    dates = ['20250826'] # values read at 5e-4S/m
+    # dates = ['8_12_25','8.13.25','8.14.25','8.15.25'] # values read at 5e-4S/m
 # dates = ['20221016']; # values read at 5e-4S/m
 # dates = ['20221014']; # using the 1bar std yield around 5 S/m not 8. THere's a zero conductivity point at high pressure
 # dates = ['20221010','20221011']
@@ -50,6 +51,9 @@ initial_guess = None  # Required when circType is not in the above list. Ignored
 cmapName = 'viridis'
 outFigName = 'GamryMeas'
 figSize = (6,6)
+
+f_range_Hz = 1e3*np.array([10,100])
+
 xtn = 'png'
 PLOT_AIR = False
 
@@ -74,11 +78,11 @@ def main():
             print(f'measurement {i} of {lf}')
             meas[i].loadFile(file, PAN=PAN_DATA)
 
-            if not np.isnan(meas[i].sigmaStd_Sm):
-                meas[i].sigmaStdCalc_Sm = calStd(meas[i].T_K, lbl_uScm=meas[i].lbl_uScm)
-            else:
-                meas[i].sigmaStdCalc_Sm = 1e-8  # Default air conductivity
-            meas[i].FitCircuit(circType=circType, initial_guess=initial_guess, PRINT=False,BASIN_HOPPING=False,MULTIPROC=True)
+            # if not np.isnan(meas[i].sigmaStd_Sm):
+            #     meas[i].sigmaStdCalc_Sm = calStd(meas[i].T_K, lbl_uScm=meas[i].lbl_uScm)
+            # else:
+            #     meas[i].sigmaStdCalc_Sm = 1e-8  # Default air conductivity
+            meas[i].FitCircuit(circType=circType, initial_guess=initial_guess, PRINT=False,BASIN_HOPPING=False,MULTIPROC=True,f_range_Hz=f_range_Hz)
 
         allMeas[d_ind] = meas
 

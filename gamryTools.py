@@ -24,7 +24,8 @@ from bidict import bidict
 # Assign logger
 log = logging.getLogger('HiPOZ')
 
-gamryDTstr = r'%m/%d/%Y-%I:%M %p'
+# gamryDTstr = r'%m/%d/%Y-%I:%M %p' % for older files that are probably no good
+gamryDTstr = r'%I:%M:%S.%f %p %Y-%m-%d'
 PanDTstr = r'%m/%d/%Y %I:%M:%S %p'
 PSItoMPa = 6.89476e-3
 soluteOptions = ['DIwater', 'KCl', 'NaCl', 'MgSO4']  # Solutes available in PlanetProfile's Constants
@@ -110,7 +111,8 @@ def GetwFromDescrip(descrip, lbl_uScm=None):
                 log.info(f'No units found in descrip: {descrip}')
             # unit = list(allUnits)[np.where(unitCompare)[0][0]]
             try:
-                unit = list(allUnits)[np.where(unitCompare)[0][0]]
+                # unit = list(allUnits)[np.where(unitCompare)[0][0]]
+                unit = 'molal'
                 # Strip whitespace characters like tabs and newlines
                 cleaned_string = descrip.strip()
 
@@ -259,14 +261,14 @@ class Solution:
             self.legLabel = self.comp
             self.lbl_uScm = np.nan
         else:
-            self.sigmaStd_Sm = GetSigmaFromDescrip(self.descrip)
-            self.legLabel = f'{self.sigmaStd_Sm:.4f}'
-            self.lbl_uScm = np.round(self.sigmaStd_Sm*1e4)
+            # self.sigmaStd_Sm = GetSigmaFromDescrip(self.descrip)
+            # self.legLabel = f'{self.sigmaStd_Sm:.4f}'
+            # self.lbl_uScm = np.round(self.sigmaStd_Sm*1e4)
             self.comp, self.w_ppt, self.w_molal = GetwFromDescrip(self.descrip, lbl_uScm=self.lbl_uScm)
 
 
-        self.color = self.cmap(np.log(self.lbl_uScm)/np.log(80000))
-        self.fitColor = LightenColor(self.color, lightnessMult=0.4)
+        # self.color = self.cmap(np.log(self.lbl_uScm)/np.log(80000))
+        # self.fitColor = LightenColor(self.color, lightnessMult=0.4)
 
         if PAN:
             _, self.f_Hz, Zprime_ohm, ZdblPrime_ohm, _, _ = np.loadtxt(self.file, skiprows=7, unpack=True)
@@ -276,7 +278,7 @@ class Solution:
             self.Z_ohm = Zabs_ohm * np.exp(1j * np.deg2rad(Phi_ohm))
         return
 
-    def FitCircuit(self, circType=None, initial_guess=None, BASIN_HOPPING=False,MULTIPROC=False, Kest_pm=None, PRINT=True, circFile=None):
+    def FitCircuit(self, circType=None, initial_guess=None, BASIN_HOPPING=False,MULTIPROC=False, Kest_pm=None, PRINT=True, circFile=None, f_range_Hz=None):
         if Kest_pm is None:
             Kest_pm = 50
         if circType is None:
@@ -309,7 +311,8 @@ class Solution:
                 log.info(f'Equivalent circuit diagram saved to file: {self.circFile}')
         elif circType == 'RC':
             # 1/Z_cell = 1/R + i*omega*C -- Pan et al. (2021): https://doi.org/10.1029/2021GL094020
-            initial_guess = [Kest_pm/self.sigmaStdCalc_Sm, 146.2e-12]
+            # initial_guess = [Kest_pm/self.sigmaStdCalc_Sm, 146.2e-12]
+            initial_guess = [1., 146.2e-12]
             R1 = r'R_1'
             C1 = r'C_1'
             self.circStr = f'p({R1},{C1})'
@@ -378,6 +381,10 @@ class Solution:
             "options": {'disp': True}  # Display convergence messages
         }
         self.circuit = CustomCircuit(self.circStr, initial_guess=initial_guess)
+        if f_range_Hz is not None:
+            inds = (self.f_Hz> f_range_Hz[0]) & (self.f_Hz <= f_range_Hz[1])
+            self.f_Hz = self.f_Hz[inds]
+            self.Z_ohm = self.Z_ohm[inds]
         self.circuit.fit(self.f_Hz, self.Z_ohm)
         self.Zfit_ohm = self.circuit.predict(self.f_Hz)
         self.Rcalc_ohm = self.circuit.parameters_[0]
@@ -595,12 +602,16 @@ class ResistorData:
         if circType == 'CPE':
             # Z_cell = R_0 + (R_0 + Z_CPE)/(1 + i*omega*C*(R_1 + Z_CPE)) -- Chin et al. (2018): https://doi.org/10.1063/1.5020076
 #            initial_guess = [Kest_pm / self.sigmaStdCalc_Sm, 8e-7, 0.85, 146.2e-12, 50]
-            initial_guess = [0.01,  8e-7, 0.85, 146.2e-12, 50] #CP for resistor testing
+#             initial_guess = [0.01,  8e-7, 0.85, 146.2e-12, 50] #CP for resistor testing
             R0 = r'R_0'
             R1 = r'R_1'
             CPE1 = r'CPE_1'
             C1 = r'C_1'
-            circStr = f'p({R1}-{CPE1},{C1})-{R0}'
+            L0 = r'L_0'
+            # circStr = f'p({R1}-{CPE1},{C1})-{R0}'
+            # simpler for aqueous solutions
+            circStr = f'{L0}-{R0}-p({R1}, {CPE1})' # inductor to capture positive phase at highest frequencies
+            initial_guess = [1e-6,  20, 100, 5e-6, 0.8]
             if PRINT:
                 with schemdraw.Drawing(file=self.circFile, show=False) as circ:
                     circ.config(unit=Lleads)
@@ -617,7 +628,7 @@ class ResistorData:
         elif circType == 'RC':
             # 1/Z_cell = 1/R + i*omega*C -- Pan et al. (2021): https://doi.org/10.1029/2021GL094020
             # initial_guess = [Kest_pm / self.sigmaStdCalc_Sm, 146.2e-12]
-            initial_guess = [1, 146.2e-12]
+            initial_guess = [20, 5e-6]
             R1 = r'R_1'
             C1 = r'C_1'
             circStr = f'p({R1},{C1})'
@@ -726,38 +737,36 @@ class TimeSeries:
     def __init__(self,allMeas=None):
         self.allMeas = allMeas
         self.timestamps = []
-        self.impedance_values = []
+        self.Rcalc_ohm = []
         self.filenames = []
         self.uncertainties = []
         self.percent_uncertainties = []
         self.colors = []
         self.markers = []
+        self.frequencies = []
         self.Ts = []
         self.Ps = []
         self.ws_ppt = []
+        self.impedances = []
+        self.impedance_fits = []
         self.calItems = []
         self.measItems = []
     def organizeData(self):
         for data in self.allMeas:
             for entry in data:
-                timestamp = entry.time  # Already a datetime.datetime object, no conversion needed
-                impedance = entry.Rcalc_ohm  # Use the correct key for impedance
-                uncertainty = entry.Runc_ohm  # Use the correct key for uncertainty
-                filename = entry.file
-                T = entry.T_K
-                P = entry.P_MPa
-                w_ppt = entry.w_ppt
-
-                self.timestamps.append(timestamp)
-                self.impedance_values.append(impedance)
-                self.uncertainties.append(uncertainty)
-                self.Ts.append(T)
-                self.Ps.append(P)
-                self.ws_ppt.append(w_ppt)
-                self.filenames.append(filename)
+                self.timestamps.append(entry.time)
+                self.Rcalc_ohm.append(entry.Rcalc_ohm)
+                self.uncertainties.append(entry.Runc_ohm)
+                self.Ts.append(entry.T_K)
+                self.Ps.append(entry.P_MPa)
+                self.frequencies.append(entry.f_Hz)
+                self.ws_ppt.append(entry.w_ppt)
+                self.impedances.append(entry.Z_ohm)
+                self.impedance_fits.append(entry.Zfit_ohm)
+                self.filenames.append(entry.file)
 
                 # Check if the measurement is for KCl or NaCl
-                if 'KCl' in filename:
+                if 'KCl' in entry.file:
                     self.colors.append('red')  # Red color for KCl
                     self.markers.append('*')  # Star marker for KCl
                 else:
@@ -766,24 +775,27 @@ class TimeSeries:
 
         # Convert lists to arrays for plotting
         self.timestamps = np.array(self.timestamps)
-        self.impedance_values = np.array(self.impedance_values)
+        self.Rcalc_ohm = np.array(self.Rcalc_ohm)
         self.uncertainties = np.array(self.uncertainties)
 
         # Calculate percent uncertainties
-        self.percent_uncertainties = (np.array(self.uncertainties) / np.array(self.impedance_values)) * 100
+        self.percent_uncertainties = (np.array(self.uncertainties) / np.array(self.Rcalc_ohm)) * 100
 
         # Sorting the data by timestamps
         sorted_indices = np.argsort(self.timestamps)
         self.timestamps = np.array(self.timestamps)[sorted_indices]
-        self.impedance_values = np.array(self.impedance_values)[sorted_indices]
+        self.Rcalc_ohm = np.array(self.Rcalc_ohm)[sorted_indices]
         self.filenames = np.array(self.filenames)[sorted_indices]
         self.uncertainties = np.array(self.uncertainties)[sorted_indices]
         self.percent_uncertainties = self.percent_uncertainties[sorted_indices]
         self.colors = np.array(self.colors)[sorted_indices]
         self.markers = np.array(self.markers)[sorted_indices]
+        self.frequencies = np.array(self.frequencies)[sorted_indices]
         self.Ts = np.array(self.Ts)[sorted_indices]
         self.Ps = np.array(self.Ps)[sorted_indices]
         self.ws_ppt = np.array(self.ws_ppt)[sorted_indices]
+        self.impedances = np.array(self.impedances)[sorted_indices]
+        self.impedance_fits = np.array(self.impedance_fits)[sorted_indices]
 
         calItems = []
         measItems = []

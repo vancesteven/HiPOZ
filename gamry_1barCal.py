@@ -5,6 +5,7 @@ import logging
 from datetime import datetime as dtime
 from gamryTools import Solution, CalStdFit
 from gamryPlots import PlotY, PlotZ, PlotZvsf, PlotPhasevsf, PlotZfit
+from sigmaElectricMcCleskey2012 import elecCondMcCleskey2012
 
 # Assign logger
 log = logging.getLogger('HiPOZ')
@@ -25,6 +26,8 @@ mSolute_g, Vwater_mL = Sol.Recipe(float(conc.split(' ')[0]), units=conc.split(' 
 mSolute_g = float(f'{mSolute_g:.3f}')  # Truncate to precision of scale as in DeltamSolute_g
 Sol.wMeas_ppt, Sol.Deltaw_ppt, Sol.wMeas_molal, Sol.Deltaw_molal = Sol.CalcConc(mSolute_g, Vbeaker_mL, Vwater_mL,
                                            DeltamSolute_g=DeltamSolute_g, DeltaVbeaker_mL=DeltaVbeaker_mL, TH2O_C=Ttap_C)
+
+
 print(
 f"""Recipe for {Sol.w_ppt:.5f} ppt = {Sol.w_molal:.5f} molal {Sol.comp} (aq):
     mSalt (g): {mSolute_g:.3f}
@@ -39,8 +42,16 @@ f"""Actual concentration and uncertainty:
     wMeas (molal): {Sol.wMeas_molal:{fmtw_molal}} +/- {Sol.Deltaw_molal:{fmtw_molal}}
 """)
 
+# compute the expected conductivity based on the available model from McCleskey et al. 2012
+ions = {'Na_p1': {'mols': Sol.wMeas_molal}, 'Cl_m1': {'mols': Sol.wMeas_molal}}
+ionout = elecCondMcCleskey2012(25,ions)
+sigma_Sm = ionout['sigma_Sm'].item()
+print(f'The predicted conductivity for this solution at 25°C is {sigma_Sm:.4g} S/m based on McCleskey et al. (2012)')
+
+
 date = '20230424'
-circType = 'RC'  # Options are 'CPE', 'RC', and 'RC-R'. If desired, a circuit string can be entered here instead.
+# date = '20240116'
+circType = 'CPE'  # Options are 'CPE', 'RC', and 'RC-R'. If desired, a circuit string can be entered here instead.
 initial_guess = None  # Required when circType is not in the above list. Ignored otherwise.
 cmapName = 'viridis'
 outFigName = 'GamryCal'

@@ -276,12 +276,12 @@ def PlotTimeseries(timeseries, figSize=None, outFigName=None, xtn=None, Figure=N
 
     # Plot impedance with uncertainties
     # Plot each data point with specific marker and color
-    for ts, imp, unc, color, marker in zip(timeseries.timestamps, timeseries.impedance_values, timeseries.uncertainties, timeseries.colors, timeseries.markers):
+    for ts, imp, unc, color, marker in zip(timeseries.timestamps, timeseries.Rcalc_ohm, timeseries.uncertainties, timeseries.colors, timeseries.markers):
         plot_element, caplines, barlinecols = ax1.errorbar(ts, imp, yerr=unc, fmt=marker, color=color, capsize=5)
         if interactive:
             plot_element.set_picker(5)  # 5 points tolerance
 
-    # ax1.errorbar(timestamps, impedance_values, yerr=uncertainties, fmt='o', capsize=5, label='Impedance with Uncertainty')
+    # ax1.errorbar(timestamps, Rcalc_ohm, yerr=uncertainties, fmt='o', capsize=5, label='Impedance with Uncertainty')
     ax1.set_ylabel('Impedance (Ohm)')
     ax1.set_title('Impedance Measurement Over Time')
     # ax1.legend()
@@ -290,7 +290,7 @@ def PlotTimeseries(timeseries, figSize=None, outFigName=None, xtn=None, Figure=N
 
     # Plot percent uncertainties
     # Plot each data point with specific marker and color
-    for ts, imp, unc, color, marker in zip(timeseries.timestamps, timeseries.impedance_values, timeseries.percent_uncertainties, timeseries.colors, timeseries.markers):
+    for ts, imp, unc, color, marker in zip(timeseries.timestamps, timeseries.Rcalc_ohm, timeseries.percent_uncertainties, timeseries.colors, timeseries.markers):
         ax2.plot(ts, imp, marker=marker, color=color)
     # ax2.plot(timestamps, percent_uncertainties, 'o', label='Percent Uncertainty')
     ax2.set_xlabel('Time',labelpad=-20)
