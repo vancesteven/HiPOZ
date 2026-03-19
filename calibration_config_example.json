@@ -1,0 +1,96 @@
+{
+  "description": "HiPOZ Calibration Configuration - Multiple Bracketed Groups",
+  "calibrations": [
+    {
+      "name": "Morning session (0800-1200)",
+      "standards": [
+        {
+          "filename": "Default_20250813_0800_KCl_84uScm_P100_T298.txt",
+          "conductivity_Sm": 0.0084,
+          "comp": "KCl",
+          "w_ppt": 1.0
+        },
+        {
+          "filename": "Default_20250813_0805_KCl_447uScm_P100_T298.txt",
+          "conductivity_Sm": 0.0447,
+          "comp": "KCl",
+          "w_ppt": 5.0
+        },
+        "Default_20250813_0810_KCl_2070uScm_P100_T298.txt"
+      ],
+      "measurements": [
+        {
+          "filename": "Default_20250813_0900_NaCl_1000ppt_P100_T298.txt",
+          "comp": "NaCl",
+          "w_ppt": 1000
+        },
+        {
+          "filename": "Default_20250813_0930_NaCl_1000ppt_P150_T298.txt",
+          "comp": "NaCl",
+          "w_ppt": 1000
+        },
+        {
+          "filename": "Default_20250813_1000_NaCl_1000ppt_P200_T298.txt",
+          "comp": "NaCl",
+          "w_ppt": 1000
+        },
+        {
+          "filename": "Default_20250813_1030_NaCl_1500ppt_P100_T298.txt",
+          "comp": "NaCl",
+          "w_ppt": 1500
+        },
+        {
+          "filename": "Default_20250813_1100_NaCl_1500ppt_P150_T298.txt",
+          "comp": "NaCl",
+          "w_ppt": 1500
+        }
+      ]
+    },
+    {
+      "name": "Afternoon session (1200-1700)",
+      "standards": [
+        {
+          "filename": "Default_20250813_1200_KCl_84uScm_P100_T298.txt",
+          "conductivity_Sm": 0.0084,
+          "comp": "KCl",
+          "w_ppt": 1.0
+        },
+        {
+          "filename": "Default_20250813_1205_KCl_447uScm_P100_T298.txt",
+          "conductivity_Sm": 0.0447,
+          "comp": "KCl",
+          "w_ppt": 5.0
+        }
+      ],
+      "measurements": [
+        {
+          "filename": "Default_20250813_1300_NaCl_2000ppt_P100_T298.txt",
+          "comp": "NaCl",
+          "w_ppt": 2000
+        },
+        {
+          "filename": "Default_20250813_1330_NaCl_2000ppt_P150_T298.txt",
+          "comp": "NaCl",
+          "w_ppt": 2000
+        },
+        {
+          "filename": "Default_20250813_1400_MgSO4_500ppt_P100_T298.txt",
+          "comp": "MgSO4",
+          "w_ppt": 500
+        }
+      ]
+    }
+  ],
+  "notes": [
+    "Each calibration group has its own set of standards and measurements",
+    "Standards can be:",
+    "  - Simple string (filename): reads values from file metadata",
+    "  - Dict with optional fields: conductivity_Sm, comp, w_ppt, w_molal",
+    "Measurements can be:",
+    "  - Simple string (filename): leaves comp and w blank in GUI",
+    "  - Dict with optional fields: comp, w_ppt, w_molal",
+    "Conductivity conversion: '84 uS/cm' = 0.0084 S/m, '447 uS/cm' = 0.0447 S/m",
+    "w_ppt: concentration in g/kg solution, w_molal: mol/kg solvent",
+    "Use this for bracketed measurements (standards before/after experiments)"
+  ]
+}

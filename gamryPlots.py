@@ -13,58 +13,58 @@ plt.rcParams['text.usetex'] = True
 plt.rcParams['text.latex.preamble'] = r'\usepackage{stix}\usepackage{siunitx}\usepackage{upgreek}\usepackage[version=4]{mhchem}\sisetup{round-mode=places,scientific-notation=true,round-precision=2}'
 plt.rcParams['font.family'] = 'serif'
 plt.rcParams['font.serif'] = 'STIXGeneral'
-PLOT_AIR = False
+plot_air = False
 tfmt = '%b%d%H%M%S'
 uScm = r'\mu{S\,cm^{-1}}'
 MS_data = 'o'
 LS_fit = '-'
 
-def GetUnique(handles, labels, PAIRED=True):
-    outLabels = np.unique(labels)
-    if not PAIRED:
-        dataLabels = np.where([not 'fit' in label for label in outLabels])[0]
-        fitLabels = np.where(['fit' in label for label in outLabels])[0]
-        outLabels = np.concatenate((outLabels[dataLabels], outLabels[fitLabels]))
-    iUnique = np.array([next(i for i,label in enumerate(labels) if label == uLabel) for uLabel in outLabels])
-    outHandles = [handles[i] for i in iUnique]
-    outLabels = [labels[i] for i in iUnique]
+def get_unique(handles, labels, paired=True):
+    out_labels = np.unique(labels)
+    if not paired:
+        data_labels = np.where([not 'fit' in label for label in out_labels])[0]
+        fit_labels = np.where(['fit' in label for label in out_labels])[0]
+        out_labels = np.concatenate((out_labels[data_labels], out_labels[fit_labels]))
+    i_unique = np.array([next(i for i, label in enumerate(labels) if label == u_label) for u_label in out_labels])
+    out_handles = [handles[i] for i in i_unique]
+    out_labels = [labels[i] for i in i_unique]
 
-    return outHandles, outLabels
-
-
-def AddTicksX(Rticks, lineList, ax):
-    defaultTicks = ax.get_xticks()
-    defaultTickLabels = [f'$10^{{{np.log10(tick):.0f}}}$' for tick in defaultTicks]
-    RtickLabels = [f'$\\num{{{Rtick}}}$' for Rtick in Rticks]
-    nDefaultTicks = np.size(defaultTicks)
-    allTicks = np.concatenate((defaultTicks, Rticks))
-    allTickLabels = np.concatenate((defaultTickLabels, RtickLabels))
-
-    ax.set_xticks(allTicks)
-    ax.set_xticklabels(allTickLabels)
-    lineColors = [line.get_color() for line in lineList]
-    #lineStyles = [line.set_linestyle('--') for line in lineList[::2]]
-    plt.setp(ax.xaxis.get_ticklabels()[nDefaultTicks:], rotation='vertical')
-    [plt.setp(tick, color=color) for tick, color in zip(ax.xaxis.get_ticklabels()[nDefaultTicks:], lineColors)]
+    return out_handles, out_labels
 
 
-def AddTicksY(Rticks, lineList, ax):
-    defaultTicks = ax.get_yticks()
-    defaultTickLabels = [f'$10^{{{np.log10(tick):.0f}}}$' for tick in defaultTicks]
-    RtickLabels = [f'$\\num{{{Rtick}}}$' for Rtick in Rticks]
-    nDefaultTicks = np.size(defaultTicks)
-    allTicks = np.concatenate((defaultTicks, Rticks))
-    allTickLabels = np.concatenate((defaultTickLabels, RtickLabels))
+def add_ticks_x(r_ticks, line_list, ax):
+    default_ticks = ax.get_xticks()
+    default_tick_labels = [f'$10^{{{np.log10(tick):.0f}}}$' for tick in default_ticks]
+    r_tick_labels = [f'$\\num{{{r_tick}}}$' for r_tick in r_ticks]
+    n_default_ticks = np.size(default_ticks)
+    all_ticks = np.concatenate((default_ticks, r_ticks))
+    all_tick_labels = np.concatenate((default_tick_labels, r_tick_labels))
 
-    ax.set_yticks(allTicks)
-    ax.set_yticklabels(allTickLabels)
-    lineColors = [line.get_color() for line in lineList]
-    #lineStyles = [line.set_linestyle('--') for line in lineList[::2]]
-    plt.setp(ax.yaxis.get_ticklabels()[nDefaultTicks:], rotation='horizontal')
-    [plt.setp(tick, color=color) for tick, color in zip(ax.yaxis.get_ticklabels()[nDefaultTicks:], lineColors)]
+    ax.set_xticks(all_ticks)
+    ax.set_xticklabels(all_tick_labels)
+    line_colors = [line.get_color() for line in line_list]
+    #line_styles = [line.set_linestyle('--') for line in line_list[::2]]
+    plt.setp(ax.xaxis.get_ticklabels()[n_default_ticks:], rotation='vertical')
+    [plt.setp(tick, color=color) for tick, color in zip(ax.xaxis.get_ticklabels()[n_default_ticks:], line_colors)]
 
 
-def PlotZ(sols, figSize, outFigName, xtn, Rticks, add=None, LEG_PAIRS=True):
+def add_ticks_y(r_ticks, line_list, ax):
+    default_ticks = ax.get_yticks()
+    default_tick_labels = [f'$10^{{{np.log10(tick):.0f}}}$' for tick in default_ticks]
+    r_tick_labels = [f'$\\num{{{r_tick}}}$' for r_tick in r_ticks]
+    n_default_ticks = np.size(default_ticks)
+    all_ticks = np.concatenate((default_ticks, r_ticks))
+    all_tick_labels = np.concatenate((default_tick_labels, r_tick_labels))
+
+    ax.set_yticks(all_ticks)
+    ax.set_yticklabels(all_tick_labels)
+    line_colors = [line.get_color() for line in line_list]
+    #line_styles = [line.set_linestyle('--') for line in line_list[::2]]
+    plt.setp(ax.yaxis.get_ticklabels()[n_default_ticks:], rotation='horizontal')
+    [plt.setp(tick, color=color) for tick, color in zip(ax.yaxis.get_ticklabels()[n_default_ticks:], line_colors)]
+
+
+def plot_z(sols, fig_size, out_fig_name, xtn, r_ticks, add=None, leg_pairs=True):
     fig = plt.figure(figsize=figSize)
     grid = GridSpec(1, 1)
     ax = fig.add_subplot(grid[0, 0])
@@ -74,26 +74,26 @@ def PlotZ(sols, figSize, outFigName, xtn, Rticks, add=None, LEG_PAIRS=True):
     ax.set_xscale('log')
     ax.set_yscale('log')
 
-    dotList = [ax.scatter(np.real(sol.Z_ohm), -np.imag(sol.Z_ohm), marker=MS_data, label=f'{sol.legLabel} data', color=sol.color) for sol in sols]
-    lineList = [ax.plot(np.real(sol.Z_ohm), -np.imag(sol.Z_ohm), ls=LS_fit, label=f'{sol.legLabel} fit', color=sol.fitColor)[0] for sol in sols]
-    if Rticks is not None:
-        AddTicksX(Rticks, lineList, ax)
+    dot_list = [ax.scatter(np.real(sol.Z_ohm), -np.imag(sol.Z_ohm), marker=MS_data, label=f'{sol.legLabel} data', color=sol.color) for sol in sols]
+    line_list = [ax.plot(np.real(sol.Z_ohm), -np.imag(sol.Z_ohm), ls=LS_fit, label=f'{sol.legLabel} fit', color=sol.fitColor)[0] for sol in sols]
+    if r_ticks is not None:
+        add_ticks_x(r_ticks, line_list, ax)
 
-    allHandles, allLabels = ax.get_legend_handles_labels()
-    handles, labels = GetUnique(allHandles, allLabels, PAIRED=LEG_PAIRS)
+    all_handles, all_labels = ax.get_legend_handles_labels()
+    handles, labels = get_unique(all_handles, all_labels, paired=leg_pairs)
     ax.legend(handles, labels, title=r'$\sigma_\mathrm{std}$ ($\mathrm{S/m}$)')
     plt.tight_layout()
     if add is None:
-        addBit = ''
+        add_bit = ''
     else:
-        addBit = add
-    outfName = f'{outFigName}Z{addBit}.{xtn}'
-    fig.savefig(outfName, format=xtn, dpi=200)
-    log.info(f'Gamry calibration plot saved to file: {outfName}')
+        add_bit = add
+    out_fname = f'{out_fig_name}Z{add_bit}.{xtn}'
+    fig.savefig(out_fname, format=xtn, dpi=200)
+    log.info(f'Gamry calibration plot saved to file: {out_fname}')
     plt.close()
 
 
-def PlotY(sols, figSize, outFigName, xtn, Rticks, add=None, LEG_PAIRS=True):
+def plot_y(sols, fig_size, out_fig_name, xtn, r_ticks, add=None, leg_pairs=True):
     fig = plt.figure(figsize=figSize)
     grid = GridSpec(1, 1)
     ax = fig.add_subplot(grid[0, 0])
@@ -106,10 +106,10 @@ def PlotY(sols, figSize, outFigName, xtn, Rticks, add=None, LEG_PAIRS=True):
     dotList = [ax.scatter(1/np.real(sol.Z_ohm), -1/np.imag(sol.Z_ohm), marker=MS_data, label=f'{sol.legLabel} data', color=sol.color) for sol in sols]
     lineList = [ax.plot(1/np.real(sol.Zfit_ohm), -1/np.imag(sol.Zfit_ohm), ls=LS_fit, label=f'{sol.legLabel} fit', color=sol.fitColor)[0] for sol in sols]
     if Rticks is not None:
-        AddTicksX(Rticks, lineList, ax)
+        add_ticks_x(r_ticks, line_list, ax)
 
-    allHandles, allLabels = ax.get_legend_handles_labels()
-    handles, labels = GetUnique(allHandles, allLabels, PAIRED=LEG_PAIRS)
+    all_handles, all_labels = ax.get_legend_handles_labels()
+    handles, labels = get_unique(all_handles, all_labels, paired=leg_pairs)
     ax.legend(handles, labels, title=r'$\sigma_\mathrm{std}$ ($\mathrm{S/m}$)')
     plt.tight_layout()
     if add is None:
@@ -124,7 +124,7 @@ def PlotY(sols, figSize, outFigName, xtn, Rticks, add=None, LEG_PAIRS=True):
     return
 
 
-def PlotZvsf(sols, figSize, outFigName, xtn, Rticks, add=None, LEG_PAIRS=True):
+def plot_zvsf(sols, fig_size, out_fig_name, xtn, r_ticks, add=None, leg_pairs=True):
     fig = plt.figure(figsize=figSize)
     grid = GridSpec(1, 1)
     ax = fig.add_subplot(grid[0, 0])
@@ -137,10 +137,10 @@ def PlotZvsf(sols, figSize, outFigName, xtn, Rticks, add=None, LEG_PAIRS=True):
     dotList = [ax.scatter(sol.f_Hz, np.abs(sol.Z_ohm), marker=MS_data, label=f'{sol.legLabel} data', color=sol.color) for sol in sols]
     lineList = [ax.plot(sol.f_Hz, np.abs(sol.Zfit_ohm), ls=LS_fit, label=f'{sol.legLabel} fit', color=sol.fitColor)[0] for sol in sols]
     if Rticks is not None:
-        AddTicksY(Rticks, lineList, ax)
+        add_ticks_y(r_ticks, line_list, ax)
 
-    allHandles, allLabels = ax.get_legend_handles_labels()
-    handles, labels = GetUnique(allHandles, allLabels, PAIRED=LEG_PAIRS)
+    all_handles, all_labels = ax.get_legend_handles_labels()
+    handles, labels = get_unique(all_handles, all_labels, paired=leg_pairs)
     ax.legend(handles, labels, title=r'$\sigma_\mathrm{std}$ ($\mathrm{S/m}$)')
     plt.tight_layout()
     if add is None:
@@ -155,7 +155,7 @@ def PlotZvsf(sols, figSize, outFigName, xtn, Rticks, add=None, LEG_PAIRS=True):
     return
 
 
-def PlotPhasevsf(sols, figSize, outFigName, xtn, add=None, LEG_PAIRS=True):
+def plot_phasevsf(sols, fig_size, out_fig_name, xtn, add=None, leg_pairs=True):
     fig = plt.figure(figsize=figSize)
     grid = GridSpec(1, 1)
     ax = fig.add_subplot(grid[0, 0])
@@ -167,8 +167,8 @@ def PlotPhasevsf(sols, figSize, outFigName, xtn, add=None, LEG_PAIRS=True):
     dotList = [ax.scatter(sol.f_Hz, np.angle(sol.Z_ohm, deg=True), marker=MS_data, color=sol.color, label=f'{sol.legLabel} data') for sol in sols]
     lineList = [ax.plot(sol.f_Hz, np.angle(sol.Zfit_ohm, deg=True), ls=LS_fit, color=sol.fitColor, label=f'{sol.legLabel} fit')[0] for sol in sols]
 
-    allHandles, allLabels = ax.get_legend_handles_labels()
-    handles, labels = GetUnique(allHandles, allLabels, PAIRED=LEG_PAIRS)
+    all_handles, all_labels = ax.get_legend_handles_labels()
+    handles, labels = get_unique(all_handles, all_labels, paired=leg_pairs)
     ax.legend(handles, labels, title=r'$\sigma_\mathrm{std}$ ($\mathrm{S/m}$)')
     plt.tight_layout()
     if add is None:
@@ -183,7 +183,7 @@ def PlotPhasevsf(sols, figSize, outFigName, xtn, add=None, LEG_PAIRS=True):
     return
 
 
-def PlotCondvsP(sols, figSize, outFigName, xtn, add=None):
+def plot_condvsp(sols, fig_size, out_fig_name, xtn, add=None):
     fig = plt.figure(figsize=figSize)
     grid = GridSpec(1, 1)
     ax = fig.add_subplot(grid[0, 0])
@@ -215,7 +215,7 @@ def PlotCondvsP(sols, figSize, outFigName, xtn, add=None):
     return
 
 
-def PlotZfit(sols, figSize, xtn, outFigName=None, LEG_PAIRS=True):
+def plot_zfit(sols, fig_size, xtn, out_fig_name=None, leg_pairs=True):
     for sol in sols:
         if isinstance(sol, ResistorData):
             # This is a resistor data, plot data and fit if available
@@ -236,8 +236,8 @@ def PlotZfit(sols, figSize, xtn, outFigName=None, LEG_PAIRS=True):
 
             ax.set_xlim(left=0)
 
-            allHandles, allLabels = ax.get_legend_handles_labels()
-            handles, labels = GetUnique(allHandles, allLabels, PAIRED=LEG_PAIRS)
+            all_handles, all_labels = ax.get_legend_handles_labels()
+            handles, labels = get_unique(all_handles, all_labels, paired=leg_pairs)
             ax.legend(handles, labels)
 
             if outFigName is not None:
@@ -257,20 +257,20 @@ def PlotZfit(sols, figSize, xtn, outFigName=None, LEG_PAIRS=True):
 
     return
 
-def addPT(ax,x,P,T):
-    ax.plot(x, T, '-r', label='Temperature')
-    # ax.plot(x, P, '-g', label='Pressure')
+def add_pt(ax, x, p, t):
+    ax.plot(x, t, '-r', label='Temperature')
+    # ax.plot(x, p, '-g', label='Pressure')
     # ax.set_ylabel('Temperature (°C) / Pressure (MPa)', color='red')
     ax.set_ylabel('Temperature (°C)', color='red')
     ax.tick_params(axis='y', labelcolor='red')
 
-def PlotTimeseries(timeseries, figSize=None, outFigName=None, xtn=None, Figure=None, interactive=False):
+def plot_timeseries(timeseries, fig_size=None, out_fig_name=None, xtn=None, figure=None, interactive=False):
 
     # Create a figure with subplots
-    if Figure is None:
+    if figure is None:
         fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(26, 14), sharex=True)
     else:
-        fig = Figure
+        fig = figure
         ax1 = fig.add_subplot(211) # impedance values with errorbars
         ax2 = fig.add_subplot(212) # bottom plot for uncertainty
 
@@ -325,7 +325,7 @@ def PlotTimeseries(timeseries, figSize=None, outFigName=None, xtn=None, Figure=N
 
 
 
-def PlotSigma(allMeas, figSize, outFigName, xtn):
+def plot_sigma(all_meas, fig_size, out_fig_name, xtn):
     colorstr = 'gbryk'
     iColor = 0
 

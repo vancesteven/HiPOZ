@@ -44,10 +44,10 @@ allUnits = pptUnits + molalUnits + SiemensUnits + Saturated
 
 Lleads = 2
 
-def readFloat(line):
+def read_float(line):
     return float(line.split(':')[-1])
 
-def LightenColor(color, lightnessMult=0.5):
+def lighten_color(color, lightness_mult=0.5):
     """
     Lightens the given color by multiplying (1-luminosity) by the given amount.
     Input can be matplotlib color string, hex string, or RGB tuple.
@@ -62,9 +62,9 @@ def LightenColor(color, lightnessMult=0.5):
     else:
         c = color
     c = colorsys.rgb_to_hls(*mc.to_rgb(c))
-    return colorsys.hls_to_rgb(c[0], 1 - lightnessMult * (1 - c[1]), c[2])
+    return colorsys.hls_to_rgb(c[0], 1 - lightness_mult * (1 - c[1]), c[2])
 
-def GetSigmaFromDescrip(descrip):
+def get_sigma_from_descrip(descrip):
     """
     Read Gamry file description for key terms to get conductivity standard info
     :param descrip (string): String description from Gamry file.
@@ -81,7 +81,7 @@ def GetSigmaFromDescrip(descrip):
     return sigmaStd_Sm
 
 
-def GetwFromDescrip(descrip, lbl_uScm=None):
+def get_w_from_descrip(descrip, lbl_uScm=None):
     """
     Read Gamry file description for key terms to get concentration.
     :param descrip (string): String description from Gamry file.
@@ -142,7 +142,7 @@ def GetwFromDescrip(descrip, lbl_uScm=None):
                 w_molal = 1000
                 w_ppt = 1000
             elif unit in SiemensUnits:
-                if unit is 'ms_cm':
+                if unit == 'ms_cm':
                     w *= 1000
                 try:
                     w_ppt = wKCl_ppt[w]
@@ -160,8 +160,8 @@ def GetwFromDescrip(descrip, lbl_uScm=None):
     return comp, w_ppt, w_molal
 
 
-class Solution: 
-    def __init__(self, comp=None, cmapName='viridis'):
+class Solution:
+    def __init__(self, comp=None, cmap_name='viridis'):
         self.comp = comp  # Solute composition
         self.circStr = None
         self.w_ppt = None  # Solute mass concentration in g solute/kg solution
@@ -178,7 +178,7 @@ class Solution:
         self.descrip = None  # Text description (as applicable)
         self.legLabel = None  # Legend label
         self.color = None  # Color of lines
-        self.cmap = get_cmap(cmapName)
+        self.cmap = get_cmap(cmap_name)
         self.file = None  # File from which data has been loaded
         self.circFile = None  # File to print circuit diagram to
         self.xtn = 'pdf'
@@ -197,10 +197,10 @@ class Solution:
         self.Kcell_pm = None  # Cell constant K in 1/m
         self.sigma_Sm = None  # DC electrical conductivity in S/m
 
-    def loadFile(self, file, PAN=False):
+    def load_file(self, file, pan=False):
         self.file = file
         with open(self.file) as f:
-            if PAN:
+            if pan:
                 f.readline()
                 f.readline()
                 self.time = dtime.strptime(f.readline()[:-2].split(':  ')[-1], PanDTstr)
@@ -229,16 +229,16 @@ class Solution:
             else:
                 f.readline()  # Skip intro line
                 self.time = dtime.strptime(f.readline()[:-1], gamryDTstr)  # Measurement time
-                self.T_K = readFloat(f.readline())  # Temp
-                self.P_MPa = readFloat(f.readline())  # Pressure
+                self.T_K = read_float(f.readline())  # Temp
+                self.P_MPa = read_float(f.readline())  # Pressure
                 self.descrip = f.readline()  # Text description
-                self.Vdrive_V = readFloat(f.readline())  # Driving voltage
-                self.fStart_Hz = readFloat(f.readline())  # Spectrum begin frequency
-                self.fStop_Hz = readFloat(f.readline())  # Spectrum end frequency
-                self.nfSteps = int(readFloat(f.readline()))  # Number of f steps
+                self.Vdrive_V = read_float(f.readline())  # Driving voltage
+                self.fStart_Hz = read_float(f.readline())  # Spectrum begin frequency
+                self.fStop_Hz = read_float(f.readline())  # Spectrum end frequency
+                self.nfSteps = int(read_float(f.readline()))  # Number of f steps
 
         if any([comp in self.descrip for comp in soluteOptions]):
-            self.comp, self.w_ppt, self.w_molal = GetwFromDescrip(self.descrip)
+            self.comp, self.w_ppt, self.w_molal = get_w_from_descrip(self.descrip)
             if 'DIwater' in self.descrip:
                 self.sigmaStd_Sm = 0
                 self.legLabel = r'$\approx0$'
@@ -263,16 +263,16 @@ class Solution:
             self.legLabel = self.comp
             self.lbl_uScm = np.nan
         else:
-            # self.sigmaStd_Sm = GetSigmaFromDescrip(self.descrip)
+            # self.sigmaStd_Sm = get_sigma_from_descrip(self.descrip)
             # self.legLabel = f'{self.sigmaStd_Sm:.4f}'
             # self.lbl_uScm = np.round(self.sigmaStd_Sm*1e4)
-            self.comp, self.w_ppt, self.w_molal = GetwFromDescrip(self.descrip, lbl_uScm=self.lbl_uScm)
+            self.comp, self.w_ppt, self.w_molal = get_w_from_descrip(self.descrip, lbl_uScm=self.lbl_uScm)
 
 
         # self.color = self.cmap(np.log(self.lbl_uScm)/np.log(80000))
-        # self.fitColor = LightenColor(self.color, lightnessMult=0.4)
+        # self.fitColor = lighten_color(self.color, lightness_mult=0.4)
 
-        if PAN:
+        if pan:
             _, self.f_Hz, Zprime_ohm, ZdblPrime_ohm, _, _ = np.loadtxt(self.file, skiprows=7, unpack=True)
             self.Z_ohm = Zprime_ohm + 1j*ZdblPrime_ohm
         else:
@@ -280,16 +280,37 @@ class Solution:
             self.Z_ohm = Zabs_ohm * np.exp(1j * np.deg2rad(Phi_ohm))
         return
 
-    def FitCircuit(self, circType=None, initial_guess=None, BASIN_HOPPING=False,MULTIPROC=False, Kest_pm=None, PRINT=True, circFile=None, f_range_Hz=None):
-        if Kest_pm is None:
-            Kest_pm = 50
-        if circType is None:
-            circType = 'CPE'
-        if circFile is None:
-            self.circFile = f'{circType}circuit.{self.xtn}'
+    def fit_circuit(self, circ_type=None, initial_guess=None, basin_hopping=False, multiproc=False, k_est_pm=None, print_circuit=True, circ_file=None, f_range_hz=None):
+        # Validate input data before fitting
+        if self.f_Hz is None or len(self.f_Hz) == 0:
+            raise ValueError("No frequency data available for circuit fitting")
+
+        if self.Z_ohm is None or len(self.Z_ohm) == 0:
+            raise ValueError("No impedance data available for circuit fitting")
+
+        if len(self.f_Hz) != len(self.Z_ohm):
+            raise ValueError(f"Frequency and impedance data length mismatch: {len(self.f_Hz)} vs {len(self.Z_ohm)}")
+
+        # Check for and handle invalid values
+        if np.any(np.isnan(self.Z_ohm)) or np.any(np.isinf(self.Z_ohm)):
+            valid_mask = np.isfinite(self.Z_ohm)
+            n_invalid = np.sum(~valid_mask)
+            log.warning(f"Removing {n_invalid} NaN or Inf impedance values before fitting")
+            self.f_Hz = self.f_Hz[valid_mask]
+            self.Z_ohm = self.Z_ohm[valid_mask]
+
+            if len(self.Z_ohm) < 5:  # Need minimum points for fitting
+                raise ValueError(f"Too few valid data points remaining after filtering: {len(self.Z_ohm)}")
+
+        if k_est_pm is None:
+            k_est_pm = 50
+        if circ_type is None:
+            circ_type = 'CPE'
+        if circ_file is None:
+            self.circFile = f'{circ_type}circuit.{self.xtn}'
         else:
-            self.circFile = circFile
-        if circType == 'CPE':
+            self.circFile = circ_file
+        if circ_type == 'CPE':
             # Z_cell = R_0 + (R_0 + Z_CPE)/(1 + i*omega*C*(R_1 + Z_CPE)) -- Chin et al. (2018): https://doi.org/10.1063/1.5020076
             # initial_guess = [Kest_pm/self.sigmaStdCalc_Sm, 8e-7, 0.85, 146.2e-12, 50]
             initial_guess = [np.real(self.Z_ohm[0]),0.02, 1e-5, 0.9, 1e-6]
@@ -310,7 +331,7 @@ class Solution:
             # circStr = f'{L0}-{R0}-p({R1}, {CPE1})' # inductor to capture positive phase at highest frequencies
             # initial_guess = [1e-6,  20, 100, 5e-6, 0.8]
 
-            if PRINT:
+            if print_circuit:
                 with schemdraw.Drawing(file=self.circFile, show=False) as circ:
                     circ.config(unit=Lleads)
                     circ += elm.Resistor().label(f'${R0}$').dot()
@@ -323,14 +344,14 @@ class Solution:
                     circ += elm.Capacitor().endpoints(j1.end, j2.end).label(f'${C1}$').right()
                     circ += elm.Line().at(j2.start).length(circ.unit/2).right()
                 log.info(f'Equivalent circuit diagram saved to file: {self.circFile}')
-        elif circType == 'RC':
+        elif circ_type == 'RC':
             # 1/Z_cell = 1/R + i*omega*C -- Pan et al. (2021): https://doi.org/10.1029/2021GL094020
             # initial_guess = [Kest_pm/self.sigmaStdCalc_Sm, 146.2e-12]
             initial_guess = [1., 146.2e-12]
             R1 = r'R_1'
             C1 = r'C_1'
             self.circStr = f'p({R1},{C1})'
-            if PRINT:
+            if print_circuit:
                 with schemdraw.Drawing(file=self.circFile, show=False) as circ:
                     circ.config(unit=Lleads)
                     circ += elm.Line().length(circ.unit/2).dot()
@@ -342,7 +363,7 @@ class Solution:
                     circ += elm.Capacitor().endpoints(j1.end, j2.end).label(f'${C1}$').right()
                     circ += elm.Line().at(j2.start).length(circ.unit/2).right()
                 log.info(f'Equivalent circuit diagram saved to file: {self.circFile}')
-        elif circType == 'RC-R':
+        elif circ_type == 'RC-R':
             initial_guess = [Kest_pm/self.sigmaStdCalc_Sm, 146.2e-12, 50]
             R0 = r'R_0'
             R1 = r'R_1'
@@ -362,19 +383,19 @@ class Solution:
                 log.info(f'Equivalent circuit diagram saved to file: {self.circFile}')
         else:
             if initial_guess is None:
-                raise ValueError(f'circuit type "{circType}" not recognized.')
+                raise ValueError(f'circuit type "{circ_type}" not recognized.')
             else:
-                log.info(f'circuit type "{circType}" not recognized. Interpreting as circuit string.')
-                circStr = circType
-            
-        log.debug(f'Fitting {circType} circuit to input file {self.file}')
+                log.info(f'circuit type "{circ_type}" not recognized. Interpreting as circuit string.')
+                circStr = circ_type
+
+        log.debug(f'Fitting {circ_type} circuit to input file {self.file}')
 
         # Perform multiple fits with random initial guesses
-        if BASIN_HOPPING:
+        if basin_hopping:
             n_trials = 5
             results = []
             bounds = [(0.01, 5), (1e-4, 1), (1e-6, 1), (0.8, 1), (1e-7, 1e-5)]  # CPE
-            if MULTIPROC:
+            if multiproc:
                 log.info(f"Starting trials in multiprocessing mode with {mp.cpu_count()} cores")
                 with mp.Pool(processes=mp.cpu_count()) as pool:
                     args = [(bounds) for _ in range(n_trials)]
@@ -395,10 +416,15 @@ class Solution:
             "options": {'disp': True}  # Display convergence messages
         }
         self.circuit = CustomCircuit(self.circStr, initial_guess=initial_guess)
-        if f_range_Hz is not None:
-            inds = (self.f_Hz> f_range_Hz[0]) & (self.f_Hz <= f_range_Hz[1])
+        if f_range_hz is not None:
+            inds = (self.f_Hz> f_range_hz[0]) & (self.f_Hz <= f_range_hz[1])
             self.f_Hz = self.f_Hz[inds]
             self.Z_ohm = self.Z_ohm[inds]
+
+            # Validate we have enough data points after filtering
+            if len(self.f_Hz) < 5:
+                raise ValueError(f"Too few data points in frequency range {f_range_hz}: only {len(self.f_Hz)} points remain")
+
         self.circuit.fit(self.f_Hz, self.Z_ohm)
         self.Zfit_ohm = self.circuit.predict(self.f_Hz)
         self.Rcalc_ohm = self.circuit.parameters_[0]
@@ -525,7 +551,7 @@ class Solution:
         return wMeas_ppt, Deltaw_ppt, wMeas_molal, Deltaw_molal
 
 class ResistorData:
-    def __init__(self, comp=None, cmapName='viridis'):
+    def __init__(self, comp=None, cmap_name='viridis'):
 
         self.P_MPa = None  # Chamber pressure of measurement in MPa
         self.T_K = None  # Temperature of measurement in K
@@ -537,7 +563,7 @@ class ResistorData:
         self.descrip = None  # Text description (as applicable)
         self.legLabel = None  # Legend label
         self.color = None  # Color of lines
-        self.cmap = get_cmap(cmapName)
+        self.cmap = get_cmap(cmap_name)
         self.file = None  # File from which data has been loaded
         self.circFile = None  # File to print circuit diagram to
         self.xtn = 'pdf'
@@ -561,7 +587,7 @@ class ResistorData:
         phase_rad = np.radians(np.array(self.phase))
         self.Z_ohm = magnitude * np.exp(1j * phase_rad)
 
-    def loadFile(self, filename, all_files):
+    def load_file(self, filename, all_files):
         resistor_data = self  # Create an instance of the class
 
         # Read data from the file
@@ -602,8 +628,8 @@ class ResistorData:
         resistor_data.fitColor = resistor_data.cmap(color_index / len(all_files))
 
         return resistor_data
-    def FitCircuit(self, circType=None, initial_guess=None, BASIN_HOPPING=False, Kest_pm=None, PRINT=True,
-                   circFile=None):
+    def fit_circuit(self, circ_type=None, initial_guess=None, basin_hopping=False, k_est_pm=None, print_circuit=True,
+                   circ_file=None):
 
         if Kest_pm is None:
             Kest_pm = 50
@@ -822,7 +848,7 @@ class TimeSeries:
             if 'KCl' in filename:
                 calItems.append(f"KCl: {timestamp}; {T} K; {int(w_ppt)} ppt")
                 comp.append(f"KCl")
-                if w_ppt is not 52.168:
+                if w_ppt != 52.168:
                     coeff = 1e-6
                 else: coeff = 1e-3
                 conductivities_Sm.append(coeff*bid.inverse[w_ppt])
