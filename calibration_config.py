@@ -89,7 +89,8 @@ class CalibrationConfig:
             with open(config_file, 'r') as f:
                 config = json.load(f)
 
-            self.calibration_groups = config.get('calibrations', [])
+            # Support both 'calibrations' (old) and 'calibration_groups' (new) keys
+            self.calibration_groups = config.get('calibration_groups', config.get('calibrations', []))
 
             log.info(f"Loaded {len(self.calibration_groups)} calibration group(s) from JSON")
             for i, group in enumerate(self.calibration_groups):
@@ -127,6 +128,9 @@ class CalibrationConfig:
                     comp = row.get('comp', row.get('composition', ''))
                     w_ppt_str = row.get('w_ppt', '')
                     w_molal_str = row.get('w_molal', '')
+                    p_mpa_str = row.get('P_MPa', '')
+                    t_k_str = row.get('T_K', '')
+                    notes = row.get('notes', '')
                     exclude_str = row.get('exclude', '').lower().strip()
 
                     if not filename:
@@ -169,6 +173,21 @@ class CalibrationConfig:
                             except ValueError:
                                 log.warning(f"Invalid w_molal value '{w_molal_str}' for {filename}")
 
+                        if p_mpa_str and p_mpa_str.strip():
+                            try:
+                                std_entry['P_MPa'] = float(p_mpa_str)
+                            except ValueError:
+                                std_entry['P_MPa'] = p_mpa_str  # Keep as string if not numeric
+
+                        if t_k_str and t_k_str.strip():
+                            try:
+                                std_entry['T_K'] = float(t_k_str)
+                            except ValueError:
+                                std_entry['T_K'] = t_k_str  # Keep as string if not numeric
+
+                        if notes and notes.strip():
+                            std_entry['notes'] = notes.strip()
+
                         # If only filename was provided, just use string
                         if len(std_entry) == 1:
                             std_entry = filename
@@ -193,6 +212,21 @@ class CalibrationConfig:
                                 meas_entry['w_molal'] = float(w_molal_str)
                             except ValueError:
                                 log.warning(f"Invalid w_molal value '{w_molal_str}' for {filename}")
+
+                        if p_mpa_str and p_mpa_str.strip():
+                            try:
+                                meas_entry['P_MPa'] = float(p_mpa_str)
+                            except ValueError:
+                                meas_entry['P_MPa'] = p_mpa_str  # Keep as string if not numeric
+
+                        if t_k_str and t_k_str.strip():
+                            try:
+                                meas_entry['T_K'] = float(t_k_str)
+                            except ValueError:
+                                meas_entry['T_K'] = t_k_str  # Keep as string if not numeric
+
+                        if notes and notes.strip():
+                            meas_entry['notes'] = notes.strip()
 
                         # If only filename was provided, just use string
                         if len(meas_entry) == 1:
