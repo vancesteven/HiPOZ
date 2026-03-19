@@ -44,12 +44,12 @@ data/
     # OR zAnalysis20250813.json      # JSON format also supported
 ```
 
-**Note:** The GUI will auto-create this file if missing when you run `python gamry_HiP.py`
+**Note:** The GUI will auto-create this file if missing when you run `python gamry_HiPOZOZ.py`
 
 ### 4. Run HiPOZ
 
 ```bash
-python gamry_HiP.py
+python gamry_HiPOZOZ.py
 ```
 
 The GUI automatically:
@@ -228,7 +228,7 @@ mv zAnalysis20250813.csv data/20250813/
 
 **4. Run:**
 ```bash
-python gamry_HiP.py
+python gamry_HiPOZOZ.py
 ```
 
 ### Example 2: Bracketed Measurements
@@ -360,13 +360,13 @@ This automatically:
 ### Run with Config
 ```bash
 # Auto-detect config in data directory
-python gamry_HiP.py
+python gamry_HiPOZOZ.py
 
 # Specify config path
-python gamry_HiP.py --config path/to/my_config.json
+python gamry_HiPOZOZ.py --config path/to/my_config.json
 
 # Multiple data directories
-python gamry_HiP.py --dates 20250813 20250814
+python gamry_HiPOZOZ.py --dates 20250813 20250814
 ```
 
 ## How It Works
@@ -506,7 +506,7 @@ for result in results:
 
 Don't want to use config files? The manual workflow still works:
 
-1. Run without config: `python gamry_HiP.py`
+1. Run without config: `python gamry_HiPOZOZ.py`
 2. Select standard rows in table (use filename column to identify them!)
 3. Click "Mark as Standard"
 4. Select measurement rows

@@ -25,7 +25,7 @@ The system now ensures CSV and JSON formats stay synchronized with the GUI:
 - Exclude support in both CSV and JSON
 - Format flag: `--format csv` or `--format json`
 
-#### `gamry_HiP.py` Updates:
+#### `gamry_HiPOZOZ.py` Updates:
 - CSV has priority over JSON when both exist
 - Auto-detects config files in correct order
 
@@ -83,7 +83,7 @@ mv zAnalysis20250813.csv data/20250813/
 # - Mark exclude='x' for bad files
 
 # 4. Run GUI
-python gamry_HiP.py
+python gamry_HiPOZOZ.py
 # → Loads CSV
 # → Saves back to CSV
 # → No JSON created
@@ -103,7 +103,7 @@ mv zAnalysis20250813.json data/20250813/
 # - Add "exclude": true for bad files
 
 # 4. Run GUI
-python gamry_HiP.py
+python gamry_HiPOZOZ.py
 # → Loads JSON
 # → Saves back to JSON
 # → No CSV created
@@ -118,7 +118,7 @@ data/20250813/
   └── zAnalysis20250813.json   # For advanced users
 
 # When you run:
-python gamry_HiP.py
+python gamry_HiPOZOZ.py
 # → CSV loads (priority)
 # → Saves to CSV only
 # → JSON unchanged

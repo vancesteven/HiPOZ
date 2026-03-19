@@ -10,13 +10,13 @@ from gamryTools import Solution, CalStdFit, TimeSeries
 from gamryPlots import plot_y, plot_z, plot_zvsf, plot_phasevsf, plot_zfit, plot_timeseries
 
 from PyQt5.QtWidgets import QApplication
-from DataSelector import DataSelector
+from hipoz_data_selector_gui import DataSelector
 
 from matplotlib.cm import get_cmap
 import matplotlib.pyplot as plt
 from matplotlib.gridspec import GridSpec
 
-from calibration_config import CalibrationConfig
+from analysis_config import AnalysisConfig
 from headless_analysis import run_headless_analysis, should_run_headless
 
 # import sys
@@ -141,6 +141,18 @@ Examples:
     )
 
     parser.add_argument(
+        '--plot-sigma-conc',
+        action='store_true',
+        help='Generate conductivity vs concentration plot in headless mode'
+    )
+
+    parser.add_argument(
+        '--plot-sigma-temp',
+        action='store_true',
+        help='Generate conductivity vs temperature plot in headless mode'
+    )
+
+    parser.add_argument(
         '--harmonize',
         type=str,
         metavar='FILE',
@@ -251,7 +263,7 @@ def main():
     log.info(f"Processing directories: {dates_to_process}")
 
     # Load calibration config
-    calib_config = None
+    analysis_config = None
     config_path = args.config
 
     # If no config specified on command line, look in data directories
@@ -260,7 +272,7 @@ def main():
 
     if config_path:
         log.info(f"Loading calibration configuration from: {config_path}")
-        calib_config = CalibrationConfig(config_path)
+        analysis_config = AnalysisConfig(config_path)
 
         # Auto-harmonize: ensure CSV and JSON are in sync
         try:
@@ -350,7 +362,7 @@ def main():
 
     if args.headless:
         # User explicitly requested headless mode
-        if not calib_config or not should_run_headless(calib_config):
+        if not analysis_config or not should_run_headless(analysis_config):
             log.error("--headless flag requires a complete config file with standards and measurements")
             sys.exit(1)
         use_headless = True
@@ -359,7 +371,7 @@ def main():
         use_headless = False
     else:
         # Auto-detect: use headless if config is complete
-        use_headless = calib_config and should_run_headless(calib_config)
+        use_headless = analysis_config and should_run_headless(analysis_config)
 
     # Run headless mode if appropriate
     if use_headless:
@@ -369,7 +381,7 @@ def main():
         log.info("="*70 + "\n")
 
         try:
-            results_df = run_headless_analysis(timeseries, calib_config)
+            results_df = run_headless_analysis(timeseries, analysis_config)
 
             if results_df is not None:
                 log.info("\n" + "="*70)
@@ -390,7 +402,7 @@ def main():
     log.info("="*70 + "\n")
 
     try:
-        ds = DataSelector(timeseries, calib_config=calib_config)
+        ds = DataSelector(timeseries, analysis_config=analysis_config)
         ds.show()
 
         # Check if the main window is visible

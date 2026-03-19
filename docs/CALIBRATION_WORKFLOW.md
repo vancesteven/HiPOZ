@@ -126,12 +126,12 @@ Each group gets its own cell constant, accounting for drift!
 
 Save as:
 - `data/20250813/calibration_config.json` (auto-detected)
-- Or any path, then specify: `python gamry_HiP.py --config my_config.json`
+- Or any path, then specify: `python gamry_HiPOZOZ.py --config my_config.json`
 
 ### Step 5: Run HiPOZ
 
 ```bash
-python gamry_HiP.py
+python gamry_HiPOZOZ.py
 ```
 
 The system will:
@@ -172,7 +172,7 @@ The system will:
 2. Replace filenames with your actual files
 3. Set conductivity values (in S/m)
 4. Save as `calibration_config.json`
-5. Run `python gamry_HiP.py`
+5. Run `python gamry_HiPOZOZ.py`
 
 ### CSV Template (Alternative)
 
@@ -299,7 +299,7 @@ The cell constant will be averaged across all 3 standards.
    - List measurement filenames
    - Group into multiple calibrations if bracketing
 4. Save config in data directory
-5. Run: python gamry_HiP.py
+5. Run: python gamry_HiPOZOZ.py
 6. Results appear in GUI automatically!
 ```
 

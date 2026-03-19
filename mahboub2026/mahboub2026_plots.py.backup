@@ -1,0 +1,471 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+"""
+Generate publication plots for Mahboub et al. (2026, in press).
+
+This script generates conductivity vs concentration and conductivity vs temperature
+plots for benchtop probe measurements integrated with Gamry impedance data.
+
+Data sources:
+1. Benchtop probe data: Mahboub2026BenchtopData.csv
+2. Gamry impedance data: data/20250813Mahboub2026
+3. McCleskey et al. (2011) reference data
+
+Outputs:
+- 10 plots (5 compounds × 2 plot types) in mahboub_plots/ directory
+- Automatic overlay of Gamry measurements on benchtop data
+"""
+
+import os
+import sys
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+
+# Add parent directory to path for imports
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
+
+# Generalized study plotting functions
+from study_plots import (
+    load_study_data,
+    plot_study_concentration,
+    plot_study_temperature,
+    organize_for_conc_plot
+)
+
+# Gamry impedance integration
+from gamry_integration import (
+    load_gamry_results,
+    extract_compound_overlay
+)
+
+# Plot configuration
+from config_plots import (
+    FONTSIZE_AXIS_LABEL,
+    FONTSIZE_TITLE,
+    FONTSIZE_LEGEND,
+    COLORMAP_CONCENTRATION,
+    COLORMAP_TEMPERATURE,
+    SHOW_LEGEND,
+    SHOW_TITLE,
+    SHOW_DELTA
+)
+
+# ========================================
+# Configuration
+# ========================================
+
+# Get paths relative to parent directory (hipozgenai/)
+PARENT_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+GAMRY_DATA_DIR = os.path.join(PARENT_DIR, 'data', '20250815Mahboub2026')
+OUTPUT_DIR = 'mahboub_plots'  # Relative to this script (in mahboub2026/)
+
+# Analysis workflow:
+# 1. Run HiPOZ impedance analysis: python gamry_HiP.py --dates 20250815Mahboub2026
+# 2. Results saved to: data/20250815Mahboub2026/hipoz_*_results.csv
+# 3. This script loads those results and extracts Gamry data for overlays
+# 4. Benchtop data loaded separately from Mahboub2026BenchtopData.csv
+#
+# Note: Only MgSO4 Gamry measurements currently available in 20250815 data
+
+# Create output directory
+os.makedirs(OUTPUT_DIR, exist_ok=True)
+
+# ========================================
+# Load Data
+# ========================================
+
+print("=" * 70)
+print("Mahboub et al. (2026) - Conductivity Plots")
+print("=" * 70)
+print()
+
+# Load benchtop data from CSV
+print("Loading benchtop data from Mahboub2026BenchtopData.csv...")
+benchtop_data = load_study_data('Mahboub2026BenchtopData.csv')
+print(f"  Found {len(benchtop_data)} compounds")
+print()
+
+# Load Gamry impedance analysis results
+gamry_df = None
+if os.path.exists(GAMRY_DATA_DIR):
+    # Look for most recent hipoz results file
+    import glob
+    results_files = glob.glob(os.path.join(GAMRY_DATA_DIR, 'hipoz_*_results.csv'))
+
+    if results_files:
+        # Use most recent results file
+        results_file = max(results_files, key=os.path.getmtime)
+        print(f"Loading Gamry impedance results from {os.path.basename(results_file)}...")
+        gamry_df = pd.read_csv(results_file)
+
+        # Filter to measurements only (exclude standards)
+        if 'type' in gamry_df.columns:
+            gamry_df = gamry_df[gamry_df['type'] == 'measurement'].copy()
+
+        # Check if conductivity data is available (standards defined and associated)
+        if 'conductivity_Sm' not in gamry_df.columns:
+            print("  ⚠️  WARNING: No conductivity data in Gamry results")
+            print("      Standards must be defined and associated with measurements.")
+            print(f"      Check: data/20250815Mahboub2026/zAnalysis20250815Mahboub2026.csv")
+            print("      Then re-run: python gamry_HiP.py --dates 20250815Mahboub2026")
+            print("      Gamry overlays will be skipped for this run.")
+            print()
+            gamry_df = None  # Disable Gamry overlays
+        elif gamry_df['conductivity_Sm'].isna().all():
+            print("  ⚠️  WARNING: All Gamry conductivity values are NaN")
+            print("      This means standards are not properly assigned to measurements.")
+            print("      In the HiPOZ GUI:")
+            print("        1. Mark rows as 'Standard' (known conductivity)")
+            print("        2. Select measurement rows")
+            print("        3. Click 'Associate Measurements' to apply calibration")
+            print(f"      Or edit: data/20250815Mahboub2026/zAnalysis20250815Mahboub2026.csv")
+            print("      Then re-run: python gamry_HiP.py --dates 20250815Mahboub2026")
+            print("      Gamry overlays will be skipped for this run.")
+            print()
+            gamry_df = None  # Disable Gamry overlays
+        else:
+            # Check for partially missing conductivity data
+            n_total = len(gamry_df)
+            n_valid = gamry_df['conductivity_Sm'].notna().sum()
+
+            print(f"  Found {len(gamry_df)} Gamry measurements")
+            if n_valid < n_total:
+                print(f"  ⚠️  WARNING: {n_total - n_valid}/{n_total} measurements missing conductivity")
+                print("      Some measurements not associated with standards.")
+                print("      Only measurements with conductivity will appear in plots.")
+                print()
+
+            if 'comp' in gamry_df.columns:
+                for comp in gamry_df['comp'].dropna().unique():
+                    n = len(gamry_df[gamry_df['comp'] == comp])
+                    n_valid_comp = gamry_df[gamry_df['comp'] == comp]['conductivity_Sm'].notna().sum()
+                    if n_valid_comp < n:
+                        print(f"    {comp}: {n_valid_comp}/{n} measurements with conductivity")
+                    else:
+                        print(f"    {comp}: {n} measurements")
+            print()
+    else:
+        print(f"Note: No HiPOZ results found in {GAMRY_DATA_DIR}")
+        print("      Run impedance analysis first:")
+        print(f"      python gamry_HiP.py --dates 20250815Mahboub2026")
+        print()
+
+# ========================================
+# Plot 1: NaCl σ vs Concentration (with Delta subplot)
+# ========================================
+
+print("Generating Plot 1: NaCl Conductivity vs Concentration...")
+
+# Prepare Gamry overlay data from impedance analysis results
+gamry_data_nacl = None
+if gamry_df is not None and 'comp' in gamry_df.columns:
+    nacl_gamry = gamry_df[gamry_df['comp'] == 'NaCl'].copy()
+    if len(nacl_gamry) > 0 and 'w_molal' in nacl_gamry.columns:
+        # Filter to rows with valid conductivity data (standards assigned)
+        nacl_gamry = nacl_gamry[nacl_gamry['conductivity_Sm'].notna()].copy()
+
+        if len(nacl_gamry) > 0:
+            # Group by concentration and average
+            grouped = nacl_gamry.groupby('w_molal').agg({
+                'conductivity_Sm': 'mean',
+                'conductivity_Sm_unc': lambda x: np.sqrt(np.sum(x**2))/len(x) if len(x) > 1 else x.iloc[0],
+                'T_K': 'mean'
+            }).reset_index()
+
+            if len(grouped) > 0:
+                temp_K = grouped['T_K'].iloc[0]
+                gamry_data_nacl = (
+                    grouped['w_molal'].values,
+                    grouped['conductivity_Sm'].values,
+                    grouped['conductivity_Sm_unc'].values,
+                    f'Gamry ({temp_K:.2f} K)'
+                )
+
+fig = plot_study_concentration(
+    data=benchtop_data,
+    compound='NaCl',
+    output_file=os.path.join(OUTPUT_DIR, 'nacl_vs_concentration.pdf'),
+    gamry_data=gamry_data_nacl,
+    show_delta=True,
+    colormap=COLORMAP_CONCENTRATION,
+    fontsize_label=FONTSIZE_AXIS_LABEL,
+    fontsize_title=FONTSIZE_TITLE,
+    fontsize_legend=FONTSIZE_LEGEND
+)
+
+print(f"  Saved to {OUTPUT_DIR}/nacl_vs_concentration.pdf")
+if gamry_data_nacl:
+    print(f"  Overlay: {len(gamry_data_nacl[0])} Gamry points added")
+print()
+
+# ========================================
+# Plot 2: NaCl σ vs Temperature (with Delta subplot)
+# ========================================
+
+print("Generating Plot 2: NaCl Conductivity vs Temperature...")
+
+fig = plot_study_temperature(
+    data=benchtop_data,
+    compound='NaCl',
+    output_file=os.path.join(OUTPUT_DIR, 'nacl_vs_temperature.pdf'),
+    show_delta=True,
+    colormap=COLORMAP_TEMPERATURE,
+    fontsize_label=FONTSIZE_AXIS_LABEL,
+    fontsize_title=FONTSIZE_TITLE,
+    fontsize_legend=FONTSIZE_LEGEND
+)
+
+print(f"  Saved to {OUTPUT_DIR}/nacl_vs_temperature.pdf")
+print()
+
+# ========================================
+# Plot 3: MgSO4 σ vs Concentration (with Delta subplot)
+# ========================================
+
+print("Generating Plot 3: MgSO4 Conductivity vs Concentration...")
+
+# Prepare Gamry overlay data from impedance analysis results
+gamry_data_mgso4 = None
+if gamry_df is not None and 'comp' in gamry_df.columns:
+    mgso4_gamry = gamry_df[gamry_df['comp'] == 'MgSO4'].copy()
+    if len(mgso4_gamry) > 0 and 'w_molal' in mgso4_gamry.columns:
+        # Filter to rows with valid conductivity data (standards assigned)
+        mgso4_gamry = mgso4_gamry[mgso4_gamry['conductivity_Sm'].notna()].copy()
+
+        if len(mgso4_gamry) > 0:
+            # Group by concentration and average
+            grouped = mgso4_gamry.groupby('w_molal').agg({
+                'conductivity_Sm': 'mean',
+                'conductivity_Sm_unc': lambda x: np.sqrt(np.sum(x**2))/len(x) if len(x) > 1 else x.iloc[0],
+                'T_K': 'mean'
+            }).reset_index()
+
+            if len(grouped) > 0:
+                temp_K = grouped['T_K'].iloc[0]
+                gamry_data_mgso4 = (
+                    grouped['w_molal'].values,
+                    grouped['conductivity_Sm'].values,
+                    grouped['conductivity_Sm_unc'].values,
+                    f'Gamry ({temp_K:.2f} K)'
+                )
+
+fig = plot_study_concentration(
+    data=benchtop_data,
+    compound='MgSO4',
+    output_file=os.path.join(OUTPUT_DIR, 'mgso4_vs_concentration.pdf'),
+    gamry_data=gamry_data_mgso4,
+    show_delta=True,
+    compound_latex=r'MgSO$_4$',
+    colormap=COLORMAP_CONCENTRATION,
+    fontsize_label=FONTSIZE_AXIS_LABEL,
+    fontsize_title=FONTSIZE_TITLE,
+    fontsize_legend=FONTSIZE_LEGEND
+)
+
+print(f"  Saved to {OUTPUT_DIR}/mgso4_vs_concentration.pdf")
+if gamry_data_mgso4:
+    print(f"  Overlay: {len(gamry_data_mgso4[0])} Gamry points added")
+print()
+
+# ========================================
+# Plot 4: MgSO4 σ vs Temperature (with Delta subplot)
+# ========================================
+
+print("Generating Plot 4: MgSO4 Conductivity vs Temperature...")
+
+fig = plot_study_temperature(
+    data=benchtop_data,
+    compound='MgSO4',
+    output_file=os.path.join(OUTPUT_DIR, 'mgso4_vs_temperature.pdf'),
+    show_delta=True,
+    compound_latex=r'MgSO$_4$',
+    colormap=COLORMAP_TEMPERATURE,
+    fontsize_label=FONTSIZE_AXIS_LABEL,
+    fontsize_title=FONTSIZE_TITLE,
+    fontsize_legend=FONTSIZE_LEGEND
+)
+
+print(f"  Saved to {OUTPUT_DIR}/mgso4_vs_temperature.pdf")
+print()
+
+# ========================================
+# Plot 5: NH4Cl σ vs Concentration (with Delta subplot)
+# ========================================
+
+print("Generating Plot 5: NH4Cl Conductivity vs Concentration...")
+
+fig = plot_study_concentration(
+    data=benchtop_data,
+    compound='NH4Cl',
+    output_file=os.path.join(OUTPUT_DIR, 'nh4cl_vs_concentration.pdf'),
+    show_delta=True,
+    compound_latex=r'NH$_4$Cl',
+    colormap=COLORMAP_CONCENTRATION,
+    fontsize_label=FONTSIZE_AXIS_LABEL,
+    fontsize_title=FONTSIZE_TITLE,
+    fontsize_legend=FONTSIZE_LEGEND
+)
+
+print(f"  Saved to {OUTPUT_DIR}/nh4cl_vs_concentration.pdf")
+print()
+
+# ========================================
+# Plot 6: NH4Cl σ vs Temperature (with Delta subplot)
+# ========================================
+
+print("Generating Plot 6: NH4Cl Conductivity vs Temperature...")
+
+fig = plot_study_temperature(
+    data=benchtop_data,
+    compound='NH4Cl',
+    output_file=os.path.join(OUTPUT_DIR, 'nh4cl_vs_temperature.pdf'),
+    show_delta=True,
+    compound_latex=r'NH$_4$Cl',
+    colormap=COLORMAP_TEMPERATURE,
+    fontsize_label=FONTSIZE_AXIS_LABEL,
+    fontsize_title=FONTSIZE_TITLE,
+    fontsize_legend=FONTSIZE_LEGEND
+)
+
+print(f"  Saved to {OUTPUT_DIR}/nh4cl_vs_temperature.pdf")
+print()
+
+# ========================================
+# Plot 7: Na2CO3 σ vs Concentration (with Delta subplot)
+# ========================================
+
+print("Generating Plot 7: Na2CO3 Conductivity vs Concentration...")
+
+fig = plot_study_concentration(
+    data=benchtop_data,
+    compound='Na2CO3',
+    output_file=os.path.join(OUTPUT_DIR, 'na2co3_vs_concentration.pdf'),
+    show_delta=True,
+    compound_latex=r'Na$_2$CO$_3$',
+    colormap=COLORMAP_CONCENTRATION,
+    fontsize_label=FONTSIZE_AXIS_LABEL,
+    fontsize_title=FONTSIZE_TITLE,
+    fontsize_legend=FONTSIZE_LEGEND
+)
+
+print(f"  Saved to {OUTPUT_DIR}/na2co3_vs_concentration.pdf")
+print()
+
+# ========================================
+# Plot 8: Na2CO3 σ vs Temperature (with Delta subplot)
+# ========================================
+
+print("Generating Plot 8: Na2CO3 Conductivity vs Temperature...")
+
+fig = plot_study_temperature(
+    data=benchtop_data,
+    compound='Na2CO3',
+    output_file=os.path.join(OUTPUT_DIR, 'na2co3_vs_temperature.pdf'),
+    show_delta=True,
+    compound_latex=r'Na$_2$CO$_3$',
+    colormap=COLORMAP_TEMPERATURE,
+    fontsize_label=FONTSIZE_AXIS_LABEL,
+    fontsize_title=FONTSIZE_TITLE,
+    fontsize_legend=FONTSIZE_LEGEND
+)
+
+print(f"  Saved to {OUTPUT_DIR}/na2co3_vs_temperature.pdf")
+print()
+
+# ========================================
+# Plot 9: Mixture σ vs Concentration
+# ========================================
+
+print("Generating Plot 9: Mixture (1:1:1) Conductivity vs Concentration...")
+
+# Mixture has custom ion stoichiometry - skip Delta subplot for now
+fig = plot_study_concentration(
+    data=benchtop_data,
+    compound='Mixture',
+    output_file=os.path.join(OUTPUT_DIR, 'mixture_vs_concentration.pdf'),
+    show_delta=False,  # No McCleskey model for mixtures yet
+    compound_latex=r'MgSO$_4$:NaCl:Na$_2$CO$_3$ (1:1:1)',
+    colormap=COLORMAP_CONCENTRATION,
+    fontsize_label=FONTSIZE_AXIS_LABEL,
+    fontsize_title=FONTSIZE_TITLE,
+    fontsize_legend=FONTSIZE_LEGEND
+)
+
+print(f"  Saved to {OUTPUT_DIR}/mixture_vs_concentration.pdf")
+print()
+
+# ========================================
+# Plot 10: Mixture σ vs Temperature (no Delta)
+# ========================================
+
+print("Generating Plot 10: Mixture (1:1:1) Conductivity vs Temperature...")
+
+fig = plot_study_temperature(
+    data=benchtop_data,
+    compound='Mixture',
+    output_file=os.path.join(OUTPUT_DIR, 'mixture_vs_temperature.pdf'),
+    show_delta=False,  # No McCleskey model for mixtures yet
+    compound_latex=r'MgSO$_4$:NaCl:Na$_2$CO$_3$ (1:1:1)',
+    colormap=COLORMAP_TEMPERATURE,
+    fontsize_label=FONTSIZE_AXIS_LABEL,
+    fontsize_title=FONTSIZE_TITLE,
+    fontsize_legend=FONTSIZE_LEGEND
+)
+
+print(f"  Saved to {OUTPUT_DIR}/mixture_vs_temperature.pdf")
+print()
+
+# ========================================
+# Summary Statistics
+# ========================================
+
+print("=" * 70)
+print("Summary Statistics")
+print("=" * 70)
+print()
+
+for compound in ['NaCl', 'MgSO4', 'NH4Cl', 'Na2CO3', 'Mixture']:
+    comp_data = benchtop_data[compound]
+    benchtop_mask = comp_data['source'] == 'benchtop'
+
+    n_measurements = np.sum(benchtop_mask)
+    n_replicates = len(np.unique(comp_data['replicates'][benchtop_mask]))
+    n_temps = len(np.unique(comp_data['temperatures_K'][benchtop_mask]))
+    n_concs = len(np.unique(comp_data['concentration_molal'][benchtop_mask]))
+
+    print(f"{compound}:")
+    print(f"  Total measurements: {n_measurements}")
+    print(f"  Replicates per condition: {n_replicates}")
+    print(f"  Temperatures: {n_temps}")
+    print(f"  Concentrations: {n_concs}")
+    print()
+
+# Gamry data summary
+if gamry_df is not None:
+    print("Gamry Impedance Data:")
+    print(f"  Total measurements: {len(gamry_df)}")
+    if 'Comp' in gamry_df.columns:
+        for comp in gamry_df['Comp'].dropna().unique():
+            n_comp = len(gamry_df[gamry_df['Comp'] == comp])
+            print(f"  {comp}: {n_comp} measurements")
+    print()
+
+print("=" * 70)
+print("All plots saved to:", OUTPUT_DIR)
+print("=" * 70)
+print()
+
+print("Publication-ready plots:")
+print("  - Benchtop probe data: Mahboub2026BenchtopData.csv")
+print("  - Gamry impedance overlay: data/20250815Mahboub2026")
+print("  - All figures: mahboub_plots/*_vs_*.pdf")
+print()
+print("Citation:")
+print("  Mahboub, R., et al. (2026)")
+print()
+print("Key features:")
+print("  - Data stored in easy-to-edit CSV format")
+print("  - Automatic integration with Gamry impedance measurements")
+print("  - Reusable plotting functions (plotting.py)")
+print("  - Command-line scriptable for reproducibility")

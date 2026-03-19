@@ -20,10 +20,10 @@ import logging
 log = logging.getLogger('HiPOZ')
 
 class DataSelector(QMainWindow):
-    def __init__(self, timeseries, calib_config=None):
+    def __init__(self, timeseries, analysis_config=None):
         super(DataSelector,self).__init__()
         self.timeseries = timeseries  # This is the array of Solution objects supplied externally
-        self.calib_config = calib_config  # Optional calibration configuration
+        self.analysis_config = analysis_config  # Optional calibration configuration
         self.updating_table = False
         self.selected_points = []
         self.ax1 = []
@@ -39,7 +39,7 @@ class DataSelector(QMainWindow):
         self.check_config_file_locations()
 
         # Auto-apply calibration config if provided
-        if self.calib_config:
+        if self.analysis_config:
             self.apply_calibration_config()
     def init_ui(self):
         self.setGeometry(200, 200, 1000, 800)
@@ -182,8 +182,8 @@ class DataSelector(QMainWindow):
         self.plot_timeseries()
 
         # Set export directory to config file location if available, otherwise hipoz_exports
-        if self.calib_config and hasattr(self.calib_config, 'config_path') and self.calib_config.config_path:
-            self.export_dir = Path(self.calib_config.config_path).parent
+        if self.analysis_config and hasattr(self.analysis_config, 'config_path') and self.analysis_config.config_path:
+            self.export_dir = Path(self.analysis_config.config_path).parent
             log.info(f"Using config directory for exports: {self.export_dir}")
         else:
             self.export_dir = Path.cwd() / "hipoz_exports"
@@ -827,12 +827,12 @@ class DataSelector(QMainWindow):
 
         Supports multiple calibration groups for bracketed measurements.
         """
-        if not self.calib_config:
+        if not self.analysis_config:
             return
 
         try:
             # Apply all calibration groups
-            results = self.calib_config.apply_to_timeseries(self.timeseries)
+            results = self.analysis_config.apply_to_timeseries(self.timeseries)
 
             if not results:
                 QMessageBox.warning(self, "Config Error",
@@ -1233,9 +1233,9 @@ class DataSelector(QMainWindow):
         # Determine which config files to save to
         save_paths = {}
 
-        # First priority: if we loaded a config via calib_config, save to that path
-        if self.calib_config and hasattr(self.calib_config, 'config_path') and self.calib_config.config_path:
-            config_path = Path(self.calib_config.config_path)
+        # First priority: if we loaded a config via analysis_config, save to that path
+        if self.analysis_config and hasattr(self.analysis_config, 'config_path') and self.analysis_config.config_path:
+            config_path = Path(self.analysis_config.config_path)
             # Extract date from the config path
             match = re.search(r'zAnalysis(\d{8})', str(config_path))
             if match:

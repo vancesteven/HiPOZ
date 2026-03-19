@@ -19,7 +19,7 @@ sys.path.insert(0, '.')
 os.chdir('/Users/svance/Library/CloudStorage/Dropbox/ElectricalProperties/hipozgenai')
 
 from headless_analysis import _update_config_with_conductivities
-from calibration_config import CalibrationConfig
+from analysis_config import AnalysisConfig
 
 
 def test_writeback_to_csv():
@@ -71,7 +71,7 @@ def test_writeback_to_csv():
                 })
 
         # Load config
-        config = CalibrationConfig(str(csv_path))
+        config = AnalysisConfig(str(csv_path))
 
         # Simulate analysis results
         results = [
@@ -166,7 +166,7 @@ def test_writeback_to_json():
             json.dump(config_data, f, indent=2)
 
         # Load config
-        config = CalibrationConfig(str(json_path))
+        config = AnalysisConfig(str(json_path))
 
         # Simulate analysis results
         results = [
@@ -255,7 +255,7 @@ def test_both_formats_updated():
             })
 
         # Load config (from CSV)
-        config = CalibrationConfig(str(csv_path))
+        config = AnalysisConfig(str(csv_path))
 
         # Simulate analysis results
         results = [
@@ -346,7 +346,7 @@ def test_preserves_existing_data():
             })
 
         # Load and update
-        config = CalibrationConfig(str(csv_path))
+        config = AnalysisConfig(str(csv_path))
         results = [
             {
                 'type': 'measurement',

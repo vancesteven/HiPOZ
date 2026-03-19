@@ -1,8 +1,9 @@
 """
-Calibration configuration handler for HiPOZ.
+Analysis configuration handler for HiPOZ.
 
-Allows users to specify explicit filenames for standards and measurements,
-supporting multiple calibration groups for bracketed measurements.
+Manages the complete analysis setup including standards (for calibration),
+measurements, metadata (P, T, composition, concentrations), and organization
+into calibration groups for bracketed measurements.
 """
 
 import json
@@ -15,17 +16,18 @@ import numpy as np
 log = logging.getLogger('HiPOZ')
 
 
-class CalibrationConfig:
+class AnalysisConfig:
     """
-    Handles loading and applying calibration configuration from file.
+    Handles loading and applying analysis configuration from file.
 
-    Supports explicit filename specification with multiple calibration groups
-    for bracketed measurements (e.g., standards before and after a measurement set).
+    Manages the complete analysis setup including standards (for calibration),
+    measurements, metadata (P, T, composition, concentrations), and organization
+    into calibration groups for bracketed measurements.
     """
 
     def __init__(self, config_path: Optional[str] = None):
         """
-        Initialize calibration config.
+        Initialize analysis config.
 
         Args:
             config_path: Path to configuration file (JSON or CSV). If None, no auto-config.
@@ -708,7 +710,7 @@ if __name__ == "__main__":
         print("  python calibration_config.py scan data/20250813 my_analysis.csv")
         print()
         print("  # Then run (auto-detects zAnalysis files in data dir):")
-        print("  python gamry_HiP.py")
+        print("  python gamry_HiPOZ.py")
         print()
         print("Notes:")
         print("  - CSV format is recommended for Excel users")

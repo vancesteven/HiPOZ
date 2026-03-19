@@ -177,7 +177,7 @@ For each calibration group:
 
 **Fix:**
 1. Ensure `zAnalysis<date>.csv` exists in data directory
-2. Launch with: `python gamry_HiP.py --gui`
+2. Launch with: `python gamry_HiPOZOZ.py --gui`
 
 ### "No color highlighting"
 **Cause:** Config loaded but calibration not applied

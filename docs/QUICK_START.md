@@ -9,7 +9,7 @@ Each day's measurements get their own analysis file: `zAnalysis<date>.csv` or `z
 ### Option A: Let the GUI Auto-Create (Recommended for New Data)
 
 ```bash
-python gamry_HiP.py
+python gamry_HiPOZOZ.py
 ```
 
 The GUI will automatically:
@@ -95,7 +95,7 @@ Open `data/20250813/zAnalysis20250813.json` in text editor:
 ### Step 3: Run Analysis
 
 ```bash
-python gamry_HiP.py
+python gamry_HiPOZOZ.py
 ```
 
 The system automatically:
@@ -135,13 +135,13 @@ data/
 ## Workflow Notes
 
 **First-time analysis:**
-1. Run `python gamry_HiP.py` - GUI auto-creates `zAnalysis<date>.json`
+1. Run `python gamry_HiPOZOZ.py` - GUI auto-creates `zAnalysis<date>.json`
 2. Use GUI to mark standards and associate measurements
 3. GUI saves your work back to the config file
 4. Result: Reproducible analysis stored in config file
 
 **Subsequent runs:**
-1. Run `python gamry_HiP.py` - GUI loads existing `zAnalysis<date>.json`
+1. Run `python gamry_HiPOZOZ.py` - GUI loads existing `zAnalysis<date>.json`
 2. Calibration automatically applied from saved config
 3. Make adjustments in GUI if needed
 4. GUI saves updates back to config file
@@ -232,11 +232,11 @@ python calibration_config.py scan data/20250813
 python calibration_config.py scan data/20250813 --format json
 
 # Run analysis (auto-detects CSV or JSON zAnalysis files)
-python gamry_HiP.py
+python gamry_HiPOZOZ.py
 
 # Specify config explicitly (CSV or JSON)
-python gamry_HiP.py --config data/20250813/zAnalysis20250813.csv
-python gamry_HiP.py --config data/20250813/zAnalysis20250813.json
+python gamry_HiPOZOZ.py --config data/20250813/zAnalysis20250813.csv
+python gamry_HiPOZOZ.py --config data/20250813/zAnalysis20250813.json
 
 # Generate example files (for reference)
 python calibration_config.py
@@ -260,7 +260,7 @@ python calibration_config.py
 **"No calibration config found"**
 - Check file is named `zAnalysis<date>.csv` or `zAnalysis<date>.json`
 - Check file is in `data/<date>/` directory
-- GUI will auto-create if missing - just run `python gamry_HiP.py`
+- GUI will auto-create if missing - just run `python gamry_HiPOZOZ.py`
 - Use `--config` flag to specify path explicitly
 
 **"No standards found"**

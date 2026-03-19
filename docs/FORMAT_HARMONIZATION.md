@@ -47,7 +47,7 @@ mv zAnalysis20250813.csv data/20250813/
 # - Mark exclude='x' for bad files
 
 # 4. Run analysis
-python gamry_HiP.py
+python gamry_HiPOZOZ.py
 
 # 5. GUI processes data
 # - Loads CSV
@@ -73,7 +73,7 @@ mv zAnalysis20250813.json data/20250813/
 # - Create multiple calibration groups
 
 # 4. Run analysis
-python gamry_HiP.py
+python gamry_HiPOZOZ.py
 
 # 5. GUI processes data
 # - Loads JSON

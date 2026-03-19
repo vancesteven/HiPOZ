@@ -14,7 +14,7 @@ import pandas as pd
 log = logging.getLogger('HiPOZ')
 
 
-def run_headless_analysis(timeseries, calib_config, output_dir=None):
+def run_headless_analysis(timeseries, analysis_config, output_dir=None):
     """
     Run calibration and measurement analysis without GUI.
 
@@ -26,7 +26,7 @@ def run_headless_analysis(timeseries, calib_config, output_dir=None):
 
     Args:
         timeseries: TimeSeries object with organized data
-        calib_config: CalibrationConfig object
+        analysis_config: AnalysisConfig object
         output_dir: Optional output directory. If None, saves to config file's directory.
 
     Returns:
@@ -48,7 +48,7 @@ def run_headless_analysis(timeseries, calib_config, output_dir=None):
     results = []
 
     # Process each calibration group
-    for group_idx, group in enumerate(calib_config.calibration_groups):
+    for group_idx, group in enumerate(analysis_config.calibration_groups):
         group_name = group['name']
         log.info(f"\nProcessing {group_name}")
         log.info(f"  Standards: {len(group['standards'])}")
@@ -200,8 +200,8 @@ def run_headless_analysis(timeseries, calib_config, output_dir=None):
     # Determine output directory
     if output_dir is None:
         # Save in same directory as config file
-        if calib_config and calib_config.config_path:
-            output_path = Path(calib_config.config_path).parent
+        if analysis_config and analysis_config.config_path:
+            output_path = Path(analysis_config.config_path).parent
         else:
             output_path = Path('hipoz_exports')
             log.warning("No config path found, falling back to hipoz_exports/")
@@ -221,25 +221,25 @@ def run_headless_analysis(timeseries, calib_config, output_dir=None):
     log.info(f"Total standards: {len([r for r in results if r['type'] == 'standard'])}")
 
     # Update the config file with computed conductivities
-    _update_config_with_conductivities(calib_config, results, output_path)
+    _update_config_with_conductivities(analysis_config, results, output_path)
 
     # Also create _analyzed versions for backup (harmonize CSV ↔ JSON)
-    _save_config_with_results(calib_config, output_path, timestamp)
+    _save_config_with_results(analysis_config, output_path, timestamp)
 
     return df
 
 
-def _update_config_with_conductivities(calib_config, results, output_path: Path):
+def _update_config_with_conductivities(analysis_config, results, output_path: Path):
     """
     Update the original config files (CSV and JSON) with computed conductivity values.
     This writes back to the original config file, not the _analyzed versions.
 
     Args:
-        calib_config: CalibrationConfig object with original config path
+        analysis_config: AnalysisConfig object with original config path
         results: List of result dictionaries from run_headless_analysis
         output_path: Directory where config files are located
     """
-    if not calib_config or not calib_config.config_path:
+    if not analysis_config or not analysis_config.config_path:
         log.warning("No config path found, cannot update with conductivities")
         return
 
@@ -258,7 +258,7 @@ def _update_config_with_conductivities(calib_config, results, output_path: Path)
 
     # Update the calibration_groups structure in memory
     updated_count = 0
-    for group in calib_config.calibration_groups:
+    for group in analysis_config.calibration_groups:
         for meas in group.get('measurements', []):
             if isinstance(meas, dict):
                 filename = meas.get('filename')
@@ -269,7 +269,7 @@ def _update_config_with_conductivities(calib_config, results, output_path: Path)
     log.info(f"Updated {updated_count} measurement entries with computed conductivities")
 
     # Write back to both CSV and JSON formats
-    config_path = Path(calib_config.config_path)
+    config_path = Path(analysis_config.config_path)
     is_csv_input = config_path.suffix.lower() == '.csv'
 
     import json
@@ -286,7 +286,7 @@ def _update_config_with_conductivities(calib_config, results, output_path: Path)
         writer = csv_module.DictWriter(f, fieldnames=fieldnames)
         writer.writeheader()
 
-        for group in calib_config.calibration_groups:
+        for group in analysis_config.calibration_groups:
             group_name = group['name']
 
             # Write standards
@@ -331,7 +331,7 @@ def _update_config_with_conductivities(calib_config, results, output_path: Path)
 
     with open(json_path, 'w') as f:
         json.dump({
-            'calibration_groups': calib_config.calibration_groups,
+            'calibration_groups': analysis_config.calibration_groups,
             'generated_by': 'HiPOZ headless analysis',
             'updated_with_conductivities': True
         }, f, indent=2)
@@ -339,7 +339,7 @@ def _update_config_with_conductivities(calib_config, results, output_path: Path)
     log.info("✓ Original config files updated with computed conductivities")
 
 
-def _save_config_with_results(calib_config, output_dir: Path, timestamp: str):
+def _save_config_with_results(analysis_config, output_dir: Path, timestamp: str):
     """
     Save/update config file with analysis results.
     If input was CSV, also create matching JSON. If input was JSON, also create matching CSV.
@@ -347,10 +347,10 @@ def _save_config_with_results(calib_config, output_dir: Path, timestamp: str):
     import json
     import csv as csv_module
 
-    if not calib_config or not calib_config.config_path:
+    if not analysis_config or not analysis_config.config_path:
         return
 
-    config_path = Path(calib_config.config_path)
+    config_path = Path(analysis_config.config_path)
     is_csv_input = config_path.suffix.lower() == '.csv'
 
     # Determine output paths for both formats
@@ -369,7 +369,7 @@ def _save_config_with_results(calib_config, output_dir: Path, timestamp: str):
         log.info(f"Creating matching JSON: {json_output}")
         with open(json_output, 'w') as f:
             json.dump({
-                'calibration_groups': calib_config.calibration_groups,
+                'calibration_groups': analysis_config.calibration_groups,
                 'generated_by': 'HiPOZ headless analysis',
                 'timestamp': timestamp,
                 'source_csv': str(config_path)
@@ -389,7 +389,7 @@ def _save_config_with_results(calib_config, output_dir: Path, timestamp: str):
             writer = csv_module.DictWriter(f, fieldnames=fieldnames)
             writer.writeheader()
 
-            for group in calib_config.calibration_groups:
+            for group in analysis_config.calibration_groups:
                 group_name = group['name']
 
                 # Write standards
@@ -429,7 +429,7 @@ def _save_config_with_results(calib_config, output_dir: Path, timestamp: str):
                         writer.writerow(row)
 
 
-def should_run_headless(calib_config):
+def should_run_headless(analysis_config):
     """
     Determine if we can run in headless mode.
 
@@ -441,10 +441,10 @@ def should_run_headless(calib_config):
     Returns:
         bool: True if headless mode is possible
     """
-    if not calib_config:
+    if not analysis_config:
         return False
 
-    for group in calib_config.calibration_groups:
+    for group in analysis_config.calibration_groups:
         # Check for standards with conductivity
         has_valid_standards = False
         for std in group['standards']:

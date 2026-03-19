@@ -84,7 +84,7 @@ self.save_curated_outputs(save_svsp=True)
 **Problem:** Headless mode had no way to control which plots to generate.
 
 **Solution:**
-Added command line flags to `gamry_HiP.py`:
+Added command line flags to `gamry_HiPOZOZ.py`:
 
 ```bash
 --plot-svsp      # Generate S vs P plot
@@ -96,16 +96,16 @@ Added command line flags to `gamry_HiP.py`:
 **Examples:**
 ```bash
 # No plots (default)
-python gamry_HiP.py --headless
+python gamry_HiPOZOZ.py --headless
 
 # Generate S vs P plot only
-python gamry_HiP.py --headless --plot-svsp
+python gamry_HiPOZOZ.py --headless --plot-svsp
 
 # Generate all plots
-python gamry_HiP.py --headless --plot-all
+python gamry_HiPOZOZ.py --headless --plot-all
 
 # GUI mode (plots on demand)
-python gamry_HiP.py --gui
+python gamry_HiPOZOZ.py --gui
 ```
 
 ## Files Modified
@@ -131,7 +131,7 @@ python gamry_HiP.py --gui
 - Save results CSV in config directory
 - Generate matching JSON when input is CSV (and vice versa)
 
-### gamry_HiP.py
+### gamry_HiPOZOZ.py
 - Added `--plot-svsp` flag
 - Added `--plot-bode` flag
 - Added `--plot-nyquist` flag
@@ -142,7 +142,7 @@ python gamry_HiP.py --gui
 
 ### GUI Mode Test
 ```bash
-$ python gamry_HiP.py --gui
+$ python gamry_HiPOZOZ.py --gui
 [INFO] Using config directory for exports: data/20250813Mahboub2026
 [INFO] ✓ Found CSV config: data/20250813/zAnalysis20250813.csv
 [INFO] Window geometry: PyQt5.QtCore.QRect(200, 200, 1000, 800)
@@ -156,7 +156,7 @@ $ python gamry_HiP.py --gui
 
 ### Headless Mode Test
 ```bash
-$ python gamry_HiP.py --headless
+$ python gamry_HiPOZOZ.py --headless
 [INFO] HEADLESS ANALYSIS MODE
 [INFO] Results saved to: data/20250813Mahboub2026/hipoz_20260318_164226_results.csv
 [INFO] Creating matching JSON: data/20250813Mahboub2026/zAnalysis20250813Mahboub2026_analyzed.json
@@ -186,34 +186,34 @@ $ python gamry_HiP.py --headless
 ### Analysis Modes
 ```bash
 # Auto-detect (CSV/JSON determines headless vs GUI)
-python gamry_HiP.py
+python gamry_HiPOZOZ.py
 
 # Force headless
-python gamry_HiP.py --headless
+python gamry_HiPOZOZ.py --headless
 
 # Force GUI
-python gamry_HiP.py --gui
+python gamry_HiPOZOZ.py --gui
 ```
 
 ### Plot Generation (Headless Only)
 ```bash
 # No plots
-python gamry_HiP.py --headless
+python gamry_HiPOZOZ.py --headless
 
 # S vs P plot
-python gamry_HiP.py --headless --plot-svsp
+python gamry_HiPOZOZ.py --headless --plot-svsp
 
 # Bode plots
-python gamry_HiP.py --headless --plot-bode
+python gamry_HiPOZOZ.py --headless --plot-bode
 
 # Nyquist plots
-python gamry_HiP.py --headless --plot-nyquist
+python gamry_HiPOZOZ.py --headless --plot-nyquist
 
 # All plots
-python gamry_HiP.py --headless --plot-all
+python gamry_HiPOZOZ.py --headless --plot-all
 
 # Combined with config override
-python gamry_HiP.py --headless --config my_config.csv --plot-all
+python gamry_HiPOZOZ.py --headless --config my_config.csv --plot-all
 ```
 
 ## Migration Notes

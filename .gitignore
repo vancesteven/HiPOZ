@@ -4,3 +4,24 @@
 *pycache*
 .idea/*
 configPP*
+
+# User-specific data and outputs
+data/*/ConductivityData_Default/*.txt
+data/*/zAnalysis*.csv
+data/*/zAnalysis*.json
+data/*/zAnalysis*.json.backup
+data/*/*.csv
+data/*/*.json
+data/*/hipoz_*.csv
+hipoz_exports/
+
+# User-specific files
+.claude/
+calibration_config.json
+JesusData*.csv
+JesusGraphs.py
+
+# Keep example templates
+!analysis_config_example.csv
+!analysis_config_example.json
+!CortesDataTemplate.csv

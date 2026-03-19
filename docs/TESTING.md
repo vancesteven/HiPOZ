@@ -9,9 +9,10 @@ Run all tests:
 python test_format_harmonization.py
 python test_conductivity_writeback.py
 python test_mahboub_analysis.py
+cd mahboub2026 && python test_error_handling.py
 ```
 
-All tests should pass with `✓ ALL TESTS PASSED` message.
+All tests should pass with `✓ ALL TESTS PASSED` or `🎉 All tests passed!` message.
 
 ## Test Suites
 
@@ -184,7 +185,7 @@ ANALYSIS SUMMARY
 ✓ Total files: 13
 
 ✓ READY FOR GUI ANALYSIS
-  Run: python gamry_HiP.py
+  Run: python gamry_HiPOZOZ.py
 ```
 
 **What it verifies:**
@@ -197,6 +198,108 @@ ANALYSIS SUMMARY
 
 ---
 
+### 4. Error Handling Tests (Mahboub 2026)
+
+**File:** `mahboub2026/test_error_handling.py`
+
+**What it tests:**
+- Missing `conductivity_Sm` column detection (standards not defined)
+- All NaN conductivity values detection (standards not associated)
+- Partial missing conductivity handling (some measurements missing)
+- Concentration grouping and averaging with replicates
+- Compound-specific filtering of invalid data
+
+**Run:**
+```bash
+cd mahboub2026
+python test_error_handling.py
+```
+
+**Expected output:**
+```
+╔════════════════════════════════════════════════════════════════════╗
+║                                                                    ║
+║           Gamry Impedance Data - Error Handling Test Suite         ║
+║                                                                    ║
+╚════════════════════════════════════════════════════════════════════╝
+
+Testing mahboub2026_plots.py error detection and handling...
+
+======================================================================
+Test 1: Missing conductivity_Sm column
+======================================================================
+Scenario: Standards not defined in calibration config
+
+✅ PASS: Correctly detected missing conductivity_Sm column
+   Expected behavior: Set gamry_df = None, skip all overlays
+   User action: Define standards in zAnalysis config
+
+======================================================================
+Test 2: All conductivity values are NaN
+======================================================================
+Scenario: Standards defined but not associated with measurements
+
+✅ PASS: Correctly detected all NaN conductivity values
+   Expected behavior: Set gamry_df = None, skip all overlays
+   User action: Associate measurements with standards in HiPOZ GUI
+
+======================================================================
+Test 3: Partial missing conductivity
+======================================================================
+Scenario: Some measurements have conductivity, others don't
+
+✅ PASS: Correctly detected partial missing data (1/4 missing)
+   Expected behavior: Show warning, continue with valid data
+
+Testing compound-specific filtering:
+  ✅ NaCl: Correctly filtered to 1/2 valid measurements
+  ✅ MgSO4: Correctly kept 2/2 valid measurements
+
+   User action: Associate remaining measurements with standards
+
+======================================================================
+Test 4: Concentration grouping and averaging
+======================================================================
+Scenario: Multiple measurements at same concentration should be averaged
+
+✅ PASS: Correctly grouped into 2 concentration bins
+  ✅ 1.0 molal: Correctly averaged to 10.1 S/m
+  ✅ 2.0 molal: Correctly averaged to 15.2 S/m
+  ✅ Uncertainty: Correctly calculated RMS average (0.2121)
+
+======================================================================
+Test Summary
+======================================================================
+
+✅ PASS: Missing conductivity_Sm column
+✅ PASS: All NaN conductivity values
+✅ PASS: Partial missing conductivity
+✅ PASS: Concentration grouping
+
+----------------------------------------------------------------------
+Results: 4/4 tests passed
+----------------------------------------------------------------------
+
+🎉 All tests passed! Error handling is working correctly.
+```
+
+**What it verifies:**
+- ✅ Gracefully handles missing Gamry conductivity data
+- ✅ Shows clear, actionable error messages
+- ✅ Filters out NaN values from overlays
+- ✅ Benchtop plots always generate even if Gamry data incomplete
+- ✅ Correctly groups and averages replicates by concentration
+- ✅ Calculates proper RMS uncertainties for grouped data
+
+**When to run:**
+- After modifying Gamry data loading code
+- After changing error handling logic
+- After updating grouping/averaging algorithms
+- Before committing changes to mahboub2026_plots.py
+- As regression test before deployment
+
+---
+
 ## Integration Tests
 
 ### Test GUI Workflow
@@ -205,7 +308,7 @@ ANALYSIS SUMMARY
 
 ```bash
 # 1. Launch GUI with test data
-python gamry_HiP.py --dates 20250813Mahboub2026
+python gamry_HiPOZOZ.py --dates 20250813Mahboub2026
 
 # 2. Verify in GUI:
 #    - Standards marked with conductivity values
@@ -236,7 +339,7 @@ python gamry_HiP.py --dates 20250813Mahboub2026
 
 ```bash
 # Run headless analysis
-python gamry_HiP.py --headless --dates 20250813Mahboub2026
+python gamry_HiPOZOZ.py --headless --dates 20250813Mahboub2026
 
 # Check output
 ls -lh data/20250813Mahboub2026/hipoz_*_results.csv
@@ -270,14 +373,14 @@ cat data/20250813Mahboub2026/zAnalysis20250813Mahboub2026.csv | grep conductivit
 
 ```bash
 # Test 1: CSV → JSON
-python gamry_HiP.py --harmonize data/20250813/zAnalysis20250813.csv
+python gamry_HiPOZOZ.py --harmonize data/20250813/zAnalysis20250813.csv
 
 # Verify
 ls -lh data/20250813/zAnalysis20250813.json
 cat data/20250813/zAnalysis20250813.json | head -20
 
 # Test 2: JSON → CSV (edit JSON first)
-python gamry_HiP.py --harmonize data/20250813/zAnalysis20250813.json
+python gamry_HiPOZOZ.py --harmonize data/20250813/zAnalysis20250813.json
 
 # Verify
 head -5 data/20250813/zAnalysis20250813.csv
@@ -298,18 +401,18 @@ head -5 data/20250813/zAnalysis20250813.csv
 
 ```bash
 # Test 1: GUI dialog
-python gamry_HiP.py
+python gamry_HiPOZOZ.py
 # → Dialog opens, select data/20250813
 # → Analysis proceeds
 
 # Test 2: Command line
-python gamry_HiP.py --dates 20250813
+python gamry_HiPOZOZ.py --dates 20250813
 
 # Test 3: Multiple directories
-python gamry_HiP.py --dates 20250813 20250815
+python gamry_HiPOZOZ.py --dates 20250813 20250815
 
 # Test 4: Cancel dialog
-python gamry_HiP.py
+python gamry_HiPOZOZ.py
 # → Click Cancel
 # → Should exit gracefully
 ```
@@ -335,10 +438,10 @@ python test_conductivity_writeback.py && \
 python test_mahboub_analysis.py
 
 # Quick syntax check
-python -m py_compile gamry_HiP.py DataSelector.py gamryTools.py
+python -m py_compile gamry_HiPOZOZ.py DataSelector.py gamryTools.py
 
 # Check imports
-python -c "import gamryTools; import calibration_config; import harmonize_config"
+python -c "import gamryTools; import analysis_config; import harmonize_config"
 ```
 
 ### Regression Tests
@@ -378,13 +481,13 @@ mkdir -p data/TestData/ConductivityData_Default
 cp /path/to/real/data/*.txt data/TestData/ConductivityData_Default/
 
 # 3. Create config file
-python calibration_config.py scan data/TestData
+python analysis_config.py scan data/TestData
 
 # 4. Edit config to mark standards
 # (Open CSV in Excel, add conductivity_Sm values)
 
 # 5. Run test
-python gamry_HiP.py --dates TestData
+python gamry_HiPOZOZ.py --dates TestData
 ```
 
 ---

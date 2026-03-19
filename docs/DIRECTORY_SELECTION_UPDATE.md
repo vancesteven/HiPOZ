@@ -6,7 +6,7 @@ Updated HiPOZ to remove hardcoded directory names from Python code. Users can no
 1. **GUI dialog** - Visual directory selection
 2. **Command line** - `--dates` flag
 
-Students no longer need to edit `gamry_HiP.py` to analyze their data.
+Students no longer need to edit `gamry_HiPOZOZ.py` to analyze their data.
 
 ## Changes Made
 
@@ -72,19 +72,19 @@ def main():
 **Updated examples:**
 ```bash
 # Run with GUI - will prompt for directory selection:
-python gamry_HiP.py
+python gamry_HiPOZOZ.py
 
 # Specify directory(ies) from command line:
-python gamry_HiP.py --dates 20250815Mahboub
+python gamry_HiPOZOZ.py --dates 20250815Mahboub
 
 # Process multiple directories:
-python gamry_HiP.py --dates 20250813 20250814 20250815
+python gamry_HiPOZOZ.py --dates 20250813 20250814 20250815
 
 # Headless mode with specific directory:
-python gamry_HiP.py --headless --dates 20250815Mahboub
+python gamry_HiPOZOZ.py --headless --dates 20250815Mahboub
 
 # Run with specific config file:
-python gamry_HiP.py --config data/20250815/zAnalysis20250815.csv
+python gamry_HiPOZOZ.py --config data/20250815/zAnalysis20250815.csv
 ```
 
 **Updated --dates help text:**
@@ -99,7 +99,7 @@ python gamry_HiP.py --config data/20250815/zAnalysis20250815.csv
 
 **Scenario 1: GUI with Directory Selection**
 ```bash
-$ python gamry_HiP.py
+$ python gamry_HiPOZOZ.py
 ```
 1. Program starts
 2. Dialog opens: "Select Data Directory(ies)"
@@ -110,7 +110,7 @@ $ python gamry_HiP.py
 
 **Scenario 2: Command Line**
 ```bash
-$ python gamry_HiP.py --dates 20250815Mahboub2026
+$ python gamry_HiPOZOZ.py --dates 20250815Mahboub2026
 ```
 - No GUI dialog
 - Directly processes specified directory
@@ -118,14 +118,14 @@ $ python gamry_HiP.py --dates 20250815Mahboub2026
 
 **Scenario 3: Multiple Directories**
 ```bash
-$ python gamry_HiP.py --dates 20250813 20250814 20250815
+$ python gamry_HiPOZOZ.py --dates 20250813 20250814 20250815
 ```
 - Processes all three directories in sequence
 - Useful for batch analysis
 
 **Scenario 4: Headless Automation**
 ```bash
-$ python gamry_HiP.py --headless --dates 20250815Mahboub2026
+$ python gamry_HiPOZOZ.py --headless --dates 20250815Mahboub2026
 ```
 - No GUI
 - Requires config file with standards specified
@@ -134,14 +134,14 @@ $ python gamry_HiP.py --headless --dates 20250815Mahboub2026
 ### For Instructors
 
 **Setting up for students:**
-1. Tell students: `python gamry_HiP.py`
+1. Tell students: `python gamry_HiPOZOZ.py`
 2. They select their data folder
 3. Done! No Python editing needed
 
 **Batch processing:**
 ```bash
 # Process all student directories
-python gamry_HiP.py --dates Student1_20250815 Student2_20250815 Student3_20250815
+python gamry_HiPOZOZ.py --dates Student1_20250815 Student2_20250815 Student3_20250815
 ```
 
 ## Directory Selection Dialog
@@ -181,11 +181,11 @@ python gamry_HiP.py --dates Student1_20250815 Student2_20250815 Student3_2025081
 ## Migration Guide
 
 ### Old Workflow
-1. Open `gamry_HiP.py` in text editor
+1. Open `gamry_HiPOZOZ.py` in text editor
 2. Find `dates = [...]` line
 3. Edit to add your directory name
 4. Save file
-5. Run: `python gamry_HiP.py`
+5. Run: `python gamry_HiPOZOZ.py`
 
 **Problems:**
 - Students might edit wrong part
@@ -194,7 +194,7 @@ python gamry_HiP.py --dates Student1_20250815 Student2_20250815 Student3_2025081
 - Requires understanding Python syntax
 
 ### New Workflow (GUI)
-1. Run: `python gamry_HiP.py`
+1. Run: `python gamry_HiPOZOZ.py`
 2. Dialog opens
 3. Click on your directory
 4. Click "Select"
@@ -207,7 +207,7 @@ python gamry_HiP.py --dates Student1_20250815 Student2_20250815 Student3_2025081
 
 ### New Workflow (Command Line)
 ```bash
-python gamry_HiP.py --dates 20250815Mahboub2026
+python gamry_HiPOZOZ.py --dates 20250815Mahboub2026
 ```
 
 **Benefits:**
@@ -264,7 +264,7 @@ dialog.setDirectory(start_dir)  # Start in data/
 
 ### Test 1: GUI Selection
 ```bash
-$ python gamry_HiP.py
+$ python gamry_HiPOZOZ.py
 [INFO] No data directories specified. Prompting user for selection...
 [INFO] User selected directories: ['20250815Mahboub2026']
 [INFO] Processing directories: ['20250815Mahboub2026']
@@ -273,21 +273,21 @@ $ python gamry_HiP.py
 
 ### Test 2: Command Line
 ```bash
-$ python gamry_HiP.py --dates 20250815Mahboub2026
+$ python gamry_HiPOZOZ.py --dates 20250815Mahboub2026
 [INFO] Processing directories: ['20250815Mahboub2026']
 ✓ Success
 ```
 
 ### Test 3: Multiple Directories
 ```bash
-$ python gamry_HiP.py --dates 20250813 20250815
+$ python gamry_HiPOZOZ.py --dates 20250813 20250815
 [INFO] Processing directories: ['20250813', '20250815']
 ✓ Success
 ```
 
 ### Test 4: Cancel Dialog
 ```bash
-$ python gamry_HiP.py
+$ python gamry_HiPOZOZ.py
 [INFO] No data directories specified. Prompting user for selection...
 [INFO] User cancelled directory selection
 [ERROR] No directories selected. Exiting.
@@ -296,7 +296,7 @@ $ python gamry_HiP.py
 
 ### Test 5: Headless Mode
 ```bash
-$ python gamry_HiP.py --headless --dates 20250815Mahboub2026
+$ python gamry_HiPOZOZ.py --headless --dates 20250815Mahboub2026
 [INFO] HEADLESS ANALYSIS MODE
 [INFO] Results saved to: data/20250815Mahboub2026/hipoz_20260318_results.csv
 ✓ Success
@@ -314,7 +314,7 @@ $ python gamry_HiP.py --headless --dates 20250815Mahboub2026
 
 **Workaround:** Specify config path explicitly:
 ```bash
-python gamry_HiP.py --config data/20250815Mahboub2026/zAnalysis.csv
+python gamry_HiPOZOZ.py --config data/20250815Mahboub2026/zAnalysis.csv
 ```
 
 ## Future Enhancements
