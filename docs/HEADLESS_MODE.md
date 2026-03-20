@@ -8,7 +8,7 @@ HiPOZ now supports **headless mode** for automated analysis without GUI interact
 
 ### Auto-Detection (Recommended)
 ```bash
-python gamry_HiPOZOZ.py
+python gamry_HiPOZ.py
 ```
 
 **Behavior:**
@@ -17,7 +17,7 @@ python gamry_HiPOZOZ.py
 
 ### Force Headless Mode
 ```bash
-python gamry_HiPOZOZ.py --headless
+python gamry_HiPOZ.py --headless
 ```
 
 **Requirements:**
@@ -29,7 +29,7 @@ python gamry_HiPOZOZ.py --headless
 
 ### Force GUI Mode
 ```bash
-python gamry_HiPOZOZ.py --gui
+python gamry_HiPOZ.py --gui
 ```
 
 **Use Cases:**
@@ -60,7 +60,7 @@ Example: `data/20250813Mahboub2026/zAnalysis20250813Mahboub2026.csv`
 ### 2. Run Analysis
 
 ```bash
-python gamry_HiPOZOZ.py
+python gamry_HiPOZ.py
 ```
 
 **Processing Steps:**
@@ -94,7 +94,7 @@ python gamry_HiPOZOZ.py
 When launching GUI with an existing config:
 
 ```bash
-python gamry_HiPOZOZ.py --gui
+python gamry_HiPOZ.py --gui
 ```
 
 **Visual Indicators:**
@@ -208,7 +208,7 @@ Group 2,sample_4.txt,40,293,measurement,,NaCl,,1.0,,
 ## Example Session
 
 ```bash
-$ python gamry_HiPOZOZ.py
+$ python gamry_HiPOZ.py
 [INFO] Found CSV analysis config: data/20250813Mahboub2026/zAnalysis20250813Mahboub2026.csv
 [INFO] Loading calibration configuration from: data/20250813Mahboub2026/zAnalysis20250813Mahboub2026.csv
 [INFO] Loaded 1 calibration group(s) from CSV
@@ -307,5 +307,5 @@ Group 1,std_1.txt,0,0,standard,8,KCl,,,,← Add conductivity value
 
 - `FORMAT_HARMONIZATION.md` - CSV/JSON format details
 - `HARMONIZATION_SUMMARY.md` - Configuration management
-- `calibration_config.py` - Configuration file API
+- `analysis_config.py` - Configuration file API
 - `headless_analysis.py` - Headless mode implementation

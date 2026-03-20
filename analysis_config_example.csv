@@ -1,8 +1,8 @@
-group_name,filename,type,conductivity_Sm,comp,w_ppt,w_molal,exclude,notes
-Morning,Default_20250813_0800_KCl_84uScm.txt,standard,0.0084,KCl,1.0,,,84 uS/cm
-Morning,Default_20250813_0805_KCl_447uScm.txt,standard,0.0447,KCl,5.0,,,447 uS/cm
-Morning,Default_20250813_0900_NaCl_1000ppt_P100.txt,measurement,,NaCl,1000,,,
-Morning,Default_20250813_0930_NaCl_1000ppt_P150.txt,measurement,,NaCl,1000,,,
-Morning,Default_20250813_0945_bad_data.txt,measurement,,,,,x,Excluded - bad data
-Afternoon,Default_20250813_1200_KCl_84uScm.txt,standard,0.0084,KCl,1.0,,,
-Afternoon,Default_20250813_1300_NaCl_2000ppt_P100.txt,measurement,,NaCl,2000,,,
+group_name,filename,P_MPa,T_K,type,conductivity_Sm,comp,w_ppt,w_molal,exclude,notes
+Morning,Default_20250813_0800_KCl_84uScm.txt,,,standard,0.0084,KCl,1.0,,,84 uS/cm
+Morning,Default_20250813_0805_KCl_447uScm.txt,,,standard,0.0447,KCl,5.0,,,447 uS/cm
+Morning,Default_20250813_0900_NaCl_1000ppt_P_100_T_298.txt,100,298,measurement,,NaCl,1000,,,
+Morning,Default_20250813_0930_NaCl_1000ppt_P_150_T_298.txt,150,298,measurement,,NaCl,1000,,,
+Morning,Default_20250813_0945_bad_data.txt,,,measurement,,,,,x,Excluded - bad data
+Afternoon,Default_20250813_1200_KCl_84uScm.txt,,,standard,0.0084,KCl,1.0,,,
+Afternoon,Default_20250813_1300_NaCl_2000ppt_P_100_T_298.txt,100,298,measurement,,NaCl,2000,,,

@@ -177,7 +177,7 @@ For each calibration group:
 
 **Fix:**
 1. Ensure `zAnalysis<date>.csv` exists in data directory
-2. Launch with: `python gamry_HiPOZOZ.py --gui`
+2. Launch with: `python gamry_HiPOZ.py --gui`
 
 ### "No color highlighting"
 **Cause:** Config loaded but calibration not applied
@@ -202,4 +202,4 @@ Group 2,sample2.txt,measurement,...
 
 - `HEADLESS_MODE.md` - Automated analysis without GUI
 - `FORMAT_HARMONIZATION.md` - CSV/JSON format details
-- `calibration_config.py` - Config file structure
+- `analysis_config.py` - Config file structure

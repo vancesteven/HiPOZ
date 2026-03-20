@@ -462,7 +462,7 @@ class Solution:
             print("Error during fitting:", str(e))
             return float('inf')
 
-    def Recipe(self, w, units='ppt', vol_mL=500, TH2O_C=25):
+    def recipe(self, w, units='ppt', vol_mL=500, TH2O_C=25):
         """
         Determine the recipe for mixing the desired concentration of solution.
         :param w: Concentration in units of ppt (g solute per kg of solution) or molal (moles solute per kg of solvent).
@@ -472,7 +472,7 @@ class Solution:
         :return mSolute_g: Mass of solute to mix in grams
         :return volOut_mL: Volume of DI water to mix in milliliters
         """
-        failMsg = 'unable to continue with Recipe.'
+        failMsg = 'unable to continue with recipe.'
 
         # Make sure we can do calculations for the set composition
         if self.comp is None:
@@ -511,7 +511,7 @@ class Solution:
 
         return mSolute_g, volOut_mL
 
-    def CalcConc(self, mSolute_g, Vbeaker_mL, Vtotal_mL, DeltamSolute_g=0.001, DeltaVbeaker_mL=10, TH2O_C=25):
+    def calc_conc(self, mSolute_g, Vbeaker_mL, Vtotal_mL, DeltamSolute_g=0.001, DeltaVbeaker_mL=10, TH2O_C=25):
         """
         Calculate actual concentration of solute based on measured-out amounts, with uncertainty.
         :param mSolute_g: Mass of solute in grams.
@@ -631,15 +631,15 @@ class ResistorData:
     def fit_circuit(self, circ_type=None, initial_guess=None, basin_hopping=False, k_est_pm=None, print_circuit=True,
                    circ_file=None):
 
-        if Kest_pm is None:
-            Kest_pm = 50
-        if circType is None:
-            circType = 'CPE'
-        if circFile is None:
-            self.circFile = f'{circType}circuit.{self.xtn}'
+        if k_est_pm is None:
+            k_est_pm = 50
+        if circ_type is None:
+            circ_type = 'CPE'
+        if circ_file is None:
+            self.circFile = f'{circ_type}circuit.{self.xtn}'
         else:
-            self.circFile = circFile
-        if circType == 'CPE':
+            self.circFile = circ_file
+        if circ_type == 'CPE':
             # Z_cell = R_0 + (R_0 + Z_CPE)/(1 + i*omega*C*(R_1 + Z_CPE)) -- Chin et al. (2018): https://doi.org/10.1063/1.5020076
 #            initial_guess = [Kest_pm / self.sigmaStdCalc_Sm, 8e-7, 0.85, 146.2e-12, 50]
 #             initial_guess = [0.01,  8e-7, 0.85, 146.2e-12, 50] #CP for resistor testing
@@ -652,7 +652,7 @@ class ResistorData:
             # simpler for aqueous solutions
             circStr = f'{L0}-{R0}-p({R1}, {CPE1})' # inductor to capture positive phase at highest frequencies
             initial_guess = [1e-6,  20, 100, 5e-6, 0.8]
-            if PRINT:
+            if print_circuit:
                 with schemdraw.Drawing(file=self.circFile, show=False) as circ:
                     circ.config(unit=Lleads)
                     circ += elm.Resistor().label(f'${R0}$').dot()
@@ -665,14 +665,14 @@ class ResistorData:
                     circ += elm.Capacitor().endpoints(j1.end, j2.end).label(f'${C1}$').right()
                     circ += elm.Line().at(j2.start).length(circ.unit / 2).right()
                 log.info(f'Equivalent circuit diagram saved to file: {self.circFile}')
-        elif circType == 'RC':
+        elif circ_type == 'RC':
             # 1/Z_cell = 1/R + i*omega*C -- Pan et al. (2021): https://doi.org/10.1029/2021GL094020
             # initial_guess = [Kest_pm / self.sigmaStdCalc_Sm, 146.2e-12]
             initial_guess = [20, 5e-6]
             R1 = r'R_1'
             C1 = r'C_1'
             circStr = f'p({R1},{C1})'
-            if PRINT:
+            if print_circuit:
                 with schemdraw.Drawing(file=self.circFile, show=False) as circ:
                     circ.config(unit=Lleads)
                     circ += elm.Line().length(circ.unit / 2).dot()
@@ -684,14 +684,14 @@ class ResistorData:
                     circ += elm.Capacitor().endpoints(j1.end, j2.end).label(f'${C1}$').right()
                     circ += elm.Line().at(j2.start).length(circ.unit / 2).right()
                 log.info(f'Equivalent circuit diagram saved to file: {self.circFile}')
-        elif circType == 'RC-R':
+        elif circ_type == 'RC-R':
 #            initial_guess = [Kest_pm / self.sigmaStdCalc_Sm, 146.2e-12, 50]
             initial_guess = [100, 146.2e-12, 50] #cp resistors
             R0 = r'R_0'
             R1 = r'R_1'
             C1 = r'C_1'
             circStr = f'p({R1},{C1})-{R0}'
-            if PRINT:
+            if print_circuit:
                 with schemdraw.Drawing(file=self.circFile, show=False) as circ:
                     circ.config(unit=Lleads)
                     circ += elm.Resistor().label(f'${R0}$').dot()
@@ -705,12 +705,12 @@ class ResistorData:
                 log.info(f'Equivalent circuit diagram saved to file: {self.circFile}')
         else:
             if initial_guess is None:
-                raise ValueError(f'circuit type "{circType}" not recognized.')
+                raise ValueError(f'circuit type "{circ_type}" not recognized.')
             else:
-                log.info(f'circuit type "{circType}" not recognized. Interpreting as circuit string.')
-                circStr = circType
+                log.info(f'circuit type "{circ_type}" not recognized. Interpreting as circuit string.')
+                circStr = circ_type
 
-        log.debug(f'Fitting {circType} circuit to input file {self.file}')
+        log.debug(f'Fitting {circ_type} circuit to input file {self.file}')
         log.debug(f'Frequency (Hz) for fitting: {self.f_Hz}') #cp
         log.debug(f'Impedance (ohm) for fitting: {self.Z_ohm}') #cp
 

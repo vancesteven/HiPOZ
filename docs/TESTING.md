@@ -185,7 +185,7 @@ ANALYSIS SUMMARY
 ✓ Total files: 13
 
 ✓ READY FOR GUI ANALYSIS
-  Run: python gamry_HiPOZOZ.py
+  Run: python gamry_HiPOZ.py
 ```
 
 **What it verifies:**
@@ -308,7 +308,7 @@ Results: 4/4 tests passed
 
 ```bash
 # 1. Launch GUI with test data
-python gamry_HiPOZOZ.py --dates 20250813Mahboub2026
+python gamry_HiPOZ.py --dates 20250813Mahboub2026
 
 # 2. Verify in GUI:
 #    - Standards marked with conductivity values
@@ -339,7 +339,7 @@ python gamry_HiPOZOZ.py --dates 20250813Mahboub2026
 
 ```bash
 # Run headless analysis
-python gamry_HiPOZOZ.py --headless --dates 20250813Mahboub2026
+python gamry_HiPOZ.py --headless --dates 20250813Mahboub2026
 
 # Check output
 ls -lh data/20250813Mahboub2026/hipoz_*_results.csv
@@ -373,14 +373,14 @@ cat data/20250813Mahboub2026/zAnalysis20250813Mahboub2026.csv | grep conductivit
 
 ```bash
 # Test 1: CSV → JSON
-python gamry_HiPOZOZ.py --harmonize data/20250813/zAnalysis20250813.csv
+python gamry_HiPOZ.py --harmonize data/20250813/zAnalysis20250813.csv
 
 # Verify
 ls -lh data/20250813/zAnalysis20250813.json
 cat data/20250813/zAnalysis20250813.json | head -20
 
 # Test 2: JSON → CSV (edit JSON first)
-python gamry_HiPOZOZ.py --harmonize data/20250813/zAnalysis20250813.json
+python gamry_HiPOZ.py --harmonize data/20250813/zAnalysis20250813.json
 
 # Verify
 head -5 data/20250813/zAnalysis20250813.csv
@@ -401,18 +401,18 @@ head -5 data/20250813/zAnalysis20250813.csv
 
 ```bash
 # Test 1: GUI dialog
-python gamry_HiPOZOZ.py
+python gamry_HiPOZ.py
 # → Dialog opens, select data/20250813
 # → Analysis proceeds
 
 # Test 2: Command line
-python gamry_HiPOZOZ.py --dates 20250813
+python gamry_HiPOZ.py --dates 20250813
 
 # Test 3: Multiple directories
-python gamry_HiPOZOZ.py --dates 20250813 20250815
+python gamry_HiPOZ.py --dates 20250813 20250815
 
 # Test 4: Cancel dialog
-python gamry_HiPOZOZ.py
+python gamry_HiPOZ.py
 # → Click Cancel
 # → Should exit gracefully
 ```
@@ -438,7 +438,7 @@ python test_conductivity_writeback.py && \
 python test_mahboub_analysis.py
 
 # Quick syntax check
-python -m py_compile gamry_HiPOZOZ.py DataSelector.py gamryTools.py
+python -m py_compile gamry_HiPOZ.py DataSelector.py gamryTools.py
 
 # Check imports
 python -c "import gamryTools; import analysis_config; import harmonize_config"
@@ -487,7 +487,7 @@ python analysis_config.py scan data/TestData
 # (Open CSV in Excel, add conductivity_Sm values)
 
 # 5. Run test
-python gamry_HiPOZOZ.py --dates TestData
+python gamry_HiPOZ.py --dates TestData
 ```
 
 ---

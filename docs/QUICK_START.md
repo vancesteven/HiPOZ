@@ -9,7 +9,7 @@ Each day's measurements get their own analysis file: `zAnalysis<date>.csv` or `z
 ### Option A: Let the GUI Auto-Create (Recommended for New Data)
 
 ```bash
-python gamry_HiPOZOZ.py
+python gamry_HiPOZ.py
 ```
 
 The GUI will automatically:
@@ -22,14 +22,14 @@ The GUI will automatically:
 
 **Generate CSV (Excel-friendly, default):**
 ```bash
-python calibration_config.py scan data/20250813
+python analysis_config.py scan data/20250813
 ```
 
 This creates: `zAnalysis20250813.csv` - Open in Excel!
 
 **Or generate JSON:**
 ```bash
-python calibration_config.py scan data/20250813 --format json
+python analysis_config.py scan data/20250813 --format json
 ```
 
 Then move to data directory:
@@ -95,7 +95,7 @@ Open `data/20250813/zAnalysis20250813.json` in text editor:
 ### Step 3: Run Analysis
 
 ```bash
-python gamry_HiPOZOZ.py
+python gamry_HiPOZ.py
 ```
 
 The system automatically:
@@ -135,13 +135,13 @@ data/
 ## Workflow Notes
 
 **First-time analysis:**
-1. Run `python gamry_HiPOZOZ.py` - GUI auto-creates `zAnalysis<date>.json`
+1. Run `python gamry_HiPOZ.py` - GUI auto-creates `zAnalysis<date>.json`
 2. Use GUI to mark standards and associate measurements
 3. GUI saves your work back to the config file
 4. Result: Reproducible analysis stored in config file
 
 **Subsequent runs:**
-1. Run `python gamry_HiPOZOZ.py` - GUI loads existing `zAnalysis<date>.json`
+1. Run `python gamry_HiPOZ.py` - GUI loads existing `zAnalysis<date>.json`
 2. Calibration automatically applied from saved config
 3. Make adjustments in GUI if needed
 4. GUI saves updates back to config file
@@ -226,20 +226,20 @@ Each group gets its own cell constant!
 
 ```bash
 # Generate CSV analysis file (Excel-friendly, default)
-python calibration_config.py scan data/20250813
+python analysis_config.py scan data/20250813
 
 # Generate JSON analysis file
-python calibration_config.py scan data/20250813 --format json
+python analysis_config.py scan data/20250813 --format json
 
 # Run analysis (auto-detects CSV or JSON zAnalysis files)
-python gamry_HiPOZOZ.py
+python gamry_HiPOZ.py
 
 # Specify config explicitly (CSV or JSON)
-python gamry_HiPOZOZ.py --config data/20250813/zAnalysis20250813.csv
-python gamry_HiPOZOZ.py --config data/20250813/zAnalysis20250813.json
+python gamry_HiPOZ.py --config data/20250813/zAnalysis20250813.csv
+python gamry_HiPOZ.py --config data/20250813/zAnalysis20250813.json
 
 # Generate example files (for reference)
-python calibration_config.py
+python analysis_config.py
 ```
 
 ## Format Comparison
@@ -260,7 +260,7 @@ python calibration_config.py
 **"No calibration config found"**
 - Check file is named `zAnalysis<date>.csv` or `zAnalysis<date>.json`
 - Check file is in `data/<date>/` directory
-- GUI will auto-create if missing - just run `python gamry_HiPOZOZ.py`
+- GUI will auto-create if missing - just run `python gamry_HiPOZ.py`
 - Use `--config` flag to specify path explicitly
 
 **"No standards found"**
@@ -300,5 +300,5 @@ See `FORMAT_HARMONIZATION.md` for details on how CSV, JSON, and GUI stay synchro
 
 - `FORMAT_HARMONIZATION.md` - How CSV/JSON/GUI harmonize
 - `CALIBRATION_WORKFLOW.md` - Detailed calibration guide
-- `CALIBRATION_README.md` - Complete documentation
+- `docs/CALIBRATION.md` - Complete documentation
 - `CLAUDE.md` - Full project documentation

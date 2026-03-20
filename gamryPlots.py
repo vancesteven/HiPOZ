@@ -9,10 +9,15 @@ from gamryTools import ResistorData, Solution
 # Assign logger
 log = logging.getLogger('HiPOZ')
 
-plt.rcParams['text.usetex'] = True
-plt.rcParams['text.latex.preamble'] = r'\usepackage{stix}\usepackage{siunitx}\usepackage{upgreek}\usepackage[version=4]{mhchem}\sisetup{round-mode=places,scientific-notation=true,round-precision=2}'
-plt.rcParams['font.family'] = 'serif'
-plt.rcParams['font.serif'] = 'STIXGeneral'
+# Configure LaTeX rendering (with fallback if LaTeX not available)
+try:
+    plt.rcParams['text.usetex'] = True
+    plt.rcParams['text.latex.preamble'] = r'\usepackage{stix}\usepackage{siunitx}\usepackage{upgreek}\usepackage[version=4]{mhchem}\sisetup{round-mode=places,scientific-notation=true,round-precision=2}'
+    plt.rcParams['font.family'] = 'serif'
+    plt.rcParams['font.serif'] = 'STIXGeneral'
+except Exception as e:
+    log.warning(f'LaTeX rendering not available: {e}. Falling back to default rendering.')
+    plt.rcParams['text.usetex'] = False
 plot_air = False
 tfmt = '%b%d%H%M%S'
 uScm = r'\mu{S\,cm^{-1}}'
@@ -65,7 +70,7 @@ def add_ticks_y(r_ticks, line_list, ax):
 
 
 def plot_z(sols, fig_size, out_fig_name, xtn, r_ticks, add=None, leg_pairs=True):
-    fig = plt.figure(figsize=figSize)
+    fig = plt.figure(figsize=fig_size)
     grid = GridSpec(1, 1)
     ax = fig.add_subplot(grid[0, 0])
     ax.set_xlabel(r'$\mathrm{Re}\{Z\}$ ($\Omega$)')
@@ -94,7 +99,7 @@ def plot_z(sols, fig_size, out_fig_name, xtn, r_ticks, add=None, leg_pairs=True)
 
 
 def plot_y(sols, fig_size, out_fig_name, xtn, r_ticks, add=None, leg_pairs=True):
-    fig = plt.figure(figsize=figSize)
+    fig = plt.figure(figsize=fig_size)
     grid = GridSpec(1, 1)
     ax = fig.add_subplot(grid[0, 0])
     ax.set_xlabel(r'$\mathrm{Re}\{Y\}$ ($\mho$)')
@@ -105,7 +110,7 @@ def plot_y(sols, fig_size, out_fig_name, xtn, r_ticks, add=None, leg_pairs=True)
 
     dotList = [ax.scatter(1/np.real(sol.Z_ohm), -1/np.imag(sol.Z_ohm), marker=MS_data, label=f'{sol.legLabel} data', color=sol.color) for sol in sols]
     lineList = [ax.plot(1/np.real(sol.Zfit_ohm), -1/np.imag(sol.Zfit_ohm), ls=LS_fit, label=f'{sol.legLabel} fit', color=sol.fitColor)[0] for sol in sols]
-    if Rticks is not None:
+    if r_ticks is not None:
         add_ticks_x(r_ticks, line_list, ax)
 
     all_handles, all_labels = ax.get_legend_handles_labels()
@@ -113,19 +118,19 @@ def plot_y(sols, fig_size, out_fig_name, xtn, r_ticks, add=None, leg_pairs=True)
     ax.legend(handles, labels, title=r'$\sigma_\mathrm{std}$ ($\mathrm{S/m}$)')
     plt.tight_layout()
     if add is None:
-        addBit = ''
+        add_bit = ''
     else:
-        addBit = add
-    outfName = f'{outFigName}Y{addBit}.{xtn}'
-    fig.savefig(outfName, format=xtn, dpi=200)
-    log.info(f'Gamry calibration plot saved to file: {outfName}')
+        add_bit = add
+    out_fname = f'{out_fig_name}Y{add_bit}.{xtn}'
+    fig.savefig(out_fname, format=xtn, dpi=200)
+    log.info(f'Gamry calibration plot saved to file: {out_fname}')
     plt.close()
 
     return
 
 
 def plot_zvsf(sols, fig_size, out_fig_name, xtn, r_ticks, add=None, leg_pairs=True):
-    fig = plt.figure(figsize=figSize)
+    fig = plt.figure(figsize=fig_size)
     grid = GridSpec(1, 1)
     ax = fig.add_subplot(grid[0, 0])
     ax.set_xlabel(r'Frequency $f$ ($\mathrm{Hz}$)')
@@ -136,7 +141,7 @@ def plot_zvsf(sols, fig_size, out_fig_name, xtn, r_ticks, add=None, leg_pairs=Tr
 
     dotList = [ax.scatter(sol.f_Hz, np.abs(sol.Z_ohm), marker=MS_data, label=f'{sol.legLabel} data', color=sol.color) for sol in sols]
     lineList = [ax.plot(sol.f_Hz, np.abs(sol.Zfit_ohm), ls=LS_fit, label=f'{sol.legLabel} fit', color=sol.fitColor)[0] for sol in sols]
-    if Rticks is not None:
+    if r_ticks is not None:
         add_ticks_y(r_ticks, line_list, ax)
 
     all_handles, all_labels = ax.get_legend_handles_labels()
@@ -144,19 +149,19 @@ def plot_zvsf(sols, fig_size, out_fig_name, xtn, r_ticks, add=None, leg_pairs=Tr
     ax.legend(handles, labels, title=r'$\sigma_\mathrm{std}$ ($\mathrm{S/m}$)')
     plt.tight_layout()
     if add is None:
-        addBit = ''
+        add_bit = ''
     else:
-        addBit = add
-    outfName = f'{outFigName}Zvsf{addBit}.{xtn}'
-    fig.savefig(outfName, format=xtn, dpi=200)
-    log.info(f'Gamry calibration plot saved to file: {outfName}')
+        add_bit = add
+    out_fname = f'{out_fig_name}Zvsf{add_bit}.{xtn}'
+    fig.savefig(out_fname, format=xtn, dpi=200)
+    log.info(f'Gamry calibration plot saved to file: {out_fname}')
     plt.close()
 
     return
 
 
 def plot_phasevsf(sols, fig_size, out_fig_name, xtn, add=None, leg_pairs=True):
-    fig = plt.figure(figsize=figSize)
+    fig = plt.figure(figsize=fig_size)
     grid = GridSpec(1, 1)
     ax = fig.add_subplot(grid[0, 0])
     ax.set_xlabel(r'Frequency $f$ ($\mathrm{Hz}$)')
@@ -172,19 +177,19 @@ def plot_phasevsf(sols, fig_size, out_fig_name, xtn, add=None, leg_pairs=True):
     ax.legend(handles, labels, title=r'$\sigma_\mathrm{std}$ ($\mathrm{S/m}$)')
     plt.tight_layout()
     if add is None:
-        addBit = ''
+        add_bit = ''
     else:
-        addBit = add
-    outfName = f'{outFigName}Phasevsf{addBit}.{xtn}'
-    fig.savefig(outfName, format=xtn, dpi=200)
-    log.info(f'Gamry calibration plot saved to file: {outfName}')
+        add_bit = add
+    out_fname = f'{out_fig_name}Phasevsf{add_bit}.{xtn}'
+    fig.savefig(out_fname, format=xtn, dpi=200)
+    log.info(f'Gamry calibration plot saved to file: {out_fname}')
     plt.close()
 
     return
 
 
 def plot_condvsp(sols, fig_size, out_fig_name, xtn, add=None):
-    fig = plt.figure(figsize=figSize)
+    fig = plt.figure(figsize=fig_size)
     grid = GridSpec(1, 1)
     ax = fig.add_subplot(grid[0, 0])
     ax.set_xlabel(r'Pressure $P$ ($\mathrm{MPa}$)')
@@ -204,12 +209,12 @@ def plot_condvsp(sols, fig_size, out_fig_name, xtn, add=None):
     # ax.legend(title=r'$\sigma_\mathrm{std}$ ($\mathrm{S/m}$)')
     plt.tight_layout()
     if add is None:
-        addBit = ''
+        add_bit = ''
     else:
-        addBit = add
-    outfName = f'{outFigName}CondvsP{addBit}.{xtn}'
-    fig.savefig(outfName, format=xtn, dpi=200)
-    log.info(f'Cond vs P plot saved to file: {outfName}')
+        add_bit = add
+    out_fname = f'{out_fig_name}CondvsP{add_bit}.{xtn}'
+    fig.savefig(out_fname, format=xtn, dpi=200)
+    log.info(f'Cond vs P plot saved to file: {out_fname}')
     plt.close()
 
     return
@@ -219,7 +224,7 @@ def plot_zfit(sols, fig_size, xtn, out_fig_name=None, leg_pairs=True):
     for sol in sols:
         if isinstance(sol, ResistorData):
             # This is a resistor data, plot data and fit if available
-            fig = plt.figure(figsize=figSize)
+            fig = plt.figure(figsize=fig_size)
             grid = GridSpec(1, 1)
             ax = fig.add_subplot(grid[0, 0])
             ax.grid()
@@ -240,15 +245,15 @@ def plot_zfit(sols, fig_size, xtn, out_fig_name=None, leg_pairs=True):
             handles, labels = get_unique(all_handles, all_labels, paired=leg_pairs)
             ax.legend(handles, labels)
 
-            if outFigName is not None:
+            if out_fig_name is not None:
                 tstr = sol.time.strftime(tfmt)  # temporary comment out CP for resistor testing
                 thisOutFigName = f'{sol.lbl_uScm}uScm_{tstr}'
                 ax.set_title(
                     f'Nyquist plot for ${sol.lbl_uScm}\,\mathrm{{\mu S/cm}}$ at {tstr}, $K_\mathrm{{cell}}={sol.Kcell_pm:.2f}\,\mathrm{{m^{{-1}}}}$')
 
-                outfName = f'{thisOutFigName}Nyquist.{xtn}'
-                fig.savefig(outfName, format=xtn, dpi=200)
-                log.info(f'Nyquist plot saved to file: {outfName}')
+                out_fname = f'{thisOutFigName}Nyquist.{xtn}'
+                fig.savefig(out_fname, format=xtn, dpi=200)
+                log.info(f'Nyquist plot saved to file: {out_fname}')
                 plt.close()
 
         elif isinstance(sol, Solution):
@@ -329,7 +334,7 @@ def plot_sigma(all_meas, fig_size, out_fig_name, xtn):
     colorstr = 'gbryk'
     iColor = 0
 
-    fig = plt.figure(figsize=figSize)
+    fig = plt.figure(figsize=fig_size)
     grid = GridSpec(1, 1)
     ax1 = fig.add_subplot(2,1,1)
     ax2 = fig.add_subplot(2,1,2)
@@ -366,7 +371,7 @@ def plot_sigma(all_meas, fig_size, out_fig_name, xtn):
     # ax.set_yscale('log')
     plt.show()
     # plt.tight_layout()
-    outfName = f'{outFigName}CondvsTP.{xtn}'
-    fig.savefig(outfName, format=xtn, dpi=500)
-    print(f'Cond vs T plot saved to file: {outfName}')
+    out_fname = f'{out_fig_name}CondvsTP.{xtn}'
+    fig.savefig(out_fname, format=xtn, dpi=500)
+    print(f'Cond vs T plot saved to file: {out_fname}')
     plt.close()

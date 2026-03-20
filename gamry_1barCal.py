@@ -22,9 +22,9 @@ DeltamSolute_g = 0.001
 Ttap_C = 25
 
 Sol = Solution(comp='NaCl')
-mSolute_g, Vwater_mL = Sol.Recipe(float(conc.split(' ')[0]), units=conc.split(' ')[-1], vol_mL=Vrecipe_mL, TH2O_C=Ttap_C)
+mSolute_g, Vwater_mL = Sol.recipe(float(conc.split(' ')[0]), units=conc.split(' ')[-1], vol_mL=Vrecipe_mL, TH2O_C=Ttap_C)
 mSolute_g = float(f'{mSolute_g:.3f}')  # Truncate to precision of scale as in DeltamSolute_g
-Sol.wMeas_ppt, Sol.Deltaw_ppt, Sol.wMeas_molal, Sol.Deltaw_molal = Sol.CalcConc(mSolute_g, Vbeaker_mL, Vwater_mL,
+Sol.wMeas_ppt, Sol.Deltaw_ppt, Sol.wMeas_molal, Sol.Deltaw_molal = Sol.calc_conc(mSolute_g, Vbeaker_mL, Vwater_mL,
                                            DeltamSolute_g=DeltamSolute_g, DeltaVbeaker_mL=DeltaVbeaker_mL, TH2O_C=Ttap_C)
 
 
@@ -78,7 +78,7 @@ for i, file in enumerate(gamryFiles):
         cals[i].sigmaStdCalc_Sm = calStd(cals[i].T_K, lbl_uScm=cals[i].lbl_uScm)
     else:
         cals[i].sigmaStdCalc_Sm = 1e-8  # Default air conductivity
-    cals[i].FitCircuit(circType=circType, initial_guess=initial_guess, PRINT=(i == 0))
+    cals[i].fit_circuit(circ_type=circType, initial_guess=initial_guess, print_circuit=(i == 0))
     cals[i].Kcell_pm = cals[i].sigmaStdCalc_Sm * cals[i].Rcalc_ohm
 
     if not PLOT_AIR and cals[i].comp == 'Air':

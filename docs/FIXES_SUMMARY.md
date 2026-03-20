@@ -7,7 +7,7 @@
 **Problem:** When using CSV/JSON config with standards that have `conductivity_Sm` values, the GUI wasn't populating the S (S/m) column for standards. This caused errors when trying to manually select only some standards ("cannot parse S or Z").
 
 **Solution:**
-- Updated `calibration_config.py` to include `standard_metadata` in results
+- Updated `analysis_config.py` to include `standard_metadata` in results
 - Updated `DataSelector.apply_calibration_config()` to populate S (S/m) column for standards
 - Standards now show their known conductivity values (e.g., 8.0 S/m for KCl) in the table
 
@@ -84,7 +84,7 @@ self.save_curated_outputs(save_svsp=True)
 **Problem:** Headless mode had no way to control which plots to generate.
 
 **Solution:**
-Added command line flags to `gamry_HiPOZOZ.py`:
+Added command line flags to `gamry_HiPOZ.py`:
 
 ```bash
 --plot-svsp      # Generate S vs P plot
@@ -96,21 +96,21 @@ Added command line flags to `gamry_HiPOZOZ.py`:
 **Examples:**
 ```bash
 # No plots (default)
-python gamry_HiPOZOZ.py --headless
+python gamry_HiPOZ.py --headless
 
 # Generate S vs P plot only
-python gamry_HiPOZOZ.py --headless --plot-svsp
+python gamry_HiPOZ.py --headless --plot-svsp
 
 # Generate all plots
-python gamry_HiPOZOZ.py --headless --plot-all
+python gamry_HiPOZ.py --headless --plot-all
 
 # GUI mode (plots on demand)
-python gamry_HiPOZOZ.py --gui
+python gamry_HiPOZ.py --gui
 ```
 
 ## Files Modified
 
-### calibration_config.py
+### analysis_config.py
 - Added `standard_metadata` to result dictionary
 - Include `conductivity_Sm` in metadata
 - Append metadata when standards are found
@@ -131,7 +131,7 @@ python gamry_HiPOZOZ.py --gui
 - Save results CSV in config directory
 - Generate matching JSON when input is CSV (and vice versa)
 
-### gamry_HiPOZOZ.py
+### gamry_HiPOZ.py
 - Added `--plot-svsp` flag
 - Added `--plot-bode` flag
 - Added `--plot-nyquist` flag
@@ -142,7 +142,7 @@ python gamry_HiPOZOZ.py --gui
 
 ### GUI Mode Test
 ```bash
-$ python gamry_HiPOZOZ.py --gui
+$ python gamry_HiPOZ.py --gui
 [INFO] Using config directory for exports: data/20250813Mahboub2026
 [INFO] ✓ Found CSV config: data/20250813/zAnalysis20250813.csv
 [INFO] Window geometry: PyQt5.QtCore.QRect(200, 200, 1000, 800)
@@ -156,7 +156,7 @@ $ python gamry_HiPOZOZ.py --gui
 
 ### Headless Mode Test
 ```bash
-$ python gamry_HiPOZOZ.py --headless
+$ python gamry_HiPOZ.py --headless
 [INFO] HEADLESS ANALYSIS MODE
 [INFO] Results saved to: data/20250813Mahboub2026/hipoz_20260318_164226_results.csv
 [INFO] Creating matching JSON: data/20250813Mahboub2026/zAnalysis20250813Mahboub2026_analyzed.json
@@ -186,34 +186,34 @@ $ python gamry_HiPOZOZ.py --headless
 ### Analysis Modes
 ```bash
 # Auto-detect (CSV/JSON determines headless vs GUI)
-python gamry_HiPOZOZ.py
+python gamry_HiPOZ.py
 
 # Force headless
-python gamry_HiPOZOZ.py --headless
+python gamry_HiPOZ.py --headless
 
 # Force GUI
-python gamry_HiPOZOZ.py --gui
+python gamry_HiPOZ.py --gui
 ```
 
 ### Plot Generation (Headless Only)
 ```bash
 # No plots
-python gamry_HiPOZOZ.py --headless
+python gamry_HiPOZ.py --headless
 
 # S vs P plot
-python gamry_HiPOZOZ.py --headless --plot-svsp
+python gamry_HiPOZ.py --headless --plot-svsp
 
 # Bode plots
-python gamry_HiPOZOZ.py --headless --plot-bode
+python gamry_HiPOZ.py --headless --plot-bode
 
 # Nyquist plots
-python gamry_HiPOZOZ.py --headless --plot-nyquist
+python gamry_HiPOZ.py --headless --plot-nyquist
 
 # All plots
-python gamry_HiPOZOZ.py --headless --plot-all
+python gamry_HiPOZ.py --headless --plot-all
 
 # Combined with config override
-python gamry_HiPOZOZ.py --headless --config my_config.csv --plot-all
+python gamry_HiPOZ.py --headless --config my_config.csv --plot-all
 ```
 
 ## Migration Notes

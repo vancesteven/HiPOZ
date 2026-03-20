@@ -126,12 +126,12 @@ Each group gets its own cell constant, accounting for drift!
 
 Save as:
 - `data/20250813/calibration_config.json` (auto-detected)
-- Or any path, then specify: `python gamry_HiPOZOZ.py --config my_config.json`
+- Or any path, then specify: `python gamry_HiPOZ.py --config my_config.json`
 
 ### Step 5: Run HiPOZ
 
 ```bash
-python gamry_HiPOZOZ.py
+python gamry_HiPOZ.py
 ```
 
 The system will:
@@ -172,7 +172,7 @@ The system will:
 2. Replace filenames with your actual files
 3. Set conductivity values (in S/m)
 4. Save as `calibration_config.json`
-5. Run `python gamry_HiPOZOZ.py`
+5. Run `python gamry_HiPOZ.py`
 
 ### CSV Template (Alternative)
 
@@ -299,7 +299,7 @@ The cell constant will be averaged across all 3 standards.
    - List measurement filenames
    - Group into multiple calibrations if bracketing
 4. Save config in data directory
-5. Run: python gamry_HiPOZOZ.py
+5. Run: python gamry_HiPOZ.py
 6. Results appear in GUI automatically!
 ```
 
@@ -337,7 +337,7 @@ Session1,meas2.txt,measurement,,
 Don't want to type all filenames? Generate a template:
 
 ```bash
-python calibration_config.py scan data/20250813
+python analysis_config.py scan data/20250813
 ```
 
 This creates `calibration_config.json` with all your files listed. Then edit it to:
@@ -355,6 +355,6 @@ This creates `calibration_config.json` with all your files listed. Then edit it 
 
 ## Questions?
 
-- See `CALIBRATION_README.md` for detailed documentation
+- See `docs/CALIBRATION.md` for detailed documentation
 - See `CLAUDE.md` for full project documentation
-- Run `python calibration_config.py` to generate examples
+- Run `python analysis_config.py` to generate examples

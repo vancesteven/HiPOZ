@@ -19,13 +19,13 @@ The system now ensures CSV and JSON formats stay synchronized with the GUI:
 - Tracks loaded config path from `calib_config.config_path`
 - Preserves format from loaded file
 
-#### `calibration_config.py` Updates:
+#### `analysis_config.py` Updates:
 - Stores `config_path` in CalibrationConfig class
 - CSV format is default for auto-generation
 - Exclude support in both CSV and JSON
 - Format flag: `--format csv` or `--format json`
 
-#### `gamry_HiPOZOZ.py` Updates:
+#### `gamry_HiPOZ.py` Updates:
 - CSV has priority over JSON when both exist
 - Auto-detects config files in correct order
 
@@ -71,7 +71,7 @@ All tests pass ✅:
 
 ```bash
 # 1. Generate CSV config
-python calibration_config.py scan data/20250813
+python analysis_config.py scan data/20250813
 
 # 2. Move to data directory
 mv zAnalysis20250813.csv data/20250813/
@@ -83,7 +83,7 @@ mv zAnalysis20250813.csv data/20250813/
 # - Mark exclude='x' for bad files
 
 # 4. Run GUI
-python gamry_HiPOZOZ.py
+python gamry_HiPOZ.py
 # → Loads CSV
 # → Saves back to CSV
 # → No JSON created
@@ -93,7 +93,7 @@ python gamry_HiPOZOZ.py
 
 ```bash
 # 1. Generate JSON config
-python calibration_config.py scan data/20250813 --format json
+python analysis_config.py scan data/20250813 --format json
 
 # 2. Move to data directory
 mv zAnalysis20250813.json data/20250813/
@@ -103,7 +103,7 @@ mv zAnalysis20250813.json data/20250813/
 # - Add "exclude": true for bad files
 
 # 4. Run GUI
-python gamry_HiPOZOZ.py
+python gamry_HiPOZ.py
 # → Loads JSON
 # → Saves back to JSON
 # → No CSV created
@@ -118,7 +118,7 @@ data/20250813/
   └── zAnalysis20250813.json   # For advanced users
 
 # When you run:
-python gamry_HiPOZOZ.py
+python gamry_HiPOZ.py
 # → CSV loads (priority)
 # → Saves to CSV only
 # → JSON unchanged
@@ -175,7 +175,7 @@ Group 1,meas1.txt,measurement,,NaCl,1000,,,Updated by GUI
 New/Updated Documentation:
 - ✅ `FORMAT_HARMONIZATION.md` - Complete harmonization guide
 - ✅ `QUICK_START.md` - Updated with format info
-- ✅ `CALIBRATION_README.md` - Updated with CSV/JSON examples
+- ✅ `docs/CALIBRATION.md` - Updated with CSV/JSON examples
 - ✅ `MEMORY.md` - Updated with harmonization notes
 - ✅ `test_format_harmonization.py` - Test suite
 
@@ -193,7 +193,7 @@ New/Updated Documentation:
 
 ### For Students
 - **Use CSV** - easier in Excel
-- Generate with: `python calibration_config.py scan data/<date>`
+- Generate with: `python analysis_config.py scan data/<date>`
 - Edit in Excel
 - Mark bad files with 'x'
 

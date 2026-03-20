@@ -197,7 +197,7 @@ plot_sigma_vs_concentration(conc, sigma, errors, labels, out_file='plot.pdf')
 
 1. **Measure with Gamry**: Use HiPOZ to process impedance data
    ```bash
-   python gamry_HiPOZOZ.py --dates 20250815
+   python gamry_HiPOZ.py --dates 20250815
    ```
 
 2. **Mark standards** in GUI → exports `hipoz_latest_curated.csv`

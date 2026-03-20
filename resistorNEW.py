@@ -58,7 +58,7 @@ for i, file in enumerate(gamryFiles):
     print(f"Resistor {i + 1} - Frequency (Hz):", resistor.f_Hz)
     print(f"Resistor {i + 1} - Impedance (ohm):", resistor.Z_ohm)
 
-    resistor.FitCircuit(circType=circType, initial_guess=initial_guess, PRINT=(i == 0))
+    resistor.fit_circuit(circ_type=circType, initial_guess=initial_guess, print_circuit=(i == 0))
 
     resistors.append(resistor)  # Append the resistor to the list
 

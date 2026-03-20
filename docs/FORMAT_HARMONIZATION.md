@@ -34,7 +34,7 @@ When multiple formats exist, the system uses this priority:
 
 ```bash
 # 1. Generate CSV config
-python calibration_config.py scan data/20250813
+python analysis_config.py scan data/20250813
 
 # 2. Move to data directory
 mv zAnalysis20250813.csv data/20250813/
@@ -47,7 +47,7 @@ mv zAnalysis20250813.csv data/20250813/
 # - Mark exclude='x' for bad files
 
 # 4. Run analysis
-python gamry_HiPOZOZ.py
+python gamry_HiPOZ.py
 
 # 5. GUI processes data
 # - Loads CSV
@@ -62,7 +62,7 @@ python gamry_HiPOZOZ.py
 
 ```bash
 # 1. Generate JSON config
-python calibration_config.py scan data/20250813 --format json
+python analysis_config.py scan data/20250813 --format json
 
 # 2. Move to data directory
 mv zAnalysis20250813.json data/20250813/
@@ -73,7 +73,7 @@ mv zAnalysis20250813.json data/20250813/
 # - Create multiple calibration groups
 
 # 4. Run analysis
-python gamry_HiPOZOZ.py
+python gamry_HiPOZ.py
 
 # 5. GUI processes data
 # - Loads JSON
@@ -187,7 +187,7 @@ This verifies:
 
 ### For Students (Excel Users)
 1. **Use CSV only** - it's simpler
-2. Generate with: `python calibration_config.py scan data/<date>`
+2. Generate with: `python analysis_config.py scan data/<date>`
 3. Edit in Excel - familiar spreadsheet interface
 4. Mark bad files with `x` in exclude column
 5. Run analysis - GUI stays in CSV
@@ -220,13 +220,13 @@ This verifies:
 
 **"GUI created JSON, I want CSV"**
 - Delete the JSON: `rm data/<date>/zAnalysis<date>.json`
-- Create CSV: `python calibration_config.py scan data/<date>`
+- Create CSV: `python analysis_config.py scan data/<date>`
 - Move to directory: `mv zAnalysis<date>.csv data/<date>/`
 
 **"Can I convert between formats?"**
 - No automatic converter yet
 - Manual: Open CSV in Excel, copy data to JSON structure
-- Or regenerate: `python calibration_config.py scan data/<date> --format csv`
+- Or regenerate: `python analysis_config.py scan data/<date> --format csv`
 
 ## Summary
 

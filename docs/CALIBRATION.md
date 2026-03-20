@@ -7,23 +7,23 @@ HiPOZ supports automated calibration via configuration files with **explicit fil
 ### 1. Generate Example Config Files
 
 ```bash
-python calibration_config.py
+python analysis_config.py
 ```
 
 This creates:
-- `calibration_config_example.csv` - **CSV format (recommended for Excel users)**
-- `calibration_config_example.json` - JSON format
+- `analysis_config_example.csv` - **CSV format (recommended for Excel users)**
+- `analysis_config_example.json` - JSON format
 
 ### 2. Auto-Generate Config from Your Data
 
 **Generate CSV (Excel-friendly, default):**
 ```bash
-python calibration_config.py scan data/20250813
+python analysis_config.py scan data/20250813
 ```
 
 **Or generate JSON:**
 ```bash
-python calibration_config.py scan data/20250813 --format json
+python analysis_config.py scan data/20250813 --format json
 ```
 
 This scans your data directory and generates `zAnalysis<date>.csv` (or `.json`) with all your files listed. You then edit it to:
@@ -44,12 +44,12 @@ data/
     # OR zAnalysis20250813.json      # JSON format also supported
 ```
 
-**Note:** The GUI will auto-create this file if missing when you run `python gamry_HiPOZOZ.py`
+**Note:** The GUI will auto-create this file if missing when you run `python gamry_HiPOZ.py`
 
 ### 4. Run HiPOZ
 
 ```bash
-python gamry_HiPOZOZ.py
+python gamry_HiPOZ.py
 ```
 
 The GUI automatically:
@@ -210,7 +210,7 @@ You measured standards at the start, then did all your measurements:
 
 **1. Scan your data (generates CSV by default):**
 ```bash
-python calibration_config.py scan data/20250813
+python analysis_config.py scan data/20250813
 ```
 
 **2. Edit `zAnalysis20250813.csv` in Excel:**
@@ -228,7 +228,7 @@ mv zAnalysis20250813.csv data/20250813/
 
 **4. Run:**
 ```bash
-python gamry_HiPOZOZ.py
+python gamry_HiPOZ.py
 ```
 
 ### Example 2: Bracketed Measurements
@@ -339,16 +339,16 @@ Files with `x`, `yes`, `true`, or `1` in exclude column will be skipped.
 
 ### Generate Examples
 ```bash
-python calibration_config.py
+python analysis_config.py
 ```
 
 ### Scan Data Directory
 ```bash
 # Scan and generate config from your data
-python calibration_config.py scan data/20250813
+python analysis_config.py scan data/20250813
 
 # Output to custom filename
-python calibration_config.py scan data/20250813 my_calibration.json
+python analysis_config.py scan data/20250813 my_calibration.json
 ```
 
 This automatically:
@@ -360,13 +360,13 @@ This automatically:
 ### Run with Config
 ```bash
 # Auto-detect config in data directory
-python gamry_HiPOZOZ.py
+python gamry_HiPOZ.py
 
 # Specify config path
-python gamry_HiPOZOZ.py --config path/to/my_config.json
+python gamry_HiPOZ.py --config path/to/my_config.json
 
 # Multiple data directories
-python gamry_HiPOZOZ.py --dates 20250813 20250814
+python gamry_HiPOZ.py --dates 20250813 20250814
 ```
 
 ## How It Works
@@ -405,7 +405,7 @@ This handles instrument drift between measurement sessions.
 - Check filename spelling (case-sensitive!)
 - Use `ls data/20250813/ConductivityData_Default/*.txt` to see actual filenames
 - Copy exact filenames into config
-- Or use `python calibration_config.py scan data/20250813` to auto-generate
+- Or use `python analysis_config.py scan data/20250813` to auto-generate
 
 ### "No valid cell constants computed"
 
@@ -506,7 +506,7 @@ for result in results:
 
 Don't want to use config files? The manual workflow still works:
 
-1. Run without config: `python gamry_HiPOZOZ.py`
+1. Run without config: `python gamry_HiPOZ.py`
 2. Select standard rows in table (use filename column to identify them!)
 3. Click "Mark as Standard"
 4. Select measurement rows
@@ -517,4 +517,4 @@ The config approach automates these steps and supports bracketing!
 ## See Also
 
 - `CLAUDE.md` - Full project documentation
-- `python calibration_config.py --help` - Command line help
+- `python analysis_config.py --help` - Command line help

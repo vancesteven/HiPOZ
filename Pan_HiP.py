@@ -44,7 +44,7 @@ for d_ind,thisDate in enumerate(dates):
             meas[i].sigmaStdCalc_Sm = calStd(meas[i].T_K, lbl_uScm=meas[i].lbl_uScm)
         else:
             meas[i].sigmaStdCalc_Sm = 1e-8  # Default air conductivity
-        meas[i].FitCircuit(circType=circType, initial_guess=initial_guess)
+        meas[i].fit_circuit(circ_type=circType, initial_guess=initial_guess)
         meas[i].Kcell_pm = meas[i].sigmaStdCalc_Sm * meas[i].Rcalc_ohm
 
         if not PLOT_AIR and meas[i].comp == 'Air':

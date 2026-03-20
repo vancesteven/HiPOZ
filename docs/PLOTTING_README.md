@@ -18,7 +18,7 @@ The new `plotting.py` module provides flexible plotting functions for:
 ### For Gamry Data (GUI Mode)
 
 ```bash
-python gamry_HiPOZOZ.py --dates 20250815
+python gamry_HiPOZ.py --dates 20250815
 ```
 
 The GUI now includes buttons to generate σ vs concentration and σ vs temperature plots.
@@ -47,16 +47,16 @@ plot_sigma_vs_concentration(
 
 ```bash
 # Conductivity vs concentration
-python gamry_HiPOZOZ.py --headless --dates 20250815 --plot-sigma-conc
+python gamry_HiPOZ.py --headless --dates 20250815 --plot-sigma-conc
 
 # Conductivity vs temperature
-python gamry_HiPOZOZ.py --headless --dates 20250815 --plot-sigma-temp
+python gamry_HiPOZ.py --headless --dates 20250815 --plot-sigma-temp
 
 # All plots including new ones
-python gamry_HiPOZOZ.py --headless --dates 20250815 --plot-all
+python gamry_HiPOZ.py --headless --dates 20250815 --plot-all
 
 # Combine multiple plot types
-python gamry_HiPOZOZ.py --headless --dates 20250815 --plot-sigma-conc --plot-sigma-temp --plot-svsp
+python gamry_HiPOZ.py --headless --dates 20250815 --plot-sigma-conc --plot-sigma-temp --plot-svsp
 ```
 
 ### Existing Plotting Flags
@@ -365,7 +365,7 @@ fig = plot_sigma_vs_concentration(
 
 ```bash
 # Process Gamry data
-python gamry_HiPOZOZ.py --dates 20250815
+python gamry_HiPOZ.py --dates 20250815
 
 # Mark standards and associate measurements in GUI
 # GUI auto-saves to zAnalysis20250815.csv
@@ -375,7 +375,7 @@ python gamry_HiPOZOZ.py --dates 20250815
 
 ```bash
 # Generate all Gamry plots
-python gamry_HiPOZOZ.py --headless --dates 20250815 --plot-all
+python gamry_HiPOZ.py --headless --dates 20250815 --plot-all
 ```
 
 ### Step 3: Add External Comparison Data

@@ -18,14 +18,14 @@ The `--harmonize` command synchronizes CSV and JSON config files, ensuring both 
 
 ## Usage
 
-### Via gamry_HiPOZOZ.py (Recommended)
+### Via gamry_HiPOZ.py (Recommended)
 
 ```bash
 # After editing CSV in Excel:
-python gamry_HiPOZOZ.py --harmonize data/20250815/zAnalysis20250815.csv
+python gamry_HiPOZ.py --harmonize data/20250815/zAnalysis20250815.csv
 
 # After editing JSON:
-python gamry_HiPOZOZ.py --harmonize data/20250815/zAnalysis20250815.json
+python gamry_HiPOZ.py --harmonize data/20250815/zAnalysis20250815.json
 ```
 
 ### Via harmonize_config.py (Standalone)
@@ -52,7 +52,7 @@ python harmonize_config.py --quiet data/20250815/zAnalysis20250815.csv
 1. Open `data/20250815/zAnalysis20250815.csv` in Excel
 2. Edit standards, measurements, notes, concentrations
 3. Save file
-4. Run: `python gamry_HiPOZOZ.py --harmonize data/20250815/zAnalysis20250815.csv`
+4. Run: `python gamry_HiPOZ.py --harmonize data/20250815/zAnalysis20250815.csv`
 5. ✓ JSON is now synchronized
 
 **Result:**
@@ -86,9 +86,9 @@ for f in data/*/zAnalysis*.csv; do
     python harmonize_config.py "$f"
 done
 
-# Or with gamry_HiPOZOZ.py:
+# Or with gamry_HiPOZ.py:
 for f in data/*/zAnalysis*.csv; do
-    python gamry_HiPOZOZ.py --harmonize "$f"
+    python gamry_HiPOZ.py --harmonize "$f"
 done
 ```
 
@@ -214,7 +214,7 @@ diff backup.json data/20250815/zAnalysis20250815.json
 
 **Command:**
 ```bash
-python gamry_HiPOZOZ.py --harmonize data/StudentData/zAnalysis.csv
+python gamry_HiPOZ.py --harmonize data/StudentData/zAnalysis.csv
 ```
 
 **Result:** JSON created with identical data
@@ -256,7 +256,7 @@ python harmonize_config.py data/20250815/zAnalysis20250815.csv
 1. Open CSV in Excel
 2. Add notes in "notes" column
 3. Save
-4. Harmonize: `python gamry_HiPOZOZ.py --harmonize data/20250815/zAnalysis.csv`
+4. Harmonize: `python gamry_HiPOZ.py --harmonize data/20250815/zAnalysis.csv`
 5. Re-run analysis with updated config
 
 ## Error Handling
@@ -277,11 +277,11 @@ WARNING: JSON file already exists: data/20250815/zAnalysis.json
 Use --force to overwrite
 ```
 
-**Solution:** Use `--force` flag or via gamry_HiPOZOZ.py (always forces):
+**Solution:** Use `--force` flag or via gamry_HiPOZ.py (always forces):
 ```bash
 python harmonize_config.py --force data/20250815/zAnalysis.csv
 # or
-python gamry_HiPOZOZ.py --harmonize data/20250815/zAnalysis.csv
+python gamry_HiPOZ.py --harmonize data/20250815/zAnalysis.csv
 ```
 
 ### Invalid CSV Format
@@ -306,10 +306,10 @@ python -m json.tool data/20250815/zAnalysis.json
 
 ### GUI Workflow
 
-1. Run analysis: `python gamry_HiPOZOZ.py --dates 20250815`
+1. Run analysis: `python gamry_HiPOZ.py --dates 20250815`
 2. GUI creates initial config files (both CSV and JSON)
 3. Edit CSV in Excel to add notes/metadata
-4. Harmonize: `python gamry_HiPOZOZ.py --harmonize data/20250815/zAnalysis.csv`
+4. Harmonize: `python gamry_HiPOZ.py --harmonize data/20250815/zAnalysis.csv`
 5. Re-run analysis with updated config
 
 **Note:** GUI automatically harmonizes on save, but manual harmonize ensures consistency.
@@ -317,8 +317,8 @@ python -m json.tool data/20250815/zAnalysis.json
 ### Headless Workflow
 
 1. Create/edit CSV config in Excel
-2. Harmonize: `python gamry_HiPOZOZ.py --harmonize data/20250815/zAnalysis.csv`
-3. Run headless: `python gamry_HiPOZOZ.py --headless --dates 20250815`
+2. Harmonize: `python gamry_HiPOZ.py --harmonize data/20250815/zAnalysis.csv`
+3. Run headless: `python gamry_HiPOZ.py --headless --dates 20250815`
 4. Results saved to same directory
 
 ### Batch Processing Workflow
@@ -327,7 +327,7 @@ python -m json.tool data/20250815/zAnalysis.json
 # For each student directory:
 for dir in data/Student*; do
     # Create CSV template
-    python calibration_config.py --generate "$dir"
+    python analysis_config.py --generate "$dir"
 
     # Student edits CSV in Excel
     # (pause for student to edit)
@@ -336,7 +336,7 @@ for dir in data/Student*; do
     python harmonize_config.py "$dir"/zAnalysis*.csv
 
     # Run analysis
-    python gamry_HiPOZOZ.py --headless --dates $(basename "$dir")
+    python gamry_HiPOZ.py --headless --dates $(basename "$dir")
 done
 ```
 
@@ -358,17 +358,17 @@ optional arguments:
   -q, --quiet    Quiet mode - minimal output
 ```
 
-### gamry_HiPOZOZ.py --harmonize
+### gamry_HiPOZ.py --harmonize
 
 ```
-usage: gamry_HiPOZOZ.py [--harmonize FILE] [other options]
+usage: gamry_HiPOZ.py [--harmonize FILE] [other options]
 
 optional arguments:
   --harmonize FILE  Harmonize CSV↔JSON config file (creates matching format) and exit
 ```
 
 **Differences:**
-- `gamry_HiPOZOZ.py --harmonize` always uses `--force` (overwrites)
+- `gamry_HiPOZ.py --harmonize` always uses `--force` (overwrites)
 - `harmonize_config.py` requires `--force` flag to overwrite
 - Both produce identical results
 
@@ -380,7 +380,7 @@ Make it a habit:
 ```bash
 # Edit CSV in Excel
 # Save and close Excel
-python gamry_HiPOZOZ.py --harmonize data/YourData/zAnalysis.csv
+python gamry_HiPOZ.py --harmonize data/YourData/zAnalysis.csv
 ```
 
 ### Tip 2: Use CSV as Primary Format
@@ -457,4 +457,4 @@ python harmonize_config.py data/20250815/zAnalysis.csv
 
 - `FORMAT_HARMONIZATION.md` - CSV/JSON format specifications
 - `DIRECTORY_SELECTION_UPDATE.md` - Directory selection workflow
-- `calibration_config.py` - Config file generation and loading
+- `analysis_config.py` - Config file generation and loading

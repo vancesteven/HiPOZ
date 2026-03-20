@@ -455,7 +455,7 @@ class AnalysisConfig:
         return result
 
 
-def create_example_config_json(output_path: str = "calibration_config_example.json"):
+def create_example_config_json(output_path: str = "analysis_config_example.json"):
     """
     Create an example JSON configuration file with explicit filenames.
 
@@ -515,7 +515,7 @@ def create_example_config_json(output_path: str = "calibration_config_example.js
     print(f"Example JSON configuration saved to: {output_path}")
 
 
-def create_example_config_csv(output_path: str = "calibration_config_example.csv"):
+def create_example_config_csv(output_path: str = "analysis_config_example.csv"):
     """
     Create an example CSV configuration file.
 
@@ -697,17 +697,17 @@ if __name__ == "__main__":
         print("\nExample configuration files created!")
         print("\nUsage:")
         print("  # Generate examples:")
-        print("  python calibration_config.py")
+        print("  python analysis_config.py")
         print()
         print("  # Generate CSV config (Excel-friendly, default):")
-        print("  python calibration_config.py scan data/20250813")
-        print("  python calibration_config.py scan data/20250813 --format csv")
+        print("  python analysis_config.py scan data/20250813")
+        print("  python analysis_config.py scan data/20250813 --format csv")
         print()
         print("  # Generate JSON config:")
-        print("  python calibration_config.py scan data/20250813 --format json")
+        print("  python analysis_config.py scan data/20250813 --format json")
         print()
         print("  # Custom output name (format auto-detected from extension):")
-        print("  python calibration_config.py scan data/20250813 my_analysis.csv")
+        print("  python analysis_config.py scan data/20250813 my_analysis.csv")
         print()
         print("  # Then run (auto-detects zAnalysis files in data dir):")
         print("  python gamry_HiPOZ.py")

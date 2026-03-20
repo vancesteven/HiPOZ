@@ -334,14 +334,14 @@ Examples:
 
 Comprehensive guides available:
 
-- **[QUICK_START.md](QUICK_START.md)** - Quick reference for common tasks
-- **[CALIBRATION_WORKFLOW.md](CALIBRATION_WORKFLOW.md)** - Step-by-step calibration guide
-- **[PLOTTING_README.md](PLOTTING_README.md)** - Conductivity plotting guide (σ vs conc, σ vs T, external data)
-- **[DIRECTORY_SELECTION_UPDATE.md](DIRECTORY_SELECTION_UPDATE.md)** - New directory selection features
-- **[HARMONIZE_COMMAND.md](HARMONIZE_COMMAND.md)** - CSV/JSON synchronization
-- **[HEADLESS_MODE.md](HEADLESS_MODE.md)** - Automated batch processing
-- **[GUI_CALIBRATION_DISPLAY.md](GUI_CALIBRATION_DISPLAY.md)** - GUI features and tips
-- **[FORMAT_HARMONIZATION.md](FORMAT_HARMONIZATION.md)** - Config file format details
+- **[QUICK_START.md](docs/QUICK_START.md)** - Quick reference for common tasks
+- **[CALIBRATION_WORKFLOW.md](docs/CALIBRATION_WORKFLOW.md)** - Step-by-step calibration guide
+- **[PLOTTING_README.md](docs/PLOTTING_README.md)** - Conductivity plotting guide (σ vs conc, σ vs T, external data)
+- **[DIRECTORY_SELECTION_UPDATE.md](docs/DIRECTORY_SELECTION_UPDATE.md)** - New directory selection features
+- **[HARMONIZE_COMMAND.md](docs/HARMONIZE_COMMAND.md)** - CSV/JSON synchronization
+- **[HEADLESS_MODE.md](docs/HEADLESS_MODE.md)** - Automated batch processing
+- **[GUI_CALIBRATION_DISPLAY.md](docs/GUI_CALIBRATION_DISPLAY.md)** - GUI features and tips
+- **[FORMAT_HARMONIZATION.md](docs/FORMAT_HARMONIZATION.md)** - Config file format details
 - **[CLAUDE.md](CLAUDE.md)** - Developer guide for Claude Code
 
 ## Testing
@@ -349,10 +349,10 @@ Comprehensive guides available:
 Run test suites:
 ```bash
 # Test format harmonization
-python test_format_harmonization.py
+python tests/test_format_harmonization.py
 
 # Test analysis workflow
-python test_mahboub_analysis.py
+python mahboub2026/test_mahboub_analysis.py
 ```
 
 ## Troubleshooting
