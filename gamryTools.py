@@ -97,7 +97,7 @@ def get_w_from_descrip(descrip, lbl_uScm=None):
     if lbl_uScm is not None and not np.isnan(lbl_uScm):
         comp = 'KCl'
         w_ppt = wKCl_ppt[lbl_uScm]
-        w_molal = Ppt2molal(w_ppt, m_gmol[comp])
+        w_molal = Ppt2molal(w_ppt, Constants.m_gmol[comp])
     elif any(soluteCompare):
         if 'DIwater' in descrip:
             comp = 'PureH2O'
@@ -368,8 +368,8 @@ class Solution:
             R0 = r'R_0'
             R1 = r'R_1'
             C1 = r'C_1'
-            circStr = f'p({R1},{C1})-{R0}'
-            if PRINT:
+            self.circStr = f'p({R1},{C1})-{R0}'
+            if print_circuit:
                 with schemdraw.Drawing(file=self.circFile, show=False) as circ:
                     circ.config(unit=Lleads)
                     circ += elm.Resistor().label(f'${R0}$').dot()
@@ -386,7 +386,7 @@ class Solution:
                 raise ValueError(f'circuit type "{circ_type}" not recognized.')
             else:
                 log.info(f'circuit type "{circ_type}" not recognized. Interpreting as circuit string.')
-                circStr = circ_type
+                self.circStr = circ_type
 
         log.debug(f'Fitting {circ_type} circuit to input file {self.file}')
 
@@ -566,6 +566,7 @@ class ResistorData:
         self.cmap = get_cmap(cmap_name)
         self.file = None  # File from which data has been loaded
         self.circFile = None  # File to print circuit diagram to
+        self.circStr = None  # Circuit string for equivalent circuit modeling
         self.xtn = 'pdf'
         # self.frequency = None
         # self.impedance = None
@@ -648,9 +649,9 @@ class ResistorData:
             CPE1 = r'CPE_1'
             C1 = r'C_1'
             L0 = r'L_0'
-            # circStr = f'p({R1}-{CPE1},{C1})-{R0}'
+            # self.circStr = f'p({R1}-{CPE1},{C1})-{R0}'
             # simpler for aqueous solutions
-            circStr = f'{L0}-{R0}-p({R1}, {CPE1})' # inductor to capture positive phase at highest frequencies
+            self.circStr = f'{L0}-{R0}-p({R1}, {CPE1})' # inductor to capture positive phase at highest frequencies
             initial_guess = [1e-6,  20, 100, 5e-6, 0.8]
             if print_circuit:
                 with schemdraw.Drawing(file=self.circFile, show=False) as circ:
@@ -671,7 +672,7 @@ class ResistorData:
             initial_guess = [20, 5e-6]
             R1 = r'R_1'
             C1 = r'C_1'
-            circStr = f'p({R1},{C1})'
+            self.circStr = f'p({R1},{C1})'
             if print_circuit:
                 with schemdraw.Drawing(file=self.circFile, show=False) as circ:
                     circ.config(unit=Lleads)
@@ -690,7 +691,7 @@ class ResistorData:
             R0 = r'R_0'
             R1 = r'R_1'
             C1 = r'C_1'
-            circStr = f'p({R1},{C1})-{R0}'
+            self.circStr = f'p({R1},{C1})-{R0}'
             if print_circuit:
                 with schemdraw.Drawing(file=self.circFile, show=False) as circ:
                     circ.config(unit=Lleads)
@@ -708,7 +709,7 @@ class ResistorData:
                 raise ValueError(f'circuit type "{circ_type}" not recognized.')
             else:
                 log.info(f'circuit type "{circ_type}" not recognized. Interpreting as circuit string.')
-                circStr = circ_type
+                self.circStr = circ_type
 
         log.debug(f'Fitting {circ_type} circuit to input file {self.file}')
         log.debug(f'Frequency (Hz) for fitting: {self.f_Hz}') #cp
@@ -721,8 +722,8 @@ class ResistorData:
         if len(self.f_Hz) == 0 or len(self.Z_ohm) == 0:
             raise ValueError('Impedance data is empty. Please load valid data before fitting.')
 
-        self.circuit = CustomCircuit(circStr, initial_guess=initial_guess)
-        self.circuit.fit(self.f_Hz, self.Z_ohm, global_opt=BASIN_HOPPING)
+        self.circuit = CustomCircuit(self.circStr, initial_guess=initial_guess)
+        self.circuit.fit(self.f_Hz, self.Z_ohm, global_opt=basin_hopping)
         self.Zfit_ohm = self.circuit.predict(self.f_Hz)
         self.Rcalc_ohm = self.circuit.parameters_[0]
         self.Runc_ohm = self.circuit.conf_[0]
