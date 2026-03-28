@@ -1,0 +1,113 @@
+{
+  "calibration_groups": [
+    {
+      "name": "Group 1",
+      "standards": [
+        {
+          "filename": "Default_20250815_133521_P_596_T_292.txt",
+          "P_MPa": 0.1,
+          "T_K": 292,
+          "conductivity_Sm": 8.0
+        }
+      ],
+      "measurements": [
+        {
+          "filename": "Default_20250815_145921_P_597_T_292.txt",
+          "P_MPa": 0.1,
+          "T_K": 292,
+          "comp": "MgSO4",
+          "w_molal": 0.5,
+          "notes": "outside pressure vessel but software was reading P and T from that system"
+        },
+        {
+          "filename": "Default_20250815_150015_P_597_T_292.txt",
+          "P_MPa": 0.1,
+          "T_K": 292,
+          "comp": "MgSO4",
+          "w_molal": 0.5,
+          "notes": "outside pressure vessel but software was reading P and T from that system"
+        },
+        {
+          "filename": "Default_20250815_150109_P_597_T_292.txt",
+          "P_MPa": 0.1,
+          "T_K": 292,
+          "comp": "MgSO4",
+          "w_molal": 0.5,
+          "notes": "outside pressure vessel but software was reading P and T from that system"
+        },
+        {
+          "filename": "Default_20250815_160519_P_597_T_292.txt",
+          "P_MPa": 0.1,
+          "T_K": 292,
+          "comp": "MgSO4",
+          "w_molal": 0.75,
+          "notes": "outside pressure vessel but software was reading P and T from that system"
+        },
+        {
+          "filename": "Default_20250815_160613_P_597_T_292.txt",
+          "P_MPa": 0.1,
+          "T_K": 292,
+          "comp": "MgSO4",
+          "w_molal": 0.75,
+          "notes": "outside pressure vessel but software was reading P and T from that system"
+        },
+        {
+          "filename": "Default_20250815_160705_P_596_T_292.txt",
+          "P_MPa": 0.1,
+          "T_K": 292,
+          "comp": "MgSO4",
+          "w_molal": 0.75,
+          "notes": "outside pressure vessel but software was reading P and T from that system"
+        },
+        {
+          "filename": "Default_20250815_161947_P_596_T_292.txt",
+          "P_MPa": 0.1,
+          "T_K": 292,
+          "comp": "MgSO4",
+          "w_molal": 1.0,
+          "notes": "outside pressure vessel but software was reading P and T from that system"
+        },
+        {
+          "filename": "Default_20250815_162040_P_597_T_292.txt",
+          "P_MPa": 0.1,
+          "T_K": 292,
+          "comp": "MgSO4",
+          "w_molal": 1.0,
+          "notes": "outside pressure vessel but software was reading P and T from that system"
+        },
+        {
+          "filename": "Default_20250815_162133_P_596_T_292.txt",
+          "P_MPa": 0.1,
+          "T_K": 292,
+          "comp": "MgSO4",
+          "w_molal": 1.0,
+          "notes": "outside pressure vessel but software was reading P and T from that system"
+        },
+        {
+          "filename": "Default_20250815_162742_P_597_T_292.txt",
+          "P_MPa": 0.1,
+          "T_K": 292,
+          "comp": "MgSO4",
+          "w_molal": 1.5,
+          "notes": "outside pressure vessel but software was reading P and T from that system"
+        },
+        {
+          "filename": "Default_20250815_162835_P_596_T_292.txt",
+          "P_MPa": 0.1,
+          "T_K": 292,
+          "comp": "MgSO4",
+          "w_molal": 1.5,
+          "notes": "outside pressure vessel but software was reading P and T from that system"
+        },
+        {
+          "filename": "Default_20250815_162928_P_596_T_292.txt",
+          "P_MPa": 0.1,
+          "T_K": 292,
+          "comp": "MgSO4",
+          "w_molal": 1.5,
+          "notes": "outside pressure vessel but software was reading P and T from that system"
+        }
+      ]
+    }
+  ]
+}

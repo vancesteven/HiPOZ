@@ -1,0 +1,148 @@
+{
+  "calibration_groups": [
+    {
+      "name": "Group 1",
+      "standards": [
+        {
+          "filename": "Default_20250813_111634_P_0_T_0.txt",
+          "conductivity_Sm": 8.0,
+          "comp": "KCl",
+          "P_MPa": 0.0,
+          "T_K": 0.0,
+          "notes": "Updated by GUI at 2026-03-18 17:05:28"
+        },
+        {
+          "filename": "Default_20250813_111727_P_0_T_0.txt",
+          "conductivity_Sm": 8.0,
+          "comp": "KCl",
+          "P_MPa": 0.0,
+          "T_K": 0.0,
+          "notes": "Updated by GUI at 2026-03-18 17:05:28"
+        },
+        {
+          "filename": "Default_20250813_111820_P_0_T_0.txt",
+          "conductivity_Sm": 8.0,
+          "comp": "KCl",
+          "P_MPa": 0.0,
+          "T_K": 0.0,
+          "notes": "Updated by GUI at 2026-03-18 17:05:28"
+        }
+      ],
+      "measurements": [
+        {
+          "filename": "Default_20250813_115907_P_0_T_0.txt",
+          "comp": "NaCl",
+          "w_ppt": 1.0,
+          "P_MPa": 0.0,
+          "T_K": 0.0,
+          "notes": "Updated by GUI at 2026-03-18 17:05:28",
+          "conductivity_Sm": 8.281044254910597
+        },
+        {
+          "filename": "Default_20250813_120000_P_0_T_0.txt",
+          "comp": "NaCl",
+          "w_ppt": 1.0,
+          "P_MPa": 0.0,
+          "T_K": 0.0,
+          "notes": "Updated by GUI at 2026-03-18 17:05:28",
+          "conductivity_Sm": 8.283221973852282
+        },
+        {
+          "filename": "Default_20250813_120053_P_0_T_0.txt",
+          "comp": "NaCl",
+          "w_ppt": 1.0,
+          "P_MPa": 0.0,
+          "T_K": 0.0,
+          "notes": "Updated by GUI at 2026-03-18 17:05:28",
+          "conductivity_Sm": 8.277765854877192
+        },
+        {
+          "filename": "Default_20250813_135054_P_3_T_293.txt",
+          "comp": "NaCl",
+          "w_ppt": 0.5,
+          "P_MPa": 3.0,
+          "T_K": 293.0,
+          "notes": "Updated by GUI at 2026-03-18 17:05:28",
+          "conductivity_Sm": 4.7003604625635615
+        },
+        {
+          "filename": "Default_20250813_135147_P_2_T_293.txt",
+          "comp": "NaCl",
+          "w_ppt": 0.5,
+          "P_MPa": 2.0,
+          "T_K": 293.0,
+          "notes": "Updated by GUI at 2026-03-18 17:05:28",
+          "conductivity_Sm": 4.695503014192209
+        },
+        {
+          "filename": "Default_20250813_135241_P_3_T_293.txt",
+          "comp": "NaCl",
+          "w_ppt": 0.5,
+          "P_MPa": 3.0,
+          "T_K": 293.0,
+          "notes": "Updated by GUI at 2026-03-18 17:05:28",
+          "conductivity_Sm": 4.690147801950006
+        }
+      ]
+    }
+  ],
+  "generated_by": "HiPOZ headless analysis",
+  "updated_with_conductivities": true,
+  "calibrations": [
+    {
+      "name": "Default group",
+      "standards": [
+        {
+          "filename": "Default_20250813_111634_P_0_T_0.txt",
+          "comp": "KCl",
+          "conductivity_Sm": 8.0
+        },
+        {
+          "filename": "Default_20250813_111727_P_0_T_0.txt",
+          "comp": "KCl",
+          "conductivity_Sm": 8.0
+        },
+        {
+          "filename": "Default_20250813_111820_P_0_T_0.txt",
+          "comp": "KCl",
+          "conductivity_Sm": 8.0
+        }
+      ],
+      "measurements": [
+        {
+          "filename": "Default_20250813_115907_P_0_T_0.txt",
+          "comp": "NaCl",
+          "w_ppt": 1.0
+        },
+        {
+          "filename": "Default_20250813_120000_P_0_T_0.txt",
+          "comp": "NaCl",
+          "w_ppt": 1.0
+        },
+        {
+          "filename": "Default_20250813_120053_P_0_T_0.txt",
+          "comp": "NaCl",
+          "w_ppt": 1.0
+        },
+        {
+          "filename": "Default_20250813_135054_P_3_T_293.txt",
+          "comp": "NaCl",
+          "w_ppt": 0.5
+        },
+        {
+          "filename": "Default_20250813_135147_P_2_T_293.txt",
+          "comp": "NaCl",
+          "w_ppt": 0.5
+        },
+        {
+          "filename": "Default_20250813_135241_P_3_T_293.txt",
+          "comp": "NaCl",
+          "w_ppt": 0.5
+        }
+      ]
+    }
+  ],
+  "notes": [
+    "Updated from GUI at 2026-03-19 15:12:42"
+  ]
+}

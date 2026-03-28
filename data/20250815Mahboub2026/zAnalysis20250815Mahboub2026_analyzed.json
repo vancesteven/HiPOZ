@@ -1,0 +1,78 @@
+{
+  "calibration_groups": [
+    {
+      "name": "Group 1",
+      "standards": [
+        {
+          "filename": "Default_20250815_133521_P_596_T_292.txt",
+          "conductivity_Sm": 8.0
+        }
+      ],
+      "measurements": [
+        {
+          "filename": "Default_20250815_145921_P_597_T_292.txt",
+          "comp": "MgSO4",
+          "w_molal": 0.5
+        },
+        {
+          "filename": "Default_20250815_150015_P_597_T_292.txt",
+          "comp": "MgSO4",
+          "w_molal": 0.5
+        },
+        {
+          "filename": "Default_20250815_150109_P_597_T_292.txt",
+          "comp": "MgSO4",
+          "w_molal": 0.5
+        },
+        {
+          "filename": "Default_20250815_160519_P_597_T_292.txt",
+          "comp": "MgSO4",
+          "w_molal": 0.75
+        },
+        {
+          "filename": "Default_20250815_160613_P_597_T_292.txt",
+          "comp": "MgSO4",
+          "w_molal": 0.75
+        },
+        {
+          "filename": "Default_20250815_160705_P_596_T_292.txt",
+          "comp": "MgSO4",
+          "w_molal": 0.75
+        },
+        {
+          "filename": "Default_20250815_161947_P_596_T_292.txt",
+          "comp": "MgSO4",
+          "w_molal": 1.0
+        },
+        {
+          "filename": "Default_20250815_162040_P_597_T_292.txt",
+          "comp": "MgSO4",
+          "w_molal": 1.0
+        },
+        {
+          "filename": "Default_20250815_162133_P_596_T_292.txt",
+          "comp": "MgSO4",
+          "w_molal": 1.0
+        },
+        {
+          "filename": "Default_20250815_162742_P_597_T_292.txt",
+          "comp": "MgSO4",
+          "w_molal": 1.5
+        },
+        {
+          "filename": "Default_20250815_162835_P_596_T_292.txt",
+          "comp": "MgSO4",
+          "w_molal": 1.5
+        },
+        {
+          "filename": "Default_20250815_162928_P_596_T_292.txt",
+          "comp": "MgSO4",
+          "w_molal": 1.5
+        }
+      ]
+    }
+  ],
+  "generated_by": "HiPOZ headless analysis",
+  "timestamp": "20260318_172541",
+  "source_csv": "data/20250815Mahboub2026/zAnalysis20250815Mahboub2026.csv"
+}

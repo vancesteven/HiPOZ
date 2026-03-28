@@ -1,0 +1,10 @@
+group_name,filename,P_MPa,T_K,type,conductivity_Sm,comp,w_ppt,w_molal,exclude,notes
+Group 1,Default_20250813_111634_P_0_T_0.txt,0.0,0.0,standard,8.0,KCl,,,,Updated by GUI at 2026-03-18 17:05:28
+Group 1,Default_20250813_111727_P_0_T_0.txt,0.0,0.0,standard,8.0,KCl,,,,Updated by GUI at 2026-03-18 17:05:28
+Group 1,Default_20250813_111820_P_0_T_0.txt,0.0,0.0,standard,8.0,KCl,,,,Updated by GUI at 2026-03-18 17:05:28
+Group 1,Default_20250813_115907_P_0_T_0.txt,0.0,0.0,measurement,8.281044254910597,NaCl,1.0,,,Updated by GUI at 2026-03-18 17:05:28
+Group 1,Default_20250813_120000_P_0_T_0.txt,0.0,0.0,measurement,8.283221973852282,NaCl,1.0,,,Updated by GUI at 2026-03-18 17:05:28
+Group 1,Default_20250813_120053_P_0_T_0.txt,0.0,0.0,measurement,8.277765854877192,NaCl,1.0,,,Updated by GUI at 2026-03-18 17:05:28
+Group 1,Default_20250813_135054_P_3_T_293.txt,3.0,293.0,measurement,4.7003604625635615,NaCl,0.5,,,Updated by GUI at 2026-03-18 17:05:28
+Group 1,Default_20250813_135147_P_2_T_293.txt,2.0,293.0,measurement,4.695503014192209,NaCl,0.5,,,Updated by GUI at 2026-03-18 17:05:28
+Group 1,Default_20250813_135241_P_3_T_293.txt,3.0,293.0,measurement,4.690147801950006,NaCl,0.5,,,Updated by GUI at 2026-03-18 17:05:28

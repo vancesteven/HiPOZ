@@ -1,0 +1,14 @@
+group_name,filename,P_MPa,T_K,type,conductivity_Sm,comp,w_ppt,w_molal,exclude,notes
+Group 1,Default_20250815_133521_P_596_T_292.txt,0.1,292,standard,8.0,,,,,
+Group 1,Default_20250815_145921_P_597_T_292.txt,0.1,292,measurement,,MgSO4,,0.5,,outside pressure vessel but software was reading P and T from that system
+Group 1,Default_20250815_150015_P_597_T_292.txt,0.1,292,measurement,,MgSO4,,0.5,,outside pressure vessel but software was reading P and T from that system
+Group 1,Default_20250815_150109_P_597_T_292.txt,0.1,292,measurement,,MgSO4,,0.5,,outside pressure vessel but software was reading P and T from that system
+Group 1,Default_20250815_160519_P_597_T_292.txt,0.1,292,measurement,,MgSO4,,0.75,,outside pressure vessel but software was reading P and T from that system
+Group 1,Default_20250815_160613_P_597_T_292.txt,0.1,292,measurement,,MgSO4,,0.75,,outside pressure vessel but software was reading P and T from that system
+Group 1,Default_20250815_160705_P_596_T_292.txt,0.1,292,measurement,,MgSO4,,0.75,,outside pressure vessel but software was reading P and T from that system
+Group 1,Default_20250815_161947_P_596_T_292.txt,0.1,292,measurement,,MgSO4,,1.0,,outside pressure vessel but software was reading P and T from that system
+Group 1,Default_20250815_162040_P_597_T_292.txt,0.1,292,measurement,,MgSO4,,1.0,,outside pressure vessel but software was reading P and T from that system
+Group 1,Default_20250815_162133_P_596_T_292.txt,0.1,292,measurement,,MgSO4,,1.0,,outside pressure vessel but software was reading P and T from that system
+Group 1,Default_20250815_162742_P_597_T_292.txt,0.1,292,measurement,,MgSO4,,1.5,,outside pressure vessel but software was reading P and T from that system
+Group 1,Default_20250815_162835_P_596_T_292.txt,0.1,292,measurement,,MgSO4,,1.5,,outside pressure vessel but software was reading P and T from that system
+Group 1,Default_20250815_162928_P_596_T_292.txt,0.1,292,measurement,,MgSO4,,1.5,,outside pressure vessel but software was reading P and T from that system
