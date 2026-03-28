@@ -16,442 +16,501 @@
 #   temperature_C: Temperature (Celsius)
 #   temperature_K: Temperature (Kelvin)
 #   conductivity_Sm: Conductivity (S/m)
-#   replicate: Replicate number (1, 2, 3)
 #   source: Data source ('benchtop' for all entries)
 #   notes: Additional notes (e.g., original concentration in g/kg)
 #
 compound,concentration_molal,temperature_C,temperature_K,conductivity_Sm,replicate,source,notes
 # NaCl benchtop data - concentrations in mol/kg (molal), converted from g/kg by dividing by molar mass 58.44
 NaCl,0.1711,25,298.15,1.788,1,benchtop,10 g/kg / 58.44
-NaCl,0.5134,25,298.15,4.861,1,benchtop,30 g/kg / 58.44
-NaCl,0.8557,25,298.15,7.490,1,benchtop,50 g/kg / 58.44
-NaCl,1.2835,25,298.15,10.567,1,benchtop,75 g/kg / 58.44
-NaCl,1.7113,25,298.15,13.233,1,benchtop,100 g/kg / 58.44
-NaCl,2.5669,25,298.15,17.655,1,benchtop,150 g/kg / 58.44
+NaCl,0.5133,25,298.15,4.861,1,benchtop,30 g/kg / 58.44
+NaCl,0.8556,25,298.15,7.49,1,benchtop,50 g/kg / 58.44
+NaCl,1.2834,25,298.15,10.57,1,benchtop,75 g/kg / 58.44
+NaCl,1.7112,25,298.15,13.23,1,benchtop,100 g/kg / 58.44
+NaCl,2.5667,25,298.15,17.66,1,benchtop,150 g/kg / 58.44
 NaCl,0.1711,25,298.15,1.777,2,benchtop,
-NaCl,0.5134,25,298.15,4.875,2,benchtop,
-NaCl,0.8557,25,298.15,7.501,2,benchtop,
-NaCl,1.2835,25,298.15,10.552,2,benchtop,
-NaCl,1.7113,25,298.15,13.277,2,benchtop,
-NaCl,2.5669,25,298.15,17.633,2,benchtop,
+NaCl,0.5133,25,298.15,4.875,2,benchtop,
+NaCl,0.8556,25,298.15,7.501,2,benchtop,
+NaCl,1.2834,25,298.15,10.55,2,benchtop,
+NaCl,1.7112,25,298.15,13.28,2,benchtop,
+NaCl,2.5667,25,298.15,17.63,2,benchtop,
 NaCl,0.1711,25,298.15,1.753,3,benchtop,
-NaCl,0.5134,25,298.15,4.885,3,benchtop,
-NaCl,0.8557,25,298.15,7.591,3,benchtop,
-NaCl,1.2835,25,298.15,10.495,3,benchtop,
-NaCl,1.7113,25,298.15,13.255,3,benchtop,
-NaCl,2.5669,25,298.15,17.523,3,benchtop,
-NaCl,0.1711,20,293.15,1.625,1,benchtop,
-NaCl,0.5134,20,293.15,4.419,1,benchtop,
-NaCl,0.8557,20,293.15,6.809,1,benchtop,
-NaCl,1.2835,20,293.15,9.606,1,benchtop,
-NaCl,1.7113,20,293.15,12.030,1,benchtop,
-NaCl,2.5669,20,293.15,16.050,1,benchtop,
+NaCl,0.5133,25,298.15,4.885,3,benchtop,
+NaCl,0.8556,25,298.15,7.591,3,benchtop,
+NaCl,1.2834,25,298.15,10.5,3,benchtop,
+NaCl,1.7112,25,298.15,13.26,3,benchtop,
+NaCl,2.5667,25,298.15,17.52,3,benchtop,
+NaCl,0.1711,20,293.15,1.625,1,benchtop,10 g/kg / 58.44
+NaCl,0.5133,20,293.15,4.419,1,benchtop,30 g/kg / 58.44
+NaCl,0.8556,20,293.15,6.809,1,benchtop,50 g/kg / 58.44
+NaCl,1.2834,20,293.15,9.606,1,benchtop,75 g/kg / 58.44
+NaCl,1.7112,20,293.15,12.03,1,benchtop,100 g/kg / 58.44
+NaCl,2.5667,20,293.15,16.05,1,benchtop,150 g/kg / 58.44
 NaCl,0.1711,20,293.15,1.615,2,benchtop,
-NaCl,0.5134,20,293.15,4.432,2,benchtop,
-NaCl,0.8557,20,293.15,6.819,2,benchtop,
-NaCl,1.2835,20,293.15,9.593,2,benchtop,
-NaCl,1.7113,20,293.15,12.070,2,benchtop,
-NaCl,2.5669,20,293.15,16.030,2,benchtop,
+NaCl,0.5133,20,293.15,4.432,2,benchtop,
+NaCl,0.8556,20,293.15,6.819,2,benchtop,
+NaCl,1.2834,20,293.15,9.593,2,benchtop,
+NaCl,1.7112,20,293.15,12.07,2,benchtop,
+NaCl,2.5667,20,293.15,16.03,2,benchtop,
 NaCl,0.1711,20,293.15,1.594,3,benchtop,
-NaCl,0.5134,20,293.15,4.441,3,benchtop,
-NaCl,0.8557,20,293.15,6.901,3,benchtop,
-NaCl,1.2835,20,293.15,9.541,3,benchtop,
-NaCl,1.7113,20,293.15,12.050,3,benchtop,
-NaCl,2.5669,20,293.15,15.930,3,benchtop,
-NaCl,0.1711,5,278.15,1.188,1,benchtop,
-NaCl,0.5134,5,278.15,3.124,1,benchtop,
-NaCl,0.8557,5,278.15,4.789,1,benchtop,
-NaCl,1.2835,5,278.15,6.813,1,benchtop,
-NaCl,1.7113,5,278.15,8.599,1,benchtop,
-NaCl,2.5669,5,278.15,11.280,1,benchtop,
+NaCl,0.5133,20,293.15,4.441,3,benchtop,
+NaCl,0.8556,20,293.15,6.901,3,benchtop,
+NaCl,1.2834,20,293.15,9.541,3,benchtop,
+NaCl,1.7112,20,293.15,12.05,3,benchtop,
+NaCl,2.5667,20,293.15,15.93,3,benchtop,
+NaCl,0.1711,5,278.15,1.188,1,benchtop,10 g/kg / 58.44
+NaCl,0.5133,5,278.15,3.124,1,benchtop,30 g/kg / 58.44
+NaCl,0.8556,5,278.15,4.789,1,benchtop,50 g/kg / 58.44
+NaCl,1.2834,5,278.15,6.813,1,benchtop,75 g/kg / 58.44
+NaCl,1.7112,5,278.15,8.599,1,benchtop,100 g/kg / 58.44
+NaCl,2.5667,5,278.15,11.28,1,benchtop,150 g/kg / 58.44
 NaCl,0.1711,5,278.15,1.201,2,benchtop,
-NaCl,0.5134,5,278.15,3.119,2,benchtop,
-NaCl,0.8557,5,278.15,4.823,2,benchtop,
-NaCl,1.2835,5,278.15,6.925,2,benchtop,
-NaCl,1.7113,5,278.15,8.610,2,benchtop,
-NaCl,2.5669,5,278.15,11.490,2,benchtop,
-NaCl,0.1711,5,278.15,1.192,3,benchtop,
-NaCl,0.5134,5,278.15,3.067,3,benchtop,
-NaCl,0.8557,5,278.15,4.841,3,benchtop,
-NaCl,1.2835,5,278.15,6.806,3,benchtop,
-NaCl,1.7113,5,278.15,8.511,3,benchtop,
-NaCl,2.5669,5,278.15,11.150,3,benchtop,
-NaCl,0.1711,-1,272.15,1.051,1,benchtop,
-NaCl,0.5134,-1,272.15,2.792,1,benchtop,
-NaCl,0.8557,-1,272.15,4.293,1,benchtop,
-NaCl,1.2835,-1,272.15,6.087,1,benchtop,
-NaCl,1.7113,-1,272.15,7.668,1,benchtop,
-NaCl,2.5669,-1,272.15,10.075,1,benchtop,
-NaCl,0.1711,-1,272.15,1.053,2,benchtop,
-NaCl,0.5134,-1,272.15,2.799,2,benchtop,
-NaCl,0.8557,-1,272.15,4.299,2,benchtop,
-NaCl,1.2835,-1,272.15,6.093,2,benchtop,
-NaCl,1.7113,-1,272.15,7.686,2,benchtop,
-NaCl,2.5669,-1,272.15,10.105,2,benchtop,
-NaCl,0.1711,-1,272.15,1.044,3,benchtop,
-NaCl,0.5134,-1,272.15,2.804,3,benchtop,
-NaCl,0.8557,-1,272.15,4.304,3,benchtop,
-NaCl,1.2835,-1,272.15,6.099,3,benchtop,
-NaCl,1.7113,-1,272.15,7.687,3,benchtop,
-NaCl,2.5669,-1,272.15,10.105,3,benchtop,
-NaCl,0.1711,-3,270.15,0.992,1,benchtop,
-NaCl,0.5134,-3,270.15,2.625,1,benchtop,
-NaCl,0.8557,-3,270.15,4.046,1,benchtop,
-NaCl,1.2835,-3,270.15,5.746,1,benchtop,
-NaCl,1.7113,-3,270.15,7.237,1,benchtop,
-NaCl,2.5669,-3,270.15,9.506,1,benchtop,
-NaCl,0.1711,-3,270.15,0.993,2,benchtop,
-NaCl,0.5134,-3,270.15,2.632,2,benchtop,
-NaCl,0.8557,-3,270.15,4.051,2,benchtop,
-NaCl,1.2835,-3,270.15,5.751,2,benchtop,
-NaCl,1.7113,-3,270.15,7.255,2,benchtop,
-NaCl,2.5669,-3,270.15,9.535,2,benchtop,
-NaCl,0.1711,-3,270.15,0.985,3,benchtop,
-NaCl,0.5134,-3,270.15,2.637,3,benchtop,
-NaCl,0.8557,-3,270.15,4.056,3,benchtop,
-NaCl,1.2835,-3,270.15,5.756,3,benchtop,
-NaCl,1.7113,-3,270.15,7.256,3,benchtop,
-NaCl,2.5669,-3,270.15,9.537,3,benchtop,
-NaCl,0.1711,-6,267.15,0.913,1,benchtop,
-NaCl,0.5134,-6,267.15,2.413,1,benchtop,
-NaCl,0.8557,-6,267.15,3.722,1,benchtop,
-NaCl,1.2835,-6,267.15,5.288,1,benchtop,
-NaCl,1.7113,-6,267.15,6.662,1,benchtop,
-NaCl,2.5669,-6,267.15,8.745,1,benchtop,
-NaCl,0.1711,-6,267.15,0.914,2,benchtop,
-NaCl,0.5134,-6,267.15,2.419,2,benchtop,
-NaCl,0.8557,-6,267.15,3.726,2,benchtop,
-NaCl,1.2835,-6,267.15,5.293,2,benchtop,
-NaCl,1.7113,-6,267.15,6.679,2,benchtop,
-NaCl,2.5669,-6,267.15,8.773,2,benchtop,
-NaCl,0.1711,-6,267.15,0.906,3,benchtop,
-NaCl,0.5134,-6,267.15,2.424,3,benchtop,
-NaCl,0.8557,-6,267.15,3.731,3,benchtop,
-NaCl,1.2835,-6,267.15,5.298,3,benchtop,
-NaCl,1.7113,-6,267.15,6.681,3,benchtop,
-NaCl,2.5669,-6,267.15,8.777,3,benchtop,
-NaCl,0.1711,-10,263.15,0.803,1,benchtop,
-NaCl,0.5134,-10,263.15,2.128,1,benchtop,
-NaCl,0.8557,-10,263.15,3.280,1,benchtop,
-NaCl,1.2835,-10,263.15,4.663,1,benchtop,
-NaCl,1.7113,-10,263.15,5.880,1,benchtop,
-NaCl,2.5669,-10,263.15,7.719,1,benchtop,
-NaCl,0.1711,-10,263.15,0.804,2,benchtop,
-NaCl,0.5134,-10,263.15,2.133,2,benchtop,
-NaCl,0.8557,-10,263.15,3.284,2,benchtop,
-NaCl,1.2835,-10,263.15,4.668,2,benchtop,
-NaCl,1.7113,-10,263.15,5.896,2,benchtop,
-NaCl,2.5669,-10,263.15,7.747,2,benchtop,
-NaCl,0.1711,-10,263.15,0.796,3,benchtop,
-NaCl,0.5134,-10,263.15,2.138,3,benchtop,
-NaCl,0.8557,-10,263.15,3.290,3,benchtop,
-NaCl,1.2835,-10,263.15,4.673,3,benchtop,
-NaCl,1.7113,-10,263.15,5.898,3,benchtop,
-NaCl,2.5669,-10,263.15,7.750,3,benchtop,
+NaCl,0.5133,5,278.15,3.119,2,benchtop,
+NaCl,0.8556,5,278.15,4.823,2,benchtop,
+NaCl,1.2834,5,278.15,6.925,2,benchtop,
+NaCl,1.7112,5,278.15,8.61,2,benchtop,
+NaCl,2.5667,5,278.15,11.49,2,benchtop,
+NaCl,0.1711,5,278.15,1.157,3,benchtop,
+NaCl,0.5133,5,278.15,3.16,3,benchtop,
+NaCl,0.8556,5,278.15,4.94,3,benchtop,
+NaCl,1.2834,5,278.15,6.783,3,benchtop,
+NaCl,1.7112,5,278.15,8.787,3,benchtop,
+NaCl,2.5667,5,278.15,11.25,3,benchtop,
+NaCl,0.1711,-1,272.15,0.9843,1,benchtop,10 g/kg / 58.44
+NaCl,0.5133,-1,272.15,2.697,1,benchtop,30 g/kg / 58.44
+NaCl,0.8556,-1,272.15,4.033,1,benchtop,50 g/kg / 58.44
+NaCl,1.2834,-1,272.15,5.744,1,benchtop,75 g/kg / 58.44
+NaCl,1.7112,-1,272.15,7.101,1,benchtop,100 g/kg / 58.44
+NaCl,2.5667,-1,272.15,9.474,1,benchtop,150 g/kg / 58.44
+NaCl,0.1711,-1,272.15,0.9862,2,benchtop,
+NaCl,0.5133,-1,272.15,2.649,2,benchtop,
+NaCl,0.8556,-1,272.15,4.2,2,benchtop,
+NaCl,1.2834,-1,272.15,5.678,2,benchtop,
+NaCl,1.7112,-1,272.15,7.108,2,benchtop,
+NaCl,2.5667,-1,272.15,9.581,2,benchtop,
+NaCl,0.1711,-1,272.15,0.9835,3,benchtop,
+NaCl,0.5133,-1,272.15,2.751,3,benchtop,
+NaCl,0.8556,-1,272.15,4.108,3,benchtop,
+NaCl,1.2834,-1,272.15,5.664,3,benchtop,
+NaCl,1.7112,-1,272.15,7.371,3,benchtop,
+NaCl,2.5667,-1,272.15,9.58,3,benchtop,
+NaCl,0.1711,-3,270.15,1.033,1,benchtop,10 g/kg / 58.44
+NaCl,0.5133,-3,270.15,2.548,1,benchtop,30 g/kg / 58.44
+NaCl,0.8556,-3,270.15,3.818,1,benchtop,50 g/kg / 58.44
+NaCl,1.2834,-3,270.15,5.468,1,benchtop,75 g/kg / 58.44
+NaCl,1.7112,-3,270.15,7.074,1,benchtop,100 g/kg / 58.44
+NaCl,2.5667,-3,270.15,9.373,1,benchtop,150 g/kg / 58.44
+NaCl,0.1711,-3,270.15,0.9593,2,benchtop,
+NaCl,0.5133,-3,270.15,2.532,2,benchtop,
+NaCl,0.8556,-3,270.15,4.045,2,benchtop,
+NaCl,1.2834,-3,270.15,5.473,2,benchtop,
+NaCl,1.7112,-3,270.15,6.913,2,benchtop,
+NaCl,2.5667,-3,270.15,9.216,2,benchtop,
+NaCl,0.1711,-3,270.15,0.9547,3,benchtop,
+NaCl,0.5133,-3,270.15,2.435,3,benchtop,
+NaCl,0.8556,-3,270.15,3.969,3,benchtop,
+NaCl,1.2834,-3,270.15,5.497,3,benchtop,
+NaCl,1.7112,-3,270.15,7.031,3,benchtop,
+NaCl,2.5667,-3,270.15,9.105,3,benchtop,
+NaCl,0.1711,-6,267.15,0.8755,1,benchtop,10 g/kg / 58.44
+NaCl,0.5133,-6,267.15,2.362,1,benchtop,30 g/kg / 58.44
+NaCl,0.8556,-6,267.15,3.553,1,benchtop,50 g/kg / 58.44
+NaCl,1.2834,-6,267.15,5.067,1,benchtop,75 g/kg / 58.44
+NaCl,1.7112,-6,267.15,6.26,1,benchtop,100 g/kg / 58.44
+NaCl,2.5667,-6,267.15,8.479,1,benchtop,150 g/kg / 58.44
+NaCl,0.1711,-6,267.15,0.8649,2,benchtop,
+NaCl,0.5133,-6,267.15,2.389,2,benchtop,
+NaCl,0.8556,-6,267.15,3.504,2,benchtop,
+NaCl,1.2834,-6,267.15,5.089,2,benchtop,
+NaCl,1.7112,-6,267.15,6.4,2,benchtop,
+NaCl,2.5667,-6,267.15,8.579,2,benchtop,
+NaCl,0.1711,-6,267.15,0.8542,3,benchtop,
+NaCl,0.5133,-6,267.15,2.309,3,benchtop,
+NaCl,0.8556,-6,267.15,3.589,3,benchtop,
+NaCl,1.2834,-6,267.15,5.186,3,benchtop,
+NaCl,1.7112,-6,267.15,6.485,3,benchtop,
+NaCl,2.5667,-6,267.15,8.529,3,benchtop,
+NaCl,0.1711,-10,263.15,0.7852,1,benchtop,10 g/kg / 58.44
+NaCl,0.5133,-10,263.15,2.241,1,benchtop,30 g/kg / 58.44
+NaCl,0.8556,-10,263.15,3.226,1,benchtop,50 g/kg / 58.44
+NaCl,1.2834,-10,263.15,4.324,1,benchtop,75 g/kg / 58.44
+NaCl,1.7112,-10,263.15,5.706,1,benchtop,100 g/kg / 58.44
+NaCl,2.5667,-10,263.15,7.576,1,benchtop,150 g/kg / 58.44
+NaCl,0.1711,-10,263.15,0.7852,2,benchtop,
+NaCl,0.5133,-10,263.15,2.195,2,benchtop,
+NaCl,0.8556,-10,263.15,3.187,2,benchtop,
+NaCl,1.2834,-10,263.15,4.555,2,benchtop,
+NaCl,1.7112,-10,263.15,5.645,2,benchtop,
+NaCl,2.5667,-10,263.15,7.925,2,benchtop,
+NaCl,0.1711,-10,263.15,0.7852,3,benchtop,
+NaCl,0.5133,-10,263.15,2.087,3,benchtop,
+NaCl,0.8556,-10,263.15,3.133,3,benchtop,
+NaCl,1.2834,-10,263.15,4.473,3,benchtop,
+NaCl,1.7112,-10,263.15,5.89,3,benchtop,
+NaCl,2.5667,-10,263.15,7.491,3,benchtop,
 # MgSO4 benchtop data
-MgSO4,0.0249,25,298.15,0.335,1,benchtop,3 g/kg / 120.37
-MgSO4,0.0830,25,298.15,1.026,1,benchtop,10 g/kg / 120.37
-MgSO4,0.1660,25,298.15,1.876,1,benchtop,20 g/kg / 120.37
-MgSO4,0.3323,25,298.15,3.193,1,benchtop,40 g/kg / 120.37
-MgSO4,0.6647,25,298.15,5.297,1,benchtop,80 g/kg / 120.37
-MgSO4,1.6616,25,298.15,5.941,1,benchtop,200 g/kg / 120.37
-MgSO4,0.0249,25,298.15,0.332,2,benchtop,
-MgSO4,0.0830,25,298.15,1.027,2,benchtop,
-MgSO4,0.1660,25,298.15,1.886,2,benchtop,
-MgSO4,0.3323,25,298.15,3.198,2,benchtop,
-MgSO4,0.6647,25,298.15,5.297,2,benchtop,
-MgSO4,1.6616,25,298.15,5.946,2,benchtop,
-MgSO4,0.0249,25,298.15,0.337,3,benchtop,
-MgSO4,0.0830,25,298.15,1.025,3,benchtop,
-MgSO4,0.1660,25,298.15,1.881,3,benchtop,
-MgSO4,0.3323,25,298.15,3.203,3,benchtop,
-MgSO4,0.6647,25,298.15,5.292,3,benchtop,
-MgSO4,1.6616,25,298.15,5.949,3,benchtop,
-MgSO4,0.0249,20,293.15,0.288,1,benchtop,
-MgSO4,0.0830,20,293.15,0.886,1,benchtop,
-MgSO4,0.1660,20,293.15,1.613,1,benchtop,
-MgSO4,0.3323,20,293.15,2.754,1,benchtop,
-MgSO4,0.6647,20,293.15,4.580,1,benchtop,
-MgSO4,1.6616,20,293.15,5.145,1,benchtop,
-MgSO4,0.0249,20,293.15,0.286,2,benchtop,
-MgSO4,0.0830,20,293.15,0.887,2,benchtop,
-MgSO4,0.1660,20,293.15,1.617,2,benchtop,
-MgSO4,0.3323,20,293.15,2.758,2,benchtop,
-MgSO4,0.6647,20,293.15,4.584,2,benchtop,
-MgSO4,1.6616,20,293.15,5.150,2,benchtop,
-MgSO4,0.0249,20,293.15,0.291,3,benchtop,
-MgSO4,0.0830,20,293.15,0.884,3,benchtop,
-MgSO4,0.1660,20,293.15,1.613,3,benchtop,
-MgSO4,0.3323,20,293.15,2.763,3,benchtop,
-MgSO4,0.6647,20,293.15,4.578,3,benchtop,
-MgSO4,1.6616,20,293.15,5.153,3,benchtop,
-MgSO4,0.0249,5,278.15,0.214,1,benchtop,
-MgSO4,0.0830,5,278.15,0.665,1,benchtop,
-MgSO4,0.1660,5,278.15,1.198,1,benchtop,
-MgSO4,0.3323,5,278.15,2.043,1,benchtop,
-MgSO4,0.6647,5,278.15,3.403,1,benchtop,
-MgSO4,1.6616,5,278.15,3.846,1,benchtop,
-MgSO4,0.0249,5,278.15,0.213,2,benchtop,
-MgSO4,0.0830,5,278.15,0.666,2,benchtop,
-MgSO4,0.1660,5,278.15,1.202,2,benchtop,
-MgSO4,0.3323,5,278.15,2.048,2,benchtop,
-MgSO4,0.6647,5,278.15,3.408,2,benchtop,
-MgSO4,1.6616,5,278.15,3.851,2,benchtop,
-MgSO4,0.0249,5,278.15,0.218,3,benchtop,
-MgSO4,0.0830,5,278.15,0.663,3,benchtop,
-MgSO4,0.1660,5,278.15,1.198,3,benchtop,
-MgSO4,0.3323,5,278.15,2.053,3,benchtop,
-MgSO4,0.6647,5,278.15,3.403,3,benchtop,
-MgSO4,1.6616,5,278.15,3.854,3,benchtop,
-MgSO4,0.0249,-1,272.15,0.193,1,benchtop,
-MgSO4,0.0830,-1,272.15,0.599,1,benchtop,
-MgSO4,0.1660,-1,272.15,1.080,1,benchtop,
-MgSO4,0.3323,-1,272.15,1.842,1,benchtop,
-MgSO4,0.6647,-1,272.15,3.066,1,benchtop,
-MgSO4,1.6616,-1,272.15,3.471,1,benchtop,
-MgSO4,0.0249,-1,272.15,0.192,2,benchtop,
-MgSO4,0.0830,-1,272.15,0.600,2,benchtop,
-MgSO4,0.1660,-1,272.15,1.084,2,benchtop,
-MgSO4,0.3323,-1,272.15,1.847,2,benchtop,
-MgSO4,0.6647,-1,272.15,3.071,2,benchtop,
-MgSO4,1.6616,-1,272.15,3.476,2,benchtop,
-MgSO4,0.0249,-1,272.15,0.197,3,benchtop,
-MgSO4,0.0830,-1,272.15,0.597,3,benchtop,
-MgSO4,0.1660,-1,272.15,1.080,3,benchtop,
-MgSO4,0.3323,-1,272.15,1.852,3,benchtop,
-MgSO4,0.6647,-1,272.15,3.066,3,benchtop,
-MgSO4,1.6616,-1,272.15,3.479,3,benchtop,
-MgSO4,0.0249,-3,270.15,0.180,1,benchtop,
-MgSO4,0.0830,-3,270.15,0.558,1,benchtop,
-MgSO4,0.1660,-3,270.15,1.005,1,benchtop,
-MgSO4,0.3323,-3,270.15,1.716,1,benchtop,
-MgSO4,0.6647,-3,270.15,2.855,1,benchtop,
-MgSO4,1.6616,-3,270.15,3.237,1,benchtop,
-MgSO4,0.0249,-3,270.15,0.179,2,benchtop,
-MgSO4,0.0830,-3,270.15,0.559,2,benchtop,
-MgSO4,0.1660,-3,270.15,1.009,2,benchtop,
-MgSO4,0.3323,-3,270.15,1.721,2,benchtop,
-MgSO4,0.6647,-3,270.15,2.860,2,benchtop,
-MgSO4,1.6616,-3,270.15,3.242,2,benchtop,
-MgSO4,0.0249,-3,270.15,0.184,3,benchtop,
-MgSO4,0.0830,-3,270.15,0.556,3,benchtop,
-MgSO4,0.1660,-3,270.15,1.005,3,benchtop,
-MgSO4,0.3323,-3,270.15,1.726,3,benchtop,
-MgSO4,0.6647,-3,270.15,2.855,3,benchtop,
-MgSO4,1.6616,-3,270.15,3.246,3,benchtop,
-MgSO4,0.0249,-6,267.15,0.159,1,benchtop,
-MgSO4,0.0830,-6,267.15,0.493,1,benchtop,
-MgSO4,0.1660,-6,267.15,0.887,1,benchtop,
-MgSO4,0.3323,-6,267.15,1.514,1,benchtop,
-MgSO4,0.6647,-6,267.15,2.521,1,benchtop,
-MgSO4,1.6616,-6,267.15,2.862,1,benchtop,
-MgSO4,0.0249,-6,267.15,0.158,2,benchtop,
-MgSO4,0.0830,-6,267.15,0.494,2,benchtop,
-MgSO4,0.1660,-6,267.15,0.891,2,benchtop,
-MgSO4,0.3323,-6,267.15,1.519,2,benchtop,
-MgSO4,0.6647,-6,267.15,2.526,2,benchtop,
-MgSO4,1.6616,-6,267.15,2.867,2,benchtop,
-MgSO4,0.0249,-6,267.15,0.163,3,benchtop,
-MgSO4,0.0830,-6,267.15,0.491,3,benchtop,
-MgSO4,0.1660,-6,267.15,0.887,3,benchtop,
-MgSO4,0.3323,-6,267.15,1.524,3,benchtop,
-MgSO4,0.6647,-6,267.15,2.521,3,benchtop,
-MgSO4,1.6616,-6,267.15,2.870,3,benchtop,
-MgSO4,0.0249,-10,263.15,0.0,1,benchtop,Frozen (below eutectic point)
-MgSO4,0.0830,-10,263.15,0.381,1,benchtop,
-MgSO4,0.1660,-10,263.15,0.683,1,benchtop,
-MgSO4,0.3323,-10,263.15,1.167,1,benchtop,
-MgSO4,0.6647,-10,263.15,1.943,1,benchtop,
-MgSO4,1.6616,-10,263.15,2.221,1,benchtop,
-MgSO4,0.0249,-10,263.15,0.0,2,benchtop,Frozen (below eutectic point)
-MgSO4,0.0830,-10,263.15,0.382,2,benchtop,
-MgSO4,0.1660,-10,263.15,0.687,2,benchtop,
-MgSO4,0.3323,-10,263.15,1.172,2,benchtop,
-MgSO4,0.6647,-10,263.15,1.948,2,benchtop,
-MgSO4,1.6616,-10,263.15,2.226,2,benchtop,
-MgSO4,0.0249,-10,263.15,0.0,3,benchtop,Frozen (below eutectic point)
-MgSO4,0.0830,-10,263.15,0.379,3,benchtop,
-MgSO4,0.1660,-10,263.15,0.683,3,benchtop,
-MgSO4,0.3323,-10,263.15,1.177,3,benchtop,
-MgSO4,0.6647,-10,263.15,1.943,3,benchtop,
-MgSO4,1.6616,-10,263.15,2.229,3,benchtop,
+MgSO4,0.0249,25,298.15,0.3318,1,benchtop,3 g/kg / 120.366
+MgSO4,0.3323,25,298.15,2.501,1,benchtop,40 g/kg / 120.366
+MgSO4,0.6646,25,298.15,4.003,1,benchtop,80 g/kg / 120.366
+MgSO4,0.9970,25,298.15,4.991,1,benchtop,120 g/kg / 120.366
+MgSO4,1.4124,25,298.15,5.652,1,benchtop,170 g/kg / 120.366
+MgSO4,1.6616,25,298.15,5.799,1,benchtop,200 g/kg / 120.366
+MgSO4,0.0249,25,298.15,0.3443,2,benchtop,
+MgSO4,0.3323,25,298.15,2.526,2,benchtop,
+MgSO4,0.6646,25,298.15,4.004,2,benchtop,
+MgSO4,0.9970,25,298.15,5.015,2,benchtop,
+MgSO4,1.4124,25,298.15,5.633,2,benchtop,
+MgSO4,1.6616,25,298.15,5.928,2,benchtop,
+MgSO4,0.0249,25,298.15,0.3508,3,benchtop,
+MgSO4,0.3323,25,298.15,2.544,3,benchtop,
+MgSO4,0.6646,25,298.15,4.011,3,benchtop,
+MgSO4,0.9970,25,298.15,4.648,3,benchtop,
+MgSO4,1.4124,25,298.15,5.656,3,benchtop,
+MgSO4,1.6616,25,298.15,5.779,3,benchtop,
+MgSO4,0.0249,20,293.15,0.3016,1,benchtop,3 g/kg / 120.366
+MgSO4,0.3323,20,293.15,2.274,1,benchtop,40 g/kg / 120.366
+MgSO4,0.6646,20,293.15,3.639,1,benchtop,80 g/kg / 120.366
+MgSO4,0.9970,20,293.15,4.537,1,benchtop,120 g/kg / 120.366
+MgSO4,1.4124,20,293.15,5.138,1,benchtop,170 g/kg / 120.366
+MgSO4,1.6616,20,293.15,5.272,1,benchtop,200 g/kg / 120.366
+MgSO4,0.0249,20,293.15,0.313,2,benchtop,
+MgSO4,0.3323,20,293.15,2.296,2,benchtop,
+MgSO4,0.6646,20,293.15,3.64,2,benchtop,
+MgSO4,0.9970,20,293.15,4.559,2,benchtop,
+MgSO4,1.4124,20,293.15,5.121,2,benchtop,
+MgSO4,1.6616,20,293.15,5.389,2,benchtop,
+MgSO4,0.0249,20,293.15,0.3189,3,benchtop,
+MgSO4,0.3323,20,293.15,2.313,3,benchtop,
+MgSO4,0.6646,20,293.15,3.646,3,benchtop,
+MgSO4,0.9970,20,293.15,4.225,3,benchtop,
+MgSO4,1.4124,20,293.15,5.142,3,benchtop,
+MgSO4,1.6616,20,293.15,5.254,3,benchtop,
+MgSO4,0.0249,5,278.15,0.2245,1,benchtop,3 g/kg / 120.366
+MgSO4,0.3323,5,278.15,1.616,1,benchtop,40 g/kg / 120.366
+MgSO4,0.6646,5,278.15,2.505,1,benchtop,80 g/kg / 120.366
+MgSO4,0.9970,5,278.15,3.101,1,benchtop,120 g/kg / 120.366
+MgSO4,1.4124,5,278.15,3.543,1,benchtop,170 g/kg / 120.366
+MgSO4,1.6616,5,278.15,3.571,1,benchtop,200 g/kg / 120.366
+MgSO4,0.0249,5,278.15,0.2126,2,benchtop,
+MgSO4,0.3323,5,278.15,1.589,2,benchtop,
+MgSO4,0.6646,5,278.15,2.531,2,benchtop,
+MgSO4,0.9970,5,278.15,3.14,2,benchtop,
+MgSO4,1.4124,5,278.15,3.477,2,benchtop,
+MgSO4,1.6616,5,278.15,3.529,2,benchtop,
+MgSO4,0.0249,5,278.15,0.2255,3,benchtop,
+MgSO4,0.3323,5,278.15,1.593,3,benchtop,
+MgSO4,0.6646,5,278.15,2.52,3,benchtop,
+MgSO4,0.9970,5,278.15,3.092,3,benchtop,
+MgSO4,1.4124,5,278.15,3.48,3,benchtop,
+MgSO4,1.6616,5,278.15,3.529,3,benchtop,
+MgSO4,0.0249,-1,272.15,0.1997,1,benchtop,3 g/kg / 120.366
+MgSO4,0.3323,-1,272.15,1.426,1,benchtop,40 g/kg / 120.366
+MgSO4,0.6646,-1,272.15,2.1,1,benchtop,80 g/kg / 120.366
+MgSO4,0.9970,-1,272.15,2.626,1,benchtop,120 g/kg / 120.366
+MgSO4,1.4124,-1,272.15,2.897,1,benchtop,170 g/kg / 120.366
+MgSO4,1.6616,-1,272.15,2.986,1,benchtop,200 g/kg / 120.366
+MgSO4,0.0249,-1,272.15,0.1836,2,benchtop,
+MgSO4,0.3323,-1,272.15,1.355,2,benchtop,
+MgSO4,0.6646,-1,272.15,2.101,2,benchtop,
+MgSO4,0.9970,-1,272.15,2.653,2,benchtop,
+MgSO4,1.4124,-1,272.15,2.932,2,benchtop,
+MgSO4,1.6616,-1,272.15,2.989,2,benchtop,
+MgSO4,0.0249,-1,272.15,0.1958,3,benchtop,
+MgSO4,0.3323,-1,272.15,1.355,3,benchtop,
+MgSO4,0.6646,-1,272.15,2.142,3,benchtop,
+MgSO4,0.9970,-1,272.15,2.617,3,benchtop,
+MgSO4,1.4124,-1,272.15,2.92,3,benchtop,
+MgSO4,1.6616,-1,272.15,2.87,3,benchtop,
+MgSO4,0.0249,-3,270.15,0.119,1,benchtop,3 g/kg / 120.366
+MgSO4,0.3323,-3,270.15,1.31,1,benchtop,40 g/kg / 120.366
+MgSO4,0.6646,-3,270.15,1.98,1,benchtop,80 g/kg / 120.366
+MgSO4,0.9970,-3,270.15,2.452,1,benchtop,120 g/kg / 120.366
+MgSO4,1.4124,-3,270.15,2.78,1,benchtop,170 g/kg / 120.366
+MgSO4,1.6616,-3,270.15,2.775,1,benchtop,200 g/kg / 120.366
+MgSO4,0.0249,-3,270.15,0.1753,2,benchtop,
+MgSO4,0.3323,-3,270.15,1.257,2,benchtop,
+MgSO4,0.6646,-3,270.15,1.86,2,benchtop,
+MgSO4,0.9970,-3,270.15,2.473,2,benchtop,
+MgSO4,1.4124,-3,270.15,2.663,2,benchtop,
+MgSO4,1.6616,-3,270.15,2.77,2,benchtop,
+MgSO4,0.0249,-3,270.15,0.2106,3,benchtop,
+MgSO4,0.3323,-3,270.15,1.272,3,benchtop,
+MgSO4,0.6646,-3,270.15,1.962,3,benchtop,
+MgSO4,0.9970,-3,270.15,2.489,3,benchtop,
+MgSO4,1.4124,-3,270.15,2.869,3,benchtop,
+MgSO4,1.6616,-3,270.15,2.785,3,benchtop,
+MgSO4,0.0249,-6,267.15,0.1843,1,benchtop,3 g/kg / 120.366
+MgSO4,0.3323,-6,267.15,1.205,1,benchtop,40 g/kg / 120.366
+MgSO4,0.6646,-6,267.15,1.812,1,benchtop,80 g/kg / 120.366
+MgSO4,0.9970,-6,267.15,2.275,1,benchtop,120 g/kg / 120.366
+MgSO4,1.4124,-6,267.15,2.442,1,benchtop,170 g/kg / 120.366
+MgSO4,1.6616,-6,267.15,2.401,1,benchtop,200 g/kg / 120.366
+MgSO4,0.0249,-6,267.15,0.1737,2,benchtop,
+MgSO4,0.3323,-6,267.15,1.165,2,benchtop,
+MgSO4,0.6646,-6,267.15,1.847,2,benchtop,
+MgSO4,0.9970,-6,267.15,2.22,2,benchtop,
+MgSO4,1.4124,-6,267.15,2.387,2,benchtop,
+MgSO4,1.6616,-6,267.15,2.508,2,benchtop,
+MgSO4,0.0249,-6,267.15,0.2086,3,benchtop,
+MgSO4,0.3323,-6,267.15,1.147,3,benchtop,
+MgSO4,0.6646,-6,267.15,1.804,3,benchtop,
+MgSO4,0.9970,-6,267.15,2.184,3,benchtop,
+MgSO4,1.4124,-6,267.15,2.488,3,benchtop,
+MgSO4,1.6616,-6,267.15,2.505,3,benchtop,
+MgSO4,0.0249,-10,263.15,0,1,benchtop,Frozen (below eutectic point)
+MgSO4,0.3323,-10,263.15,1.109,1,benchtop,40 g/kg / 120.366
+MgSO4,0.6646,-10,263.15,1.55,1,benchtop,80 g/kg / 120.366
+MgSO4,0.9970,-10,263.15,2.037,1,benchtop,120 g/kg / 120.366
+MgSO4,1.4124,-10,263.15,2.188,1,benchtop,170 g/kg / 120.366
+MgSO4,1.6616,-10,263.15,2.231,1,benchtop,200 g/kg / 120.366
+MgSO4,0.0249,-10,263.15,0,2,benchtop,
+MgSO4,0.3323,-10,263.15,1.109,2,benchtop,
+MgSO4,0.6646,-10,263.15,1.55,2,benchtop,
+MgSO4,0.9970,-10,263.15,2.037,2,benchtop,
+MgSO4,1.4124,-10,263.15,2.187,2,benchtop,
+MgSO4,1.6616,-10,263.15,2.198,2,benchtop,
+MgSO4,0.0249,-10,263.15,0,3,benchtop,
+MgSO4,0.3323,-10,263.15,1.109,3,benchtop,
+MgSO4,0.6646,-10,263.15,1.55,3,benchtop,
+MgSO4,0.9970,-10,263.15,2.037,3,benchtop,
+MgSO4,1.4124,-10,263.15,2.161,3,benchtop,
+MgSO4,1.6616,-10,263.15,2.277,3,benchtop,
 # NH4Cl benchtop data
-NH4Cl,0.1871,25,298.15,2.292,1,benchtop,10 g/kg / 53.49
-NH4Cl,0.5613,25,298.15,6.355,1,benchtop,30 g/kg / 53.49
-NH4Cl,0.9355,25,298.15,9.867,1,benchtop,50 g/kg / 53.49
-NH4Cl,1.8709,25,298.15,17.350,1,benchtop,100 g/kg / 53.49
-NH4Cl,0.1871,25,298.15,2.297,2,benchtop,
-NH4Cl,0.5613,25,298.15,6.374,2,benchtop,
-NH4Cl,0.9355,25,298.15,9.883,2,benchtop,
-NH4Cl,1.8709,25,298.15,17.381,2,benchtop,
-NH4Cl,0.1871,25,298.15,2.276,3,benchtop,
-NH4Cl,0.5613,25,298.15,6.363,3,benchtop,
-NH4Cl,0.9355,25,298.15,9.900,3,benchtop,
-NH4Cl,1.8709,25,298.15,17.340,3,benchtop,
-NH4Cl,0.1871,20,293.15,2.031,1,benchtop,
-NH4Cl,0.5613,20,293.15,5.632,1,benchtop,
-NH4Cl,0.9355,20,293.15,8.743,1,benchtop,
-NH4Cl,1.8709,20,293.15,15.380,1,benchtop,
-NH4Cl,0.1871,20,293.15,2.035,2,benchtop,
-NH4Cl,0.5613,20,293.15,5.649,2,benchtop,
-NH4Cl,0.9355,20,293.15,8.759,2,benchtop,
-NH4Cl,1.8709,20,293.15,15.409,2,benchtop,
-NH4Cl,0.1871,20,293.15,2.016,3,benchtop,
-NH4Cl,0.5613,20,293.15,5.641,3,benchtop,
-NH4Cl,0.9355,20,293.15,8.776,3,benchtop,
-NH4Cl,1.8709,20,293.15,15.371,3,benchtop,
-NH4Cl,0.1871,5,278.15,1.468,1,benchtop,
-NH4Cl,0.5613,5,278.15,4.060,1,benchtop,
-NH4Cl,0.9355,5,278.15,6.310,1,benchtop,
-NH4Cl,1.8709,5,278.15,11.100,1,benchtop,
-NH4Cl,0.1871,5,278.15,1.472,2,benchtop,
-NH4Cl,0.5613,5,278.15,4.074,2,benchtop,
-NH4Cl,0.9355,5,278.15,6.323,2,benchtop,
-NH4Cl,1.8709,5,278.15,11.124,2,benchtop,
-NH4Cl,0.1871,5,278.15,1.456,3,benchtop,
-NH4Cl,0.5613,5,278.15,4.066,3,benchtop,
-NH4Cl,0.9355,5,278.15,6.339,3,benchtop,
-NH4Cl,1.8709,5,278.15,11.086,3,benchtop,
-NH4Cl,0.1871,-1,272.15,1.297,1,benchtop,
-NH4Cl,0.5613,-1,272.15,3.583,1,benchtop,
-NH4Cl,0.9355,-1,272.15,5.566,1,benchtop,
-NH4Cl,1.8709,-1,272.15,9.790,1,benchtop,
-NH4Cl,0.1871,-1,272.15,1.301,2,benchtop,
-NH4Cl,0.5613,-1,272.15,3.596,2,benchtop,
-NH4Cl,0.9355,-1,272.15,5.578,2,benchtop,
-NH4Cl,1.8709,-1,272.15,9.812,2,benchtop,
-NH4Cl,0.1871,-1,272.15,1.286,3,benchtop,
-NH4Cl,0.5613,-1,272.15,3.588,3,benchtop,
-NH4Cl,0.9355,-1,272.15,5.594,3,benchtop,
-NH4Cl,1.8709,-1,272.15,9.775,3,benchtop,
-NH4Cl,0.1871,-3,270.15,1.221,1,benchtop,
-NH4Cl,0.5613,-3,270.15,3.371,1,benchtop,
-NH4Cl,0.9355,-3,270.15,5.237,1,benchtop,
-NH4Cl,1.8709,-3,270.15,9.216,1,benchtop,
-NH4Cl,0.1871,-3,270.15,1.224,2,benchtop,
-NH4Cl,0.5613,-3,270.15,3.383,2,benchtop,
-NH4Cl,0.9355,-3,270.15,5.249,2,benchtop,
-NH4Cl,1.8709,-3,270.15,9.236,2,benchtop,
-NH4Cl,0.1871,-3,270.15,1.211,3,benchtop,
-NH4Cl,0.5613,-3,270.15,3.375,3,benchtop,
-NH4Cl,0.9355,-3,270.15,5.264,3,benchtop,
-NH4Cl,1.8709,-3,270.15,9.200,3,benchtop,
-NH4Cl,0.1871,-6,267.15,1.122,1,benchtop,
-NH4Cl,0.5613,-6,267.15,3.095,1,benchtop,
-NH4Cl,0.9355,-6,267.15,4.809,1,benchtop,
-NH4Cl,1.8709,-6,267.15,8.464,1,benchtop,
-NH4Cl,0.1871,-6,267.15,1.125,2,benchtop,
-NH4Cl,0.5613,-6,267.15,3.107,2,benchtop,
-NH4Cl,0.9355,-6,267.15,4.821,2,benchtop,
-NH4Cl,1.8709,-6,267.15,8.483,2,benchtop,
-NH4Cl,0.1871,-6,267.15,1.113,3,benchtop,
-NH4Cl,0.5613,-6,267.15,3.099,3,benchtop,
-NH4Cl,0.9355,-6,267.15,4.836,3,benchtop,
-NH4Cl,1.8709,-6,267.15,8.449,3,benchtop,
-NH4Cl,0.1871,-10,263.15,0.989,1,benchtop,
-NH4Cl,0.5613,-10,263.15,2.726,1,benchtop,
-NH4Cl,0.9355,-10,263.15,4.236,1,benchtop,
-NH4Cl,1.8709,-10,263.15,7.455,1,benchtop,
-NH4Cl,0.1871,-10,263.15,0.992,2,benchtop,
-NH4Cl,0.5613,-10,263.15,2.737,2,benchtop,
-NH4Cl,0.9355,-10,263.15,4.247,2,benchtop,
-NH4Cl,1.8709,-10,263.15,7.472,2,benchtop,
-NH4Cl,0.1871,-10,263.15,0.982,3,benchtop,
-NH4Cl,0.5613,-10,263.15,2.729,3,benchtop,
-NH4Cl,0.9355,-10,263.15,4.262,3,benchtop,
-NH4Cl,1.8709,-10,263.15,7.438,3,benchtop,
+NH4Cl,0.1869,25,298.15,2.333,1,benchtop,10 g/kg / 53.491
+NH4Cl,0.9347,25,298.15,10.35,1,benchtop,50 g/kg / 53.491
+NH4Cl,1.4021,25,298.15,14.94,1,benchtop,75 g/kg / 53.491
+NH4Cl,1.8695,25,298.15,19.26,1,benchtop,100 g/kg / 53.491
+NH4Cl,0.1869,25,298.15,2.318,2,benchtop,
+NH4Cl,0.9347,25,298.15,10.36,2,benchtop,
+NH4Cl,1.4021,25,298.15,14.89,2,benchtop,
+NH4Cl,1.8695,25,298.15,19.03,2,benchtop,
+NH4Cl,0.1869,25,298.15,2.332,3,benchtop,
+NH4Cl,0.9347,25,298.15,10.42,3,benchtop,
+NH4Cl,1.4021,25,298.15,14.72,3,benchtop,
+NH4Cl,1.8695,25,298.15,19.09,3,benchtop,
+NH4Cl,0.1869,20,293.15,2.121,1,benchtop,10 g/kg / 53.491
+NH4Cl,0.9347,20,293.15,9.406,1,benchtop,50 g/kg / 53.491
+NH4Cl,1.4021,20,293.15,13.58,1,benchtop,75 g/kg / 53.491
+NH4Cl,1.8695,20,293.15,17.51,1,benchtop,100 g/kg / 53.491
+NH4Cl,0.1869,20,293.15,2.107,2,benchtop,
+NH4Cl,0.9347,20,293.15,9.422,2,benchtop,
+NH4Cl,1.4021,20,293.15,13.54,2,benchtop,
+NH4Cl,1.8695,20,293.15,17.3,2,benchtop,
+NH4Cl,0.1869,20,293.15,2.12,3,benchtop,
+NH4Cl,0.9347,20,293.15,9.47,3,benchtop,
+NH4Cl,1.4021,20,293.15,13.38,3,benchtop,
+NH4Cl,1.8695,20,293.15,17.35,3,benchtop,
+NH4Cl,0.1869,5,278.15,1.535,1,benchtop,10 g/kg / 53.491
+NH4Cl,0.9347,5,278.15,6.843,1,benchtop,50 g/kg / 53.491
+NH4Cl,1.4021,5,278.15,10,1,benchtop,75 g/kg / 53.491
+NH4Cl,1.8695,5,278.15,13.13,1,benchtop,100 g/kg / 53.491
+NH4Cl,0.1869,5,278.15,1.537,2,benchtop,
+NH4Cl,0.9347,5,278.15,6.979,2,benchtop,
+NH4Cl,1.4021,5,278.15,9.993,2,benchtop,
+NH4Cl,1.8695,5,278.15,13.09,2,benchtop,
+NH4Cl,0.1869,5,278.15,1.576,3,benchtop,
+NH4Cl,0.9347,5,278.15,6.904,3,benchtop,
+NH4Cl,1.4021,5,278.15,9.921,3,benchtop,
+NH4Cl,1.8695,5,278.15,12.94,3,benchtop,
+NH4Cl,0.1869,-1,272.15,1.355,1,benchtop,10 g/kg / 53.491
+NH4Cl,0.9347,-1,272.15,5.897,1,benchtop,50 g/kg / 53.491
+NH4Cl,1.4021,-1,272.15,8.656,1,benchtop,75 g/kg / 53.491
+NH4Cl,1.8695,-1,272.15,11.54,1,benchtop,100 g/kg / 53.491
+NH4Cl,0.1869,-1,272.15,1.312,2,benchtop,
+NH4Cl,0.9347,-1,272.15,6.068,2,benchtop,
+NH4Cl,1.4021,-1,272.15,8.568,2,benchtop,
+NH4Cl,1.8695,-1,272.15,11.33,2,benchtop,
+NH4Cl,0.1869,-1,272.15,1.336,3,benchtop,
+NH4Cl,0.9347,-1,272.15,5.983,3,benchtop,
+NH4Cl,1.4021,-1,272.15,8.584,3,benchtop,
+NH4Cl,1.8695,-1,272.15,10.92,3,benchtop,
+NH4Cl,0.1869,-3,270.15,1.253,1,benchtop,10 g/kg / 53.491
+NH4Cl,0.9347,-3,270.15,5.491,1,benchtop,50 g/kg / 53.491
+NH4Cl,1.4021,-3,270.15,8.188,1,benchtop,75 g/kg / 53.491
+NH4Cl,1.8695,-3,270.15,10.79,1,benchtop,100 g/kg / 53.491
+NH4Cl,0.1869,-3,270.15,1.258,2,benchtop,
+NH4Cl,0.9347,-3,270.15,5.664,2,benchtop,
+NH4Cl,1.4021,-3,270.15,8.293,2,benchtop,
+NH4Cl,1.8695,-3,270.15,10.46,2,benchtop,
+NH4Cl,0.1869,-3,270.15,1.27,3,benchtop,
+NH4Cl,0.9347,-3,270.15,5.602,3,benchtop,
+NH4Cl,1.4021,-3,270.15,8.203,3,benchtop,
+NH4Cl,1.8695,-3,270.15,10.67,3,benchtop,
+NH4Cl,0.1869,-6,267.15,1.224,1,benchtop,10 g/kg / 53.491
+NH4Cl,0.9347,-6,267.15,5.207,1,benchtop,50 g/kg / 53.491
+NH4Cl,1.4021,-6,267.15,7.713,1,benchtop,75 g/kg / 53.491
+NH4Cl,1.8695,-6,267.15,10.04,1,benchtop,100 g/kg / 53.491
+NH4Cl,0.1869,-6,267.15,1.14,2,benchtop,
+NH4Cl,0.9347,-6,267.15,5.428,2,benchtop,
+NH4Cl,1.4021,-6,267.15,7.653,2,benchtop,
+NH4Cl,1.8695,-6,267.15,9.849,2,benchtop,
+NH4Cl,0.1869,-6,267.15,1.199,3,benchtop,
+NH4Cl,0.9347,-6,267.15,5.178,3,benchtop,
+NH4Cl,1.4021,-6,267.15,7.55,3,benchtop,
+NH4Cl,1.8695,-6,267.15,9.877,3,benchtop,
+NH4Cl,0.1869,-10,263.15,1.068,1,benchtop,10 g/kg / 53.491
+NH4Cl,0.9347,-10,263.15,4.7,1,benchtop,50 g/kg / 53.491
+NH4Cl,1.4021,-10,263.15,6.978,1,benchtop,75 g/kg / 53.491
+NH4Cl,1.8695,-10,263.15,8.852,1,benchtop,100 g/kg / 53.491
+NH4Cl,0.1869,-10,263.15,0.8184,2,benchtop,
+NH4Cl,0.9347,-10,263.15,4.86,2,benchtop,
+NH4Cl,1.4021,-10,263.15,7.018,2,benchtop,
+NH4Cl,1.8695,-10,263.15,8.949,2,benchtop,
+NH4Cl,0.1869,-10,263.15,1.036,3,benchtop,
+NH4Cl,0.9347,-10,263.15,4.695,3,benchtop,
+NH4Cl,1.4021,-10,263.15,6.83,3,benchtop,
+NH4Cl,1.8695,-10,263.15,9.301,3,benchtop,
 # Na2CO3 benchtop data
-Na2CO3,0.0943,25,298.15,1.250,1,benchtop,10 g/kg / 105.99
-Na2CO3,0.2358,25,298.15,2.878,1,benchtop,25 g/kg / 105.99
-Na2CO3,0.4717,25,298.15,5.233,1,benchtop,50 g/kg / 105.99
-Na2CO3,0.9434,25,298.15,9.187,1,benchtop,100 g/kg / 105.99
-Na2CO3,1.8868,25,298.15,15.750,1,benchtop,200 g/kg / 105.99
-Na2CO3,0.0943,25,298.15,1.253,2,benchtop,
-Na2CO3,0.2358,25,298.15,2.885,2,benchtop,
-Na2CO3,0.4717,25,298.15,5.239,2,benchtop,
-Na2CO3,0.9434,25,298.15,9.196,2,benchtop,
-Na2CO3,1.8868,25,298.15,15.765,2,benchtop,
-Na2CO3,0.0943,25,298.15,1.240,3,benchtop,
-Na2CO3,0.2358,25,298.15,2.874,3,benchtop,
-Na2CO3,0.4717,25,298.15,5.244,3,benchtop,
-Na2CO3,0.9434,25,298.15,9.172,3,benchtop,
-Na2CO3,1.8868,25,298.15,15.728,3,benchtop,
-Na2CO3,0.0943,20,293.15,1.084,1,benchtop,
-Na2CO3,0.2358,20,293.15,2.493,1,benchtop,
-Na2CO3,0.4717,20,293.15,4.529,1,benchtop,
-Na2CO3,0.9434,20,293.15,7.948,1,benchtop,
-Na2CO3,1.8868,20,293.15,13.630,1,benchtop,
-Na2CO3,0.0943,20,293.15,1.086,2,benchtop,
-Na2CO3,0.2358,20,293.15,2.499,2,benchtop,
-Na2CO3,0.4717,20,293.15,4.535,2,benchtop,
-Na2CO3,0.9434,20,293.15,7.955,2,benchtop,
-Na2CO3,1.8868,20,293.15,13.643,2,benchtop,
-Na2CO3,0.0943,20,293.15,1.075,3,benchtop,
-Na2CO3,0.2358,20,293.15,2.491,3,benchtop,
-Na2CO3,0.4717,20,293.15,4.541,3,benchtop,
-Na2CO3,0.9434,20,293.15,7.933,3,benchtop,
-Na2CO3,1.8868,20,293.15,13.605,3,benchtop,
-Na2CO3,0.0943,5,278.15,0.778,1,benchtop,
-Na2CO3,0.2358,5,278.15,1.786,1,benchtop,
-Na2CO3,0.4717,5,278.15,3.247,1,benchtop,
-Na2CO3,0.9434,5,278.15,5.698,1,benchtop,
-Na2CO3,1.8868,5,278.15,9.769,1,benchtop,
-Na2CO3,0.0943,5,278.15,0.780,2,benchtop,
-Na2CO3,0.2358,5,278.15,1.791,2,benchtop,
-Na2CO3,0.4717,5,278.15,3.252,2,benchtop,
-Na2CO3,0.9434,5,278.15,5.704,2,benchtop,
-Na2CO3,1.8868,5,278.15,9.781,2,benchtop,
-Na2CO3,0.0943,5,278.15,0.771,3,benchtop,
-Na2CO3,0.2358,5,278.15,1.784,3,benchtop,
-Na2CO3,0.4717,5,278.15,3.257,3,benchtop,
-Na2CO3,0.9434,5,278.15,5.680,3,benchtop,
-Na2CO3,1.8868,5,278.15,9.743,3,benchtop,
+Na2CO3,0.0472,25,298.15,0.8153,1,benchtop,5 g/kg / 105.9888
+Na2CO3,0.0943,25,298.15,1.472,1,benchtop,10 g/kg / 105.9888
+Na2CO3,0.2359,25,298.15,3.055,1,benchtop,25 g/kg / 105.9888
+Na2CO3,0.3774,25,298.15,4.452,1,benchtop,40 g/kg / 105.9888
+Na2CO3,0.5189,25,298.15,5.468,1,benchtop,55 g/kg / 105.9888
+Na2CO3,0.0472,25,298.15,0.8197,2,benchtop,
+Na2CO3,0.0943,25,298.15,1.469,2,benchtop,
+Na2CO3,0.2359,25,298.15,3.101,2,benchtop,
+Na2CO3,0.3774,25,298.15,4.37,2,benchtop,
+Na2CO3,0.5189,25,298.15,5.474,2,benchtop,
+Na2CO3,0.0472,25,298.15,0.8316,3,benchtop,
+Na2CO3,0.0943,25,298.15,1.456,3,benchtop,
+Na2CO3,0.2359,25,298.15,3.071,3,benchtop,
+Na2CO3,0.3774,25,298.15,4.344,3,benchtop,
+Na2CO3,0.5189,25,298.15,5.412,3,benchtop,
+Na2CO3,0.0472,20,293.15,0.7412,1,benchtop,5 g/kg / 105.9888
+Na2CO3,0.0943,20,293.15,1.338,1,benchtop,10 g/kg / 105.9888
+Na2CO3,0.2359,20,293.15,2.777,1,benchtop,25 g/kg / 105.9888
+Na2CO3,0.3774,20,293.15,4.047,1,benchtop,40 g/kg / 105.9888
+Na2CO3,0.5189,20,293.15,4.971,1,benchtop,55 g/kg / 105.9888
+Na2CO3,0.0472,20,293.15,0.7452,2,benchtop,
+Na2CO3,0.0943,20,293.15,1.335,2,benchtop,
+Na2CO3,0.2359,20,293.15,2.819,2,benchtop,
+Na2CO3,0.3774,20,293.15,3.973,2,benchtop,
+Na2CO3,0.5189,20,293.15,4.976,2,benchtop,
+Na2CO3,0.0472,20,293.15,0.756,3,benchtop,
+Na2CO3,0.0943,20,293.15,1.324,3,benchtop,
+Na2CO3,0.2359,20,293.15,2.792,3,benchtop,
+Na2CO3,0.3774,20,293.15,3.949,3,benchtop,
+Na2CO3,0.5189,20,293.15,4.92,3,benchtop,
+Na2CO3,0.0472,5,278.15,0.521,1,benchtop,5 g/kg / 105.9888
+Na2CO3,0.0943,5,278.15,0.9306,1,benchtop,10 g/kg / 105.9888
+Na2CO3,0.2359,5,278.15,1.894,1,benchtop,25 g/kg / 105.9888
+Na2CO3,0.3774,5,278.15,2.691,1,benchtop,40 g/kg / 105.9888
+Na2CO3,0.5189,5,278.15,3.379,1,benchtop,55 g/kg / 105.9888
+Na2CO3,0.0472,5,278.15,0.5123,2,benchtop,
+Na2CO3,0.0943,5,278.15,0.9099,2,benchtop,
+Na2CO3,0.2359,5,278.15,1.9,2,benchtop,
+Na2CO3,0.3774,5,278.15,2.67,2,benchtop,
+Na2CO3,0.5189,5,278.15,3.397,2,benchtop,
+Na2CO3,0.0472,5,278.15,0.5095,3,benchtop,
+Na2CO3,0.0943,5,278.15,0.9031,3,benchtop,
+Na2CO3,0.2359,5,278.15,1.898,3,benchtop,
+Na2CO3,0.3774,5,278.15,2.67,3,benchtop,
+Na2CO3,0.5189,5,278.15,3.384,3,benchtop,
+Na2CO3,0.0472,-1,272.15,0.6495,1,benchtop,5 g/kg / 105.9888
+Na2CO3,0.0943,-1,272.15,1.172,1,benchtop,10 g/kg / 105.9888
+Na2CO3,0.2359,-1,272.15,2.434,1,benchtop,25 g/kg / 105.9888
+Na2CO3,0.3774,-1,272.15,3.544,1,benchtop,40 g/kg / 105.9888
+Na2CO3,0.5189,-1,272.15,4.356,1,benchtop,55 g/kg / 105.9888
+Na2CO3,0.0472,-1,272.15,0.6531,2,benchtop,
+Na2CO3,0.0943,-1,272.15,1.169,2,benchtop,
+Na2CO3,0.2359,-1,272.15,2.472,2,benchtop,
+Na2CO3,0.3774,-1,272.15,3.478,2,benchtop,
+Na2CO3,0.5189,-1,272.15,4.361,2,benchtop,
+Na2CO3,0.0472,-1,272.15,0.6624,3,benchtop,
+Na2CO3,0.0943,-1,272.15,1.159,3,benchtop,
+Na2CO3,0.2359,-1,272.15,2.446,3,benchtop,
+Na2CO3,0.3774,-1,272.15,3.457,3,benchtop,
+Na2CO3,0.5189,-1,272.15,4.304,3,benchtop,
+Na2CO3,0.0472,-3,270.15,0.6142,1,benchtop,5 g/kg / 105.9888
+Na2CO3,0.0943,-3,270.15,1.109,1,benchtop,10 g/kg / 105.9888
+Na2CO3,0.2359,-3,270.15,2.303,1,benchtop,25 g/kg / 105.9888
+Na2CO3,0.3774,-3,270.15,3.357,1,benchtop,40 g/kg / 105.9888
+Na2CO3,0.5189,-3,270.15,4.126,1,benchtop,55 g/kg / 105.9888
+Na2CO3,0.0472,-3,270.15,0.6176,2,benchtop,
+Na2CO3,0.0943,-3,270.15,1.106,2,benchtop,
+Na2CO3,0.2359,-3,270.15,2.339,2,benchtop,
+Na2CO3,0.3774,-3,270.15,3.295,2,benchtop,
+Na2CO3,0.5189,-3,270.15,4.131,2,benchtop,
+Na2CO3,0.0472,-3,270.15,0.6262,3,benchtop,
+Na2CO3,0.0943,-3,270.15,1.097,3,benchtop,
+Na2CO3,0.2359,-3,270.15,2.314,3,benchtop,
+Na2CO3,0.3774,-3,270.15,3.274,3,benchtop,
+Na2CO3,0.5189,-3,270.15,4.077,3,benchtop,
+Na2CO3,0.0472,-6,267.15,0.3971,1,benchtop,5 g/kg / 105.9888
+Na2CO3,0.0943,-6,267.15,0.6548,1,benchtop,10 g/kg / 105.9888
+Na2CO3,0.2359,-6,267.15,1.399,1,benchtop,25 g/kg / 105.9888
+Na2CO3,0.3774,-6,267.15,1.959,1,benchtop,40 g/kg / 105.9888
+Na2CO3,0.5189,-6,267.15,2.434,1,benchtop,55 g/kg / 105.9888
+Na2CO3,0.0472,-6,267.15,0.3785,2,benchtop,
+Na2CO3,0.0943,-6,267.15,0.6521,2,benchtop,
+Na2CO3,0.2359,-6,267.15,1.431,2,benchtop,
+Na2CO3,0.3774,-6,267.15,1.981,2,benchtop,
+Na2CO3,0.5189,-6,267.15,2.411,2,benchtop,
+Na2CO3,0.0472,-6,267.15,0.3602,3,benchtop,
+Na2CO3,0.0943,-6,267.15,0.6574,3,benchtop,
+Na2CO3,0.2359,-6,267.15,1.387,3,benchtop,
+Na2CO3,0.3774,-6,267.15,1.93,3,benchtop,
+Na2CO3,0.5189,-6,267.15,2.409,3,benchtop,
+Na2CO3,0.0472,-10,263.15,0.2965,1,benchtop,5 g/kg / 105.9888
+Na2CO3,0.0943,-10,263.15,0.5352,1,benchtop,10 g/kg / 105.9888
+Na2CO3,0.2359,-10,263.15,1.111,1,benchtop,25 g/kg / 105.9888
+Na2CO3,0.3774,-10,263.15,1.619,1,benchtop,40 g/kg / 105.9888
+Na2CO3,0.5189,-10,263.15,1.988,1,benchtop,55 g/kg / 105.9888
+Na2CO3,0.0472,-10,263.15,0.2981,2,benchtop,
+Na2CO3,0.0943,-10,263.15,0.534,2,benchtop,
+Na2CO3,0.2359,-10,263.15,1.128,2,benchtop,
+Na2CO3,0.3774,-10,263.15,1.589,2,benchtop,
+Na2CO3,0.5189,-10,263.15,1.99,2,benchtop,
+Na2CO3,0.0472,-10,263.15,0.3024,3,benchtop,
+Na2CO3,0.0943,-10,263.15,0.5296,3,benchtop,
+Na2CO3,0.2359,-10,263.15,1.117,3,benchtop,
+Na2CO3,0.3774,-10,263.15,1.58,3,benchtop,
+Na2CO3,0.5189,-10,263.15,1.968,3,benchtop,
 # Mixture data (1:1:1 MgSO4:NaCl:Na2CO3 by molality)
-Mixture,0.05,25,298.15,2.087,1,benchtop,
-Mixture,0.10,25,298.15,3.683,1,benchtop,
-Mixture,0.40,25,298.15,11.000,1,benchtop,
-Mixture,0.70,25,298.15,15.500,1,benchtop,
-Mixture,0.05,25,298.15,2.090,2,benchtop,
-Mixture,0.10,25,298.15,3.697,2,benchtop,
-Mixture,0.40,25,298.15,11.020,2,benchtop,
-Mixture,0.70,25,298.15,15.527,2,benchtop,
-Mixture,0.05,25,298.15,2.066,3,benchtop,
-Mixture,0.10,25,298.15,3.685,3,benchtop,
-Mixture,0.40,25,298.15,10.980,3,benchtop,
-Mixture,0.70,25,298.15,15.474,3,benchtop,
-Mixture,0.05,20,293.15,1.867,1,benchtop,
-Mixture,0.10,20,293.15,3.287,1,benchtop,
-Mixture,0.40,20,293.15,9.800,1,benchtop,
-Mixture,0.70,20,293.15,13.800,1,benchtop,
-Mixture,0.05,20,293.15,1.870,2,benchtop,
-Mixture,0.10,20,293.15,3.300,2,benchtop,
-Mixture,0.40,20,293.15,9.818,2,benchtop,
-Mixture,0.70,20,293.15,13.823,2,benchtop,
-Mixture,0.05,20,293.15,1.851,3,benchtop,
-Mixture,0.10,20,293.15,3.293,3,benchtop,
-Mixture,0.40,20,293.15,9.783,3,benchtop,
-Mixture,0.70,20,293.15,13.778,3,benchtop,
-Mixture,0.05,5,278.15,1.379,1,benchtop,
-Mixture,0.10,5,278.15,2.425,1,benchtop,
-Mixture,0.40,5,278.15,7.230,1,benchtop,
-Mixture,0.70,5,278.15,10.180,1,benchtop,
-Mixture,0.05,5,278.15,1.381,2,benchtop,
-Mixture,0.10,5,278.15,2.436,2,benchtop,
-Mixture,0.40,5,278.15,7.245,2,benchtop,
-Mixture,0.70,5,278.15,10.201,2,benchtop,
-Mixture,0.05,5,278.15,1.366,3,benchtop,
-Mixture,0.10,5,278.15,2.429,3,benchtop,
-Mixture,0.40,5,278.15,7.215,3,benchtop,
-Mixture,0.70,5,278.15,10.160,3,benchtop,
-Mixture,0.05,-10,263.15,0.6675,1,benchtop,
-Mixture,0.10,-10,263.15,1.1372,1,benchtop,
-Mixture,0.40,-10,263.15,3.337,1,benchtop,
-Mixture,0.70,-10,263.15,3.269,1,benchtop,
-Mixture,0.05,-10,263.15,0.6676,2,benchtop,
-Mixture,0.10,-10,263.15,1.1401,2,benchtop,
-Mixture,0.40,-10,263.15,3.341,2,benchtop,
-Mixture,0.70,-10,263.15,3.270,2,benchtop,
+Mixture,0.05,25,298.15,1.516,1,benchtop,
+Mixture,0.10,25,298.15,2.802,1,benchtop,
+Mixture,0.40,25,298.15,7.269,1,benchtop,
+Mixture,0.70,25,298.15,6.246,1,benchtop,
+Mixture,0.05,25,298.15,1.502,2,benchtop,
+Mixture,0.10,25,298.15,2.673,2,benchtop,
+Mixture,0.40,25,298.15,7.371,2,benchtop,
+Mixture,0.70,25,298.15,6.642,2,benchtop,
+Mixture,0.05,25,298.15,1.519,3,benchtop,
+Mixture,0.10,25,298.15,2.639,3,benchtop,
+Mixture,0.40,25,298.15,7.413,3,benchtop,
+Mixture,0.70,25,298.15,6.523,3,benchtop,
+Mixture,0.05,20,293.15,1.378,1,benchtop,
+Mixture,0.10,20,293.15,2.547,1,benchtop,
+Mixture,0.40,20,293.15,6.608,1,benchtop,
+Mixture,0.70,20,293.15,5.678,1,benchtop,
+Mixture,0.05,20,293.15,1.365,2,benchtop,
+Mixture,0.10,20,293.15,2.43,2,benchtop,
+Mixture,0.40,20,293.15,6.701,2,benchtop,
+Mixture,0.70,20,293.15,6.038,2,benchtop,
+Mixture,0.05,20,293.15,1.381,3,benchtop,
+Mixture,0.10,20,293.15,2.399,3,benchtop,
+Mixture,0.40,20,293.15,6.739,3,benchtop,
+Mixture,0.70,20,293.15,5.93,3,benchtop,
+Mixture,0.05,-1,272.15,0.8364,1,benchtop,
+Mixture,0.10,-1,272.15,1.524,1,benchtop,
+Mixture,0.40,-1,272.15,3.984,1,benchtop,
+Mixture,0.70,-1,272.15,3.569,1,benchtop,
+Mixture,0.05,-1,272.15,0.8526,2,benchtop,
+Mixture,0.10,-1,272.15,1.576,2,benchtop,
+Mixture,0.40,-1,272.15,4.061,2,benchtop,
+Mixture,0.70,-1,272.15,3.517,2,benchtop,
+Mixture,0.05,-1,272.15,0.8433,3,benchtop,
+Mixture,0.10,-1,272.15,1.468,3,benchtop,
+Mixture,0.40,-1,272.15,4.021,3,benchtop,
+Mixture,0.70,-1,272.15,3.64,3,benchtop,
+Mixture,0.05,-10,263.15,0.6665,1,benchtop,
+Mixture,0.10,-10,263.15,1.181,1,benchtop,
+Mixture,0.40,-10,263.15,3.222,1,benchtop,
+Mixture,0.70,-10,263.15,3.156,1,benchtop,
+Mixture,0.05,-10,263.15,0.6665,2,benchtop,
+Mixture,0.10,-10,263.15,1.09,2,benchtop,
+Mixture,0.40,-10,263.15,3.313,2,benchtop,
+Mixture,0.70,-10,263.15,2.842,2,benchtop,
 Mixture,0.05,-10,263.15,0.6665,3,benchtop,
-Mixture,0.10,-10,263.15,1.1355,3,benchtop,
+Mixture,0.10,-10,263.15,1.135,3,benchtop,
 Mixture,0.40,-10,263.15,3.331,3,benchtop,
 Mixture,0.70,-10,263.15,3.263,3,benchtop,
