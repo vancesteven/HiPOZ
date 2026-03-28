@@ -34,6 +34,11 @@ class DataSelector(QMainWindow):
         self.current_std_uncertainty = []
         self.current_meas = []
 
+        # Initialize masks for tracking standards and associated measurements
+        n = len(self.data)
+        self.standard_mask = np.zeros(n, dtype=bool)  # Tracks rows marked as standards
+        self.associated_mask = np.zeros(n, dtype=bool)  # Tracks rows with associated measurements
+
         # Check for config files in correct locations (following zAnalysis<date>.json convention)
         # Auto-creates missing files to store GUI progress
         self.check_config_file_locations()
@@ -365,6 +370,9 @@ class DataSelector(QMainWindow):
             cell_consts.append(this_cell_const)
             cell_const_uncertainties.append(this_unc_cell_const)
 
+            # Mark this row as a standard
+            self.standard_mask[row] = True
+
         if not cell_consts:
             QMessageBox.warning(self, "No Valid Rows", "Provide valid S and Z values.")
             return
@@ -403,6 +411,15 @@ class DataSelector(QMainWindow):
         - Mark only selected rows as associated=True
         - Refresh table, S–P plot, and save once
         """
+        # Check if standards have been marked first
+        if not isinstance(self.current_std, (int, float)) or np.isnan(self.current_std):
+            QMessageBox.warning(
+                self,
+                "No Calibration",
+                "Please mark calibration standards first using 'Mark as Standard' button."
+            )
+            return
+
         sel = self.table.selectionModel().selectedRows()
 
         # If nothing selected, clear all associations
@@ -690,19 +707,25 @@ class DataSelector(QMainWindow):
         self.svp_figure.clear()
         ax = self.svp_figure.add_subplot(111)
 
-        # Fixed color scale -20 to 80 °C
-        # vmin, vmax = -20.0, 80.0
-        vmin = np.nanmin(T_C)
-        vmax = np.nanmax(T_C)
-        sc = ax.scatter(P, S, c=T_C, cmap='viridis', vmin=vmin, vmax=vmax, edgecolors='none')
+        # Only plot if we have data
+        if len(S) > 0:
+            # Fixed color scale -20 to 80 °C
+            # vmin, vmax = -20.0, 80.0
+            vmin = np.nanmin(T_C)
+            vmax = np.nanmax(T_C)
+            sc = ax.scatter(P, S, c=T_C, cmap='viridis', vmin=vmin, vmax=vmax, edgecolors='none')
+
+            # Colorbar
+            cbar = self.svp_figure.colorbar(sc, ax=ax)
+            cbar.set_label("Temperature (°C)")
+        else:
+            # No associated measurements yet - show empty plot with message
+            ax.text(0.5, 0.5, 'No associated measurements yet.\nUse "Associate Measurements" button.',
+                   ha='center', va='center', transform=ax.transAxes, fontsize=12, color='gray')
 
         ax.set_xlabel("P (MPa)")
         ax.set_ylabel("S (S/m)")
         ax.set_title("Conductivity vs Pressure")
-
-        # Colorbar
-        cbar = self.svp_figure.colorbar(sc, ax=ax)
-        cbar.set_label("Temperature (°C)")
 
         # Nice grid
         ax.grid(True, linestyle=':', linewidth=0.8, alpha=0.7)
@@ -1051,9 +1074,10 @@ class DataSelector(QMainWindow):
 
         Displays status in the status bar and logs findings.
         """
-        # Extract dates from filenames
+        # Extract dates from filenames and directory paths
         dates_found = set()
         filename_by_date = {}  # Track filenames for each date
+        dir_by_date = {}  # Track directory paths for each date
 
         for filename in self.timeseries.filenames:
             # Parse date from filename (format: Default_YYYYMMDD_... or similar patterns)
@@ -1078,6 +1102,24 @@ class DataSelector(QMainWindow):
                     if date_str not in filename_by_date:
                         filename_by_date[date_str] = []
                     filename_by_date[date_str].append(Path(filename).name)
+                else:
+                    # No date in filename - try to extract from directory path
+                    # Look for patterns like data/20250813Cortes/ or data/20250813/
+                    # Match YYYYMMDD at start of directory name
+                    match = re.search(r'/(\d{8})(?:[A-Za-z_-]|/)', str(filename))
+                    if match:
+                        date = match.group(1)
+                        dates_found.add(date)
+                        if date not in filename_by_date:
+                            filename_by_date[date] = []
+                        filename_by_date[date].append(Path(filename).name)
+                        # Extract directory name for this date
+                        # Find the directory that contains the date
+                        path_parts = Path(filename).parts
+                        for part in path_parts:
+                            if part.startswith(date):
+                                dir_by_date[date] = part
+                                break
 
         if not dates_found:
             log.warning("Could not extract dates from filenames for config file validation")
@@ -1090,9 +1132,12 @@ class DataSelector(QMainWindow):
         misplaced_configs = []
 
         for date in sorted(dates_found):
+            # Determine directory name - might be just date or date+suffix (e.g., 20250813Cortes)
+            dir_name = dir_by_date.get(date, date)
+
             # Check for both CSV and JSON (CSV preferred for Excel users)
-            csv_path = Path('data') / date / f'zAnalysis{date}.csv'
-            json_path = Path('data') / date / f'zAnalysis{date}.json'
+            csv_path = Path('data') / dir_name / f'zAnalysis{date}.csv'
+            json_path = Path('data') / dir_name / f'zAnalysis{date}.json'
 
             if csv_path.exists():
                 expected_path = csv_path
@@ -1142,9 +1187,208 @@ class DataSelector(QMainWindow):
             self.status_bar.showMessage(status_msg)
             log.warning(status_msg)
 
+        # Update export directory to use first config directory if found
+        if self.config_file_paths and not (self.analysis_config and hasattr(self.analysis_config, 'config_path')):
+            # Use the first config file's directory as export directory
+            first_config = next(iter(self.config_file_paths.values()))
+            self.export_dir = Path(first_config).parent
+            log.info(f"Updated export directory to: {self.export_dir}")
+            self.export_dir.mkdir(parents=True, exist_ok=True)
+
+        # Load and apply discovered config files to restore GUI state
+        if found_configs and not self.analysis_config:
+            self.load_and_apply_discovered_configs()
+
         # Show detailed dialog if there are issues
         if created_configs or misplaced_configs:
             self.show_config_status_dialog(dates_found, found_configs, created_configs, misplaced_configs)
+
+    def load_and_apply_discovered_configs(self):
+        """
+        Load and apply config files discovered during check_config_file_locations().
+        Restores GUI state including:
+        - Standard conductivity values
+        - Associated measurement conductivity values
+        - Cell constant (current_std)
+        - Marks on standards and associated measurements
+        """
+        import csv as csv_module
+        import json
+
+        if not self.config_file_paths:
+            return
+
+        log.info("Loading config files to restore GUI state...")
+
+        # Get column indices
+        col_S = self.data.columns.get_loc('S (S/m)')
+        col_comp = self.data.columns.get_loc('Comp')
+        col_w_ppt = self.data.columns.get_loc('w (ppt)')
+        col_Z = self.data.columns.get_loc('Z (Ohm)')
+
+        # Track standards for cell constant calculation
+        all_standards = []  # List of (conductivity_Sm, resistance_ohm) tuples
+
+        # Create filename to index mapping
+        filename_to_idx = {}
+        for idx, full_path in enumerate(self.timeseries.filenames):
+            filename = Path(full_path).name
+            filename_to_idx[filename] = idx
+
+        # Load each config file
+        for date, config_path in self.config_file_paths.items():
+            config_path = Path(config_path)
+            if not config_path.exists():
+                continue
+
+            log.info(f"Loading config: {config_path}")
+
+            # Parse config file (CSV or JSON)
+            standards = []
+            measurements = []
+
+            if config_path.suffix == '.csv':
+                # Parse CSV format
+                try:
+                    with open(config_path, 'r') as f:
+                        reader = csv_module.DictReader(f)
+                        for row in reader:
+                            if not row.get('filename'):
+                                continue
+
+                            # Check if excluded
+                            exclude = row.get('exclude', '').lower()
+                            if exclude in ['x', 'yes', 'true', '1']:
+                                continue
+
+                            entry_type = row.get('type', '').lower()
+                            if entry_type == 'standard':
+                                standards.append({
+                                    'filename': row['filename'],
+                                    'conductivity_Sm': float(row['conductivity_Sm']) if row.get('conductivity_Sm') else None,
+                                    'comp': row.get('comp', ''),
+                                    'w_ppt': float(row['w_ppt']) if row.get('w_ppt') else None
+                                })
+                            elif entry_type == 'measurement':
+                                measurements.append({
+                                    'filename': row['filename'],
+                                    'conductivity_Sm': float(row['conductivity_Sm']) if row.get('conductivity_Sm') else None,
+                                    'comp': row.get('comp', ''),
+                                    'w_ppt': float(row['w_ppt']) if row.get('w_ppt') else None
+                                })
+                except Exception as e:
+                    log.warning(f"Error parsing CSV config {config_path}: {e}")
+                    continue
+
+            elif config_path.suffix == '.json':
+                # Parse JSON format
+                try:
+                    with open(config_path, 'r') as f:
+                        data = json.load(f)
+
+                    for group in data.get('calibration_groups', []):
+                        for std in group.get('standards', []):
+                            if std.get('exclude'):
+                                continue
+                            standards.append({
+                                'filename': std['filename'],
+                                'conductivity_Sm': std.get('conductivity_Sm'),
+                                'comp': std.get('comp', ''),
+                                'w_ppt': std.get('w_ppt')
+                            })
+
+                        for meas in group.get('measurements', []):
+                            if meas.get('exclude'):
+                                continue
+                            measurements.append({
+                                'filename': meas['filename'],
+                                'conductivity_Sm': meas.get('conductivity_Sm'),
+                                'comp': meas.get('comp', ''),
+                                'w_ppt': meas.get('w_ppt')
+                            })
+                except Exception as e:
+                    log.warning(f"Error parsing JSON config {config_path}: {e}")
+                    continue
+
+            # Apply standards
+            for std in standards:
+                filename = std['filename']
+                if filename not in filename_to_idx:
+                    log.warning(f"Standard file not found in data: {filename}")
+                    continue
+
+                idx = filename_to_idx[filename]
+
+                # Mark as standard
+                self.standard_mask[idx] = True
+
+                # Set conductivity value for standard
+                if std['conductivity_Sm'] is not None:
+                    self.data.iat[idx, col_S] = std['conductivity_Sm']
+                    try:
+                        self.timeseries.conductivities_Sm[idx] = std['conductivity_Sm']
+                    except:
+                        pass
+
+                    # Track for cell constant calculation
+                    Z_val = self.data.iat[idx, col_Z]
+                    if Z_val and not np.isnan(Z_val) and Z_val > 0:
+                        all_standards.append((std['conductivity_Sm'], Z_val))
+
+                # Set composition if provided
+                if std['comp']:
+                    self.data.iat[idx, col_comp] = std['comp']
+                if std['w_ppt'] is not None:
+                    self.data.iat[idx, col_w_ppt] = std['w_ppt']
+
+                log.info(f"  Restored standard: {filename} (σ={std['conductivity_Sm']:.4f} S/m)")
+
+            # Apply measurements (associated)
+            for meas in measurements:
+                filename = meas['filename']
+                if filename not in filename_to_idx:
+                    log.warning(f"Measurement file not found in data: {filename}")
+                    continue
+
+                idx = filename_to_idx[filename]
+
+                # Set conductivity value for measurement
+                if meas['conductivity_Sm'] is not None:
+                    self.data.iat[idx, col_S] = meas['conductivity_Sm']
+                    try:
+                        self.timeseries.conductivities_Sm[idx] = meas['conductivity_Sm']
+                    except:
+                        pass
+
+                    # Mark as associated
+                    self.associated_mask[idx] = True
+
+                # Set composition if provided
+                if meas['comp']:
+                    self.data.iat[idx, col_comp] = meas['comp']
+                if meas['w_ppt'] is not None:
+                    self.data.iat[idx, col_w_ppt] = meas['w_ppt']
+
+                if meas['conductivity_Sm'] is not None:
+                    log.info(f"  Restored measurement: {filename} (σ={meas['conductivity_Sm']:.4f} S/m)")
+                else:
+                    log.info(f"  Restored measurement: {filename}")
+
+        # Calculate cell constant from standards
+        if all_standards:
+            k_cells = [sigma * R for sigma, R in all_standards]
+            self.current_std = float(np.mean(k_cells))
+            k_cell_unc = float(np.std(k_cells)) if len(k_cells) > 1 else 0.0
+            log.info(f"Restored cell constant: {self.current_std:.6f} ± {k_cell_unc:.6f} S·Ω/m")
+            log.info(f"  Based on {len(all_standards)} standard(s)")
+        else:
+            log.info("No standards found in config files - cell constant not set")
+
+        # Refresh the table to show restored values
+        self.refresh_table()
+        self.refresh_s_vs_p_plot()
+
+        log.info("Config files loaded and GUI state restored")
 
     def create_empty_config_file(self, date, file_path, filenames):
         """
@@ -1258,6 +1502,9 @@ class DataSelector(QMainWindow):
         for idx, filename in enumerate(self.timeseries.filenames):
             # Extract date from filename
             match = re.search(r'_(\d{8})_', filename)
+            if not match:
+                # Try extracting from directory path (e.g., data/20250813Cortes/)
+                match = re.search(r'/(\d{8})(?:[A-Za-z_-]|/)', str(filename))
             if match:
                 date = match.group(1)
                 if date not in data_by_date:
@@ -1288,18 +1535,23 @@ class DataSelector(QMainWindow):
                     if w_ppt is not None and pd.notna(w_ppt):
                         row_data['w_ppt'] = float(w_ppt)
 
-                    # If S (S/m) is set and this is associated, treat as measurement
-                    # Otherwise, it could be a standard (would need conductivity_Sm)
-                    if self.associated_mask[idx]:
+                    # Use standard_mask to determine if this is a standard
+                    if self.standard_mask[idx]:
+                        # This is a standard - save its conductivity value
+                        if S_Sm is not None and pd.notna(S_Sm):
+                            row_data['conductivity_Sm'] = float(S_Sm)
+                        data_by_date[date]['standards'].append(row_data)
+                    elif self.associated_mask[idx]:
+                        # This is an associated measurement - save computed conductivity
+                        if S_Sm is not None and pd.notna(S_Sm):
+                            row_data['conductivity_Sm'] = float(S_Sm)
                         data_by_date[date]['measurements'].append(row_data)
                     else:
-                        # Could be a standard or unprocessed measurement
-                        if S_Sm is not None and pd.notna(S_Sm):
-                            # Has known conductivity - treat as standard
-                            row_data['conductivity_Sm'] = float(S_Sm)
-                            data_by_date[date]['standards'].append(row_data)
-                        else:
-                            # Unprocessed measurement
+                        # Unprocessed measurement (not standard, not associated)
+                        # Still save if it has data
+                        if comp or w_ppt is not None or S_Sm is not None:
+                            if S_Sm is not None and pd.notna(S_Sm):
+                                row_data['conductivity_Sm'] = float(S_Sm)
                             data_by_date[date]['measurements'].append(row_data)
 
         # Write to each date's config file (CSV or JSON format)
@@ -1397,7 +1649,7 @@ class DataSelector(QMainWindow):
                     'P_MPa': p_val,
                     'T_K': t_val,
                     'type': 'measurement',
-                    'conductivity_Sm': '',
+                    'conductivity_Sm': meas.get('conductivity_Sm', ''),
                     'comp': meas.get('comp', ''),
                     'w_ppt': meas.get('w_ppt', ''),
                     'w_molal': meas.get('w_molal', ''),

@@ -52,6 +52,15 @@ from config_plots import (
 # Configuration
 # ========================================
 
+# McCleskey (2012) applicability limits (mol/kg_H2O)
+# These mark the concentration range where the McCleskey model is validated
+MCCLESKEY_LIMITS = {
+    'NaCl': 0.9999,
+    'MgSO4': 0.01245,
+    'NH4Cl': 1.034,
+    'Na2CO3': 0.3041
+}
+
 # Get paths relative to parent directory (hipozgenai/)
 PARENT_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 GAMRY_DATA_DIRS = [
@@ -113,6 +122,7 @@ plot_study_concentration(
     output_file=os.path.join(OUTPUT_DIR, 'nacl_vs_concentration.pdf'),
     gamry_data=gamry_data_nacl,
     show_delta=True,
+    mccleskey_limit=MCCLESKEY_LIMITS.get('NaCl'),
     colormap=COLORMAP_CONCENTRATION,
     fontsize_label=FONTSIZE_AXIS_LABEL,
     fontsize_title=FONTSIZE_TITLE,
@@ -148,6 +158,7 @@ plot_study_concentration(
     gamry_data=gamry_data_mgso4,
     show_delta=True,
     compound_latex=r'MgSO$_4$',
+    mccleskey_limit=MCCLESKEY_LIMITS.get('MgSO4'),
     colormap=COLORMAP_CONCENTRATION,
     fontsize_label=FONTSIZE_AXIS_LABEL,
     fontsize_title=FONTSIZE_TITLE,
@@ -182,6 +193,7 @@ plot_study_concentration(
     output_file=os.path.join(OUTPUT_DIR, 'nh4cl_vs_concentration.pdf'),
     show_delta=True,
     compound_latex=r'NH$_4$Cl',
+    mccleskey_limit=MCCLESKEY_LIMITS.get('NH4Cl'),
     colormap=COLORMAP_CONCENTRATION,
     fontsize_label=FONTSIZE_AXIS_LABEL,
     fontsize_title=FONTSIZE_TITLE,
@@ -214,6 +226,7 @@ plot_study_concentration(
     output_file=os.path.join(OUTPUT_DIR, 'na2co3_vs_concentration.pdf'),
     show_delta=True,
     compound_latex=r'Na$_2$CO$_3$',
+    mccleskey_limit=MCCLESKEY_LIMITS.get('Na2CO3'),
     colormap=COLORMAP_CONCENTRATION,
     fontsize_label=FONTSIZE_AXIS_LABEL,
     fontsize_title=FONTSIZE_TITLE,

@@ -295,7 +295,7 @@ def organize_for_temp_plot(data, compound, source_filter='benchtop',
 def plot_study_concentration(data, compound, output_file,
                             gamry_data=None, gamry_source='Gamry',
                             show_delta=True, show_legend=False, show_title=True,
-                            compound_latex=None, colormap='tab10',
+                            compound_latex=None, mccleskey_limit=None, colormap='tab10',
                             fontsize_label=14, fontsize_title=16, fontsize_legend=10):
     """
     Generate σ vs concentration plot with optional Gamry overlay and Delta subplot.
@@ -321,6 +321,8 @@ def plot_study_concentration(data, compound, output_file,
         Include title (default: True)
     compound_latex : str, optional
         LaTeX formatted compound name for title (e.g., r'MgSO$_4$')
+    mccleskey_limit : float, optional
+        McCleskey applicability limit (mol/kg) - draws vertical line
     fontsize_label, fontsize_title, fontsize_legend : int
         Font sizes
 
@@ -360,6 +362,7 @@ def plot_study_concentration(data, compound, output_file,
         title=f'{compound_latex} Conductivity vs Concentration',
         show_delta=show_delta,
         show_title=show_title,
+        limit=mccleskey_limit,
         out_file=output_file,
         colormap=colormap,
         fontsize_label=fontsize_label,
