@@ -1,0 +1,33 @@
+# Cortes et al. Benchtop Conductivity Data Template
+#
+# This template shows the required CSV format for benchtop conductivity data
+#
+# Column definitions:
+#   compound: Chemical formula (e.g., KCl, NaBr, MgCl2)
+#   concentration_molal: Molality in mol/kg_solvent
+#   temperature_C: Temperature in Celsius
+#   temperature_K: Temperature in Kelvin
+#   conductivity_Sm: Conductivity in S/m
+#   replicate: Replicate number (1, 2, 3, ...)
+#   source: Data source ('benchtop', 'Gamry', 'literature', etc.)
+#   notes: Optional notes
+#
+# Optional additional columns for pressure studies:
+#   pressure_MPa: Pressure in megapascals
+#
+# To use:
+#   1. Replace example data below with your measurements
+#   2. Add rows for each replicate measurement
+#   3. Use consistent units (mol/kg, K, S/m)
+#   4. Source field helps filter data (benchtop vs Gamry vs literature)
+#
+compound,concentration_molal,temperature_C,temperature_K,conductivity_Sm,replicate,source,notes
+KCl,0.1000,25.0,298.15,1.234,1,benchtop,Example data - replace with actual
+KCl,0.1000,25.0,298.15,1.238,2,benchtop,Example data - replace with actual
+KCl,0.1000,25.0,298.15,1.231,3,benchtop,Example data - replace with actual
+KCl,0.5000,25.0,298.15,5.678,1,benchtop,Example data - replace with actual
+KCl,0.5000,25.0,298.15,5.681,2,benchtop,Example data - replace with actual
+KCl,0.5000,25.0,298.15,5.675,3,benchtop,Example data - replace with actual
+KCl,1.0000,25.0,298.15,10.123,1,benchtop,Example data - replace with actual
+KCl,1.0000,25.0,298.15,10.129,2,benchtop,Example data - replace with actual
+KCl,1.0000,25.0,298.15,10.118,3,benchtop,Example data - replace with actual
