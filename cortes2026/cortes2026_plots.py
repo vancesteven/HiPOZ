@@ -180,9 +180,15 @@ else:
 compounds_to_plot = []
 
 # Detect available compounds from benchtop data
+# Exclude certain amino acids from plotting (but keep in tables)
+exclude_from_plots = ['Alanine', 'Glutamic Acid', 'Aspartic Acid']
+
 if benchtop_data:
-    compounds_to_plot = list(benchtop_data.keys())
-    print(f"Detected compounds: {', '.join(compounds_to_plot)}")
+    all_compounds = list(benchtop_data.keys())
+    compounds_to_plot = [c for c in all_compounds if c not in exclude_from_plots]
+    print(f"Detected compounds: {', '.join(all_compounds)}")
+    print(f"Plotting: {', '.join(compounds_to_plot)}")
+    print(f"Excluded from plots: {', '.join([c for c in all_compounds if c in exclude_from_plots])}")
     print()
 
 # Plot each compound

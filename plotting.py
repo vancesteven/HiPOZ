@@ -330,6 +330,9 @@ def plot_sigma_vs_concentration(conc_data, sigma_data, temp_labels=None,
     if show_title:
         ax1.set_title(title, fontsize=fontsize_title)
 
+    # Set y-axis minimum to 0 (conductivity cannot be negative)
+    ax1.set_ylim(bottom=0)
+
     # Draw McCleskey applicability limit if specified
     if limit is not None:
         ax1.axvline(limit, ls="--", color=(0.8, 0, 0), lw=2.5, alpha=0.8, zorder=2.5)
@@ -460,6 +463,9 @@ def plot_sigma_vs_temperature(temp_data, sigma_data, conc_labels=None,
     if show_title:
         ax1.set_title(title, fontsize=fontsize_title)
     ax1.set_ylabel(r'$\sigma$ (S/m)', fontsize=fontsize_label)
+
+    # Set y-axis minimum to 0 (conductivity cannot be negative)
+    ax1.set_ylim(bottom=0)
 
     tmin, tmax = np.min(temps), np.max(temps)
     ax1.set_xlim(tmin, tmax + 0.10 * (tmax - tmin))  # 10% extra on right
