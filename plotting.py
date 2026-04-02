@@ -313,16 +313,16 @@ def plot_sigma_vs_concentration(conc_data, sigma_data, temp_labels=None,
     else:  # Continuous colormap (plasma, viridis, etc.)
         colors = cmap(np.linspace(0, 1, n_temps))
 
-    # Plot experimental data
+    # Plot experimental data (markers only, no lines)
     for i, (sigma, err, label) in enumerate(zip(sigma_data, sigma_errors, temp_labels)):
-        safe_errorbar(ax1, conc, sigma, yerr=err,
-                     color=colors[i], lw=LineWidth, label=label)
+        safe_errorbar(ax1, conc, sigma, yerr=err, fmt='o',
+                     color=colors[i], ms=8, mew=1.5, capsize=4, label=label)
 
-    # Plot model data if provided
+    # Plot model data if provided (dashed lines for McCleskey model)
     if model_data is not None:
         for i, sigma_model in enumerate(model_data):
-            safe_errorbar(ax1, conc, sigma_model, yerr=0.05,
-                         ls="--", color=colors[i], lw=LineWidth)
+            ax1.plot(conc, sigma_model, ls="--", color=colors[i], lw=LineWidth,
+                    alpha=0.7, zorder=1)
 
     # Formatting
     ax1.grid(True, alpha=0.6)
@@ -330,11 +330,15 @@ def plot_sigma_vs_concentration(conc_data, sigma_data, temp_labels=None,
     if show_title:
         ax1.set_title(title, fontsize=fontsize_title)
 
+    # Draw McCleskey applicability limit if specified
     if limit is not None:
-        ax1.axvline(limit, ls="--", color=(0.7, 0, 0), lw=2)
-        ax1.text(limit, ax1.get_ylim()[1], "Validity limit",
-                color=(0.7, 0, 0), fontsize=13, fontweight="bold",
-                ha="left", va="top")
+        ax1.axvline(limit, ls="--", color=(0.8, 0, 0), lw=2.5, alpha=0.8, zorder=2.5)
+        # Position text label at 95% of y-axis height
+        y_pos = ax1.get_ylim()[0] + 0.95 * (ax1.get_ylim()[1] - ax1.get_ylim()[0])
+        ax1.text(limit * 1.01, y_pos, f"McCleskey limit\n({limit:.4f} mol/kg)",
+                color=(0.8, 0, 0), fontsize=11, fontweight="bold",
+                ha="left", va="top", bbox=dict(boxstyle="round,pad=0.3",
+                facecolor="white", edgecolor=(0.8, 0, 0), alpha=0.8))
 
     tight_xlim(ax1, conc, pad_left=0.03, pad_right=0.10)
 
@@ -343,12 +347,12 @@ def plot_sigma_vs_concentration(conc_data, sigma_data, temp_labels=None,
                 for sigma in sigma_data]
     annotate_right(ax1, ys_right, temp_labels, fontsize=fontsize_legend)
 
-    # Delta panel
+    # Delta panel (percent difference from model)
     if show_delta and model_data is not None and ax2 is not None:
         for i, (sigma_exp, sigma_mod) in enumerate(zip(sigma_data, model_data)):
             delta = pdiff(sigma_exp, sigma_mod)
-            safe_errorbar(ax2, conc, delta, yerr=5.0,
-                         color=colors[i], lw=LineWidth)
+            safe_errorbar(ax2, conc, delta, yerr=5.0, fmt='o',
+                         color=colors[i], ms=6, mew=1.2, capsize=3)
 
         ax2.grid(True, alpha=0.6)
         ax2.set_xlabel(xlabel, fontsize=fontsize_label)
@@ -440,16 +444,16 @@ def plot_sigma_vs_temperature(temp_data, sigma_data, conc_labels=None,
     else:  # Continuous colormap (plasma, viridis, etc.)
         colors = cmap(np.linspace(0, 1, n_concs))
 
-    # Plot experimental data
+    # Plot experimental data (markers only, no lines)
     for i, (sigma, err, label) in enumerate(zip(sigma_data, sigma_errors, conc_labels)):
-        safe_errorbar(ax1, temps, sigma, yerr=err,
-                     color=colors[i], lw=LineWidth, label=label)
+        safe_errorbar(ax1, temps, sigma, yerr=err, fmt='o',
+                     color=colors[i], ms=8, mew=1.5, capsize=4, label=label)
 
-    # Plot model data if provided
+    # Plot model data if provided (dashed lines for McCleskey model)
     if model_data is not None:
         for i, sigma_model in enumerate(model_data):
-            safe_errorbar(ax1, temps, sigma_model, yerr=0.05,
-                         ls="--", color=colors[i], lw=LineWidth)
+            ax1.plot(temps, sigma_model, ls="--", color=colors[i], lw=LineWidth,
+                    alpha=0.7, zorder=1)
 
     # Formatting
     ax1.grid(True, alpha=0.6)
@@ -464,12 +468,12 @@ def plot_sigma_vs_temperature(temp_data, sigma_data, conc_labels=None,
     ys_right = [np.asarray(sigma, float)[-1] for sigma in sigma_data]
     annotate_right(ax1, ys_right, conc_labels, fontsize=fontsize_legend)
 
-    # Delta panel
+    # Delta panel (percent difference from model)
     if show_delta and model_data is not None and ax2 is not None:
         for i, (sigma_exp, sigma_mod) in enumerate(zip(sigma_data, model_data)):
             delta = pdiff(sigma_exp, sigma_mod)
-            safe_errorbar(ax2, temps, delta, yerr=5.0,
-                         color=colors[i], lw=LineWidth)
+            safe_errorbar(ax2, temps, delta, yerr=5.0, fmt='o',
+                         color=colors[i], ms=6, mew=1.2, capsize=3)
 
         ax2.grid(True, alpha=0.6)
         ax2.set_xlabel(xlabel, fontsize=fontsize_label)

@@ -19,6 +19,7 @@ Outputs:
 import os
 import sys
 import pandas as pd
+import numpy as np
 
 # Add parent directory to path for imports
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
@@ -30,11 +31,8 @@ from study_plots import (
     plot_study_temperature
 )
 
-# Gamry impedance integration
-from gamry_integration import (
-    load_gamry_results,
-    extract_compound_overlay
-)
+# Gamry impedance data loading (using cortes_data_processing)
+import cortes_data_processing as cdp
 
 # Plot configuration
 from config_plots import (
@@ -57,11 +55,12 @@ PARENT_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 # Gamry data directories from JesusCortes/Data folder
 GAMRY_DATA_DIRS = [
-    os.path.join(PARENT_DIR, 'data', '20250813Cortes'),  # TODO: Update to actual date folders
-    os.path.join(PARENT_DIR, 'data', '20250815Cortes'),  # once Gamry data is organized
+    os.path.join(PARENT_DIR, 'data', '20250813Cortes'),
+    os.path.join(PARENT_DIR, 'data', '20250814Cortes'),
+    os.path.join(PARENT_DIR, 'data', '20250815Cortes'),
 ]
 
-OUTPUT_DIR = 'cortes_plots'  # Relative to this script (in cortes2026/)
+OUTPUT_DIR = os.path.join(os.path.dirname(__file__), 'cortes_plots')  # Relative to this script
 
 # Note: Gamry data is currently in ../JesusCortes/Data/{08.12.25, 08.13.25, 08.14.25, 08.15.25}
 # Will need to reorganize into ../data/ folders following HiPOZ convention
@@ -77,6 +76,57 @@ OUTPUT_DIR = 'cortes_plots'  # Relative to this script (in cortes2026/)
 os.makedirs(OUTPUT_DIR, exist_ok=True)
 
 # ========================================
+# Helper Functions
+# ========================================
+
+def extract_compound_overlay_data(gamry_df, compound):
+    """
+    Extract Gamry overlay data for a specific compound.
+
+    Returns format expected by plot_study_concentration/temperature:
+        List of [conc_array, temp_array, sigma_array, sigma_err_array]
+        or None if no data available
+    """
+    if gamry_df is None:
+        return None
+
+    # Map compound names (handle different naming conventions)
+    compound_map = {
+        'NaCl': 'NaCl',
+        'KCl': 'KCl',
+        'MgSO4': 'MgSO4',
+        'Na2SO4': 'Na2SO4',
+        'NaCl:MgSO4_1:1': 'NaCl:MgSO4',
+        'NaCl:MgSO4_2:1': 'NaCl:MgSO4',
+        'NaCl:MgSO4_1:2': 'NaCl:MgSO4',
+    }
+
+    # Try direct match first
+    comp_data = gamry_df[gamry_df['comp'] == compound]
+
+    # Try mapped name if no direct match
+    if len(comp_data) == 0 and compound in compound_map:
+        comp_data = gamry_df[gamry_df['comp'] == compound_map[compound]]
+
+    if len(comp_data) == 0:
+        return None
+
+    # Extract arrays
+    conc_molal = comp_data['w_molal'].values
+    temp_K = comp_data['T_K'].values
+    sigma_Sm = comp_data['conductivity_Sm'].values
+
+    # Get error bars (use SEM if available, otherwise 5%)
+    if 'conductivity_sem' in comp_data.columns:
+        sigma_err = comp_data['conductivity_sem'].values
+        # Fill NaN with 5% uncertainty
+        sigma_err = np.where(np.isnan(sigma_err), 0.05 * sigma_Sm, sigma_err)
+    else:
+        sigma_err = 0.05 * sigma_Sm
+
+    return [conc_molal, temp_K, sigma_Sm, sigma_err]
+
+# ========================================
 # Load Data
 # ========================================
 
@@ -86,12 +136,11 @@ print("=" * 70)
 print()
 
 # Load benchtop data from CSV
-benchtop_file = 'Cortes2026BenchtopData.csv'
+benchtop_file = os.path.join(os.path.dirname(__file__), 'Cortes2026BenchtopData.csv')
 if not os.path.exists(benchtop_file):
     print(f"WARNING: {benchtop_file} not found!")
     print("  Need to create this file from JesusData2025.csv")
-    print("  Expected format: compound, concentration_molal, temperature_C,")
-    print("                   temperature_K, conductivity_Sm, replicate, source, notes")
+    print("  Run: cd cortes2026 && python parse_benchtop_data.py")
     print()
     print("Exiting - please create benchtop data file first.")
     sys.exit(1)
@@ -101,21 +150,25 @@ benchtop_data = load_study_data(benchtop_file)
 print(f"  Found {len(benchtop_data)} compounds")
 print()
 
-# Load Gamry impedance analysis results from multiple datasets
-gamry_dfs = []
-for data_dir in GAMRY_DATA_DIRS:
-    df = load_gamry_results(data_dir, verbose=True)
-    if df is not None:
-        gamry_dfs.append(df)
+# Load Gamry impedance analysis results from zAnalysis CSV files
+print("Loading Gamry impedance data from zAnalysis files...")
+# Set working directory to parent for data loading
+import os as _os
+original_dir = _os.getcwd()
+_os.chdir(PARENT_DIR)
+gamry_data_dirs = ['20250813Cortes', '20250814Cortes', '20250815Cortes']
+gamry_df_raw = cdp.load_cortes_data(gamry_data_dirs)
+_os.chdir(original_dir)
 
-# Combine all Gamry data
-if gamry_dfs:
-    gamry_df = pd.concat(gamry_dfs, ignore_index=True)
-    print(f"Combined Gamry data: {len(gamry_df)} total measurements from {len(gamry_dfs)} dataset(s)")
+if gamry_df_raw is not None:
+    # Average replicates
+    gamry_df = cdp.average_replicates(gamry_df_raw)
+    print(f"  Combined Gamry data: {len(gamry_df)} measurements")
+    print(f"  Compounds: {', '.join(sorted(gamry_df['comp'].unique()))}")
     print()
 else:
     gamry_df = None
-    print("No Gamry impedance data found (this is OK for benchtop-only plots)")
+    print("  No Gamry impedance data found (benchtop-only plots)")
     print()
 
 # ========================================
@@ -156,7 +209,7 @@ for compound in compounds_to_plot:
 
     # Plot 1: σ vs Concentration
     print(f"Generating Plot {plot_number}: {compound} Conductivity vs Concentration...")
-    gamry_data_comp = extract_compound_overlay(gamry_df, compound)
+    gamry_data_comp = extract_compound_overlay_data(gamry_df, compound)
     plot_study_concentration(
         data=benchtop_data,
         compound=compound,

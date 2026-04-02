@@ -15,9 +15,180 @@ import pandas as pd
 import numpy as np
 from gamryPlots import plot_timeseries
 import logging
+from PlanetProfile.Thermodynamics.MgSO4.MgSO4Props import Ppt2molal, Molal2ppt
 
 # Get logger
 log = logging.getLogger('HiPOZ')
+
+# Molar masses for supported compounds (g/mol)
+MOLAR_MASSES = {
+    'NaCl': 58.44,
+    'KCl': 74.55,
+    'MgSO4': 120.37,
+    # Add more compounds as needed
+}
+
+def get_decimal_places(value):
+    """
+    Determine the number of decimal places in a numeric value or string.
+
+    Args:
+        value: Number or string representation of a number
+
+    Returns:
+        int: Number of decimal places (0 if integer)
+    """
+    if value is None or (isinstance(value, float) and np.isnan(value)):
+        return 0
+
+    s = str(value).strip()
+    if '.' not in s:
+        return 0
+
+    # Handle scientific notation
+    if 'e' in s.lower():
+        return 2  # Default for scientific notation
+
+    return len(s.split('.')[1])
+
+def get_molal_precision(molal_str):
+    """
+    Determine the minimum decimal places in comma-separated molal values.
+
+    Args:
+        molal_str: Single value or comma-separated string (e.g., "1.5,0.6")
+
+    Returns:
+        int: Minimum decimal places across all values
+    """
+    if not molal_str or pd.isna(molal_str):
+        return 2  # Default
+
+    values = str(molal_str).split(',')
+    precisions = [get_decimal_places(v.strip()) for v in values]
+    return min(precisions) if precisions else 2
+
+def format_ppt(ppt_value, molal_str):
+    """
+    Format ppt value with appropriate precision.
+    Rules:
+    - Minimum 2 decimal places (0.01 precision)
+    - Maximum precision matches input molal values
+
+    Args:
+        ppt_value: The ppt value to format
+        molal_str: The molal input string to determine precision
+
+    Returns:
+        str: Formatted ppt value
+    """
+    if ppt_value is None or (isinstance(ppt_value, float) and np.isnan(ppt_value)):
+        return ''
+
+    # Get molal precision
+    molal_precision = get_molal_precision(molal_str)
+
+    # Apply minimum of 2 decimal places
+    precision = max(2, molal_precision)
+
+    return f"{float(ppt_value):.{precision}f}"
+
+def convert_multicomp_ppt_to_molal(comp_str, ppt_str):
+    """
+    Convert comma-separated ppt values to molal for multi-component solutions.
+
+    Args:
+        comp_str: Comma-separated compound names, e.g. "NaCl,MgSO4"
+        ppt_str: Comma-separated ppt values, e.g. "10,5"
+
+    Returns:
+        str: Comma-separated molal values, e.g. "0.1717,0.0416"
+    """
+    try:
+        comps = [c.strip() for c in comp_str.split(',')]
+        ppts = [float(p.strip()) for p in str(ppt_str).split(',')]
+
+        if len(comps) != len(ppts):
+            log.warning(f"Mismatch: {len(comps)} compounds but {len(ppts)} ppt values")
+            return None
+
+        # Check all compounds are recognized
+        for comp in comps:
+            if comp not in MOLAR_MASSES:
+                log.warning(f"Unknown compound: {comp}")
+                return None
+
+        # Calculate total solute mass per 1000g solution
+        total_w_ppt = sum(ppts)
+
+        # Mass of water per 1000g solution
+        water_mass_kg = (1000 - total_w_ppt) / 1000
+
+        # Convert each solute to molal
+        molals = []
+        for comp, w_ppt in zip(comps, ppts):
+            M = MOLAR_MASSES[comp]
+            # moles of solute = (mass in g) / (M in g/mol)
+            # molality = moles / (water mass in kg)
+            molal = (w_ppt / M) / water_mass_kg
+            molals.append(molal)
+
+        return ','.join([f"{m:.4f}" for m in molals])
+
+    except Exception as e:
+        log.error(f"Failed to convert ppt to molal: {e}")
+        return None
+
+def convert_multicomp_molal_to_ppt(comp_str, molal_str):
+    """
+    Convert comma-separated molal values to TOTAL ppt for multi-component solutions.
+
+    For multi-component solutions, ppt is the total dissolved solids:
+    w_ppt = (m_solute1 + m_solute2 + ...) / (1000g H2O + m_solute1 + m_solute2 + ...) × 1000
+
+    Args:
+        comp_str: Comma-separated compound names, e.g. "NaCl,MgSO4"
+        molal_str: Comma-separated molal values, e.g. "1.5,0.6"
+
+    Returns:
+        float: Total ppt (single value, not comma-separated)
+    """
+    try:
+        comps = [c.strip() for c in comp_str.split(',')]
+        molals = [float(m.strip()) for m in str(molal_str).split(',')]
+
+        if len(comps) != len(molals):
+            log.warning(f"Mismatch: {len(comps)} compounds but {len(molals)} molal values")
+            return None
+
+        # Check all compounds are recognized
+        for comp in comps:
+            if comp not in MOLAR_MASSES:
+                log.warning(f"Unknown compound: {comp}")
+                return None
+
+        # Calculate mass of each solute per 1 kg water
+        solute_masses_g = []
+        for comp, molal in zip(comps, molals):
+            M = MOLAR_MASSES[comp]
+            # mass (g) = molality (mol/kg_water) × M (g/mol)
+            mass_g = molal * M
+            solute_masses_g.append(mass_g)
+
+        # Total solute mass
+        total_solute_mass = sum(solute_masses_g)
+
+        # Total solution mass = 1000g water + total solute mass
+        total_mass_g = 1000 + total_solute_mass
+
+        # Calculate TOTAL ppt (all dissolved solids)
+        w_ppt = (total_solute_mass / total_mass_g) * 1000
+
+        return w_ppt
+
+    except Exception as e:
+        log.error(f"Failed to convert molal to ppt: {e}")
+        return None
 
 class DataSelector(QMainWindow):
     def __init__(self, timeseries, analysis_config=None):
@@ -46,6 +217,9 @@ class DataSelector(QMainWindow):
         # Auto-apply calibration config if provided
         if self.analysis_config:
             self.apply_calibration_config()
+        else:
+            # Save initial state to capture P/T values from files
+            self.save_gui_state_to_config()
     def init_ui(self):
         self.setGeometry(200, 200, 1000, 800)
         self.setWindowTitle('Gamry Data')
@@ -118,6 +292,7 @@ class DataSelector(QMainWindow):
             'Time': self.timeseries.timestamps,
             'Comp': [None] * len(filenames_display),  # Leave blank by default
             'w (ppt)': [None] * len(filenames_display),  # Leave blank by default
+            'w (molal)': [None] * len(filenames_display),  # Leave blank by default
             'T (K)': Ts_display,
             'P (MPa)': Ps_display,
             'Z (Ohm)': self.timeseries.Rcalc_ohm,
@@ -153,6 +328,8 @@ class DataSelector(QMainWindow):
         self.btn_clear_selection = QPushButton('Clear Selections')
         self.btn_mark_standard = QPushButton('Mark as Standard')
         self.btn_associate_measurements = QPushButton('Associate Measurements')
+        self.btn_bulk_edit = QPushButton('Bulk Edit Comp/Conc')
+        self.btn_reload_csv = QPushButton('Reload from CSV')
         self.btn_create_plots = QPushButton('Create Bode and Nyquist Plots')
         self.btn_export_plots = QPushButton('Export Plots to PDF')
 
@@ -160,6 +337,8 @@ class DataSelector(QMainWindow):
         self.btn_clear_selection.clicked.connect(self.clear_table_selection)
         self.btn_mark_standard.clicked.connect(self.mark_as_standard)
         self.btn_associate_measurements.clicked.connect(self.associate_measurements)
+        self.btn_bulk_edit.clicked.connect(self.bulk_edit_comp_conc)
+        self.btn_reload_csv.clicked.connect(self.reload_from_csv)
         self.btn_create_plots.clicked.connect(self.create_plots)
         self.btn_export_plots.clicked.connect(self.export_plots)
 
@@ -168,6 +347,8 @@ class DataSelector(QMainWindow):
         self.table_layout.addWidget(self.btn_clear_selection)
         self.table_layout.addWidget(self.btn_mark_standard)
         self.table_layout.addWidget(self.btn_associate_measurements)
+        self.table_layout.addWidget(self.btn_bulk_edit)
+        self.table_layout.addWidget(self.btn_reload_csv)
         self.table_layout.addWidget(self.btn_create_plots)
         self.table_layout.addWidget(self.btn_export_plots)
 
@@ -259,7 +440,17 @@ class DataSelector(QMainWindow):
 
         # Parse types like your DataFrame expects
         try:
-            if header in ['w (ppt)', 'T (K)', 'Z (Ohm)', 'Z± (Ohm)', 'S (S/m)', 'S± (S/m)']:
+            if header in ['w (ppt)', 'w (molal)']:
+                # Handle both single values (float) and multi-component (comma-separated string)
+                if not text or not text.strip() or text.lower() == 'none':
+                    val = None
+                elif ',' in text:
+                    # Multi-component: keep as string
+                    val = text.strip()
+                else:
+                    # Single component: convert to float
+                    val = float(text)
+            elif header in ['T (K)', 'Z (Ohm)', 'Z± (Ohm)', 'S (S/m)', 'S± (S/m)']:
                 # Allow empty/None values for editable fields
                 val = float(text) if text and text.strip() and text.lower() != 'none' else None
             elif header in ['P (MPa)']:
@@ -279,6 +470,120 @@ class DataSelector(QMainWindow):
         # Update DataFrame
         self.data.iat[row, col] = val
 
+        # Auto-convert between ppt and molal when comp is recognized
+        comp_col = self.data.columns.get_loc('Comp')
+        ppt_col = self.data.columns.get_loc('w (ppt)')
+        molal_col = self.data.columns.get_loc('w (molal)')
+        comp = self.data.iat[row, comp_col]
+
+        if comp and isinstance(comp, str):
+            # Check if multi-component (contains comma)
+            is_multicomp = ',' in comp
+
+            if is_multicomp:
+                # Multi-component solution
+                if header == 'w (ppt)' and val is not None:
+                    # Convert ppt to molal
+                    molal_str = convert_multicomp_ppt_to_molal(comp, val)
+                    if molal_str:
+                        self.data.iat[row, molal_col] = molal_str
+                        # Update table display
+                        self.updating_table = True
+                        self.table.item(row, molal_col).setText(molal_str)
+                        self.updating_table = False
+
+                elif header == 'w (molal)' and val is not None:
+                    # Convert molal to ppt (returns total ppt as float)
+                    ppt_val = convert_multicomp_molal_to_ppt(comp, val)
+                    if ppt_val is not None:
+                        self.data.iat[row, ppt_col] = ppt_val
+                        # Update table display with appropriate precision
+                        self.updating_table = True
+                        formatted_ppt = format_ppt(ppt_val, val)
+                        self.table.item(row, ppt_col).setText(formatted_ppt)
+                        self.updating_table = False
+
+                elif header == 'Comp' and val:
+                    # When comp changes, convert whatever concentration is present
+                    ppt_val = self.data.iat[row, ppt_col]
+                    molal_val = self.data.iat[row, molal_col]
+
+                    if ppt_val is not None and pd.notna(ppt_val) and ppt_val != '':
+                        # Convert ppt to molal
+                        molal_str = convert_multicomp_ppt_to_molal(val, ppt_val)
+                        if molal_str:
+                            self.data.iat[row, molal_col] = molal_str
+                            self.updating_table = True
+                            self.table.item(row, molal_col).setText(molal_str)
+                            self.updating_table = False
+
+                    elif molal_val is not None and pd.notna(molal_val) and molal_val != '':
+                        # Convert molal to ppt (returns total ppt as float)
+                        ppt_val = convert_multicomp_molal_to_ppt(val, molal_val)
+                        if ppt_val is not None:
+                            self.data.iat[row, ppt_col] = ppt_val
+                            self.updating_table = True
+                            formatted_ppt = format_ppt(ppt_val, molal_val)
+                            self.table.item(row, ppt_col).setText(formatted_ppt)
+                            self.updating_table = False
+
+            elif comp in MOLAR_MASSES:
+                # Single component solution
+                molar_mass = MOLAR_MASSES[comp]
+
+                if header == 'w (ppt)' and val is not None:
+                    # Convert ppt to molal
+                    try:
+                        molal_val = Ppt2molal(val, molar_mass)
+                        self.data.iat[row, molal_col] = molal_val
+                        # Update table display
+                        self.updating_table = True
+                        self.table.item(row, molal_col).setText(f"{molal_val:.4f}")
+                        self.updating_table = False
+                    except Exception as e:
+                        log.warning(f"Failed to convert ppt to molal: {e}")
+
+                elif header == 'w (molal)' and val is not None:
+                    # Convert molal to ppt
+                    try:
+                        ppt_val = Molal2ppt(val, molar_mass)
+                        self.data.iat[row, ppt_col] = ppt_val
+                        # Update table display with appropriate precision
+                        self.updating_table = True
+                        formatted_ppt = format_ppt(ppt_val, val)
+                        self.table.item(row, ppt_col).setText(formatted_ppt)
+                        self.updating_table = False
+                    except Exception as e:
+                        log.warning(f"Failed to convert molal to ppt: {e}")
+
+                elif header == 'Comp' and val:
+                    # When comp changes, convert whatever concentration is present
+                    ppt_val = self.data.iat[row, ppt_col]
+                    molal_val = self.data.iat[row, molal_col]
+
+                    if ppt_val is not None and pd.notna(ppt_val):
+                        # Convert ppt to molal
+                        try:
+                            new_molal = Ppt2molal(ppt_val, molar_mass)
+                            self.data.iat[row, molal_col] = new_molal
+                            self.updating_table = True
+                            self.table.item(row, molal_col).setText(f"{new_molal:.4f}")
+                            self.updating_table = False
+                        except Exception as e:
+                            log.warning(f"Failed to convert ppt to molal after comp change: {e}")
+
+                    elif molal_val is not None and pd.notna(molal_val):
+                        # Convert molal to ppt
+                        try:
+                            new_ppt = Molal2ppt(molal_val, molar_mass)
+                            self.data.iat[row, ppt_col] = new_ppt
+                            self.updating_table = True
+                            formatted_ppt = format_ppt(new_ppt, molal_val)
+                            self.table.item(row, ppt_col).setText(formatted_ppt)
+                            self.updating_table = False
+                        except Exception as e:
+                            log.warning(f"Failed to convert molal to ppt after comp change: {e}")
+
         # (Optional) keep the underlying timeseries arrays in sync for key columns
         # Skip 'Filename' column - it's read-only
         try:
@@ -297,11 +602,33 @@ class DataSelector(QMainWindow):
             elif header == 'T (K)':
                 self.timeseries.Ts[row] = float(val) if val is not None else np.nan
             elif header == 'w (ppt)':
-                self.timeseries.ws_ppt[row] = float(val) if val is not None else None
+                # Handle both float (single component) and string (multi-component)
+                if val is not None:
+                    self.timeseries.ws_ppt[row] = float(val) if isinstance(val, (int, float)) else val
+                else:
+                    self.timeseries.ws_ppt[row] = None
+            elif header == 'w (molal)':
+                # Store molal in timeseries if attribute exists
+                if hasattr(self.timeseries, 'ws_molal'):
+                    if val is not None:
+                        self.timeseries.ws_molal[row] = float(val) if isinstance(val, (int, float)) else val
+                    else:
+                        self.timeseries.ws_molal[row] = None
             elif header == 'Comp':
                 self.timeseries.comp[row] = val
         except Exception:
             pass
+
+        # Save changes to config file immediately
+        self.save_gui_state_to_config()
+
+    def closeEvent(self, event):
+        """
+        Handle window close event - save GUI state before closing.
+        """
+        log.info("Saving GUI state before closing...")
+        self.save_gui_state_to_config()
+        event.accept()
 
     def update_annotation(self, x, y):
         self.annotation.xy = (x, y)
@@ -433,7 +760,7 @@ class DataSelector(QMainWindow):
             # nothing associated → empty S–P (since plot uses associated_mask)
             self.refresh_table()
             self.refresh_s_vs_p_plot()
-            self.save_curated_outputs()
+            # self.save_curated_outputs()  # Disabled: now saving to zAnalysis files instead
             return
 
         # columns
@@ -466,10 +793,12 @@ class DataSelector(QMainWindow):
             # Update DataFrame + timeseries
             self.data.iat[row, col_S] = S_val
             self.data.iat[row, col_dS] = dS_val
+            log.info(f"  Row {row}: S={S_val:.4g} S/m, S±={dS_val:.4g} S/m (rel={dS_val/S_val*100:.2f}%)")
             try:
                 self.timeseries.conductivities_Sm[row] = S_val
-            except Exception:
-                pass
+                self.timeseries.conductivities_unc_pct[row] = dS_val
+            except Exception as e:
+                log.warning(f"Failed to update timeseries for row {row}: {e}")
 
             # Mark associated
             self.associated_mask[row] = True
@@ -477,13 +806,237 @@ class DataSelector(QMainWindow):
         # Update UI + plot + save (once)
         self.refresh_table()
         self.refresh_s_vs_p_plot()
-        self.save_curated_outputs()
+        # self.save_curated_outputs()  # Disabled: now saving to zAnalysis files instead
 
         # Save GUI state to config file
         self.save_gui_state_to_config()
 
     def clear_table_selection(self):
         self.table.selectionModel().clearSelection()
+
+    def bulk_edit_comp_conc(self):
+        """
+        Bulk edit composition and concentration for selected rows.
+        Opens a dialog where user can specify comp, w_ppt, or w_molal values
+        and apply them to all selected rows at once.
+        """
+        from PyQt5.QtWidgets import QDialog, QVBoxLayout, QLabel, QLineEdit, QDialogButtonBox
+
+        selected_indexes = self.table.selectionModel().selectedRows()
+        if not selected_indexes:
+            QMessageBox.warning(self, "No Selection", "Select at least one row to bulk edit.")
+            return
+
+        # Create dialog
+        dialog = QDialog(self)
+        dialog.setWindowTitle("Bulk Edit Composition/Concentration")
+        layout = QVBoxLayout()
+
+        # Add info label
+        info_label = QLabel(f"Editing {len(selected_indexes)} selected row(s)")
+        layout.addWidget(info_label)
+
+        # Composition field
+        layout.addWidget(QLabel("Composition (e.g., NaCl or NaCl,MgSO4):"))
+        comp_input = QLineEdit()
+        comp_input.setPlaceholderText("Leave blank to skip")
+        layout.addWidget(comp_input)
+
+        # w_ppt field
+        layout.addWidget(QLabel("w (ppt) - concentration in g/kg solution:"))
+        ppt_input = QLineEdit()
+        ppt_input.setPlaceholderText("Leave blank to skip")
+        layout.addWidget(ppt_input)
+
+        # w_molal field
+        layout.addWidget(QLabel("w (molal) - molality in mol/kg solvent (e.g., 1.5 or 1.5,0.6):"))
+        molal_input = QLineEdit()
+        molal_input.setPlaceholderText("Leave blank to skip")
+        layout.addWidget(molal_input)
+
+        # Add buttons
+        buttons = QDialogButtonBox(QDialogButtonBox.Ok | QDialogButtonBox.Cancel)
+        buttons.accepted.connect(dialog.accept)
+        buttons.rejected.connect(dialog.reject)
+        layout.addWidget(buttons)
+
+        dialog.setLayout(layout)
+
+        # Show dialog and process input
+        if dialog.exec_() == QDialog.Accepted:
+            comp_val = comp_input.text().strip() if comp_input.text().strip() else None
+            ppt_val = ppt_input.text().strip() if ppt_input.text().strip() else None
+            molal_val = molal_input.text().strip() if molal_input.text().strip() else None
+
+            if not any([comp_val, ppt_val, molal_val]):
+                QMessageBox.information(self, "No Changes", "No values entered. No changes made.")
+                return
+
+            # Get column indices
+            col_comp = self.data.columns.get_loc('Comp')
+            col_ppt = self.data.columns.get_loc('w (ppt)')
+            col_molal = self.data.columns.get_loc('w (molal)')
+
+            # Apply to all selected rows
+            self.updating_table = True
+            for index in selected_indexes:
+                row = index.row()
+
+                # Update Comp
+                if comp_val:
+                    self.data.iat[row, col_comp] = comp_val
+                    self.table.item(row, col_comp).setText(comp_val)
+                    self.timeseries.comp[row] = comp_val
+
+                # Update w_ppt
+                if ppt_val:
+                    try:
+                        if ',' in ppt_val:
+                            # Multi-component: keep as string
+                            ppt_float = ppt_val
+                        else:
+                            ppt_float = float(ppt_val)
+                        self.data.iat[row, col_ppt] = ppt_float
+                        self.table.item(row, col_ppt).setText(ppt_val)
+                        self.timeseries.ws_ppt[row] = ppt_float
+                    except ValueError:
+                        log.warning(f"Invalid ppt value for row {row}: {ppt_val}")
+
+                # Update w_molal
+                if molal_val:
+                    try:
+                        if ',' in molal_val:
+                            # Multi-component: keep as string
+                            molal_float = molal_val
+                        else:
+                            molal_float = float(molal_val)
+                        self.data.iat[row, col_molal] = molal_float
+                        self.table.item(row, col_molal).setText(molal_val)
+                        if hasattr(self.timeseries, 'ws_molal'):
+                            self.timeseries.ws_molal[row] = molal_float
+                    except ValueError:
+                        log.warning(f"Invalid molal value for row {row}: {molal_val}")
+
+            self.updating_table = False
+
+            # Trigger auto-conversion for each row
+            for index in selected_indexes:
+                row = index.row()
+                comp = self.data.iat[row, col_comp]
+
+                if comp and isinstance(comp, str):
+                    # Check if multi-component
+                    is_multicomp = ',' in comp
+
+                    if is_multicomp:
+                        # Multi-component: convert molal to ppt if molal was entered
+                        if molal_val:
+                            molal_str = self.data.iat[row, col_molal]
+                            ppt_result = convert_multicomp_molal_to_ppt(comp, molal_str)
+                            if ppt_result is not None:
+                                self.data.iat[row, col_ppt] = ppt_result
+                                self.updating_table = True
+                                formatted_ppt = format_ppt(ppt_result, molal_str)
+                                self.table.item(row, col_ppt).setText(formatted_ppt)
+                                self.updating_table = False
+                    elif comp in MOLAR_MASSES:
+                        # Single component: convert as appropriate
+                        molar_mass = MOLAR_MASSES[comp]
+                        if molal_val:
+                            try:
+                                molal_float = float(self.data.iat[row, col_molal])
+                                ppt_result = Molal2ppt(molal_float, molar_mass)
+                                self.data.iat[row, col_ppt] = ppt_result
+                                self.updating_table = True
+                                formatted_ppt = format_ppt(ppt_result, molal_float)
+                                self.table.item(row, col_ppt).setText(formatted_ppt)
+                                self.updating_table = False
+                            except Exception as e:
+                                log.warning(f"Failed to convert molal to ppt for row {row}: {e}")
+                        elif ppt_val:
+                            try:
+                                ppt_float = float(self.data.iat[row, col_ppt])
+                                molal_result = Ppt2molal(ppt_float, molar_mass)
+                                self.data.iat[row, col_molal] = molal_result
+                                self.updating_table = True
+                                self.table.item(row, col_molal).setText(f"{molal_result:.4f}")
+                                self.updating_table = False
+                            except Exception as e:
+                                log.warning(f"Failed to convert ppt to molal for row {row}: {e}")
+
+            # Refresh and save
+            self.refresh_table()
+            self.save_gui_state_to_config()
+
+            QMessageBox.information(self, "Success", f"Updated {len(selected_indexes)} row(s).")
+
+    def reload_from_csv(self):
+        """
+        Reload data from CSV config files and update the GUI table.
+        Useful after editing CSV files in Excel.
+        """
+        if not self.config_file_paths:
+            QMessageBox.information(self, "No Config Files", "No config files found to reload.")
+            return
+
+        reply = QMessageBox.question(
+            self,
+            "Reload from CSV",
+            "This will reload data from CSV files and overwrite any unsaved GUI changes.\n\nContinue?",
+            QMessageBox.Yes | QMessageBox.No,
+            QMessageBox.No
+        )
+
+        if reply == QMessageBox.No:
+            return
+
+        log.info("=" * 60)
+        log.info("RELOADING DATA FROM CSV FILES")
+        log.info("=" * 60)
+
+        # Clear current associations and standards
+        n = len(self.data)
+        self.standard_mask = np.zeros(n, dtype=bool)
+        self.associated_mask = np.zeros(n, dtype=bool)
+        self.current_std = np.nan
+        self.current_std_unc = np.nan
+        log.info(f"Cleared {n} rows: standards, associations, cell constant")
+
+        # Reload config files
+        log.info("Loading config files...")
+        self.load_and_apply_discovered_configs()
+
+        # Apply any conversions needed
+        log.info("Converting loaded concentrations...")
+        self.convert_loaded_concentrations()
+
+        # Refresh display
+        log.info("Refreshing table and plots...")
+        self.refresh_table()
+        self.refresh_s_vs_p_plot()
+
+        # Show sample of loaded data
+        log.info("\nSample of loaded data (first 3 rows with comp):")
+        col_comp = self.data.columns.get_loc('Comp')
+        col_w_molal = self.data.columns.get_loc('w (molal)')
+        col_w_ppt = self.data.columns.get_loc('w (ppt)')
+        count = 0
+        for idx in range(len(self.data)):
+            comp = self.data.iat[idx, col_comp]
+            if comp and pd.notna(comp):
+                w_molal = self.data.iat[idx, col_w_molal]
+                w_ppt = self.data.iat[idx, col_w_ppt]
+                log.info(f"  Row {idx}: comp={comp}, w_molal={w_molal}, w_ppt={w_ppt}")
+                count += 1
+                if count >= 3:
+                    break
+
+        log.info("=" * 60)
+        log.info("RELOAD COMPLETE")
+        log.info("=" * 60)
+
+        QMessageBox.information(self, "Reloaded", "Data reloaded from CSV config files.\nCheck console for details.")
+
 
     def refresh_table(self):
         self.updating_table = True
@@ -499,6 +1052,27 @@ class DataSelector(QMainWindow):
                         formatted_value = ''  # Show empty for None/NaN
                     elif isinstance(val, pd.Timestamp):
                         formatted_value = val.strftime('%Y-%m-%d %H:%M:%S')
+                    elif col in ['Z (Ohm)', 'Z± (Ohm)']:
+                        # Impedance: 4 significant figures
+                        try:
+                            formatted_value = f"{float(val):.4g}"
+                        except:
+                            formatted_value = str(val)
+                    elif col in ['S (S/m)', 'S± (S/m)']:
+                        # Conductivity: 4 significant figures
+                        try:
+                            formatted_value = f"{float(val):.4g}"
+                        except:
+                            formatted_value = str(val)
+                    elif col == 'w (ppt)':
+                        # Format ppt with appropriate precision
+                        try:
+                            # Get corresponding molal value for precision
+                            molal_col_idx = self.data.columns.get_loc('w (molal)')
+                            molal_val = self.data.iat[i, molal_col_idx]
+                            formatted_value = format_ppt(val, molal_val)
+                        except:
+                            formatted_value = str(val)
                     else:
                         formatted_value = str(val)
                     self.table.setItem(i, j, QTableWidgetItem(formatted_value))
@@ -902,21 +1476,56 @@ class DataSelector(QMainWindow):
                     # Mark in Calibration column
                     self.data.iat[std_idx, col_cal] = f"{result['name']} [Standard]"
 
-                    # Populate S (S/m) column with known conductivity
+                    # Populate all metadata from config
                     if 'standard_metadata' in result and i < len(result['standard_metadata']):
                         std_metadata = result['standard_metadata'][i]
+
+                        # Conductivity
                         if std_metadata.get('conductivity_Sm'):
                             self.data.iat[std_idx, col_S] = std_metadata['conductivity_Sm']
-                            # Also update timeseries
                             try:
                                 self.timeseries.conductivities_Sm[std_idx] = std_metadata['conductivity_Sm']
                             except Exception:
                                 pass
 
-                        # Update composition if provided
+                        # Composition
                         if std_metadata.get('comp'):
                             col_comp = self.data.columns.get_loc('Comp')
                             self.data.iat[std_idx, col_comp] = std_metadata['comp']
+                            try:
+                                self.timeseries.comp[std_idx] = std_metadata['comp']
+                            except Exception:
+                                pass
+
+                        # Concentrations
+                        if std_metadata.get('w_ppt') is not None:
+                            col_w_ppt = self.data.columns.get_loc('w (ppt)')
+                            self.data.iat[std_idx, col_w_ppt] = std_metadata['w_ppt']
+                            try:
+                                self.timeseries.ws_ppt[std_idx] = std_metadata['w_ppt']
+                            except Exception:
+                                pass
+
+                        if std_metadata.get('w_molal') is not None:
+                            col_w_molal = self.data.columns.get_loc('w (molal)')
+                            self.data.iat[std_idx, col_w_molal] = std_metadata['w_molal']
+
+                        # P and T
+                        if std_metadata.get('P_MPa') is not None:
+                            col_P = self.data.columns.get_loc('P (MPa)')
+                            self.data.iat[std_idx, col_P] = std_metadata['P_MPa']
+                            try:
+                                self.timeseries.Ps[std_idx] = std_metadata['P_MPa']
+                            except Exception:
+                                pass
+
+                        if std_metadata.get('T_K') is not None:
+                            col_T = self.data.columns.get_loc('T (K)')
+                            self.data.iat[std_idx, col_T] = std_metadata['T_K']
+                            try:
+                                self.timeseries.Ts[std_idx] = std_metadata['T_K']
+                            except Exception:
+                                pass
 
                 # Apply to measurements in this group
                 for i, idx in enumerate(result['measurement_indices']):
@@ -957,23 +1566,34 @@ class DataSelector(QMainWindow):
                             except Exception:
                                 pass
 
-                        # Update w (ppt) column - prefer ppt, fall back to molal
-                        w_value = metadata.get('w_ppt')
-                        if w_value is not None:
-                            col_w = self.data.columns.get_loc('w (ppt)')
-                            self.data.iat[idx, col_w] = w_value
+                        # Update w (ppt) column
+                        if metadata.get('w_ppt') is not None:
+                            col_w_ppt = self.data.columns.get_loc('w (ppt)')
+                            self.data.iat[idx, col_w_ppt] = metadata['w_ppt']
                             try:
-                                self.timeseries.ws_ppt[idx] = w_value
+                                self.timeseries.ws_ppt[idx] = metadata['w_ppt']
                             except Exception:
                                 pass
-                        elif metadata.get('w_molal') is not None:
-                            # Convert molal to ppt if needed (for now just store molal value)
-                            # TODO: Add conversion using PlanetProfile functions
-                            col_w = self.data.columns.get_loc('w (ppt)')
-                            self.data.iat[idx, col_w] = metadata['w_molal']
-                            log.info(f"  Note: w_molal={metadata['w_molal']} stored (conversion to ppt not yet implemented)")
+
+                        # Update w (molal) column
+                        if metadata.get('w_molal') is not None:
+                            col_w_molal = self.data.columns.get_loc('w (molal)')
+                            self.data.iat[idx, col_w_molal] = metadata['w_molal']
+
+                        # Update P and T columns
+                        if metadata.get('P_MPa') is not None:
+                            col_P = self.data.columns.get_loc('P (MPa)')
+                            self.data.iat[idx, col_P] = metadata['P_MPa']
                             try:
-                                self.timeseries.ws_ppt[idx] = metadata['w_molal']
+                                self.timeseries.Ps[idx] = metadata['P_MPa']
+                            except Exception:
+                                pass
+
+                        if metadata.get('T_K') is not None:
+                            col_T = self.data.columns.get_loc('T (K)')
+                            self.data.iat[idx, col_T] = metadata['T_K']
+                            try:
+                                self.timeseries.Ts[idx] = metadata['T_K']
                             except Exception:
                                 pass
 
@@ -986,7 +1606,11 @@ class DataSelector(QMainWindow):
             self._highlight_preconfigured_rows(results)
 
             self.refresh_s_vs_p_plot()
-            self.save_curated_outputs()
+
+            # Convert between ppt and molal for loaded data
+            self.convert_loaded_concentrations()
+
+            # self.save_curated_outputs()  # Disabled: now saving to zAnalysis files instead
 
             # Save GUI state to config file (creates both CSV and JSON)
             self.save_gui_state_to_config()
@@ -1196,7 +1820,8 @@ class DataSelector(QMainWindow):
             self.export_dir.mkdir(parents=True, exist_ok=True)
 
         # Load and apply discovered config files to restore GUI state
-        if found_configs and not self.analysis_config:
+        # Load whether configs were found or created (user may have edited a newly created CSV)
+        if (found_configs or created_configs) and not self.analysis_config:
             self.load_and_apply_discovered_configs()
 
         # Show detailed dialog if there are issues
@@ -1224,7 +1849,12 @@ class DataSelector(QMainWindow):
         col_S = self.data.columns.get_loc('S (S/m)')
         col_comp = self.data.columns.get_loc('Comp')
         col_w_ppt = self.data.columns.get_loc('w (ppt)')
+        col_w_molal = self.data.columns.get_loc('w (molal)')
+        col_P = self.data.columns.get_loc('P (MPa)')
+        col_T = self.data.columns.get_loc('T (K)')
         col_Z = self.data.columns.get_loc('Z (Ohm)')
+        col_Z_unc = self.data.columns.get_loc('Z± (Ohm)')
+        col_S_unc = self.data.columns.get_loc('S± (S/m)')
 
         # Track standards for cell constant calculation
         all_standards = []  # List of (conductivity_Sm, resistance_ohm) tuples
@@ -1262,20 +1892,39 @@ class DataSelector(QMainWindow):
                                 continue
 
                             entry_type = row.get('type', '').lower()
+
+                            # Helper to parse numeric or comma-separated values
+                            def parse_value(val):
+                                if not val or val.strip() == '':
+                                    return None
+                                # Check if multi-component (contains comma)
+                                if ',' in val:
+                                    return val.strip()  # Keep as string
+                                try:
+                                    return float(val)
+                                except:
+                                    return val.strip()  # Keep as string if not numeric
+
+                            # Parse entry data
+                            entry_data = {
+                                'filename': row['filename'],
+                                'conductivity_Sm': parse_value(row.get('conductivity_Sm')),
+                                'S_unc_pct': parse_value(row.get('S_unc_pct')),
+                                'comp': row.get('comp', '').strip() if row.get('comp') else None,
+                                'w_ppt': parse_value(row.get('w_ppt')),
+                                'w_molal': parse_value(row.get('w_molal')),
+                                'P_MPa': parse_value(row.get('P_MPa')),
+                                'T_K': parse_value(row.get('T_K')),
+                                'Z_Ohm': parse_value(row.get('Z_Ohm')),
+                                'Z_unc_Ohm': parse_value(row.get('Z_unc_Ohm'))
+                            }
+
+                            # Categorize based on type (default to measurement if blank)
                             if entry_type == 'standard':
-                                standards.append({
-                                    'filename': row['filename'],
-                                    'conductivity_Sm': float(row['conductivity_Sm']) if row.get('conductivity_Sm') else None,
-                                    'comp': row.get('comp', ''),
-                                    'w_ppt': float(row['w_ppt']) if row.get('w_ppt') else None
-                                })
-                            elif entry_type == 'measurement':
-                                measurements.append({
-                                    'filename': row['filename'],
-                                    'conductivity_Sm': float(row['conductivity_Sm']) if row.get('conductivity_Sm') else None,
-                                    'comp': row.get('comp', ''),
-                                    'w_ppt': float(row['w_ppt']) if row.get('w_ppt') else None
-                                })
+                                standards.append(entry_data)
+                            else:
+                                # Treat blank or 'measurement' as measurement
+                                measurements.append(entry_data)
                 except Exception as e:
                     log.warning(f"Error parsing CSV config {config_path}: {e}")
                     continue
@@ -1293,8 +1942,14 @@ class DataSelector(QMainWindow):
                             standards.append({
                                 'filename': std['filename'],
                                 'conductivity_Sm': std.get('conductivity_Sm'),
-                                'comp': std.get('comp', ''),
-                                'w_ppt': std.get('w_ppt')
+                                'S_unc_pct': std.get('S_unc_pct'),
+                                'comp': std.get('comp'),
+                                'w_ppt': std.get('w_ppt'),
+                                'w_molal': std.get('w_molal'),
+                                'P_MPa': std.get('P_MPa'),
+                                'T_K': std.get('T_K'),
+                                'Z_Ohm': std.get('Z_Ohm'),
+                                'Z_unc_Ohm': std.get('Z_unc_Ohm')
                             })
 
                         for meas in group.get('measurements', []):
@@ -1303,8 +1958,14 @@ class DataSelector(QMainWindow):
                             measurements.append({
                                 'filename': meas['filename'],
                                 'conductivity_Sm': meas.get('conductivity_Sm'),
-                                'comp': meas.get('comp', ''),
-                                'w_ppt': meas.get('w_ppt')
+                                'S_unc_pct': meas.get('S_unc_pct'),
+                                'comp': meas.get('comp'),
+                                'w_ppt': meas.get('w_ppt'),
+                                'w_molal': meas.get('w_molal'),
+                                'P_MPa': meas.get('P_MPa'),
+                                'T_K': meas.get('T_K'),
+                                'Z_Ohm': meas.get('Z_Ohm'),
+                                'Z_unc_Ohm': meas.get('Z_unc_Ohm')
                             })
                 except Exception as e:
                     log.warning(f"Error parsing JSON config {config_path}: {e}")
@@ -1322,7 +1983,7 @@ class DataSelector(QMainWindow):
                 # Mark as standard
                 self.standard_mask[idx] = True
 
-                # Set conductivity value for standard
+                # Set all values from config
                 if std['conductivity_Sm'] is not None:
                     self.data.iat[idx, col_S] = std['conductivity_Sm']
                     try:
@@ -1335,11 +1996,49 @@ class DataSelector(QMainWindow):
                     if Z_val and not np.isnan(Z_val) and Z_val > 0:
                         all_standards.append((std['conductivity_Sm'], Z_val))
 
-                # Set composition if provided
-                if std['comp']:
+                if std.get('S_unc_pct') is not None:
+                    self.data.iat[idx, col_S_unc] = std['S_unc_pct']
+
+                if std.get('comp'):
                     self.data.iat[idx, col_comp] = std['comp']
-                if std['w_ppt'] is not None:
+                    try:
+                        self.timeseries.comp[idx] = std['comp']
+                    except:
+                        pass
+
+                if std.get('w_ppt') is not None:
                     self.data.iat[idx, col_w_ppt] = std['w_ppt']
+                    try:
+                        self.timeseries.ws_ppt[idx] = std['w_ppt']
+                    except:
+                        pass
+
+                if std.get('w_molal') is not None:
+                    self.data.iat[idx, col_w_molal] = std['w_molal']
+
+                if std.get('P_MPa') is not None:
+                    self.data.iat[idx, col_P] = std['P_MPa']
+                    try:
+                        self.timeseries.Ps[idx] = std['P_MPa']
+                    except:
+                        pass
+
+                if std.get('T_K') is not None:
+                    self.data.iat[idx, col_T] = std['T_K']
+                    try:
+                        self.timeseries.Ts[idx] = std['T_K']
+                    except:
+                        pass
+
+                if std.get('Z_Ohm') is not None:
+                    self.data.iat[idx, col_Z] = std['Z_Ohm']
+                    try:
+                        self.timeseries.Rcalc_ohm[idx] = std['Z_Ohm']
+                    except:
+                        pass
+
+                if std.get('Z_unc_Ohm') is not None:
+                    self.data.iat[idx, col_Z_unc] = std['Z_unc_Ohm']
 
                 log.info(f"  Restored standard: {filename} (σ={std['conductivity_Sm']:.4f} S/m)")
 
@@ -1352,8 +2051,8 @@ class DataSelector(QMainWindow):
 
                 idx = filename_to_idx[filename]
 
-                # Set conductivity value for measurement
-                if meas['conductivity_Sm'] is not None:
+                # Set all values from config
+                if meas.get('conductivity_Sm') is not None:
                     self.data.iat[idx, col_S] = meas['conductivity_Sm']
                     try:
                         self.timeseries.conductivities_Sm[idx] = meas['conductivity_Sm']
@@ -1363,11 +2062,49 @@ class DataSelector(QMainWindow):
                     # Mark as associated
                     self.associated_mask[idx] = True
 
-                # Set composition if provided
-                if meas['comp']:
+                if meas.get('S_unc_pct') is not None:
+                    self.data.iat[idx, col_S_unc] = meas['S_unc_pct']
+
+                if meas.get('comp'):
                     self.data.iat[idx, col_comp] = meas['comp']
-                if meas['w_ppt'] is not None:
+                    try:
+                        self.timeseries.comp[idx] = meas['comp']
+                    except:
+                        pass
+
+                if meas.get('w_ppt') is not None:
                     self.data.iat[idx, col_w_ppt] = meas['w_ppt']
+                    try:
+                        self.timeseries.ws_ppt[idx] = meas['w_ppt']
+                    except:
+                        pass
+
+                if meas.get('w_molal') is not None:
+                    self.data.iat[idx, col_w_molal] = meas['w_molal']
+
+                if meas.get('P_MPa') is not None:
+                    self.data.iat[idx, col_P] = meas['P_MPa']
+                    try:
+                        self.timeseries.Ps[idx] = meas['P_MPa']
+                    except:
+                        pass
+
+                if meas.get('T_K') is not None:
+                    self.data.iat[idx, col_T] = meas['T_K']
+                    try:
+                        self.timeseries.Ts[idx] = meas['T_K']
+                    except:
+                        pass
+
+                if meas.get('Z_Ohm') is not None:
+                    self.data.iat[idx, col_Z] = meas['Z_Ohm']
+                    try:
+                        self.timeseries.Rcalc_ohm[idx] = meas['Z_Ohm']
+                    except:
+                        pass
+
+                if meas.get('Z_unc_Ohm') is not None:
+                    self.data.iat[idx, col_Z_unc] = meas['Z_unc_Ohm']
 
                 if meas['conductivity_Sm'] is not None:
                     log.info(f"  Restored measurement: {filename} (σ={meas['conductivity_Sm']:.4f} S/m)")
@@ -1388,7 +2125,83 @@ class DataSelector(QMainWindow):
         self.refresh_table()
         self.refresh_s_vs_p_plot()
 
+        # Convert between ppt and molal for loaded data
+        self.convert_loaded_concentrations()
+
         log.info("Config files loaded and GUI state restored")
+
+    def convert_loaded_concentrations(self):
+        """
+        Convert between ppt and molal for data loaded from config files.
+        Runs after loading to fill in missing concentration values.
+        """
+        col_comp = self.data.columns.get_loc('Comp')
+        col_w_ppt = self.data.columns.get_loc('w (ppt)')
+        col_w_molal = self.data.columns.get_loc('w (molal)')
+
+        for idx in range(len(self.data)):
+            comp = self.data.iat[idx, col_comp]
+            w_ppt = self.data.iat[idx, col_w_ppt]
+            w_molal = self.data.iat[idx, col_w_molal]
+
+            # Skip if no composition
+            if not comp or pd.isna(comp):
+                continue
+
+            comp_str = str(comp).strip()
+            if not comp_str:
+                continue
+
+            # Check if multi-component
+            is_multicomp = ',' in comp_str
+
+            # Convert molal to ppt if:
+            # 1. ppt doesn't exist, OR
+            # 2. ppt has old format (comma-separated for multi-component)
+            needs_conversion = (w_ppt is None or pd.isna(w_ppt) or w_ppt == '')
+            if not needs_conversion and is_multicomp:
+                # Check if ppt has old comma-separated format (should be single value now)
+                if isinstance(w_ppt, str) and ',' in w_ppt:
+                    needs_conversion = True
+                    log.info(f"Row {idx}: Detected old comma-separated ppt format, recalculating as total")
+
+            if w_molal is not None and pd.notna(w_molal) and needs_conversion:
+                if is_multicomp:
+                    ppt_val = convert_multicomp_molal_to_ppt(comp_str, w_molal)
+                    if ppt_val is not None:
+                        self.data.iat[idx, col_w_ppt] = ppt_val
+                        log.debug(f"Converted row {idx}: {w_molal} molal -> {ppt_val:.2f} ppt (total)")
+                else:
+                    # Single component
+                    if comp_str in MOLAR_MASSES:
+                        try:
+                            molal_val = float(w_molal)
+                            ppt_val = Molal2ppt(molal_val, MOLAR_MASSES[comp_str])
+                            self.data.iat[idx, col_w_ppt] = ppt_val
+                            log.debug(f"Converted row {idx}: {molal_val} molal -> {ppt_val:.2f} ppt")
+                        except Exception as e:
+                            log.warning(f"Failed to convert molal to ppt for row {idx}: {e}")
+
+            # Convert ppt to molal if ppt exists but molal doesn't
+            elif w_ppt is not None and pd.notna(w_ppt) and w_ppt != '' and (w_molal is None or pd.isna(w_molal) or w_molal == ''):
+                if is_multicomp:
+                    molal_str = convert_multicomp_ppt_to_molal(comp_str, w_ppt)
+                    if molal_str:
+                        self.data.iat[idx, col_w_molal] = molal_str
+                        log.debug(f"Converted row {idx}: {w_ppt} ppt -> {molal_str} molal")
+                else:
+                    # Single component
+                    if comp_str in MOLAR_MASSES:
+                        try:
+                            ppt_val = float(w_ppt)
+                            molal_val = Ppt2molal(ppt_val, MOLAR_MASSES[comp_str])
+                            self.data.iat[idx, col_w_molal] = molal_val
+                            log.debug(f"Converted row {idx}: {ppt_val} ppt -> {molal_val:.4f} molal")
+                        except Exception as e:
+                            log.warning(f"Failed to convert ppt to molal for row {idx}: {e}")
+
+        # Refresh table to show converted values
+        self.refresh_table()
 
     def create_empty_config_file(self, date, file_path, filenames):
         """
@@ -1497,7 +2310,7 @@ class DataSelector(QMainWindow):
             log.warning("No config file paths to save to")
             return
 
-        # Group data by date
+        # Group data by date, maintaining chronological order
         data_by_date = {}
         for idx, filename in enumerate(self.timeseries.filenames):
             # Extract date from filename
@@ -1508,10 +2321,7 @@ class DataSelector(QMainWindow):
             if match:
                 date = match.group(1)
                 if date not in data_by_date:
-                    data_by_date[date] = {
-                        'standards': [],
-                        'measurements': []
-                    }
+                    data_by_date[date] = []  # Single list to preserve chronological order
 
                 filename_only = Path(filename).name
 
@@ -1521,38 +2331,72 @@ class DataSelector(QMainWindow):
                 # This is a simplified approach - could be enhanced
 
                 row_data = {
-                    'filename': filename_only
+                    'filename': filename_only,
+                    'index': idx  # Preserve original order
                 }
 
-                # Add composition, concentration, and notes if available
+                # Add all editable fields from GUI table
                 if idx < len(self.data):
                     comp = self.data.iat[idx, self.data.columns.get_loc('Comp')]
                     w_ppt = self.data.iat[idx, self.data.columns.get_loc('w (ppt)')]
+                    w_molal = self.data.iat[idx, self.data.columns.get_loc('w (molal)')]
+                    P_MPa = self.data.iat[idx, self.data.columns.get_loc('P (MPa)')]
+                    T_K = self.data.iat[idx, self.data.columns.get_loc('T (K)')]
+                    Z_Ohm = self.data.iat[idx, self.data.columns.get_loc('Z (Ohm)')]
+                    Z_unc_Ohm = self.data.iat[idx, self.data.columns.get_loc('Z± (Ohm)')]
                     S_Sm = self.data.iat[idx, self.data.columns.get_loc('S (S/m)')]
+                    S_unc_pct = self.data.iat[idx, self.data.columns.get_loc('S± (S/m)')]
+
+                    # Debug: log S± extraction for rows with conductivity
+                    if S_Sm is not None and pd.notna(S_Sm) and S_Sm != 0:
+                        s_unc_status = f"S±={S_unc_pct}" if (S_unc_pct is not None and pd.notna(S_unc_pct)) else "S±=MISSING"
+                        log.info(f"  Extracting row {idx} ({filename_only}): S={S_Sm:.4g}, {s_unc_status}")
 
                     if comp and pd.notna(comp):
                         row_data['comp'] = comp
                     if w_ppt is not None and pd.notna(w_ppt):
-                        row_data['w_ppt'] = float(w_ppt)
+                        # Store w_ppt - keep as-is (will format during CSV write)
+                        row_data['w_ppt'] = w_ppt
+                    if w_molal is not None and pd.notna(w_molal):
+                        # Store w_molal as string to preserve user's precision
+                        # This is the input value and should maintain original format
+                        row_data['w_molal'] = str(w_molal) if not isinstance(w_molal, str) else w_molal
+                    if P_MPa is not None and pd.notna(P_MPa):
+                        row_data['P_MPa'] = float(P_MPa)
+                    if T_K is not None and pd.notna(T_K):
+                        row_data['T_K'] = float(T_K)
+                    if Z_Ohm is not None and pd.notna(Z_Ohm):
+                        row_data['Z_Ohm'] = float(Z_Ohm)
+                    if Z_unc_Ohm is not None and pd.notna(Z_unc_Ohm):
+                        row_data['Z_unc_Ohm'] = float(Z_unc_Ohm)
+                    if S_unc_pct is not None and pd.notna(S_unc_pct):
+                        row_data['S_unc_pct'] = float(S_unc_pct)
+                        log.info(f"    ✓ Added S± to row_data for {filename_only}: {S_unc_pct:.4g}")
+                    elif S_Sm is not None and pd.notna(S_Sm) and S_Sm != 0:
+                        # Has conductivity but no uncertainty - log this
+                        log.warning(f"    ✗ Row {idx} ({filename_only}) has S={S_Sm:.4g} but S± is MISSING or NaN (value={S_unc_pct})")
 
                     # Use standard_mask to determine if this is a standard
                     if self.standard_mask[idx]:
                         # This is a standard - save its conductivity value
+                        row_data['type'] = 'standard'
                         if S_Sm is not None and pd.notna(S_Sm):
                             row_data['conductivity_Sm'] = float(S_Sm)
-                        data_by_date[date]['standards'].append(row_data)
                     elif self.associated_mask[idx]:
                         # This is an associated measurement - save computed conductivity
+                        row_data['type'] = 'measurement'
                         if S_Sm is not None and pd.notna(S_Sm):
                             row_data['conductivity_Sm'] = float(S_Sm)
-                        data_by_date[date]['measurements'].append(row_data)
                     else:
                         # Unprocessed measurement (not standard, not associated)
+                        row_data['type'] = 'measurement'
                         # Still save if it has data
-                        if comp or w_ppt is not None or S_Sm is not None:
-                            if S_Sm is not None and pd.notna(S_Sm):
-                                row_data['conductivity_Sm'] = float(S_Sm)
-                            data_by_date[date]['measurements'].append(row_data)
+                        if S_Sm is not None and pd.notna(S_Sm):
+                            row_data['conductivity_Sm'] = float(S_Sm)
+
+                    # Only add rows that have some data
+                    if comp or w_ppt is not None or S_Sm is not None or row_data.get('type') == 'standard':
+                        data_by_date[date].append(row_data)
 
         # Write to each date's config file (CSV or JSON format)
         for date, file_path in save_paths.items():
@@ -1585,8 +2429,8 @@ class DataSelector(QMainWindow):
             except Exception as e:
                 log.error(f"Failed to save GUI state to {file_path}: {e}")
 
-    def _save_to_csv(self, file_path: Path, data: dict, date: str, timestamp: str):
-        """Save GUI state to CSV format."""
+    def _save_to_csv(self, file_path: Path, data: list, date: str, timestamp: str):
+        """Save GUI state to CSV format, maintaining chronological order."""
         import csv as csv_module
 
         # Parse P and T from filenames helper
@@ -1610,55 +2454,92 @@ class DataSelector(QMainWindow):
                     if row.get('filename') and row.get('notes'):
                         existing_notes[row['filename']] = row['notes']
 
-        # Write updated CSV with P_MPa and T_K columns
+        # Write updated CSV with all GUI table columns
         with open(file_path, 'w', newline='') as f:
-            fieldnames = ['group_name', 'filename', 'P_MPa', 'T_K', 'type', 'conductivity_Sm', 'comp', 'w_ppt', 'w_molal', 'exclude', 'notes']
+            fieldnames = ['group_name', 'filename', 'P_MPa', 'T_K', 'type', 'Z_Ohm', 'Z_unc_Ohm', 'conductivity_Sm', 'S_unc_pct', 'comp', 'w_ppt', 'w_molal', 'exclude', 'notes']
             writer = csv_module.DictWriter(f, fieldnames=fieldnames)
             writer.writeheader()
 
             group_name = list(existing_groups)[0] if existing_groups else 'Group 1'
 
-            # Write standards
-            for std in data['standards']:
-                p_val, t_val = parse_p_t(std['filename'])
+            # Sort data by index to maintain chronological order
+            sorted_data = sorted(data, key=lambda x: x.get('index', 0))
+
+            # Write all rows in chronological order
+            for entry in sorted_data:
+                # Use actual P and T from GUI table, fallback to filename parsing if not available
+                if 'P_MPa' in entry and entry['P_MPa'] is not None:
+                    p_val = entry['P_MPa']
+                elif 'P_MPa' in entry and entry['P_MPa'] == 0:
+                    p_val = ''  # Display empty for zero values
+                else:
+                    p_val, _ = parse_p_t(entry['filename'])
+
+                if 'T_K' in entry and entry['T_K'] is not None:
+                    t_val = entry['T_K']
+                elif 'T_K' in entry and entry['T_K'] == 0:
+                    t_val = ''  # Display empty for zero values
+                else:
+                    _, t_val = parse_p_t(entry['filename'])
+
                 # Preserve existing notes if available
-                existing_note = existing_notes.get(std['filename'], '')
+                existing_note = existing_notes.get(entry['filename'], '')
+
+                # Apply precision formatting
+                # Z and conductivity: 4 sig figs
+                z_val = f"{float(entry['Z_Ohm']):.4g}" if entry.get('Z_Ohm') is not None and entry['Z_Ohm'] != '' else ''
+                z_unc_val = f"{float(entry['Z_unc_Ohm']):.4g}" if entry.get('Z_unc_Ohm') is not None and entry['Z_unc_Ohm'] != '' else ''
+                s_val = f"{float(entry['conductivity_Sm']):.4g}" if entry.get('conductivity_Sm') is not None and entry['conductivity_Sm'] != '' else ''
+                s_unc_val = f"{float(entry['S_unc_pct']):.4g}" if entry.get('S_unc_pct') is not None and entry['S_unc_pct'] != '' else ''
+
+                # w_molal: preserve as string, clean up formatting
+                w_molal_raw = entry.get('w_molal', '')
+                if w_molal_raw and w_molal_raw != '':
+                    w_molal_str = str(w_molal_raw)
+                    # If multi-component (contains comma), keep as-is
+                    if ',' in w_molal_str:
+                        w_molal_val = w_molal_str
+                    else:
+                        # Single component: format to remove unnecessary decimals
+                        try:
+                            # Convert to float and back to string, removing trailing zeros
+                            molal_float = float(w_molal_str)
+                            # Format with enough precision, then remove trailing zeros
+                            w_molal_val = f"{molal_float:.10g}"  # g format removes trailing zeros
+                        except:
+                            w_molal_val = w_molal_str
+                else:
+                    w_molal_val = ''
+
+                # w_ppt: min 2 decimals, max = molal precision
+                if entry.get('w_ppt') and entry['w_ppt'] != '':
+                    if w_molal_val and w_molal_val != '':
+                        w_ppt_val = format_ppt(entry['w_ppt'], w_molal_val)
+                    else:
+                        # No molal value, use default 2 decimals
+                        w_ppt_val = f"{float(entry['w_ppt']):.2f}"
+                else:
+                    w_ppt_val = ''
+
                 row = {
                     'group_name': group_name,
-                    'filename': std['filename'],
+                    'filename': entry['filename'],
                     'P_MPa': p_val,
                     'T_K': t_val,
-                    'type': 'standard',
-                    'conductivity_Sm': std.get('conductivity_Sm', ''),
-                    'comp': std.get('comp', ''),
-                    'w_ppt': std.get('w_ppt', ''),
-                    'w_molal': std.get('w_molal', ''),
+                    'type': entry.get('type', 'measurement'),
+                    'Z_Ohm': z_val,
+                    'Z_unc_Ohm': z_unc_val,
+                    'conductivity_Sm': s_val,
+                    'S_unc_pct': s_unc_val,
+                    'comp': entry.get('comp', ''),
+                    'w_ppt': w_ppt_val,
+                    'w_molal': w_molal_val,
                     'exclude': '',
                     'notes': existing_note  # Preserve user's notes
                 }
                 writer.writerow(row)
 
-            # Write measurements
-            for meas in data['measurements']:
-                p_val, t_val = parse_p_t(meas['filename'])
-                # Preserve existing notes if available
-                existing_note = existing_notes.get(meas['filename'], '')
-                row = {
-                    'group_name': group_name,
-                    'filename': meas['filename'],
-                    'P_MPa': p_val,
-                    'T_K': t_val,
-                    'type': 'measurement',
-                    'conductivity_Sm': meas.get('conductivity_Sm', ''),
-                    'comp': meas.get('comp', ''),
-                    'w_ppt': meas.get('w_ppt', ''),
-                    'w_molal': meas.get('w_molal', ''),
-                    'exclude': '',
-                    'notes': existing_note  # Preserve user's notes
-                }
-                writer.writerow(row)
-
-    def _save_to_json(self, file_path: Path, data: dict, date: str, timestamp: str):
+    def _save_to_json(self, file_path: Path, data: list, date: str, timestamp: str):
         """Save GUI state to JSON format."""
         import json
 
@@ -1686,9 +2567,59 @@ class DataSelector(QMainWindow):
                 "measurements": []
             })
 
-        # Update first group with current state
-        config['calibrations'][0]['standards'] = data['standards']
-        config['calibrations'][0]['measurements'] = data['measurements']
+        # Sort data by index to maintain chronological order, then separate by type
+        sorted_data = sorted(data, key=lambda x: x.get('index', 0))
+
+        standards = []
+        measurements = []
+        for entry in sorted_data:
+            # Remove the index field before saving (internal use only)
+            entry_copy = {k: v for k, v in entry.items() if k not in ['index', 'type']}
+
+            # Apply precision formatting for numeric values
+            # Z and conductivity: 4 sig figs
+            if 'Z_Ohm' in entry_copy and entry_copy['Z_Ohm'] is not None and entry_copy['Z_Ohm'] != '':
+                entry_copy['Z_Ohm'] = float(f"{float(entry_copy['Z_Ohm']):.4g}")
+            if 'Z_unc_Ohm' in entry_copy and entry_copy['Z_unc_Ohm'] is not None and entry_copy['Z_unc_Ohm'] != '':
+                entry_copy['Z_unc_Ohm'] = float(f"{float(entry_copy['Z_unc_Ohm']):.4g}")
+            if 'conductivity_Sm' in entry_copy and entry_copy['conductivity_Sm'] is not None and entry_copy['conductivity_Sm'] != '':
+                entry_copy['conductivity_Sm'] = float(f"{float(entry_copy['conductivity_Sm']):.4g}")
+            if 'S_unc_pct' in entry_copy and entry_copy['S_unc_pct'] is not None and entry_copy['S_unc_pct'] != '':
+                entry_copy['S_unc_pct'] = float(f"{float(entry_copy['S_unc_pct']):.4g}")
+
+            # w_molal: clean up formatting (remove trailing zeros)
+            if 'w_molal' in entry_copy and entry_copy['w_molal'] is not None and entry_copy['w_molal'] != '':
+                w_molal_str = str(entry_copy['w_molal'])
+                # If multi-component (contains comma), keep as string
+                if ',' in w_molal_str:
+                    # Keep as string for JSON
+                    pass  # Already a string
+                else:
+                    # Single component: convert to float to normalize
+                    try:
+                        molal_float = float(w_molal_str)
+                        # Store as float with clean formatting (JSON can handle this)
+                        entry_copy['w_molal'] = float(f"{molal_float:.10g}")
+                    except:
+                        pass  # Keep as-is if conversion fails
+
+            # w_ppt: min 2 decimals, max = molal precision
+            if 'w_ppt' in entry_copy and entry_copy['w_ppt'] is not None and entry_copy['w_ppt'] != '':
+                w_molal_val = entry_copy.get('w_molal', '')
+                if w_molal_val and w_molal_val != '':
+                    entry_copy['w_ppt'] = float(format_ppt(entry_copy['w_ppt'], w_molal_val))
+                else:
+                    # No molal value, use default 2 decimals
+                    entry_copy['w_ppt'] = float(f"{float(entry_copy['w_ppt']):.2f}")
+
+            if entry.get('type') == 'standard':
+                standards.append(entry_copy)
+            else:
+                measurements.append(entry_copy)
+
+        # Update first group with current state (preserving chronological order)
+        config['calibrations'][0]['standards'] = standards
+        config['calibrations'][0]['measurements'] = measurements
 
         # Add note about GUI save
         if 'notes' not in config:
@@ -1750,10 +2681,11 @@ class DataSelector(QMainWindow):
         dialog = QMessageBox(self)
         dialog.setIcon(QMessageBox.Information)
         dialog.setWindowTitle("Config File Location Check")
-        dialog.setText("Config files following zAnalysis<date>.json convention")
+        dialog.setText("Config files following zAnalysis<date> convention")
         dialog.setInformativeText(
             f"Naming convention:\n"
-            f"• One zAnalysis<date>.json per day\n"
+            f"• One zAnalysis<date>.csv (or .json) per day\n"
+            f"• CSV format preferred (Excel-friendly)\n"
             f"• Stored in data/<date>/ directory\n"
             f"• Auto-created if missing to save GUI progress"
         )

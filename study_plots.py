@@ -32,7 +32,9 @@ from plotting import (
 # Ion specifications for McCleskey model
 ION_SPECS = {
     'NaCl': {'Na_p1': 1.0, 'Cl_m1': 1.0},
+    'KCl': {'K_p1': 1.0, 'Cl_m1': 1.0},
     'MgSO4': {'Mg_p2': 1.0, 'SO4_m2': 1.0},
+    'Na2SO4': {'Na_p1': 2.0, 'SO4_m2': 1.0},
     'NH4Cl': {'NH4_p1': 1.0, 'Cl_m1': 1.0},
     'Na2CO3': {'Na_p1': 2.0, 'CO3_m2': 1.0}
 }
