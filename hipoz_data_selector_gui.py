@@ -258,8 +258,8 @@ class DataSelector(QMainWindow):
             'svp': False,  # σ vs P
         }
 
-        # McCleskey comparison toggle (default: show comparisons)
-        self.show_mccleskey = True
+        # McCleskey comparison toggle (default: off for performance)
+        self.show_mccleskey = False
 
         self.init_ui()
         self.current_std = []
@@ -329,8 +329,8 @@ class DataSelector(QMainWindow):
         """
         Handle McCleskey comparison checkbox toggle.
 
-        Refreshes all applicable plots when user enables/disables
-        McCleskey (2012) model comparison points.
+        Refreshes σ vs T and σ vs m plots when user enables/disables
+        McCleskey (2012) model comparison points. Does not affect σ vs P plot.
 
         Parameters
         ----------
@@ -341,9 +341,7 @@ class DataSelector(QMainWindow):
         self.show_mccleskey = (state == Qt.Checked)
         log.debug(f"McCleskey comparison: {'enabled' if self.show_mccleskey else 'disabled'}")
 
-        # Refresh all plots that might show McCleskey data
-        if self.plots_initialized.get('svp', False):
-            self.refresh_s_vs_p_plot()
+        # Refresh plots that show McCleskey data (σ vs T and σ vs m only)
         if self.plots_initialized.get('svt', False):
             self.refresh_sigma_vs_t_plot()
         if self.plots_initialized.get('svm', False):
@@ -506,10 +504,10 @@ class DataSelector(QMainWindow):
 
         # McCleskey comparison toggle checkbox
         self.chk_mccleskey = QCheckBox('Show McCleskey 2012 model comparison')
-        self.chk_mccleskey.setChecked(self.show_mccleskey)  # Default: checked
+        self.chk_mccleskey.setChecked(self.show_mccleskey)  # Default: unchecked (compute on demand)
         self.chk_mccleskey.setToolTip(
             'Display McCleskey (2012) model predictions for applicable ionic systems\n'
-            '(NaCl, KCl, MgSO4, etc.) as unfilled triangles for comparison.'
+            '(NaCl, KCl, MgSO4, etc.) as unfilled triangles on σ vs T and σ vs m plots.'
         )
 
         # Connect buttons to functions
@@ -529,6 +527,7 @@ class DataSelector(QMainWindow):
         self.data_table_layout.addWidget(self.btn_bulk_edit)
         self.data_table_layout.addWidget(self.btn_reload_csv)
         self.data_table_layout.addWidget(self.btn_export_plots)
+        self.data_table_layout.addWidget(self.chk_mccleskey)  # McCleskey comparison checkbox
         self.data_table_tab.setLayout(self.data_table_layout)
 
         # Main layout now just contains tabs (data table is first tab)
@@ -1803,56 +1802,11 @@ class DataSelector(QMainWindow):
             # vmin, vmax = -20.0, 80.0
             vmin = np.nanmin(T_C)
             vmax = np.nanmax(T_C)
-            sc = ax.scatter(P, S, c=T_C, cmap='viridis', vmin=vmin, vmax=vmax, edgecolors='none', label='Experimental')
+            sc = ax.scatter(P, S, c=T_C, cmap='viridis', vmin=vmin, vmax=vmax, edgecolors='none')
 
             # Colorbar
             cbar = self.svp_figure.colorbar(sc, ax=ax)
             cbar.set_label("Temperature (°C)")
-
-            # Add McCleskey (2012) model comparison if enabled
-            if self.show_mccleskey and 'Comp' in self.data.columns:
-                try:
-                    # Filter to low-pressure points (P <= 5 MPa) for McCleskey comparison
-                    low_p_mask = mask & (pd.to_numeric(self.data['P (MPa)'], errors='coerce') <= 5.0)
-
-                    if np.any(low_p_mask):
-                        # Get low-pressure subset
-                        low_p_data = self.data[low_p_mask].copy()
-
-                        # Process each compound separately
-                        for compound in low_p_data['Comp'].dropna().unique():
-                            if has_mccleskey_model(compound):
-                                comp_mask = low_p_data['Comp'] == compound
-                                comp_data = low_p_data[comp_mask].copy()
-
-                                # Need w_molal and T_K for McCleskey model
-                                if 'w(molal)' in comp_data.columns and 'T (K)' in comp_data.columns:
-                                    # Prepare data for McCleskey computation
-                                    comp_data['w_molal'] = pd.to_numeric(comp_data['w(molal)'], errors='coerce')
-                                    comp_data['T_K'] = pd.to_numeric(comp_data['T (K)'], errors='coerce')
-
-                                    # Compute McCleskey predictions
-                                    model_sigma = compute_mccleskey_for_data(comp_data, compound)
-
-                                    if model_sigma is not None:
-                                        # Get P values for these points
-                                        P_model = pd.to_numeric(comp_data['P (MPa)'], errors='coerce').to_numpy()
-
-                                        # Filter out NaN predictions
-                                        valid = np.isfinite(model_sigma) & np.isfinite(P_model)
-
-                                        if np.any(valid):
-                                            # Plot as unfilled triangles
-                                            ax.scatter(P_model[valid], model_sigma[valid],
-                                                      marker='^', s=80, facecolors='none',
-                                                      edgecolors='gray', linewidths=1.5,
-                                                      label=f'{compound} (McCleskey 2012)', alpha=0.7)
-                                            log.debug(f"Added {np.sum(valid)} McCleskey points for {compound}")
-                except Exception as e:
-                    log.warning(f"Error adding McCleskey comparison: {e}")
-
-                # Add legend if we added McCleskey points
-                ax.legend(loc='best', framealpha=0.9)
         else:
             # No associated measurements yet - show empty plot with message
             ax.text(0.5, 0.5, 'No associated measurements yet.\nUse "Associate Measurements" button.',
