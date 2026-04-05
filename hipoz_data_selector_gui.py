@@ -191,6 +191,47 @@ def convert_multicomp_molal_to_ppt(comp_str, molal_str):
         return None
 
 class DataSelector(QMainWindow):
+    """
+    Interactive data selector GUI for HiPOZ impedance analysis.
+
+    Provides a four-tab interface for data curation, calibration, and visualization:
+    - Data Table: Editable spreadsheet view of all measurements
+    - Timeseries: Impedance vs time plot with interactive selection
+    - Bode & Nyquist: Frequency-domain impedance plots
+    - S vs P: Conductivity vs pressure scatter plot
+
+    Features:
+    - Mark standards and associate measurements for calibration
+    - Edit composition, concentration, P, T values
+    - Multi-component solution support
+    - Auto-save to zAnalysis<date>.csv or .json config files
+    - Export plots to PDF
+    - Precision-matching for unit conversions
+
+    Parameters
+    ----------
+    timeseries : TimeSeries
+        TimeSeries object containing Solution measurements
+    analysis_config : AnalysisConfig, optional
+        Pre-loaded calibration configuration from zAnalysis file
+
+    Attributes
+    ----------
+    data : pandas.DataFrame
+        Main data table with columns: Filename, Calibration, Time, Comp,
+        w(ppt), w(molal), T(K), P(MPa), Z(Ohm), Z±, S(S/m), S±
+    standard_mask : numpy.ndarray
+        Boolean mask tracking rows marked as calibration standards
+    associated_mask : numpy.ndarray
+        Boolean mask tracking rows with associated measurements
+    config_file_paths : dict
+        Maps date strings to config file paths for persistence
+
+    Notes
+    -----
+    The GUI uses a side-by-side layout (table on left, tabs on right).
+    For full-width data table, see proposed tab restructuring in docs/GUI_OVERVIEW.md.
+    """
     def __init__(self, timeseries, analysis_config=None):
         super(DataSelector,self).__init__()
         self.timeseries = timeseries  # This is the array of Solution objects supplied externally
@@ -221,6 +262,19 @@ class DataSelector(QMainWindow):
             # Save initial state to capture P/T values from files
             self.save_gui_state_to_config()
     def init_ui(self):
+        """
+        Initialize the GUI layout and widgets.
+
+        Creates a horizontal layout with:
+        - Left side: Data table and workflow buttons
+        - Right side: Tab widget with three visualization tabs
+          1. Timeseries: Impedance vs time
+          2. Bode & Nyquist: Frequency-domain plots
+          3. S vs P: Conductivity vs pressure
+
+        Proposed enhancement: Move table to first tab position for full-width view.
+        See docs/GUI_OVERVIEW.md for detailed tab restructuring plan.
+        """
         self.setGeometry(200, 200, 1000, 800)
         self.setWindowTitle('Gamry Data')
 
@@ -231,18 +285,39 @@ class DataSelector(QMainWindow):
 
         # Create the tab widget
         self.tabs = QTabWidget()
+
+        # Create Data Table tab (first tab - full window for data)
+        self.data_table_tab = QWidget()
+        self.data_table_layout = QVBoxLayout()
+
         self.timeseries_tab = QWidget()
         self.plots_tab = QWidget()
 
-        # Layout for the S vs P tab
+        # Layout for the σ vs P tab
         self.svp_tab = QWidget()
         self.svp_layout = QVBoxLayout()
 
-        # Create figure and canvas for S vs P
+        # Create figure and canvas for σ vs P
         self.svp_figure = Figure()
         self.svp_canvas = FigureCanvas(self.svp_figure)
         self.svp_layout.addWidget(self.svp_canvas)
         self.svp_tab.setLayout(self.svp_layout)
+
+        # Create σ vs T tab
+        self.svt_tab = QWidget()
+        self.svt_layout = QVBoxLayout()
+        self.svt_figure = Figure()
+        self.svt_canvas = FigureCanvas(self.svt_figure)
+        self.svt_layout.addWidget(self.svt_canvas)
+        self.svt_tab.setLayout(self.svt_layout)
+
+        # Create σ vs m tab
+        self.svm_tab = QWidget()
+        self.svm_layout = QVBoxLayout()
+        self.svm_figure = Figure()
+        self.svm_canvas = FigureCanvas(self.svm_figure)
+        self.svm_layout.addWidget(self.svm_canvas)
+        self.svm_tab.setLayout(self.svm_layout)
 
         # Layout for the timeseries tab
         self.timeseries_layout = QVBoxLayout()
@@ -265,10 +340,13 @@ class DataSelector(QMainWindow):
         self.plots_layout.addWidget(self.nyquist_canvas)
         self.plots_tab.setLayout(self.plots_layout)
 
-        # Add tabs to the widget
+        # Add tabs to the widget (Data Table first for full-window data view)
+        self.tabs.addTab(self.data_table_tab, "Data Table")
         self.tabs.addTab(self.timeseries_tab, "Timeseries")
         self.tabs.addTab(self.plots_tab, "Bode & Nyquist")
-        self.tabs.addTab(self.svp_tab, "S vs P")
+        self.tabs.addTab(self.svp_tab, "σ vs P")
+        self.tabs.addTab(self.svt_tab, "σ vs T")
+        self.tabs.addTab(self.svm_tab, "σ vs m")
 
         # Layout for table and buttons
         self.table_layout = QVBoxLayout()
@@ -297,8 +375,8 @@ class DataSelector(QMainWindow):
             'P (MPa)': Ps_display,
             'Z (Ohm)': self.timeseries.Rcalc_ohm,
             'Z± (Ohm)': self.timeseries.percent_uncertainties,
-            'S (S/m)': self.timeseries.conductivities_Sm,
-            'S± (S/m)': self.timeseries.conductivities_unc_pct
+            'σ (S/m)': self.timeseries.conductivities_Sm,
+            'σ± (S/m)': self.timeseries.conductivities_unc_pct
         })
         self.associated_mask = np.zeros(len(self.data), dtype=bool)  # rows marked by Associate Measurements
         # Cast 'P (MPa)' to int where possible, keep as float otherwise to handle NaN
@@ -324,13 +402,15 @@ class DataSelector(QMainWindow):
         self.refresh_table()
         self.table.itemChanged.connect(self.on_table_item_changed)
 
-        # Add buttons
+        # Auto-generate Bode/Nyquist plots and update all σ plots when selection changes
+        self.table.selectionModel().selectionChanged.connect(self.on_table_selection_changed)
+
+        # Add buttons (removed "Create Bode and Nyquist Plots" - auto-generated now)
         self.btn_clear_selection = QPushButton('Clear Selections')
         self.btn_mark_standard = QPushButton('Mark as Standard')
         self.btn_associate_measurements = QPushButton('Associate Measurements')
         self.btn_bulk_edit = QPushButton('Bulk Edit Comp/Conc')
         self.btn_reload_csv = QPushButton('Reload from CSV')
-        self.btn_create_plots = QPushButton('Create Bode and Nyquist Plots')
         self.btn_export_plots = QPushButton('Export Plots to PDF')
 
         # Connect buttons to functions
@@ -339,25 +419,20 @@ class DataSelector(QMainWindow):
         self.btn_associate_measurements.clicked.connect(self.associate_measurements)
         self.btn_bulk_edit.clicked.connect(self.bulk_edit_comp_conc)
         self.btn_reload_csv.clicked.connect(self.reload_from_csv)
-        self.btn_create_plots.clicked.connect(self.create_plots)
         self.btn_export_plots.clicked.connect(self.export_plots)
 
-        # Add widgets to table layout
-        self.table_layout.addWidget(self.table)
-        self.table_layout.addWidget(self.btn_clear_selection)
-        self.table_layout.addWidget(self.btn_mark_standard)
-        self.table_layout.addWidget(self.btn_associate_measurements)
-        self.table_layout.addWidget(self.btn_bulk_edit)
-        self.table_layout.addWidget(self.btn_reload_csv)
-        self.table_layout.addWidget(self.btn_create_plots)
-        self.table_layout.addWidget(self.btn_export_plots)
+        # Add table and buttons to Data Table tab layout
+        self.data_table_layout.addWidget(self.table)
+        self.data_table_layout.addWidget(self.btn_clear_selection)
+        self.data_table_layout.addWidget(self.btn_mark_standard)
+        self.data_table_layout.addWidget(self.btn_associate_measurements)
+        self.data_table_layout.addWidget(self.btn_bulk_edit)
+        self.data_table_layout.addWidget(self.btn_reload_csv)
+        self.data_table_layout.addWidget(self.btn_export_plots)
+        self.data_table_tab.setLayout(self.data_table_layout)
 
-        # Create a horizontal layout to combine table layout and tab widget
-        combined_layout = QHBoxLayout()
-        combined_layout.addLayout(self.table_layout)
-        combined_layout.addWidget(self.tabs)
-
-        main_layout.addLayout(combined_layout)
+        # Main layout now just contains tabs (data table is first tab)
+        main_layout.addWidget(self.tabs)
 
         # Create a central widget
         central_widget = QWidget()
@@ -450,7 +525,7 @@ class DataSelector(QMainWindow):
                 else:
                     # Single component: convert to float
                     val = float(text)
-            elif header in ['T (K)', 'Z (Ohm)', 'Z± (Ohm)', 'S (S/m)', 'S± (S/m)']:
+            elif header in ['T (K)', 'Z (Ohm)', 'Z± (Ohm)', 'σ (S/m)', 'σ± (S/m)']:
                 # Allow empty/None values for editable fields
                 val = float(text) if text and text.strip() and text.lower() != 'none' else None
             elif header in ['P (MPa)']:
@@ -595,7 +670,7 @@ class DataSelector(QMainWindow):
                 return
             elif header == 'Z (Ohm)':
                 self.timeseries.Rcalc_ohm[row] = float(val) if val is not None else np.nan
-            elif header == 'S (S/m)':
+            elif header == 'σ (S/m)':
                 self.timeseries.conductivities_Sm[row] = float(val) if val is not None else None
             elif header == 'P (MPa)':
                 self.timeseries.Ps[row] = int(val) if val is not None else np.nan
@@ -666,7 +741,7 @@ class DataSelector(QMainWindow):
             QMessageBox.warning(self, "No Selection", "Select at least one row.")
             return
 
-        col_S = self.data.columns.get_loc('S (S/m)')
+        col_S = self.data.columns.get_loc('σ (S/m)')
         col_Z = self.data.columns.get_loc('Z (Ohm)')
         col_dZ = self.data.columns.get_loc('Z± (Ohm)')
 
@@ -722,7 +797,7 @@ class DataSelector(QMainWindow):
     #         row = index.row()
     #         this_cond = self.current_std/self.timeseries.Rcalc_ohm[row]
     #         print(f"Associating measurement for row {row}. S: {this_cond}")
-    #         self.data.at[row, 'S (S/m)'] = this_cond  # Update DataFrame
+    #         self.data.at[row, 'σ (S/m)'] = this_cond  # Update DataFrame
     #         self.timeseries.conductivities_Sm[row] = this_cond
     #         self.associated_mask[row] = True
     #     self.refresh_table()
@@ -766,8 +841,8 @@ class DataSelector(QMainWindow):
         # columns
         col_Z = self.data.columns.get_loc('Z (Ohm)')
         col_dZ = self.data.columns.get_loc('Z± (Ohm)')
-        col_S = self.data.columns.get_loc('S (S/m)')
-        col_dS = self.data.columns.get_loc('S± (S/m)')
+        col_S = self.data.columns.get_loc('σ (S/m)')
+        col_dS = self.data.columns.get_loc('σ± (S/m)')
 
         for idx in sel:
             row = idx.row()
@@ -1058,7 +1133,7 @@ class DataSelector(QMainWindow):
                             formatted_value = f"{float(val):.4g}"
                         except:
                             formatted_value = str(val)
-                    elif col in ['S (S/m)', 'S± (S/m)']:
+                    elif col in ['σ (S/m)', 'σ± (S/m)']:
                         # Conductivity: 4 significant figures
                         try:
                             formatted_value = f"{float(val):.4g}"
@@ -1172,7 +1247,7 @@ class DataSelector(QMainWindow):
 
             # Labels/scales
             ax_bode_mag.set_xlabel("Frequency (Hz)")
-            ax_bode_mag.set_ylabel("Impedance Magnitude ($\Omega$)")
+            ax_bode_mag.set_ylabel(r"Impedance Magnitude ($\Omega$)")
             ax_bode_mag.set_xscale('log')
 
             ax_bode_phase.set_xlabel("Frequency (Hz)")
@@ -1180,8 +1255,8 @@ class DataSelector(QMainWindow):
             ax_bode_phase.set_xscale('log')
 
             ax_nyq.set_title("Nyquist Plot")
-            ax_nyq.set_xlabel("Real(Z) ($\Omega$)")
-            ax_nyq.set_ylabel("−Imag(Z) ($\Omega$)")
+            ax_nyq.set_xlabel(r"Real(Z) ($\Omega$)")
+            ax_nyq.set_ylabel(r"−Imag(Z) ($\Omega$)")
 
             # One color per dataset, reused for data + fit
             color_list = plt.rcParams['axes.prop_cycle'].by_key().get(
@@ -1232,7 +1307,7 @@ class DataSelector(QMainWindow):
 
             self.bode_canvas.draw()
             self.nyquist_canvas.draw()
-            self.tabs.setCurrentIndex(1)
+            # Don't auto-switch tabs - let user choose which plot to view
 
         except Exception as e:
             tb = traceback.format_exc()
@@ -1251,18 +1326,162 @@ class DataSelector(QMainWindow):
             m.setDetailedText(tb)
             m.exec_()
 
+    def on_table_selection_changed(self):
+        """
+        Event handler: Auto-update all plots when table selection changes.
+
+        Automatically triggered when user selects/deselects rows in the data table.
+        Updates three plot types:
+        1. Bode and Nyquist plots (via create_plots())
+        2. Conductivity vs Temperature scatter (σ vs T tab)
+        3. Conductivity vs Molality scatter (σ vs m tab)
+
+        Error Handling
+        --------------
+        Failures are logged but not raised, preventing UI freezing. Users can
+        still manually trigger plot updates via button clicks if auto-update fails.
+
+        Notes
+        -----
+        - Only updates if at least one row is selected
+        - Silently skips plotting if required data columns are missing
+        - Each plot method has its own error handling
+        """
+        try:
+            selected_indexes = self.table.selectionModel().selectedRows()
+            if selected_indexes:
+                # Auto-generate Bode and Nyquist plots
+                self.create_plots()
+                # Update σ vs T and σ vs m plots
+                self.refresh_sigma_vs_t_plot()
+                self.refresh_sigma_vs_m_plot()
+        except Exception as e:
+            # Silently handle errors during auto-update (user can still manually trigger)
+            log.debug(f"Auto-plot update error: {e}")
+
+    def refresh_sigma_vs_t_plot(self):
+        """
+        Plot σ (conductivity) vs T (temperature) for all data points.
+        Color by pressure if available.
+        """
+        if self.data is None or 'σ (S/m)' not in self.data or 'T (K)' not in self.data:
+            return
+
+        try:
+            self.svt_figure.clear()
+            ax = self.svt_figure.add_subplot(111)
+
+            # Extract data
+            sigma = pd.to_numeric(self.data['σ (S/m)'], errors='coerce').to_numpy()
+            T_K = pd.to_numeric(self.data['T (K)'], errors='coerce').to_numpy()
+            P_MPa = pd.to_numeric(self.data['P (MPa)'], errors='coerce').to_numpy() if 'P (MPa)' in self.data else None
+
+            # Filter valid data
+            valid = ~np.isnan(sigma) & ~np.isnan(T_K)
+            sigma = sigma[valid]
+            T_K = T_K[valid]
+            if P_MPa is not None:
+                P_MPa = P_MPa[valid]
+
+            if len(sigma) == 0:
+                ax.text(0.5, 0.5, 'No valid data', ha='center', va='center', transform=ax.transAxes)
+                self.svt_canvas.draw()
+                return
+
+            # Color by pressure if available
+            if P_MPa is not None and not np.all(np.isnan(P_MPa)):
+                scatter = ax.scatter(T_K, sigma, c=P_MPa, cmap='viridis', s=50, alpha=0.7)
+                cbar = self.svt_figure.colorbar(scatter, ax=ax)
+                cbar.set_label('P (MPa)')
+            else:
+                ax.scatter(T_K, sigma, s=50, alpha=0.7)
+
+            ax.set_xlabel('T (K)')
+            ax.set_ylabel(r'$\sigma$ (S/m)')
+            ax.set_title(r'Conductivity vs Temperature')
+            ax.grid(True, linestyle=':', alpha=0.6)
+            ax.set_ylim(bottom=0)  # Conductivity cannot be negative
+
+            self.svt_canvas.draw()
+
+        except Exception as e:
+            log.error(f"Error in refresh_sigma_vs_t_plot: {e}")
+
+    def refresh_sigma_vs_m_plot(self):
+        """
+        Plot σ (conductivity) vs m (molality) for all data points.
+        Color by temperature if available.
+        """
+        if self.data is None or 'σ (S/m)' not in self.data or 'w (molal)' not in self.data:
+            return
+
+        try:
+            self.svm_figure.clear()
+            ax = self.svm_figure.add_subplot(111)
+
+            # Extract data
+            sigma = pd.to_numeric(self.data['σ (S/m)'], errors='coerce').to_numpy()
+
+            # Parse molality (may be comma-separated for multicomponent)
+            molal_str = self.data['w (molal)']
+            molal_values = []
+            for m_str in molal_str:
+                if pd.isna(m_str) or m_str is None:
+                    molal_values.append(np.nan)
+                else:
+                    # For multicomponent, use sum of molalities
+                    try:
+                        vals = [float(v.strip()) for v in str(m_str).split(',')]
+                        molal_values.append(sum(vals))
+                    except:
+                        molal_values.append(np.nan)
+
+            molal = np.array(molal_values)
+            T_K = pd.to_numeric(self.data['T (K)'], errors='coerce').to_numpy() if 'T (K)' in self.data else None
+
+            # Filter valid data
+            valid = ~np.isnan(sigma) & ~np.isnan(molal)
+            sigma = sigma[valid]
+            molal = molal[valid]
+            if T_K is not None:
+                T_K = T_K[valid]
+
+            if len(sigma) == 0:
+                ax.text(0.5, 0.5, 'No valid data', ha='center', va='center', transform=ax.transAxes)
+                self.svm_canvas.draw()
+                return
+
+            # Color by temperature if available
+            if T_K is not None and not np.all(np.isnan(T_K)):
+                scatter = ax.scatter(molal, sigma, c=T_K, cmap='coolwarm', s=50, alpha=0.7)
+                cbar = self.svm_figure.colorbar(scatter, ax=ax)
+                cbar.set_label('T (K)')
+            else:
+                ax.scatter(molal, sigma, s=50, alpha=0.7)
+
+            ax.set_xlabel(r'$m$ (molal)')
+            ax.set_ylabel(r'$\sigma$ (S/m)')
+            ax.set_title(r'Conductivity vs Molality')
+            ax.grid(True, linestyle=':', alpha=0.6)
+            ax.set_ylim(bottom=0)  # Conductivity cannot be negative
+
+            self.svm_canvas.draw()
+
+        except Exception as e:
+            log.error(f"Error in refresh_sigma_vs_m_plot: {e}")
+
     def refresh_s_vs_p_plot(self):
         """
         Scatter S vs P colored by temperature (°C), fixed color scale from -20 to 80 °C.
         Uses self.data so it reflects table edits and associated measurements.
         """
         # Guard if data is missing
-        if self.data is None or 'S (S/m)' not in self.data or 'P (MPa)' not in self.data or 'T (K)' not in self.data:
+        if self.data is None or 'σ (S/m)' not in self.data or 'P (MPa)' not in self.data or 'T (K)' not in self.data:
             return
 
         # Pull arrays from the DataFrame (reflects table edits)
         try:
-            S = pd.to_numeric(self.data['S (S/m)'], errors='coerce').to_numpy()
+            S = pd.to_numeric(self.data['σ (S/m)'], errors='coerce').to_numpy()
             P = pd.to_numeric(self.data['P (MPa)'], errors='coerce').to_numpy()
             T_K = pd.to_numeric(self.data['T (K)'], errors='coerce').to_numpy()
         except Exception:
@@ -1298,7 +1517,7 @@ class DataSelector(QMainWindow):
                    ha='center', va='center', transform=ax.transAxes, fontsize=12, color='gray')
 
         ax.set_xlabel("P (MPa)")
-        ax.set_ylabel("S (S/m)")
+        ax.set_ylabel(r"$\sigma$ (S/m)")
         ax.set_title("Conductivity vs Pressure")
 
         # Nice grid
@@ -1439,8 +1658,8 @@ class DataSelector(QMainWindow):
             # Get column indices
             col_Z = self.data.columns.get_loc('Z (Ohm)')
             col_dZ = self.data.columns.get_loc('Z± (Ohm)')
-            col_S = self.data.columns.get_loc('S (S/m)')
-            col_dS = self.data.columns.get_loc('S± (S/m)')
+            col_S = self.data.columns.get_loc('σ (S/m)')
+            col_dS = self.data.columns.get_loc('σ± (S/m)')
             col_cal = self.data.columns.get_loc('Calibration')
 
             # Mark all as not associated first
@@ -1846,7 +2065,7 @@ class DataSelector(QMainWindow):
         log.info("Loading config files to restore GUI state...")
 
         # Get column indices
-        col_S = self.data.columns.get_loc('S (S/m)')
+        col_S = self.data.columns.get_loc('σ (S/m)')
         col_comp = self.data.columns.get_loc('Comp')
         col_w_ppt = self.data.columns.get_loc('w (ppt)')
         col_w_molal = self.data.columns.get_loc('w (molal)')
@@ -1854,7 +2073,7 @@ class DataSelector(QMainWindow):
         col_T = self.data.columns.get_loc('T (K)')
         col_Z = self.data.columns.get_loc('Z (Ohm)')
         col_Z_unc = self.data.columns.get_loc('Z± (Ohm)')
-        col_S_unc = self.data.columns.get_loc('S± (S/m)')
+        col_S_unc = self.data.columns.get_loc('σ± (S/m)')
 
         # Track standards for cell constant calculation
         all_standards = []  # List of (conductivity_Sm, resistance_ohm) tuples
@@ -2344,8 +2563,8 @@ class DataSelector(QMainWindow):
                     T_K = self.data.iat[idx, self.data.columns.get_loc('T (K)')]
                     Z_Ohm = self.data.iat[idx, self.data.columns.get_loc('Z (Ohm)')]
                     Z_unc_Ohm = self.data.iat[idx, self.data.columns.get_loc('Z± (Ohm)')]
-                    S_Sm = self.data.iat[idx, self.data.columns.get_loc('S (S/m)')]
-                    S_unc_pct = self.data.iat[idx, self.data.columns.get_loc('S± (S/m)')]
+                    S_Sm = self.data.iat[idx, self.data.columns.get_loc('σ (S/m)')]
+                    S_unc_pct = self.data.iat[idx, self.data.columns.get_loc('σ± (S/m)')]
 
                     # Debug: log S± extraction for rows with conductivity
                     if S_Sm is not None and pd.notna(S_Sm) and S_Sm != 0:

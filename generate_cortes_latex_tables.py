@@ -73,27 +73,24 @@ def generate_nacl_table(data, output_file='cortes_nacl_table.tex'):
     with open(output_file, 'w') as f:
         f.write("\\begin{table}[ht]\n")
         f.write("\\centering\n")
-        f.write("\\begin{tabular}{lrrrrr}\n")
+        f.write("\\begin{tabular}{lrrrr}\n")
         f.write("\\hline\n")
-        f.write("$w$ (molal) NaCl & $T$ (K) & $P$ (MPa) & $Z$ (\\si{\\ohm}) & $\\sigma$ (\\si{S/m}) \\\\\n")
+        f.write("$w$ (molal) NaCl & $T$ (K) & $P$ (MPa) & $\\sigma$ (\\si{S/m}) \\\\\n")
         f.write("\\hline\n")
 
         # Add standard rows first
         for idx, row in standards.iterrows():
-            z_str = format_uncertainty(row['Z_Ohm'], row.get('Z_unc_Ohm', np.nan), decimals=3)
             sigma_str = format_uncertainty(row['conductivity_Sm'],
                                           row.get('conductivity_Sm', 0) * row.get('S_unc_pct', 0) / 100,
                                           decimals=2)
 
             # Indicate this is a standard
-            f.write(f"Standard & {row['T_K']:.0f} & {row['P_MPa']:.1f} & {z_str} & {sigma_str} \\\\\n")
+            f.write(f"Standard & {row['T_K']:.0f} & {row['P_MPa']:.1f} & {sigma_str} \\\\\n")
 
         # Add measurement rows
         for idx, row in measurements.iterrows():
             if pd.isna(row['w_molal']):
                 continue
-
-            z_str = format_uncertainty(row['Z_Ohm'], row.get('Z_unc_Ohm', np.nan), decimals=3)
 
             # Calculate sigma uncertainty from percentage
             if 'S_unc_pct' in row and pd.notna(row['S_unc_pct']):
@@ -104,7 +101,7 @@ def generate_nacl_table(data, output_file='cortes_nacl_table.tex'):
             sigma_str = format_uncertainty(row['conductivity_Sm'], sigma_unc, decimals=2)
 
             f.write(f"{row['w_molal']:.2f} & {row['T_K']:.0f} & {row['P_MPa']:.1f} & "
-                   f"{z_str} & {sigma_str} \\\\\n")
+                   f"{sigma_str} \\\\\n")
 
         f.write("\\hline\n")
         f.write("\\end{tabular}\n")
@@ -150,26 +147,23 @@ def generate_mgso4_table(data, output_file='cortes_mgso4_table.tex'):
     with open(output_file, 'w') as f:
         f.write("\\begin{table}[ht]\n")
         f.write("\\centering\n")
-        f.write("\\begin{tabular}{lrrrrr}\n")
+        f.write("\\begin{tabular}{lrrrr}\n")
         f.write("\\hline\n")
-        f.write("$w$ (molal) \\ce{MgSO4} & $T$ (K) & $P$ (MPa) & $Z$ (\\si{\\ohm}) & $\\sigma$ (\\si{S/m}) \\\\\n")
+        f.write("$w$ (molal) \\ce{MgSO4} & $T$ (K) & $P$ (MPa) & $\\sigma$ (\\si{S/m}) \\\\\n")
         f.write("\\hline\n")
 
         # Add standard rows first
         for idx, row in standards.iterrows():
-            z_str = format_uncertainty(row['Z_Ohm'], row.get('Z_unc_Ohm', np.nan), decimals=3)
             sigma_str = format_uncertainty(row['conductivity_Sm'],
                                           row.get('conductivity_Sm', 0) * row.get('S_unc_pct', 0) / 100,
                                           decimals=3)
 
-            f.write(f"Standard & {row['T_K']:.0f} & {row['P_MPa']:.1f} & {z_str} & {sigma_str} \\\\\n")
+            f.write(f"Standard & {row['T_K']:.0f} & {row['P_MPa']:.1f} & {sigma_str} \\\\\n")
 
         # Add measurement rows
         for idx, row in measurements.iterrows():
             if pd.isna(row['w_molal']):
                 continue
-
-            z_str = format_uncertainty(row['Z_Ohm'], row.get('Z_unc_Ohm', np.nan), decimals=3)
 
             # Calculate sigma uncertainty from percentage
             if 'S_unc_pct' in row and pd.notna(row['S_unc_pct']):
@@ -180,7 +174,7 @@ def generate_mgso4_table(data, output_file='cortes_mgso4_table.tex'):
             sigma_str = format_uncertainty(row['conductivity_Sm'], sigma_unc, decimals=3)
 
             f.write(f"{row['w_molal']:.2f} & {row['T_K']:.0f} & {row['P_MPa']:.1f} & "
-                   f"{z_str} & {sigma_str} \\\\\n")
+                   f"{sigma_str} \\\\\n")
 
         f.write("\\hline\n")
         f.write("\\end{tabular}\n")
@@ -312,6 +306,52 @@ def generate_mccleskey_comparison_table(low_p_data, output_file='cortes_mccleske
     print(f"✓ Generated McCleskey comparison table: {output_file}")
 
 
+def generate_benchtop_table(benchtop_file, output_file='cortes_benchtop_table.tex'):
+    """
+    Generate LaTeX table for benchtop conductivity data from JesusData2025.csv.
+
+    The benchtop data has a complex sparse format with:
+    - Multiple compound types (NaCl:MgSO4, KCl, Na2SO4, Glycine, etc.)
+    - Multiple concentrations
+    - Measurements at different temperatures (5C, 10C, 20C)
+    - Values in mS/cm (needs conversion to S/m by dividing by 10)
+
+    Parameters
+    ----------
+    benchtop_file : Path or str
+        Path to JesusData2025.csv file
+    output_file : str or Path
+        Output LaTeX file path
+    """
+    print(f"Parsing benchtop data from: {benchtop_file}")
+
+    # TODO: Implement proper parsing of JesusData2025.csv
+    # The CSV has a complex sparse format that needs custom parsing
+    # For now, creating a placeholder table
+
+    with open(output_file, 'w') as f:
+        f.write("\\begin{table}[ht]\n")
+        f.write("\\centering\n")
+        f.write("\\begin{tabular}{lrrr}\n")
+        f.write("\\hline\n")
+        f.write("Compound & $w$ (M/L) & $T$ (\\si{\\degreeCelsius}) & $\\sigma$ (\\si{S/m}) \\\\\n")
+        f.write("\\hline\n")
+
+        # Placeholder - proper implementation needed
+        f.write("% TODO: Parse JesusData2025.csv for benchtop measurements\n")
+        f.write("% Format: Compound & Concentration & Temperature & Conductivity\n")
+
+        f.write("\\hline\n")
+        f.write("\\end{tabular}\n")
+        f.write("\\caption{Benchtop conductivity measurements from Cortes et al. (2025). "
+               "Measurements performed at atmospheric pressure. Values represent mean of replicates.}\n")
+        f.write("\\label{tab:BenchtopCortes}\n")
+        f.write("\\end{table}\n")
+
+    print(f"⚠ Generated placeholder benchtop table: {output_file}")
+    print(f"   Proper parsing of JesusData2025.csv needs implementation")
+
+
 def main():
     """
     Generate all LaTeX tables for Cortes data.
@@ -350,16 +390,19 @@ def main():
     # 3. Mixture table
     generate_mixture_table(data, output_dir / 'cortes_mixture_table.tex')
 
-    # 4. McCleskey comparison (requires low-pressure filtered data with model)
+    # 4. Benchtop data table (from Jesus Cortes original data)
     print()
-    print("Generating McCleskey comparison data...")
+    print("Generating benchtop data table...")
     try:
-        import cortes_mccleskey as cm
-        averaged = cdp.average_replicates(data)
-        low_p_data = cm.add_mccleskey_comparison(averaged, p_threshold=5.0)
-        generate_mccleskey_comparison_table(low_p_data, output_dir / 'cortes_mccleskey_table.tex')
+        benchtop_file = Path('JesusData2025.csv')
+        if benchtop_file.exists():
+            generate_benchtop_table(benchtop_file, output_dir / 'cortes_benchtop_table.tex')
+        else:
+            print(f"Warning: Benchtop data file not found: {benchtop_file}")
     except Exception as e:
-        print(f"Warning: Could not generate McCleskey comparison table: {e}")
+        print(f"Warning: Could not generate benchtop table: {e}")
+
+    # Note: McCleskey comparison tables removed per user request
 
     print()
     print("=" * 70)
