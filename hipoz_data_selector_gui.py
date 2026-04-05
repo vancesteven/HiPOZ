@@ -258,8 +258,8 @@ class DataSelector(QMainWindow):
             'svp': False,  # σ vs P
         }
 
-        # McCleskey comparison toggle (default: off for performance)
-        self.show_mccleskey = False
+        # McCleskey comparison toggle (default: on if applicable data present)
+        self.show_mccleskey = True
 
         self.init_ui()
         self.current_std = []
@@ -329,7 +329,7 @@ class DataSelector(QMainWindow):
         """
         Handle McCleskey comparison checkbox toggle.
 
-        Refreshes σ vs T and σ vs m plots when user enables/disables
+        Generates/refreshes σ vs T and σ vs m plots to show/hide
         McCleskey (2012) model comparison points. Does not affect σ vs P plot.
 
         Parameters
@@ -341,11 +341,13 @@ class DataSelector(QMainWindow):
         self.show_mccleskey = (state == Qt.Checked)
         log.debug(f"McCleskey comparison: {'enabled' if self.show_mccleskey else 'disabled'}")
 
-        # Refresh plots that show McCleskey data (σ vs T and σ vs m only)
-        if self.plots_initialized.get('svt', False):
-            self.refresh_sigma_vs_t_plot()
-        if self.plots_initialized.get('svm', False):
-            self.refresh_sigma_vs_m_plot()
+        # Generate or refresh plots that show McCleskey data (σ vs T and σ vs m only)
+        # Force generation even if not previously initialized, so user sees immediate effect
+        self.refresh_sigma_vs_t_plot()
+        self.plots_initialized['svt'] = True
+
+        self.refresh_sigma_vs_m_plot()
+        self.plots_initialized['svm'] = True
 
     def init_ui(self):
         """
