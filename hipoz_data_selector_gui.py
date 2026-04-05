@@ -245,10 +245,8 @@ class DataSelector(QMainWindow):
         self.ax2 = []
         self.config_file_paths = {}  # Track config file paths for each date
 
-        # Create debounce timer for plot updates (300ms delay)
-        self.plot_update_timer = QTimer()
-        self.plot_update_timer.setSingleShot(True)
-        self.plot_update_timer.timeout.connect(self._do_plot_updates)
+        # Removed auto-plotting debounce timer - caused sluggish GUI
+        # User will manually trigger plot updates via button clicks
 
         # Track GUI initialization state for lazy plotting
         self.is_initializing = True
@@ -329,8 +327,8 @@ class DataSelector(QMainWindow):
         """
         Handle McCleskey comparison checkbox toggle.
 
-        Generates/refreshes σ vs T and σ vs m plots to show/hide
-        McCleskey (2012) model comparison points. Does not affect σ vs P plot.
+        Updates the McCleskey display flag. User must click "Update Plots"
+        to see the change reflected in plots.
 
         Parameters
         ----------
@@ -339,15 +337,13 @@ class DataSelector(QMainWindow):
         """
         from PyQt5.QtCore import Qt
         self.show_mccleskey = (state == Qt.Checked)
-        log.debug(f"McCleskey comparison: {'enabled' if self.show_mccleskey else 'disabled'}")
+        status = "enabled" if self.show_mccleskey else "disabled"
+        log.info(f"McCleskey comparison {status}. Click 'Update Plots' to see changes.")
 
-        # Generate or refresh plots that show McCleskey data (σ vs T and σ vs m only)
-        # Force generation even if not previously initialized, so user sees immediate effect
-        self.refresh_sigma_vs_t_plot()
-        self.plots_initialized['svt'] = True
-
-        self.refresh_sigma_vs_m_plot()
-        self.plots_initialized['svm'] = True
+        # Show user message
+        QMessageBox.information(self, "McCleskey Comparison",
+                               f"McCleskey comparison {status}.\n\n"
+                               f"Click 'Update Plots' button to regenerate plots.")
 
     def init_ui(self):
         """
@@ -493,14 +489,15 @@ class DataSelector(QMainWindow):
         self.refresh_table()
         self.table.itemChanged.connect(self.on_table_item_changed)
 
-        # Auto-generate Bode/Nyquist plots and update all σ plots when selection changes
-        self.table.selectionModel().selectionChanged.connect(self.on_table_selection_changed)
+        # Removed auto-plotting on selection change - caused sluggish GUI
+        # User will manually click "Update Plots" button instead
 
-        # Add buttons (removed "Create Bode and Nyquist Plots" - auto-generated now)
+        # Add buttons
         self.btn_clear_selection = QPushButton('Clear Selections')
         self.btn_mark_standard = QPushButton('Mark as Standard')
         self.btn_associate_measurements = QPushButton('Associate Measurements')
         self.btn_bulk_edit = QPushButton('Bulk Edit Comp/Conc')
+        self.btn_update_plots = QPushButton('Update Plots')  # Manual plot generation
         self.btn_reload_csv = QPushButton('Reload from CSV')
         self.btn_export_plots = QPushButton('Export Plots to PDF')
 
@@ -517,6 +514,7 @@ class DataSelector(QMainWindow):
         self.btn_mark_standard.clicked.connect(self.mark_as_standard)
         self.btn_associate_measurements.clicked.connect(self.associate_measurements)
         self.btn_bulk_edit.clicked.connect(self.bulk_edit_comp_conc)
+        self.btn_update_plots.clicked.connect(self.update_all_plots)
         self.btn_reload_csv.clicked.connect(self.reload_from_csv)
         self.btn_export_plots.clicked.connect(self.export_plots)
         self.chk_mccleskey.stateChanged.connect(self._on_mccleskey_toggle)
@@ -527,6 +525,7 @@ class DataSelector(QMainWindow):
         self.data_table_layout.addWidget(self.btn_mark_standard)
         self.data_table_layout.addWidget(self.btn_associate_measurements)
         self.data_table_layout.addWidget(self.btn_bulk_edit)
+        self.data_table_layout.addWidget(self.btn_update_plots)  # Manual plot updates
         self.data_table_layout.addWidget(self.btn_reload_csv)
         self.data_table_layout.addWidget(self.btn_export_plots)
         self.data_table_layout.addWidget(self.chk_mccleskey)  # McCleskey comparison checkbox
@@ -1427,74 +1426,36 @@ class DataSelector(QMainWindow):
             m.setDetailedText(tb)
             m.exec_()
 
-    def on_table_selection_changed(self):
+    def update_all_plots(self):
         """
-        Event handler: Debounced auto-update of plots when table selection changes.
+        Manually update all plots based on selected data.
 
-        Automatically triggered when user selects/deselects rows in the data table.
-        Uses a 300ms debounce timer to prevent sluggish UI during rapid selection changes
-        (e.g., mouse drag, keyboard navigation).
-
-        The actual plot updates happen in _do_plot_updates() after the timer expires.
+        User clicks "Update Plots" button to regenerate:
+        1. Bode and Nyquist plots (for selected rows)
+        2. σ vs P scatter plot
+        3. σ vs T scatter plot (with McCleskey if enabled)
+        4. σ vs m scatter plot (with McCleskey if enabled)
 
         Performance
         -----------
-        - Debouncing reduces plot regeneration from ~100+ calls/sec to ~3 calls/sec
-        - Timer restarts on each selection change, only firing when stable
-        - Improves responsiveness during bulk operations
-
-        Notes
-        -----
-        - Only updates if at least one row is selected
-        - Timer automatically cancels if new selection occurs before expiry
-        - See _do_plot_updates() for actual plotting logic
+        Manual control prevents sluggish GUI during table interactions.
         """
-        # Restart the debounce timer on each selection change
-        # Only updates plots after 300ms of no further changes
-        self.plot_update_timer.stop()
-        self.plot_update_timer.start(300)  # 300ms delay
-
-    def _do_plot_updates(self):
-        """
-        Perform actual plot updates after debounce timer expires.
-
-        Called by plot_update_timer after 300ms of selection stability.
-        Updates three plot types:
-        1. Bode and Nyquist plots (via create_plots())
-        2. Conductivity vs Temperature scatter (σ vs T tab)
-        3. Conductivity vs Molality scatter (σ vs m tab)
-
-        Performance
-        -----------
-        Skips updates during GUI initialization to prevent sluggish startup.
-        Only begins auto-updating after _complete_initialization() is called.
-
-        Error Handling
-        --------------
-        Failures are logged but not raised, preventing UI freezing. Users can
-        still manually trigger plot updates via button clicks if auto-update fails.
-
-        Notes
-        -----
-        - Only updates if at least one row is selected
-        - Silently skips plotting if required data columns are missing
-        - Each plot method has its own error handling
-        """
-        # Skip auto-updates during initialization
-        if self.is_initializing:
-            return
-
         try:
+            # Generate Bode and Nyquist plots for selected rows
             selected_indexes = self.table.selectionModel().selectedRows()
             if selected_indexes:
-                # Auto-generate Bode and Nyquist plots
                 self.create_plots()
-                # Update σ vs T and σ vs m plots
-                self.refresh_sigma_vs_t_plot()
-                self.refresh_sigma_vs_m_plot()
+
+            # Update conductivity scatter plots
+            self.refresh_s_vs_p_plot()
+            self.refresh_sigma_vs_t_plot()
+            self.refresh_sigma_vs_m_plot()
+
+            log.info("All plots updated")
         except Exception as e:
-            # Silently handle errors during auto-update (user can still manually trigger)
-            log.debug(f"Auto-plot update error: {e}")
+            log.error(f"Error updating plots: {e}")
+            QMessageBox.warning(self, "Plot Update Error",
+                              f"Error generating plots:\n{str(e)}")
 
     def refresh_sigma_vs_t_plot(self):
         """
@@ -1507,7 +1468,7 @@ class DataSelector(QMainWindow):
         Plot Features
         -------------
         - X-axis: Temperature (K)
-        - Y-axis: Conductivity σ (S/m), constrained to ≥ 0
+        - Y-axis: Conductivity σ (S/m), constrained to >= 0
         - Color: Pressure (MPa) using 'viridis' colormap
         - Colorbar: Shows pressure scale when data available
         - Grid: Dotted lines with 60% opacity
@@ -1581,8 +1542,11 @@ class DataSelector(QMainWindow):
                                 comp_mask = low_p_data['Comp'] == compound
                                 comp_data = low_p_data[comp_mask].copy()
 
-                                if 'w(molal)' in comp_data.columns:
-                                    comp_data['w_molal'] = pd.to_numeric(comp_data['w(molal)'], errors='coerce')
+                                # Check for molality column (try both spellings)
+                                molal_col = 'w (molal)' if 'w (molal)' in comp_data.columns else 'w(molal)' if 'w(molal)' in comp_data.columns else None
+
+                                if molal_col:
+                                    comp_data['w_molal'] = pd.to_numeric(comp_data[molal_col], errors='coerce')
                                     comp_data['T_K'] = pd.to_numeric(comp_data['T (K)'], errors='coerce')
 
                                     model_sigma = compute_mccleskey_for_data(comp_data, compound)
@@ -1596,8 +1560,15 @@ class DataSelector(QMainWindow):
                                                       marker='^', s=80, facecolors='none',
                                                       edgecolors='gray', linewidths=1.5,
                                                       label=f'{compound} (McCleskey 2012)', alpha=0.7)
+                                            log.info(f"Added {np.sum(valid_mccleskey)} McCleskey points for {compound} to σ vs T plot")
+                                        else:
+                                            log.debug(f"No valid McCleskey predictions for {compound}")
+                                    else:
+                                        log.warning(f"McCleskey model returned None for {compound}")
+                                else:
+                                    log.debug(f"No molality column found for {compound} McCleskey comparison")
                 except Exception as e:
-                    log.warning(f"Error adding McCleskey comparison to σ vs T: {e}")
+                    log.error(f"Error adding McCleskey comparison to σ vs T: {e}", exc_info=True)
 
                 ax.legend(loc='best', framealpha=0.9)
 
@@ -1617,15 +1588,15 @@ class DataSelector(QMainWindow):
         """
         Update the σ vs m scatter plot in the dedicated tab.
 
-        Creates a scatter plot of conductivity (S/m) vs molality (mol/kg H₂O)
+        Creates a scatter plot of conductivity (S/m) vs molality (mol/kg H2O)
         for all measurements in the data table. Points are color-coded by
         temperature when available, showing how conductivity varies with
         concentration at different temperatures.
 
         Plot Features
         -------------
-        - X-axis: Molality m (mol/kg H₂O)
-        - Y-axis: Conductivity σ (S/m), constrained to ≥ 0
+        - X-axis: Molality m (mol/kg H2O)
+        - Y-axis: Conductivity σ (S/m), constrained to >= 0
         - Color: Temperature (K) using 'coolwarm' colormap
         - Colorbar: Shows temperature scale when data available
         - Grid: Dotted lines with 60% opacity
@@ -1736,8 +1707,11 @@ class DataSelector(QMainWindow):
                                 comp_mask = low_p_data['Comp'] == compound
                                 comp_data = low_p_data[comp_mask].copy()
 
-                                if 'w(molal)' in comp_data.columns:
-                                    comp_data['w_molal'] = pd.to_numeric(comp_data['w(molal)'], errors='coerce')
+                                # Check for molality column (try both spellings)
+                                molal_col = 'w (molal)' if 'w (molal)' in comp_data.columns else 'w(molal)' if 'w(molal)' in comp_data.columns else None
+
+                                if molal_col:
+                                    comp_data['w_molal'] = pd.to_numeric(comp_data[molal_col], errors='coerce')
                                     comp_data['T_K'] = pd.to_numeric(comp_data['T (K)'], errors='coerce')
 
                                     model_sigma = compute_mccleskey_for_data(comp_data, compound)
@@ -1751,8 +1725,15 @@ class DataSelector(QMainWindow):
                                                       marker='^', s=80, facecolors='none',
                                                       edgecolors='gray', linewidths=1.5,
                                                       label=f'{compound} (McCleskey 2012)', alpha=0.7)
+                                            log.info(f"Added {np.sum(valid_mccleskey)} McCleskey points for {compound} to σ vs m plot")
+                                        else:
+                                            log.debug(f"No valid McCleskey predictions for {compound}")
+                                    else:
+                                        log.warning(f"McCleskey model returned None for {compound}")
+                                else:
+                                    log.debug(f"No molality column found for {compound} McCleskey comparison")
                 except Exception as e:
-                    log.warning(f"Error adding McCleskey comparison to σ vs m: {e}")
+                    log.error(f"Error adding McCleskey comparison to σ vs m: {e}", exc_info=True)
 
                 ax.legend(loc='best', framealpha=0.9)
 
@@ -1770,7 +1751,7 @@ class DataSelector(QMainWindow):
 
     def refresh_s_vs_p_plot(self):
         """
-        Scatter S vs P colored by temperature (°C), fixed color scale from -20 to 80 °C.
+        Scatter S vs P colored by temperature (degC), fixed color scale from -20 to 80 degC.
         Uses self.data so it reflects table edits and associated measurements.
         """
         # Guard if data is missing
@@ -1785,7 +1766,7 @@ class DataSelector(QMainWindow):
         except Exception:
             return
 
-        # Convert to °C
+        # Convert to degC
         T_C = T_K - 273.15
 
         # Keep only finite rows
@@ -1800,7 +1781,7 @@ class DataSelector(QMainWindow):
 
         # Only plot if we have data
         if len(S) > 0:
-            # Fixed color scale -20 to 80 °C
+            # Fixed color scale -20 to 80 degC
             # vmin, vmax = -20.0, 80.0
             vmin = np.nanmin(T_C)
             vmax = np.nanmax(T_C)
@@ -1808,7 +1789,7 @@ class DataSelector(QMainWindow):
 
             # Colorbar
             cbar = self.svp_figure.colorbar(sc, ax=ax)
-            cbar.set_label("Temperature (°C)")
+            cbar.set_label("Temperature (degC)")
         else:
             # No associated measurements yet - show empty plot with message
             ax.text(0.5, 0.5, 'No associated measurements yet.\nUse "Associate Measurements" button.',
