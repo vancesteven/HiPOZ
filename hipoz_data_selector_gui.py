@@ -2,7 +2,8 @@ import sys
 import re
 from PyQt5.QtWidgets import (QApplication, QMainWindow, QPushButton, QVBoxLayout, QWidget,
                              QListWidget, QLabel, QMessageBox, QComboBox, QFileDialog,
-                             QTableWidget, QTableWidgetItem, QTabWidget, QHBoxLayout, QStatusBar)
+                             QTableWidget, QTableWidgetItem, QTabWidget, QHBoxLayout, QStatusBar,
+                             QCheckBox)
 from PyQt5.QtGui import QColor
 from PyQt5.QtCore import QTimer
 
@@ -17,6 +18,7 @@ import numpy as np
 from gamryPlots import plot_timeseries
 import logging
 from PlanetProfile.Thermodynamics.MgSO4.MgSO4Props import Ppt2molal, Molal2ppt
+from cortes_mccleskey import has_mccleskey_model, compute_mccleskey_for_data
 
 # Get logger
 log = logging.getLogger('HiPOZ')
@@ -256,6 +258,9 @@ class DataSelector(QMainWindow):
             'svp': False,  # σ vs P
         }
 
+        # McCleskey comparison toggle (default: show comparisons)
+        self.show_mccleskey = True
+
         self.init_ui()
         self.current_std = []
         self.current_std_uncertainty = []
@@ -319,6 +324,30 @@ class DataSelector(QMainWindow):
             self.refresh_s_vs_p_plot()
             self.plots_initialized['svp'] = True
             log.debug("Lazy-loaded σ vs P plot")
+
+    def _on_mccleskey_toggle(self, state):
+        """
+        Handle McCleskey comparison checkbox toggle.
+
+        Refreshes all applicable plots when user enables/disables
+        McCleskey (2012) model comparison points.
+
+        Parameters
+        ----------
+        state : int
+            Qt.Checked (2) if enabled, Qt.Unchecked (0) if disabled
+        """
+        from PyQt5.QtCore import Qt
+        self.show_mccleskey = (state == Qt.Checked)
+        log.debug(f"McCleskey comparison: {'enabled' if self.show_mccleskey else 'disabled'}")
+
+        # Refresh all plots that might show McCleskey data
+        if self.plots_initialized.get('svp', False):
+            self.refresh_s_vs_p_plot()
+        if self.plots_initialized.get('svt', False):
+            self.refresh_sigma_vs_t_plot()
+        if self.plots_initialized.get('svm', False):
+            self.refresh_sigma_vs_m_plot()
 
     def init_ui(self):
         """
@@ -475,6 +504,14 @@ class DataSelector(QMainWindow):
         self.btn_reload_csv = QPushButton('Reload from CSV')
         self.btn_export_plots = QPushButton('Export Plots to PDF')
 
+        # McCleskey comparison toggle checkbox
+        self.chk_mccleskey = QCheckBox('Show McCleskey 2012 model comparison')
+        self.chk_mccleskey.setChecked(self.show_mccleskey)  # Default: checked
+        self.chk_mccleskey.setToolTip(
+            'Display McCleskey (2012) model predictions for applicable ionic systems\n'
+            '(NaCl, KCl, MgSO4, etc.) as unfilled triangles for comparison.'
+        )
+
         # Connect buttons to functions
         self.btn_clear_selection.clicked.connect(self.clear_table_selection)
         self.btn_mark_standard.clicked.connect(self.mark_as_standard)
@@ -482,6 +519,7 @@ class DataSelector(QMainWindow):
         self.btn_bulk_edit.clicked.connect(self.bulk_edit_comp_conc)
         self.btn_reload_csv.clicked.connect(self.reload_from_csv)
         self.btn_export_plots.clicked.connect(self.export_plots)
+        self.chk_mccleskey.stateChanged.connect(self._on_mccleskey_toggle)
 
         # Add table and buttons to Data Table tab layout
         self.data_table_layout.addWidget(self.table)
@@ -1519,11 +1557,48 @@ class DataSelector(QMainWindow):
 
             # Color by pressure if available
             if P_MPa is not None and not np.all(np.isnan(P_MPa)):
-                scatter = ax.scatter(T_K, sigma, c=P_MPa, cmap='viridis', s=50, alpha=0.7)
+                scatter = ax.scatter(T_K, sigma, c=P_MPa, cmap='viridis', s=50, alpha=0.7, label='Experimental')
                 cbar = self.svt_figure.colorbar(scatter, ax=ax)
                 cbar.set_label('P (MPa)')
             else:
-                ax.scatter(T_K, sigma, s=50, alpha=0.7)
+                ax.scatter(T_K, sigma, s=50, alpha=0.7, label='Experimental')
+
+            # Add McCleskey (2012) model comparison if enabled
+            if self.show_mccleskey and 'Comp' in self.data.columns:
+                try:
+                    # Filter to low-pressure points (P <= 5 MPa) for McCleskey comparison
+                    low_p_mask = valid.copy()
+                    if P_MPa is not None:
+                        low_p_mask = valid & (pd.to_numeric(self.data['P (MPa)'], errors='coerce') <= 5.0).to_numpy()
+
+                    if np.any(low_p_mask):
+                        low_p_data = self.data[low_p_mask].copy()
+
+                        # Process each compound
+                        for compound in low_p_data['Comp'].dropna().unique():
+                            if has_mccleskey_model(compound):
+                                comp_mask = low_p_data['Comp'] == compound
+                                comp_data = low_p_data[comp_mask].copy()
+
+                                if 'w(molal)' in comp_data.columns:
+                                    comp_data['w_molal'] = pd.to_numeric(comp_data['w(molal)'], errors='coerce')
+                                    comp_data['T_K'] = pd.to_numeric(comp_data['T (K)'], errors='coerce')
+
+                                    model_sigma = compute_mccleskey_for_data(comp_data, compound)
+
+                                    if model_sigma is not None:
+                                        T_model = comp_data['T_K'].to_numpy()
+                                        valid_mccleskey = np.isfinite(model_sigma) & np.isfinite(T_model)
+
+                                        if np.any(valid_mccleskey):
+                                            ax.scatter(T_model[valid_mccleskey], model_sigma[valid_mccleskey],
+                                                      marker='^', s=80, facecolors='none',
+                                                      edgecolors='gray', linewidths=1.5,
+                                                      label=f'{compound} (McCleskey 2012)', alpha=0.7)
+                except Exception as e:
+                    log.warning(f"Error adding McCleskey comparison to σ vs T: {e}")
+
+                ax.legend(loc='best', framealpha=0.9)
 
             ax.set_xlabel('T (K)')
             ax.set_ylabel(r'$\sigma$ (S/m)')
@@ -1636,11 +1711,49 @@ class DataSelector(QMainWindow):
 
             # Color by temperature if available
             if T_K is not None and not np.all(np.isnan(T_K)):
-                scatter = ax.scatter(molal, sigma, c=T_K, cmap='coolwarm', s=50, alpha=0.7)
+                scatter = ax.scatter(molal, sigma, c=T_K, cmap='coolwarm', s=50, alpha=0.7, label='Experimental')
                 cbar = self.svm_figure.colorbar(scatter, ax=ax)
                 cbar.set_label('T (K)')
             else:
-                ax.scatter(molal, sigma, s=50, alpha=0.7)
+                ax.scatter(molal, sigma, s=50, alpha=0.7, label='Experimental')
+
+            # Add McCleskey (2012) model comparison if enabled
+            if self.show_mccleskey and 'Comp' in self.data.columns:
+                try:
+                    # Filter to low-pressure points (P <= 5 MPa) for McCleskey comparison
+                    P_MPa = pd.to_numeric(self.data['P (MPa)'], errors='coerce').to_numpy() if 'P (MPa)' in self.data else None
+                    low_p_mask = valid.copy()
+                    if P_MPa is not None:
+                        low_p_mask = valid & (P_MPa <= 5.0)
+
+                    if np.any(low_p_mask):
+                        low_p_data = self.data[low_p_mask].copy()
+
+                        # Process each compound
+                        for compound in low_p_data['Comp'].dropna().unique():
+                            if has_mccleskey_model(compound):
+                                comp_mask = low_p_data['Comp'] == compound
+                                comp_data = low_p_data[comp_mask].copy()
+
+                                if 'w(molal)' in comp_data.columns:
+                                    comp_data['w_molal'] = pd.to_numeric(comp_data['w(molal)'], errors='coerce')
+                                    comp_data['T_K'] = pd.to_numeric(comp_data['T (K)'], errors='coerce')
+
+                                    model_sigma = compute_mccleskey_for_data(comp_data, compound)
+
+                                    if model_sigma is not None:
+                                        m_model = comp_data['w_molal'].to_numpy()
+                                        valid_mccleskey = np.isfinite(model_sigma) & np.isfinite(m_model)
+
+                                        if np.any(valid_mccleskey):
+                                            ax.scatter(m_model[valid_mccleskey], model_sigma[valid_mccleskey],
+                                                      marker='^', s=80, facecolors='none',
+                                                      edgecolors='gray', linewidths=1.5,
+                                                      label=f'{compound} (McCleskey 2012)', alpha=0.7)
+                except Exception as e:
+                    log.warning(f"Error adding McCleskey comparison to σ vs m: {e}")
+
+                ax.legend(loc='best', framealpha=0.9)
 
             ax.set_xlabel(r'$m$ (molal)')
             ax.set_ylabel(r'$\sigma$ (S/m)')
@@ -1690,11 +1803,56 @@ class DataSelector(QMainWindow):
             # vmin, vmax = -20.0, 80.0
             vmin = np.nanmin(T_C)
             vmax = np.nanmax(T_C)
-            sc = ax.scatter(P, S, c=T_C, cmap='viridis', vmin=vmin, vmax=vmax, edgecolors='none')
+            sc = ax.scatter(P, S, c=T_C, cmap='viridis', vmin=vmin, vmax=vmax, edgecolors='none', label='Experimental')
 
             # Colorbar
             cbar = self.svp_figure.colorbar(sc, ax=ax)
             cbar.set_label("Temperature (°C)")
+
+            # Add McCleskey (2012) model comparison if enabled
+            if self.show_mccleskey and 'Comp' in self.data.columns:
+                try:
+                    # Filter to low-pressure points (P <= 5 MPa) for McCleskey comparison
+                    low_p_mask = mask & (pd.to_numeric(self.data['P (MPa)'], errors='coerce') <= 5.0)
+
+                    if np.any(low_p_mask):
+                        # Get low-pressure subset
+                        low_p_data = self.data[low_p_mask].copy()
+
+                        # Process each compound separately
+                        for compound in low_p_data['Comp'].dropna().unique():
+                            if has_mccleskey_model(compound):
+                                comp_mask = low_p_data['Comp'] == compound
+                                comp_data = low_p_data[comp_mask].copy()
+
+                                # Need w_molal and T_K for McCleskey model
+                                if 'w(molal)' in comp_data.columns and 'T (K)' in comp_data.columns:
+                                    # Prepare data for McCleskey computation
+                                    comp_data['w_molal'] = pd.to_numeric(comp_data['w(molal)'], errors='coerce')
+                                    comp_data['T_K'] = pd.to_numeric(comp_data['T (K)'], errors='coerce')
+
+                                    # Compute McCleskey predictions
+                                    model_sigma = compute_mccleskey_for_data(comp_data, compound)
+
+                                    if model_sigma is not None:
+                                        # Get P values for these points
+                                        P_model = pd.to_numeric(comp_data['P (MPa)'], errors='coerce').to_numpy()
+
+                                        # Filter out NaN predictions
+                                        valid = np.isfinite(model_sigma) & np.isfinite(P_model)
+
+                                        if np.any(valid):
+                                            # Plot as unfilled triangles
+                                            ax.scatter(P_model[valid], model_sigma[valid],
+                                                      marker='^', s=80, facecolors='none',
+                                                      edgecolors='gray', linewidths=1.5,
+                                                      label=f'{compound} (McCleskey 2012)', alpha=0.7)
+                                            log.debug(f"Added {np.sum(valid)} McCleskey points for {compound}")
+                except Exception as e:
+                    log.warning(f"Error adding McCleskey comparison: {e}")
+
+                # Add legend if we added McCleskey points
+                ax.legend(loc='best', framealpha=0.9)
         else:
             # No associated measurements yet - show empty plot with message
             ax.text(0.5, 0.5, 'No associated measurements yet.\nUse "Associate Measurements" button.',
