@@ -248,6 +248,14 @@ class DataSelector(QMainWindow):
         self.plot_update_timer.setSingleShot(True)
         self.plot_update_timer.timeout.connect(self._do_plot_updates)
 
+        # Track GUI initialization state for lazy plotting
+        self.is_initializing = True
+        self.plots_initialized = {
+            'svt': False,  # σ vs T
+            'svm': False,  # σ vs m
+            'svp': False,  # σ vs P
+        }
+
         self.init_ui()
         self.current_std = []
         self.current_std_uncertainty = []
@@ -268,6 +276,50 @@ class DataSelector(QMainWindow):
         else:
             # Save initial state to capture P/T values from files
             self.save_gui_state_to_config()
+
+        # Defer initialization completion to avoid sluggish startup
+        # Mark initialization complete after 2 seconds of idle time
+        QTimer.singleShot(2000, self._complete_initialization)
+
+    def _complete_initialization(self):
+        """Mark GUI initialization as complete, enabling auto-plot updates."""
+        self.is_initializing = False
+        log.debug("GUI initialization complete - auto-plotting enabled")
+
+    def _on_tab_changed(self, index):
+        """
+        Lazy-load plots when user switches to a plot tab.
+
+        Only generates plots the first time each tab is viewed, avoiding
+        unnecessary computation during startup.
+
+        Parameters
+        ----------
+        index : int
+            Tab index (0=Data Table, 1=Timeseries, 2=Bode/Nyquist, 3=σ vs P, 4=σ vs T, 5=σ vs m)
+        """
+        # Skip during initialization
+        if self.is_initializing:
+            return
+
+        tab_name = self.tabs.tabText(index)
+
+        # Lazy-load plots on first view
+        if tab_name == "σ vs T" and not self.plots_initialized['svt']:
+            self.refresh_sigma_vs_t_plot()
+            self.plots_initialized['svt'] = True
+            log.debug("Lazy-loaded σ vs T plot")
+
+        elif tab_name == "σ vs m" and not self.plots_initialized['svm']:
+            self.refresh_sigma_vs_m_plot()
+            self.plots_initialized['svm'] = True
+            log.debug("Lazy-loaded σ vs m plot")
+
+        elif tab_name == "σ vs P" and not self.plots_initialized['svp']:
+            self.refresh_s_vs_p_plot()
+            self.plots_initialized['svp'] = True
+            log.debug("Lazy-loaded σ vs P plot")
+
     def init_ui(self):
         """
         Initialize the GUI layout and widgets.
@@ -354,6 +406,9 @@ class DataSelector(QMainWindow):
         self.tabs.addTab(self.svp_tab, "σ vs P")
         self.tabs.addTab(self.svt_tab, "σ vs T")
         self.tabs.addTab(self.svm_tab, "σ vs m")
+
+        # Connect tab change event for lazy plot loading
+        self.tabs.currentChanged.connect(self._on_tab_changed)
 
         # Layout for table and buttons
         self.table_layout = QVBoxLayout()
@@ -1370,6 +1425,11 @@ class DataSelector(QMainWindow):
         2. Conductivity vs Temperature scatter (σ vs T tab)
         3. Conductivity vs Molality scatter (σ vs m tab)
 
+        Performance
+        -----------
+        Skips updates during GUI initialization to prevent sluggish startup.
+        Only begins auto-updating after _complete_initialization() is called.
+
         Error Handling
         --------------
         Failures are logged but not raised, preventing UI freezing. Users can
@@ -1381,6 +1441,10 @@ class DataSelector(QMainWindow):
         - Silently skips plotting if required data columns are missing
         - Each plot method has its own error handling
         """
+        # Skip auto-updates during initialization
+        if self.is_initializing:
+            return
+
         try:
             selected_indexes = self.table.selectionModel().selectedRows()
             if selected_indexes:
@@ -1468,6 +1532,7 @@ class DataSelector(QMainWindow):
             ax.set_ylim(bottom=0)  # Conductivity cannot be negative
 
             self.svt_canvas.draw()
+            self.plots_initialized['svt'] = True
 
         except Exception as e:
             log.error(f"Error in refresh_sigma_vs_t_plot: {e}")
@@ -1584,6 +1649,7 @@ class DataSelector(QMainWindow):
             ax.set_ylim(bottom=0)  # Conductivity cannot be negative
 
             self.svm_canvas.draw()
+            self.plots_initialized['svm'] = True
 
         except Exception as e:
             log.error(f"Error in refresh_sigma_vs_m_plot: {e}")
@@ -1642,6 +1708,7 @@ class DataSelector(QMainWindow):
         ax.grid(True, linestyle=':', linewidth=0.8, alpha=0.7)
 
         self.svp_canvas.draw()
+        self.plots_initialized['svp'] = True
         # auto-save curated data and plots
         # self.save_curated_outputs()
 

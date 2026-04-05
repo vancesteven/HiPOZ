@@ -363,7 +363,7 @@ def main():
 
     # Load Cortes data
     print("Loading data...")
-    dates = ['20250813Cortes', '20250814Cortes', '20250815Cortes']
+    dates = ['20250813Cortes', '20250814Cortes', '20250815Cortes', 'RoseData']
     data = cdp.load_cortes_data(dates)
 
     if data is None or len(data) == 0:

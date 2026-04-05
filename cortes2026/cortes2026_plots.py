@@ -58,6 +58,7 @@ GAMRY_DATA_DIRS = [
     os.path.join(PARENT_DIR, 'data', '20250813Cortes'),
     os.path.join(PARENT_DIR, 'data', '20250814Cortes'),
     os.path.join(PARENT_DIR, 'data', '20250815Cortes'),
+    os.path.join(PARENT_DIR, 'data', 'RoseData'),  # Additional NaCl measurements
 ]
 
 OUTPUT_DIR = os.path.join(os.path.dirname(__file__), 'cortes_plots')  # Relative to this script
