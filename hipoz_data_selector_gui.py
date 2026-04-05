@@ -340,10 +340,27 @@ class DataSelector(QMainWindow):
         status = "enabled" if self.show_mccleskey else "disabled"
         log.info(f"McCleskey comparison {status}. Click 'Update Plots' to see changes.")
 
-        # Show user message
-        QMessageBox.information(self, "McCleskey Comparison",
-                               f"McCleskey comparison {status}.\n\n"
-                               f"Click 'Update Plots' button to regenerate plots.")
+        # Highlight the Update Plots button to indicate action needed
+        self._highlight_update_button()
+
+    def _highlight_update_button(self):
+        """
+        Highlight the Update Plots button to indicate plots need refreshing.
+
+        Sets the button background to orange to visually signal that the user
+        should click it to see updated plots with current settings.
+        """
+        self.btn_update_plots.setStyleSheet(
+            "QPushButton { background-color: #FF9933; font-weight: bold; }"
+        )
+
+    def _reset_update_button(self):
+        """
+        Reset the Update Plots button styling to normal appearance.
+
+        Called after plots have been updated to remove the highlight.
+        """
+        self.btn_update_plots.setStyleSheet("")
 
     def init_ui(self):
         """
@@ -1452,10 +1469,15 @@ class DataSelector(QMainWindow):
             self.refresh_sigma_vs_m_plot()
 
             log.info("All plots updated")
+
+            # Reset button styling now that plots are updated
+            self._reset_update_button()
         except Exception as e:
             log.error(f"Error updating plots: {e}")
             QMessageBox.warning(self, "Plot Update Error",
                               f"Error generating plots:\n{str(e)}")
+            # Reset button even if there was an error
+            self._reset_update_button()
 
     def refresh_sigma_vs_t_plot(self):
         """
