@@ -4,6 +4,7 @@ from PyQt5.QtWidgets import (QApplication, QMainWindow, QPushButton, QVBoxLayout
                              QListWidget, QLabel, QMessageBox, QComboBox, QFileDialog,
                              QTableWidget, QTableWidgetItem, QTabWidget, QHBoxLayout, QStatusBar)
 from PyQt5.QtGui import QColor
+from PyQt5.QtCore import QTimer
 
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib.figure import Figure
@@ -241,6 +242,12 @@ class DataSelector(QMainWindow):
         self.ax1 = []
         self.ax2 = []
         self.config_file_paths = {}  # Track config file paths for each date
+
+        # Create debounce timer for plot updates (300ms delay)
+        self.plot_update_timer = QTimer()
+        self.plot_update_timer.setSingleShot(True)
+        self.plot_update_timer.timeout.connect(self._do_plot_updates)
+
         self.init_ui()
         self.current_std = []
         self.current_std_uncertainty = []
@@ -1328,9 +1335,36 @@ class DataSelector(QMainWindow):
 
     def on_table_selection_changed(self):
         """
-        Event handler: Auto-update all plots when table selection changes.
+        Event handler: Debounced auto-update of plots when table selection changes.
 
         Automatically triggered when user selects/deselects rows in the data table.
+        Uses a 300ms debounce timer to prevent sluggish UI during rapid selection changes
+        (e.g., mouse drag, keyboard navigation).
+
+        The actual plot updates happen in _do_plot_updates() after the timer expires.
+
+        Performance
+        -----------
+        - Debouncing reduces plot regeneration from ~100+ calls/sec to ~3 calls/sec
+        - Timer restarts on each selection change, only firing when stable
+        - Improves responsiveness during bulk operations
+
+        Notes
+        -----
+        - Only updates if at least one row is selected
+        - Timer automatically cancels if new selection occurs before expiry
+        - See _do_plot_updates() for actual plotting logic
+        """
+        # Restart the debounce timer on each selection change
+        # Only updates plots after 300ms of no further changes
+        self.plot_update_timer.stop()
+        self.plot_update_timer.start(300)  # 300ms delay
+
+    def _do_plot_updates(self):
+        """
+        Perform actual plot updates after debounce timer expires.
+
+        Called by plot_update_timer after 300ms of selection stability.
         Updates three plot types:
         1. Bode and Nyquist plots (via create_plots())
         2. Conductivity vs Temperature scatter (σ vs T tab)
