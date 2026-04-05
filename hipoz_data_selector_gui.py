@@ -1361,8 +1361,39 @@ class DataSelector(QMainWindow):
 
     def refresh_sigma_vs_t_plot(self):
         """
-        Plot σ (conductivity) vs T (temperature) for all data points.
-        Color by pressure if available.
+        Update the σ vs T scatter plot in the dedicated tab.
+
+        Creates a scatter plot of conductivity (S/m) vs temperature (K) for all
+        measurements in the data table. Points are color-coded by pressure when
+        available, providing a 3-dimensional view of the data.
+
+        Plot Features
+        -------------
+        - X-axis: Temperature (K)
+        - Y-axis: Conductivity σ (S/m), constrained to ≥ 0
+        - Color: Pressure (MPa) using 'viridis' colormap
+        - Colorbar: Shows pressure scale when data available
+        - Grid: Dotted lines with 60% opacity
+        - Title: "Conductivity vs Temperature"
+
+        Data Handling
+        -------------
+        - Filters out NaN values in σ and T
+        - If pressure data missing or all NaN, plots uncolored markers
+        - If no valid data points, displays "No valid data" message
+        - Auto-scales axes to fit data range
+
+        Notes
+        -----
+        - Useful for studying temperature dependence at various pressures
+        - Complements σ vs m plot which shows concentration dependence
+        - Updates automatically on table selection change
+        - Called by on_table_selection_changed() event handler
+
+        See Also
+        --------
+        refresh_sigma_vs_m_plot : Companion plot for concentration dependence
+        refresh_s_vs_p_plot : Original σ vs P plot (different color scheme)
         """
         if self.data is None or 'σ (S/m)' not in self.data or 'T (K)' not in self.data:
             return
@@ -1409,8 +1440,61 @@ class DataSelector(QMainWindow):
 
     def refresh_sigma_vs_m_plot(self):
         """
-        Plot σ (conductivity) vs m (molality) for all data points.
-        Color by temperature if available.
+        Update the σ vs m scatter plot in the dedicated tab.
+
+        Creates a scatter plot of conductivity (S/m) vs molality (mol/kg H₂O)
+        for all measurements in the data table. Points are color-coded by
+        temperature when available, showing how conductivity varies with
+        concentration at different temperatures.
+
+        Plot Features
+        -------------
+        - X-axis: Molality m (mol/kg H₂O)
+        - Y-axis: Conductivity σ (S/m), constrained to ≥ 0
+        - Color: Temperature (K) using 'coolwarm' colormap
+        - Colorbar: Shows temperature scale when data available
+        - Grid: Dotted lines with 60% opacity
+        - Title: "Conductivity vs Molality"
+
+        Multi-component Handling
+        ------------------------
+        For solutions with multiple solutes (e.g., "NaCl,MgSO4" with "1.5,0.6"
+        molal), the plot uses the **sum of molalities**:
+        - Input: w(molal) = "1.5,0.6"
+        - Plotted: m = 1.5 + 0.6 = 2.1 mol/kg
+        - Rationale: Total ionic strength approximation
+
+        Comma-separated values are automatically parsed and summed. Invalid
+        entries are treated as NaN and filtered out.
+
+        Data Handling
+        -------------
+        - Filters out NaN values in σ and m
+        - If temperature data missing or all NaN, plots uncolored markers
+        - If no valid data points, displays "No valid data" message
+        - Auto-scales axes to fit data range
+
+        Notes
+        -----
+        - Useful for studying concentration dependence at various temperatures
+        - Complements σ vs T plot which shows temperature dependence
+        - Updates automatically on table selection change
+        - Called by on_table_selection_changed() event handler
+
+        Examples
+        --------
+        Single-component solution (NaCl):
+        >>> data['w (molal)'] = "1.5"
+        >>> # Plots at m = 1.5 mol/kg
+
+        Multi-component solution (ocean analog):
+        >>> data['w (molal)'] = "1.5,0.6"  # NaCl,MgSO4
+        >>> # Plots at m = 2.1 mol/kg (sum)
+
+        See Also
+        --------
+        refresh_sigma_vs_t_plot : Companion plot for temperature dependence
+        plot_sigma_vs_concentration : Stand-alone plotting function in plotting.py
         """
         if self.data is None or 'σ (S/m)' not in self.data or 'w (molal)' not in self.data:
             return
