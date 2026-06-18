@@ -298,7 +298,8 @@ def plot_study_concentration(data, compound, output_file,
                             gamry_data=None, gamry_source='Gamry',
                             show_delta=True, show_legend=False, show_title=True,
                             compound_latex=None, mccleskey_limit=None, colormap='tab10',
-                            fontsize_label=14, fontsize_title=16, fontsize_legend=10):
+                            fontsize_label=14, fontsize_title=16, fontsize_legend=10,
+                            ion_spec=None):
     """
     Generate σ vs concentration plot with optional Gamry overlay and Delta subplot.
 
@@ -344,7 +345,12 @@ def plot_study_concentration(data, compound, output_file,
     model_data = None
     if show_delta:
         try:
-            model_data = compute_mccleskey_model(concs, unique_temps_K, compound=compound)
+            if ion_spec is not None:
+                # Use custom ion spec (for mixtures)
+                model_data = compute_mccleskey_model(concs, unique_temps_K, ion_spec=ion_spec)
+            else:
+                # Use default ion spec (for single salts)
+                model_data = compute_mccleskey_model(concs, unique_temps_K, compound=compound)
         except ValueError:
             # No model available for this compound
             model_data = None
@@ -388,6 +394,32 @@ def plot_study_concentration(data, compound, output_file,
         if show_legend:
             ax.legend(title='Temperature', fontsize=fontsize_legend)
 
+        # Add EIS data to delta subplot if it exists
+        if show_delta and model_data is not None and len(fig.axes) > 1:
+            ax_delta = fig.axes[1]
+
+            # Compute McCleskey model at EIS concentrations
+            # Assume EIS data is at ~293 K (20°C) - find closest temperature
+            eis_temp_K = 293.15  # Default assumption for 1 bar measurements
+            try:
+                if ion_spec is not None:
+                    g_model = compute_mccleskey_model(g_conc, [eis_temp_K], ion_spec=ion_spec)[0]
+                else:
+                    g_model = compute_mccleskey_model(g_conc, [eis_temp_K], compound=compound)[0]
+
+                # Compute percent difference
+                g_delta = 100.0 * (g_sigma - g_model) / g_model
+
+                # Plot on delta subplot with same style as main plot
+                ax_delta.errorbar(g_conc, g_delta, yerr=5.0,
+                                 fmt='o', color='black', mfc=gamry_color, mec='black',
+                                 ms=10, capsize=5, linewidth=2)
+            except Exception as e:
+                # If model computation fails, skip delta for EIS
+                import logging
+                log = logging.getLogger('HiPOZ')
+                log.warning(f"Could not compute McCleskey delta for EIS data: {e}")
+
         # Re-save figure with Gamry overlay
         fig.savefig(output_file, dpi=300, bbox_inches='tight')
 
@@ -398,7 +430,8 @@ def plot_study_temperature(data, compound, output_file,
                           gamry_data=None, show_delta=True,
                           show_legend=False, show_title=True,
                           compound_latex=None, colormap='tab10',
-                          fontsize_label=14, fontsize_title=16, fontsize_legend=10):
+                          fontsize_label=14, fontsize_title=16, fontsize_legend=10,
+                          ion_spec=None):
     """
     Generate σ vs temperature plot with Delta subplot.
 
@@ -436,7 +469,12 @@ def plot_study_temperature(data, compound, output_file,
     if show_delta:
         try:
             # Compute McCleskey model (transposed: one array per concentration)
-            model_by_temp = compute_mccleskey_model(unique_concs, temps, compound=compound)
+            if ion_spec is not None:
+                # Use custom ion spec (for mixtures)
+                model_by_temp = compute_mccleskey_model(unique_concs, temps, ion_spec=ion_spec)
+            else:
+                # Use default ion spec (for single salts)
+                model_by_temp = compute_mccleskey_model(unique_concs, temps, compound=compound)
             # Transpose to get one array per concentration
             model_by_conc = []
             for i in range(len(unique_concs)):

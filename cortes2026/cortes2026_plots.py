@@ -50,6 +50,15 @@ from config_plots import (
 # Configuration
 # ========================================
 
+# Control EIS (Gamry) data overlay
+# Set to True to include 1 bar EIS measurements on benchtop plots
+# Set to False to show only benchtop data
+INCLUDE_EIS_OVERLAY = True
+
+# Pressure filter for EIS overlay (MPa)
+# 1 bar ≈ 0.1 MPa, use 1.0 MPa to capture atmospheric pressure measurements
+EIS_PRESSURE_MAX = 1.0  # MPa
+
 # Get paths relative to parent directory (hipozgenai/)
 PARENT_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
@@ -80,12 +89,75 @@ os.makedirs(OUTPUT_DIR, exist_ok=True)
 # Helper Functions
 # ========================================
 
-def extract_compound_overlay_data(gamry_df, compound):
+def get_mixture_ion_spec(compound):
+    """
+    Get ion specification for mixture compounds to enable McCleskey predictions.
+
+    For mixtures like Na2SO4:KCl_2:1, parse the ratio and create combined ion spec.
+    Assumes ratio is by molar concentration.
+
+    Returns
+    -------
+    ion_spec : dict or None
+        Ion specification for McCleskey model, or None if not a supported mixture
+    """
+    # Na2SO4:KCl mixtures
+    if compound.startswith('Na2SO4:KCl_'):
+        ratio_str = compound.split('_')[-1]  # e.g., "2:1"
+        try:
+            ratio_parts = [float(x) for x in ratio_str.split(':')]
+            na2so4_frac = ratio_parts[0] / sum(ratio_parts)
+            kcl_frac = ratio_parts[1] / sum(ratio_parts)
+
+            # Combined ion spec (relative to 1 mol/kg total)
+            ion_spec = {
+                'Na_p1': 2.0 * na2so4_frac,  # 2 Na+ per Na2SO4
+                'SO4_m2': na2so4_frac,       # 1 SO4²⁻ per Na2SO4
+                'K_p1': kcl_frac,            # 1 K+ per KCl
+                'Cl_m1': kcl_frac            # 1 Cl⁻ per KCl
+            }
+            return ion_spec
+        except:
+            return None
+
+    # NaCl:MgSO4 mixtures
+    if compound.startswith('NaCl:MgSO4_'):
+        ratio_str = compound.split('_')[-1]
+        try:
+            ratio_parts = [float(x) for x in ratio_str.split(':')]
+            nacl_frac = ratio_parts[0] / sum(ratio_parts)
+            mgso4_frac = ratio_parts[1] / sum(ratio_parts)
+
+            ion_spec = {
+                'Na_p1': nacl_frac,          # 1 Na+ per NaCl
+                'Cl_m1': nacl_frac,          # 1 Cl⁻ per NaCl
+                'Mg_p2': mgso4_frac,         # 1 Mg²+ per MgSO4
+                'SO4_m2': mgso4_frac         # 1 SO4²⁻ per MgSO4
+            }
+            return ion_spec
+        except:
+            return None
+
+    return None
+
+def extract_compound_overlay_data(gamry_df, compound, pressure_max=None):
     """
     Extract Gamry overlay data for a specific compound.
 
-    Returns format expected by plot_study_concentration/temperature:
-        List of [conc_array, temp_array, sigma_array, sigma_err_array]
+    Parameters
+    ----------
+    gamry_df : pandas.DataFrame
+        Gamry measurement data
+    compound : str
+        Compound name
+    pressure_max : float, optional
+        Maximum pressure (MPa) for filtering. If None, include all pressures.
+
+    Returns
+    -------
+    list or None
+        Format expected by plot_study_concentration:
+        [conc_array, sigma_array, sigma_err_array, label_string]
         or None if no data available
     """
     if gamry_df is None:
@@ -112,20 +184,40 @@ def extract_compound_overlay_data(gamry_df, compound):
     if len(comp_data) == 0:
         return None
 
-    # Extract arrays
-    conc_molal = comp_data['w_molal'].values
-    temp_K = comp_data['T_K'].values
+    # Filter by pressure if requested
+    if pressure_max is not None and 'P_MPa' in comp_data.columns:
+        comp_data = comp_data[comp_data['P_MPa'] <= pressure_max]
+        if len(comp_data) == 0:
+            return None
+
+    # Extract arrays and convert to numeric types
+    # Note: w_molal might be stored as strings in CSV, so convert explicitly
+    conc_molal = pd.to_numeric(comp_data['w_molal'], errors='coerce').values
     sigma_Sm = comp_data['conductivity_Sm'].values
+
+    # Remove NaN concentrations
+    valid_mask = ~np.isnan(conc_molal)
+    conc_molal = conc_molal[valid_mask]
+    sigma_Sm = sigma_Sm[valid_mask]
+
+    if len(conc_molal) == 0:
+        return None
 
     # Get error bars (use SEM if available, otherwise 5%)
     if 'conductivity_sem' in comp_data.columns:
-        sigma_err = comp_data['conductivity_sem'].values
+        sigma_err = comp_data['conductivity_sem'].values[valid_mask]
         # Fill NaN with 5% uncertainty
         sigma_err = np.where(np.isnan(sigma_err), 0.05 * sigma_Sm, sigma_err)
     else:
         sigma_err = 0.05 * sigma_Sm
 
-    return [conc_molal, temp_K, sigma_Sm, sigma_err]
+    # Generate label
+    if pressure_max is not None:
+        label = f'EIS (P ≤ {pressure_max:.1f} MPa)'
+    else:
+        label = 'EIS'
+
+    return [conc_molal, sigma_Sm, sigma_err, label]
 
 # ========================================
 # Load Data
@@ -209,14 +301,42 @@ for compound in compounds_to_plot:
         compound_latex = r'Na$_2$CO$_3$'
     elif 'NaCl+MgSO4' in compound or 'NaCl:MgSO4' in compound:
         compound_latex = r'NaCl:MgSO$_4$'
+    elif compound.startswith('Na2SO4:KCl_'):
+        # Format Na2SO4:KCl mixtures with proper subscripts and replace _ with space
+        ratio = compound.split('_')[-1]  # Extract ratio like "2:1"
+        compound_latex = rf'Na$_2$SO$_4$:KCl {ratio}'
+    elif compound == 'NaCl+Glycine':
+        compound_latex = 'NaCl+Glycine'
 
     # Determine if we should show McCleskey model (Δ%)
-    # Show for single salts, not for mixtures or organics
-    show_delta_plot = compound in ['KCl', 'NaCl', 'MgSO4', 'Na2SO4', 'NH4Cl', 'Na2CO3']
+    # Show for single salts and salt mixtures, but not for organic compounds
+    show_delta_plot = False
+    mixture_ion_spec = None
+
+    # Single salts - use default ion specs
+    if compound in ['KCl', 'NaCl', 'MgSO4', 'Na2SO4', 'NH4Cl', 'Na2CO3']:
+        show_delta_plot = True
+
+    # Salt mixtures - use custom ion specs (but not glycine mixtures)
+    elif compound.startswith(('Na2SO4:KCl_', 'NaCl:MgSO4_')):
+        mixture_ion_spec = get_mixture_ion_spec(compound)
+        show_delta_plot = (mixture_ion_spec is not None)
+
+    # Organic compounds (amino acids, glycine mixtures) - no McCleskey
+    # (show_delta_plot stays False)
 
     # Plot 1: σ vs Concentration
     print(f"Generating Plot {plot_number}: {compound} Conductivity vs Concentration...")
-    gamry_data_comp = extract_compound_overlay_data(gamry_df, compound)
+
+    # Extract EIS overlay data if enabled
+    gamry_data_comp = None
+    if INCLUDE_EIS_OVERLAY and gamry_df is not None:
+        gamry_data_comp = extract_compound_overlay_data(
+            gamry_df, compound, pressure_max=EIS_PRESSURE_MAX
+        )
+        if gamry_data_comp:
+            print(f"  EIS overlay: {len(gamry_data_comp[0])} points at P ≤ {EIS_PRESSURE_MAX} MPa")
+
     plot_study_concentration(
         data=benchtop_data,
         compound=compound,
@@ -227,7 +347,8 @@ for compound in compounds_to_plot:
         colormap=COLORMAP_CONCENTRATION,
         fontsize_label=FONTSIZE_AXIS_LABEL,
         fontsize_title=FONTSIZE_TITLE,
-        fontsize_legend=FONTSIZE_LEGEND
+        fontsize_legend=FONTSIZE_LEGEND,
+        ion_spec=mixture_ion_spec
     )
     print(f"  Saved to {OUTPUT_DIR}/{compound.lower().replace(' ', '_')}_vs_concentration.pdf")
     if gamry_data_comp:
@@ -246,7 +367,8 @@ for compound in compounds_to_plot:
         colormap=COLORMAP_TEMPERATURE,
         fontsize_label=FONTSIZE_AXIS_LABEL,
         fontsize_title=FONTSIZE_TITLE,
-        fontsize_legend=FONTSIZE_LEGEND
+        fontsize_legend=FONTSIZE_LEGEND,
+        ion_spec=mixture_ion_spec
     )
     print(f"  Saved to {OUTPUT_DIR}/{compound.lower().replace(' ', '_')}_vs_temperature.pdf")
     print()
