@@ -64,6 +64,20 @@ Columns:
 python cortes2026_plots.py
 ```
 
+## Output filenames
+
+Plot filenames are derived from compound names via `safe_filename_stem()` in
+`cortes2026_plots.py`. Because compound/mixture names contain colons (e.g.
+`Na2SO4:KCl_2:1`, `NaCl:MgSO4_1:1`) and colons are illegal in Windows
+filenames, the helper sanitizes names before saving:
+
+- spaces -> `_`
+- colons (`:`) -> `-`
+
+So `Na2SO4:KCl_2:1` produces `na2so4-kcl_2-1_vs_temperature.pdf` and
+`NaCl:MgSO4_1:1` produces `nacl-mgso4_1-1_vs_concentration.pdf`. This keeps the
+output cross-platform (macOS/Linux/Windows) compatible.
+
 ## Notes
 
 - Original data file `JesusData2025.csv` is in Excel-style spreadsheet format

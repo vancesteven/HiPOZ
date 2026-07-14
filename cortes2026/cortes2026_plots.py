@@ -47,6 +47,22 @@ from config_plots import (
 )
 
 # ========================================
+# Helpers
+# ========================================
+
+def safe_filename_stem(compound):
+    """
+    Build a filesystem-safe filename stem from a compound name.
+
+    Replaces characters that are invalid on Windows (notably ':' in ratio
+    names like 'Na2SO4:KCl_2:1') with '-', and spaces with '_'.
+    """
+    return (compound.lower()
+            .replace(' ', '_')
+            .replace(':', '-'))
+
+
+# ========================================
 # Configuration
 # ========================================
 
@@ -340,7 +356,7 @@ for compound in compounds_to_plot:
     plot_study_concentration(
         data=benchtop_data,
         compound=compound,
-        output_file=os.path.join(OUTPUT_DIR, f'{compound.lower().replace(" ", "_")}_vs_concentration.pdf'),
+        output_file=os.path.join(OUTPUT_DIR, f'{safe_filename_stem(compound)}_vs_concentration.pdf'),
         gamry_data=gamry_data_comp,
         show_delta=show_delta_plot,
         compound_latex=compound_latex,
@@ -350,7 +366,7 @@ for compound in compounds_to_plot:
         fontsize_legend=FONTSIZE_LEGEND,
         ion_spec=mixture_ion_spec
     )
-    print(f"  Saved to {OUTPUT_DIR}/{compound.lower().replace(' ', '_')}_vs_concentration.pdf")
+    print(f"  Saved to {OUTPUT_DIR}/{safe_filename_stem(compound)}_vs_concentration.pdf")
     if gamry_data_comp:
         print(f"  Overlay: {len(gamry_data_comp[0])} Gamry points added")
     print()
@@ -361,7 +377,7 @@ for compound in compounds_to_plot:
     plot_study_temperature(
         data=benchtop_data,
         compound=compound,
-        output_file=os.path.join(OUTPUT_DIR, f'{compound.lower().replace(" ", "_")}_vs_temperature.pdf'),
+        output_file=os.path.join(OUTPUT_DIR, f'{safe_filename_stem(compound)}_vs_temperature.pdf'),
         show_delta=show_delta_plot,
         compound_latex=compound_latex,
         colormap=COLORMAP_TEMPERATURE,
@@ -370,7 +386,7 @@ for compound in compounds_to_plot:
         fontsize_legend=FONTSIZE_LEGEND,
         ion_spec=mixture_ion_spec
     )
-    print(f"  Saved to {OUTPUT_DIR}/{compound.lower().replace(' ', '_')}_vs_temperature.pdf")
+    print(f"  Saved to {OUTPUT_DIR}/{safe_filename_stem(compound)}_vs_temperature.pdf")
     print()
     plot_number += 1
 
