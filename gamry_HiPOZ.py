@@ -16,8 +16,9 @@ from matplotlib.cm import get_cmap
 import matplotlib.pyplot as plt
 from matplotlib.gridspec import GridSpec
 
-from analysis_config import AnalysisConfig
-from headless_analysis import run_headless_analysis, should_run_headless
+from analysis_config import AnalysisConfig, generate_config_from_directory
+from headless_analysis import run_headless_analysis, should_run_headless, build_solution_lookup
+from calibration_sharing import parse_cal_map, borrow_calibration
 
 # import sys
 # from PyQt5.QtWidgets import QApplication
@@ -105,6 +106,21 @@ Examples:
     )
 
     parser.add_argument(
+        '--cal-map',
+        type=str,
+        nargs='+',
+        default=None,
+        metavar='TARGET=SOURCE',
+        help='Explicitly borrow calibration standards from another day. '
+             'Format TARGET=SOURCE using folder names, e.g. '
+             '--cal-map 20250819Cortes=20250818Cortes 20250820Cortes=20250818Cortes. '
+             'Standard files are physically copied into TARGET and recorded in its '
+             'zAnalysis config. Re-running with a different SOURCE re-associates '
+             '(previous borrowed standards are removed first). No association is '
+             'assumed unless specified here.'
+    )
+
+    parser.add_argument(
         '--gui',
         action='store_true',
         help='Force GUI mode even when config file exists (for manual adjustments)'
@@ -163,12 +179,16 @@ Examples:
 
 def select_data_directories():
     """
-    Prompt user to select data directories using GUI dialog.
+    Prompt user to select one or more data directories using a GUI dialog.
+
+    The native directory dialog only allows a single selection, so a
+    non-native QFileDialog with extended selection is used to permit picking
+    multiple folders at once.
 
     Returns:
         List of directory names (not full paths, just the folder names)
     """
-    from PyQt5.QtWidgets import QFileDialog
+    from PyQt5.QtWidgets import QFileDialog, QListView, QTreeView, QAbstractItemView
     import os
 
     # Start in data/ directory if it exists
@@ -176,12 +196,19 @@ def select_data_directories():
     if not os.path.exists(start_dir):
         start_dir = os.getcwd()
 
-    # Allow multiple directory selection
     dialog = QFileDialog()
     dialog.setFileMode(QFileDialog.Directory)
+    dialog.setOption(QFileDialog.DontUseNativeDialog, True)
     dialog.setOption(QFileDialog.ShowDirsOnly, True)
-    dialog.setWindowTitle("Select Data Directory(ies)")
+    dialog.setWindowTitle("Select Data Directory(ies) - use Ctrl/Cmd or Shift for multiple")
     dialog.setDirectory(start_dir)
+
+    # Enable multi-selection on the internal views (non-native dialog only)
+    for view in dialog.findChildren(QListView):
+        if view.objectName() == 'listView':
+            view.setSelectionMode(QAbstractItemView.ExtendedSelection)
+    for view in dialog.findChildren(QTreeView):
+        view.setSelectionMode(QAbstractItemView.ExtendedSelection)
 
     if dialog.exec_():
         selected_paths = dialog.selectedFiles()
@@ -193,42 +220,80 @@ def select_data_directories():
         log.info("User cancelled directory selection")
         return []
 
-def find_config_in_data_dirs(data_dirs):
+def find_config_in_dir(data_dir):
     """
-    Look for calibration config files in data directories.
-    Prioritizes CSV (Excel-friendly) over JSON.
+    Look for a calibration/analysis config file inside a single data directory.
+    Prioritizes CSV (Excel-friendly) over JSON, and matches any zAnalysis*.csv
+    so folder-name suffixes (e.g. '20250818Cortes' vs 'zAnalysis20250818.csv')
+    are handled.
 
     Args:
-        data_dirs: List of data directory names
+        data_dir: Data directory name (under data/)
 
     Returns:
         Path to config file if found, None otherwise
     """
-    for data_dir in data_dirs:
-        data_path = os.path.join('data', data_dir)
-        if os.path.exists(data_path):
-            # First priority: zAnalysis<date>.csv (Excel-friendly, new convention)
-            analysis_csv = os.path.join(data_path, f'zAnalysis{data_dir}.csv')
-            if os.path.exists(analysis_csv):
-                log.info(f"Found CSV analysis config: {analysis_csv}")
-                return analysis_csv
+    data_path = os.path.join('data', data_dir)
+    if not os.path.exists(data_path):
+        return None
 
-            # Second priority: zAnalysis<date>.json (new naming convention)
-            analysis_json = os.path.join(data_path, f'zAnalysis{data_dir}.json')
-            if os.path.exists(analysis_json):
-                log.info(f"Found JSON analysis config: {analysis_json}")
-                return analysis_json
+    # Prefer any zAnalysis*.csv, then zAnalysis*.json
+    for pattern in ('zAnalysis*.csv', 'zAnalysis*.json'):
+        matches = sorted(glob(os.path.join(data_path, pattern)))
+        if matches:
+            log.info(f"Found analysis config: {matches[0]}")
+            return matches[0]
 
-            # Backward compatibility: old naming conventions
-            legacy_names = ['calibration_config.csv', 'calibration.csv',
-                           'calibration_config.json', 'calibration.json']
-            for config_name in legacy_names:
-                config_path = os.path.join(data_path, config_name)
-                if os.path.exists(config_path):
-                    log.info(f"Found calibration config in data directory: {config_path}")
-                    return config_path
+    # Backward compatibility: old naming conventions
+    legacy_names = ['calibration_config.csv', 'calibration.csv',
+                    'calibration_config.json', 'calibration.json']
+    for config_name in legacy_names:
+        config_path = os.path.join(data_path, config_name)
+        if os.path.exists(config_path):
+            log.info(f"Found calibration config in data directory: {config_path}")
+            return config_path
 
     return None
+
+
+def build_folder_config_map(data_dirs):
+    """
+    Build a {folder: config_path} map for the given folders.
+
+    If a folder has no config but contains measurement data, a template
+    config is auto-generated (zAnalysis<folder>.csv) by scanning the folder.
+
+    Args:
+        data_dirs: List of data directory names (under data/)
+
+    Returns:
+        Dict {folder_name: config_path}. Folders with no config and no data
+        are omitted.
+    """
+    config_map = {}
+    for data_dir in data_dirs:
+        data_path = os.path.join('data', data_dir)
+        if not os.path.exists(data_path):
+            log.error(f"Data directory does not exist: {data_path}")
+            continue
+
+        config_path = find_config_in_dir(data_dir)
+
+        if not config_path:
+            # Auto-generate a template config if the folder has data files
+            has_data = bool(glob(os.path.join(data_path, 'Conductivity*', '*.txt')))
+            if has_data:
+                config_path = os.path.join(data_path, f'zAnalysis{data_dir}.csv')
+                log.info(f"No config in {data_dir}; auto-generating {config_path}")
+                generate_config_from_directory(data_path, output_path=config_path,
+                                               format='csv')
+            else:
+                log.warning(f"No config and no data found for {data_dir}")
+                continue
+
+        config_map[data_dir] = config_path
+
+    return config_map
 
 def main():
     # Parse command line arguments
@@ -262,27 +327,58 @@ def main():
 
     log.info(f"Processing directories: {dates_to_process}")
 
-    # Load calibration config
-    analysis_config = None
-    config_path = args.config
-
-    # If no config specified on command line, look in data directories
-    if not config_path:
-        config_path = find_config_in_data_dirs(dates_to_process)
-
-    if config_path:
-        log.info(f"Loading calibration configuration from: {config_path}")
-        analysis_config = AnalysisConfig(config_path)
-
-        # Auto-harmonize: ensure CSV and JSON are in sync
+    def _harmonize(cpath):
+        """Best-effort CSV<->JSON harmonization for a config path."""
         try:
             from harmonize_config import harmonize_config
-            harmonize_config(Path(config_path), force=True, verbose=False, auto_detect=True)
-            log.debug("Auto-harmonized config files (CSV ↔ JSON)")
+            harmonize_config(Path(cpath), force=True, verbose=False, auto_detect=True)
+            log.debug(f"Auto-harmonized config files for {cpath}")
         except Exception as e:
-            log.warning(f"Could not auto-harmonize config files: {e}")
+            log.warning(f"Could not auto-harmonize {cpath}: {e}")
+
+    # Load calibration config.
+    # Legacy mode: a single --config applies to all data (one combined output).
+    # Default mode: each folder has its own config, output stays in that folder.
+    legacy_single = bool(args.config)
+    analysis_config = None          # used in legacy mode / GUI fallback
+    analysis_configs = {}           # {folder: AnalysisConfig} in per-folder mode
+
+    if legacy_single:
+        config_path = args.config
+        log.info(f"Loading calibration configuration from: {config_path}")
+        analysis_config = AnalysisConfig(config_path)
+        _harmonize(config_path)
     else:
-        log.info("No calibration config found. Will use manual GUI calibration.")
+        # Discover (or auto-generate) a config per folder
+        config_map = build_folder_config_map(dates_to_process)
+
+        for date, cpath in config_map.items():
+            _harmonize(cpath)
+            analysis_configs[date] = AnalysisConfig(cpath)
+
+        # Apply explicit calibration borrowing (--cal-map TARGET=SOURCE)
+        cal_map = parse_cal_map(args.cal_map)
+        for target, source in cal_map.items():
+            if target not in analysis_configs:
+                log.error(f"cal-map target '{target}' is not among processed folders; skipping")
+                continue
+
+            source_cpath = config_map.get(source) or find_config_in_dir(source)
+            if not source_cpath:
+                log.error(f"cal-map source '{source}' has no config/standards; skipping {target}")
+                continue
+
+            source_config = AnalysisConfig(source_cpath)
+            ok = borrow_calibration(target, source,
+                                    analysis_configs[target], source_config,
+                                    config_map[target])
+            if ok:
+                # Reload target config from disk to reflect written borrowed entries
+                analysis_configs[target] = AnalysisConfig(config_map[target])
+
+        if not analysis_configs:
+            log.info("No calibration configs found. Will use manual GUI calibration.")
+
     # Import data
     add = None
     n_dates = np.size(dates_to_process)
@@ -357,43 +453,87 @@ def main():
         log.error(f"Failed to create or organize TimeSeries: {str(e)}")
         sys.exit(1)
 
-    # Determine whether to use headless or GUI mode
-    use_headless = False
-
-    if args.headless:
-        # User explicitly requested headless mode
-        if not analysis_config or not should_run_headless(analysis_config):
-            log.error("--headless flag requires a complete config file with standards and measurements")
-            sys.exit(1)
-        use_headless = True
-    elif args.gui:
-        # User explicitly requested GUI mode
+    # === Legacy single-config mode: one combined analysis, one output ===
+    if legacy_single:
         use_headless = False
+        if args.headless:
+            if not analysis_config or not should_run_headless(analysis_config):
+                log.error("--headless flag requires a complete config file with standards and measurements")
+                sys.exit(1)
+            use_headless = True
+        elif not args.gui:
+            use_headless = analysis_config and should_run_headless(analysis_config)
+
+        if use_headless:
+            log.info("\n" + "="*70)
+            log.info("HEADLESS ANALYSIS MODE")
+            log.info("Config file has standards and measurements - running without GUI")
+            log.info("="*70 + "\n")
+            try:
+                results_df = run_headless_analysis(timeseries, analysis_config)
+                if results_df is not None:
+                    log.info("\n" + "="*70)
+                    log.info("ANALYSIS COMPLETE")
+                    log.info("="*70)
+                    log.info("Results have been saved. Use --gui flag to visualize or make adjustments.")
+                    sys.exit(0)
+                else:
+                    log.error("Headless analysis failed, falling back to GUI mode")
+            except Exception as e:
+                log.error(f"Headless analysis failed: {str(e)}")
+                log.info("Falling back to GUI mode...")
+
+    # === Per-folder mode: analyze each folder, output into its own folder ===
     else:
-        # Auto-detect: use headless if config is complete
-        use_headless = analysis_config and should_run_headless(analysis_config)
+        ran_any_headless = False
+        gui_config = None
 
-    # Run headless mode if appropriate
-    if use_headless:
-        log.info("\n" + "="*70)
-        log.info("HEADLESS ANALYSIS MODE")
-        log.info("Config file has standards and measurements - running without GUI")
-        log.info("="*70 + "\n")
+        for d_ind, date in enumerate(dates_to_process):
+            ac = analysis_configs.get(date)
+            meas = all_meas[d_ind] if d_ind < len(all_meas) else None
 
-        try:
-            results_df = run_headless_analysis(timeseries, analysis_config)
+            if ac is None or meas is None or len(meas) == 0:
+                if ac is not None:
+                    gui_config = gui_config or ac
+                continue
 
-            if results_df is not None:
-                log.info("\n" + "="*70)
-                log.info("ANALYSIS COMPLETE")
-                log.info("="*70)
-                log.info("Results have been saved. Use --gui flag to visualize or make adjustments.")
-                sys.exit(0)
-            else:
-                log.error("Headless analysis failed, falling back to GUI mode")
-        except Exception as e:
-            log.error(f"Headless analysis failed: {str(e)}")
-            log.info("Falling back to GUI mode...")
+            eligible = should_run_headless(ac)
+
+            if args.gui or not (args.headless or eligible):
+                if args.headless and not eligible:
+                    log.warning(f"{date}: no complete standards/measurements for headless; deferring to GUI")
+                gui_config = gui_config or ac
+                continue
+
+            out_dir = os.path.join('data', date)
+            lookup = build_solution_lookup(meas)
+            log.info("\n" + "="*70)
+            log.info(f"HEADLESS ANALYSIS: {date}  ->  {out_dir}")
+            log.info("="*70 + "\n")
+            try:
+                results_df = run_headless_analysis(timeseries, ac,
+                                                   output_dir=out_dir,
+                                                   solution_lookup=lookup)
+                if results_df is not None:
+                    ran_any_headless = True
+                else:
+                    log.error(f"{date}: headless analysis returned no results")
+                    gui_config = gui_config or ac
+            except Exception as e:
+                log.error(f"{date}: headless analysis failed: {str(e)}")
+                gui_config = gui_config or ac
+
+        if ran_any_headless and gui_config is None and not args.gui:
+            log.info("\n" + "="*70)
+            log.info("ANALYSIS COMPLETE (per-folder)")
+            log.info("="*70)
+            log.info("Results saved into each folder. Use --gui to visualize or adjust.")
+            sys.exit(0)
+
+        # Choose a config for GUI fallback
+        analysis_config = gui_config
+        if analysis_config is None and analysis_configs:
+            analysis_config = next(iter(analysis_configs.values()))
 
     # Fall back to GUI mode
     log.info("\n" + "="*70)

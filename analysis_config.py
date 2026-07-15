@@ -597,7 +597,7 @@ def generate_config_from_directory(data_dir: str, output_path: str = None, forma
 
     for f in files:
         basename = Path(f).name
-        if 'KCl' in basename:
+        if 'KCl' in basename or 'Standard' in basename:
             standards.append(basename)
         else:
             measurements.append(basename)
