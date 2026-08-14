@@ -12,7 +12,8 @@ from gamryPlots import plot_y, plot_z, plot_zvsf, plot_phasevsf, plot_zfit, plot
 from PyQt5.QtWidgets import QApplication
 from hipoz_data_selector_gui import DataSelector
 
-from matplotlib.cm import get_cmap
+from matplotlib import colormaps
+get_cmap = colormaps.get_cmap
 import matplotlib.pyplot as plt
 from matplotlib.gridspec import GridSpec
 

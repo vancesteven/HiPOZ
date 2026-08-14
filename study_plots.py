@@ -21,7 +21,7 @@ import os
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
-from matplotlib import cm as mpl_cm
+from matplotlib import colormaps as mpl_cm
 from sigmaElectricMcCleskey2012 import elecCondMcCleskey2012
 from plotting import (
     plot_sigma_vs_concentration,
