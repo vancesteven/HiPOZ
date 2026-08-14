@@ -7,7 +7,8 @@ from datetime import datetime as dtime
 from gamryTools import Solution, CalStdFit
 from gamryPlots import PlotY, PlotZ, PlotZvsf, PlotPhasevsf, PlotZfit, PlotSigma
 
-from matplotlib.cm import get_cmap
+from matplotlib import colormaps
+get_cmap = colormaps.get_cmap
 import matplotlib.pyplot as plt
 from matplotlib.gridspec import GridSpec
 

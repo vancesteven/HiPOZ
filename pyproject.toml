@@ -1,0 +1,64 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "hipoz"
+version = "0.1.0"
+description = "High-Pressure Ocean world analog impedance (Z) measurement and analysis"
+readme = "README.md"
+requires-python = ">=3.11"
+license = {text = "Apache-2.0"}
+
+# Verified working on CPython 3.11 and 3.14 (macOS arm64).
+# Lower bounds are the versions this code has actually been exercised against;
+# no upper caps, since 3.14 requires the newest release of each.
+dependencies = [
+    "numpy>=1.26",
+    "scipy>=1.16",
+    "matplotlib>=3.10",
+    "pandas>=2.3",
+    "PyQt6>=6.6",
+    "impedance>=1.7",
+    "SeaFreeze>=1.0",
+    "PlanetProfile>=2.5",
+    "schemdraw>=0.21",
+    "bidict>=0.23",
+    "tqdm>=4.67",
+]
+
+[project.optional-dependencies]
+dev = ["pytest>=8.0"]
+# WATEQ4F speciation (speciation.py) additionally needs Reaktoro, which is
+# distributed on conda-forge only and cannot be declared here:
+#     conda install -c conda-forge reaktoro
+# See environment.yml. Everything except speciation=True works without it.
+
+[project.urls]
+Repository = "https://github.com/vancesteven/hipozgenai"
+
+[tool.setuptools]
+# Flat layout: modules live at the repo root rather than in a package directory.
+py-modules = [
+    "gamryTools",
+    "gamryPlots",
+    "gamry_HiPOZ",
+    "gamry_file_utils",
+    "gamry_timestamp_utils",
+    "gamry_integration",
+    "hipoz_data_selector_gui",
+    "headless_analysis",
+    "analysis_config",
+    "calibration_sharing",
+    "harmonize_config",
+    "config_plots",
+    "plotting",
+    "study_plots",
+    "sigmaElectricMcCleskey2012",
+    "speciation",
+    "cortes_mccleskey",
+    "cortes_data_processing",
+]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]

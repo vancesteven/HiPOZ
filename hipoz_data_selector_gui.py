@@ -1,13 +1,13 @@
 import sys
 import re
-from PyQt5.QtWidgets import (QApplication, QMainWindow, QPushButton, QVBoxLayout, QWidget,
+from PyQt6.QtWidgets import (QApplication, QMainWindow, QPushButton, QVBoxLayout, QWidget,
                              QListWidget, QLabel, QMessageBox, QComboBox, QFileDialog,
                              QTableWidget, QTableWidgetItem, QTabWidget, QHBoxLayout, QStatusBar,
                              QCheckBox)
-from PyQt5.QtGui import QColor
-from PyQt5.QtCore import QTimer
+from PyQt6.QtGui import QColor
+from PyQt6.QtCore import QTimer
 
-from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
+from matplotlib.backends.backend_qtagg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib.figure import Figure
 from pathlib import Path
 from datetime import datetime
@@ -333,10 +333,10 @@ class DataSelector(QMainWindow):
         Parameters
         ----------
         state : int
-            Qt.Checked (2) if enabled, Qt.Unchecked (0) if disabled
+            Qt.CheckState.Checked (2) if enabled, Qt.CheckState.Unchecked (0) if disabled
         """
-        from PyQt5.QtCore import Qt
-        self.show_mccleskey = (state == Qt.Checked)
+        from PyQt6.QtCore import Qt
+        self.show_mccleskey = (state == Qt.CheckState.Checked.value)
         status = "enabled" if self.show_mccleskey else "disabled"
         log.info(f"McCleskey comparison {status}. Click 'Update Plots' to see changes.")
 
@@ -498,8 +498,8 @@ class DataSelector(QMainWindow):
         # Pandas DataFrame Display as a Table
         self.table = QTableWidget()
         # Setting up the table for row selection
-        self.table.setSelectionBehavior(QTableWidget.SelectRows)
-        self.table.setSelectionMode(QTableWidget.MultiSelection)  # SingleSelection or MultiSelection
+        self.table.setSelectionBehavior(QTableWidget.SelectionBehavior.SelectRows)
+        self.table.setSelectionMode(QTableWidget.SelectionMode.MultiSelection)  # SingleSelection or MultiSelection
         self.table.setColumnCount(len(self.data.columns))
         self.table.setRowCount(len(self.data.index))
         self.table.setHorizontalHeaderLabels(self.data.columns)
@@ -1012,7 +1012,7 @@ class DataSelector(QMainWindow):
         Opens a dialog where user can specify comp, w_ppt, or w_molal values
         and apply them to all selected rows at once.
         """
-        from PyQt5.QtWidgets import QDialog, QVBoxLayout, QLabel, QLineEdit, QDialogButtonBox
+        from PyQt6.QtWidgets import QDialog, QVBoxLayout, QLabel, QLineEdit, QDialogButtonBox
 
         selected_indexes = self.table.selectionModel().selectedRows()
         if not selected_indexes:
@@ -1047,7 +1047,7 @@ class DataSelector(QMainWindow):
         layout.addWidget(molal_input)
 
         # Add buttons
-        buttons = QDialogButtonBox(QDialogButtonBox.Ok | QDialogButtonBox.Cancel)
+        buttons = QDialogButtonBox(QDialogButtonBox.StandardButton.Ok | QDialogButtonBox.StandardButton.Cancel)
         buttons.accepted.connect(dialog.accept)
         buttons.rejected.connect(dialog.reject)
         layout.addWidget(buttons)
@@ -1055,7 +1055,7 @@ class DataSelector(QMainWindow):
         dialog.setLayout(layout)
 
         # Show dialog and process input
-        if dialog.exec_() == QDialog.Accepted:
+        if dialog.exec() == QDialog.DialogCode.Accepted:
             comp_val = comp_input.text().strip() if comp_input.text().strip() else None
             ppt_val = ppt_input.text().strip() if ppt_input.text().strip() else None
             molal_val = molal_input.text().strip() if molal_input.text().strip() else None
@@ -1175,11 +1175,11 @@ class DataSelector(QMainWindow):
             self,
             "Reload from CSV",
             "This will reload data from CSV files and overwrite any unsaved GUI changes.\n\nContinue?",
-            QMessageBox.Yes | QMessageBox.No,
-            QMessageBox.No
+            QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
+            QMessageBox.StandardButton.No
         )
 
-        if reply == QMessageBox.No:
+        if reply == QMessageBox.StandardButton.No:
             return
 
         log.info("=" * 60)
@@ -1436,12 +1436,12 @@ class DataSelector(QMainWindow):
 
             # Nice Qt dialog with expandable details
             m = QMessageBox(self)
-            m.setIcon(QMessageBox.Critical)
+            m.setIcon(QMessageBox.Icon.Critical)
             m.setWindowTitle("Plotting error")
             m.setText(str(e))
             m.setInformativeText("An error occurred while generating plots.")
             m.setDetailedText(tb)
-            m.exec_()
+            m.exec()
 
     def update_all_plots(self):
         """
@@ -3200,7 +3200,7 @@ class DataSelector(QMainWindow):
 
         # Create info dialog
         dialog = QMessageBox(self)
-        dialog.setIcon(QMessageBox.Information)
+        dialog.setIcon(QMessageBox.Icon.Information)
         dialog.setWindowTitle("Config File Location Check")
         dialog.setText("Config files following zAnalysis<date> convention")
         dialog.setInformativeText(
@@ -3211,18 +3211,18 @@ class DataSelector(QMainWindow):
             f"• Auto-created if missing to save GUI progress"
         )
         dialog.setDetailedText(msg_text)
-        dialog.setStandardButtons(QMessageBox.Ok)
+        dialog.setStandardButtons(QMessageBox.StandardButton.Ok)
 
         # Show if files were created or misplaced
         if created or misplaced:
-            dialog.exec_()
+            dialog.exec()
 
 
 def main():
     app = QApplication(sys.argv)
     window = DataSelector(timeseries)
     window.show()
-    sys.exit(app.exec_())
+    sys.exit(app.exec())
 
 
 if __name__ == "__main__":

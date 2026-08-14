@@ -9,10 +9,11 @@ from pathlib import Path
 from gamryTools import Solution, CalStdFit, TimeSeries
 from gamryPlots import plot_y, plot_z, plot_zvsf, plot_phasevsf, plot_zfit, plot_timeseries
 
-from PyQt5.QtWidgets import QApplication
+from PyQt6.QtWidgets import QApplication
 from hipoz_data_selector_gui import DataSelector
 
-from matplotlib.cm import get_cmap
+from matplotlib import colormaps
+get_cmap = colormaps.get_cmap
 import matplotlib.pyplot as plt
 from matplotlib.gridspec import GridSpec
 
@@ -188,7 +189,7 @@ def select_data_directories():
     Returns:
         List of directory names (not full paths, just the folder names)
     """
-    from PyQt5.QtWidgets import QFileDialog, QListView, QTreeView, QAbstractItemView
+    from PyQt6.QtWidgets import QFileDialog, QListView, QTreeView, QAbstractItemView
     import os
 
     # Start in data/ directory if it exists
@@ -197,20 +198,20 @@ def select_data_directories():
         start_dir = os.getcwd()
 
     dialog = QFileDialog()
-    dialog.setFileMode(QFileDialog.Directory)
-    dialog.setOption(QFileDialog.DontUseNativeDialog, True)
-    dialog.setOption(QFileDialog.ShowDirsOnly, True)
+    dialog.setFileMode(QFileDialog.FileMode.Directory)
+    dialog.setOption(QFileDialog.Option.DontUseNativeDialog, True)
+    dialog.setOption(QFileDialog.Option.ShowDirsOnly, True)
     dialog.setWindowTitle("Select Data Directory(ies) - use Ctrl/Cmd or Shift for multiple")
     dialog.setDirectory(start_dir)
 
     # Enable multi-selection on the internal views (non-native dialog only)
     for view in dialog.findChildren(QListView):
         if view.objectName() == 'listView':
-            view.setSelectionMode(QAbstractItemView.ExtendedSelection)
+            view.setSelectionMode(QAbstractItemView.SelectionMode.ExtendedSelection)
     for view in dialog.findChildren(QTreeView):
-        view.setSelectionMode(QAbstractItemView.ExtendedSelection)
+        view.setSelectionMode(QAbstractItemView.SelectionMode.ExtendedSelection)
 
-    if dialog.exec_():
+    if dialog.exec():
         selected_paths = dialog.selectedFiles()
         # Extract just the directory names (not full paths)
         dir_names = [os.path.basename(path) for path in selected_paths]
@@ -557,7 +558,7 @@ def main():
         sys.exit(1)
 
     # Start the event loop
-    return_code = app.exec_()
+    return_code = app.exec()
     log.info(f"Event loop exited with code: {return_code}")
     sys.exit(return_code)
 

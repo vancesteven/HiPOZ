@@ -21,7 +21,7 @@ import os
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
-from matplotlib import cm as mpl_cm
+from matplotlib import colormaps as mpl_cm
 from sigmaElectricMcCleskey2012 import elecCondMcCleskey2012
 from plotting import (
     plot_sigma_vs_concentration,
@@ -40,7 +40,8 @@ ION_SPECS = {
 }
 
 
-def compute_mccleskey_model(conc_molal, temps_K, compound=None, ion_spec=None):
+def compute_mccleskey_model(conc_molal, temps_K, compound=None, ion_spec=None,
+                            speciation=False):
     """
     Compute McCleskey et al. (2012) conductivity model.
 
@@ -56,6 +57,15 @@ def compute_mccleskey_model(conc_molal, temps_K, compound=None, ion_spec=None):
     ion_spec : dict, optional
         Custom ion specification, e.g. {'Na_p1': 1.0, 'Cl_m1': 1.0}
         If provided, overrides compound lookup
+    speciation : bool, optional
+        If True, obtain free charged-ion molalities from a WATEQ4F speciation
+        calculation (via `speciation.py`, which needs Reaktoro) instead of
+        assuming full dissociation. This is what McCleskey et al. actually
+        specify: neutral complexes such as MgSO4(aq) carry no current and are
+        excluded from the sum. Requires `compound` (a speciation recipe cannot
+        be inferred from a bare ion_spec) and leaves 1:1 salts such as NaCl and
+        KCl essentially unchanged, since WATEQ4F returns them fully dissociated.
+        Default False, which reproduces the historical behaviour exactly.
 
     Returns
     -------
@@ -73,10 +83,22 @@ def compute_mccleskey_model(conc_molal, temps_K, compound=None, ion_spec=None):
     concs = np.asarray(conc_molal, dtype=float)
     temps_C = np.asarray(temps_K, dtype=float) - 273.15
 
+    if speciation:
+        import speciation as _spec
+        if compound is None or compound not in _spec.SALT_RECIPES:
+            raise ValueError(
+                f"speciation=True needs a compound with a speciation recipe; "
+                f"got {compound!r}. Known: {sorted(_spec.SALT_RECIPES)}")
+
     sigma_by_temp = []
     for T_C in temps_C:
         # Build ions dict for this temperature
-        ions = {ion: {"mols": concs * mult} for ion, mult in ion_spec.items()}
+        if speciation:
+            # Free charged-species molalities from WATEQ4F; neutral complexes
+            # (e.g. MgSO4(aq)) are absent, which is the whole point.
+            ions = _spec.speciated_ions_dict(compound, concs, float(T_C) + 273.15)
+        else:
+            ions = {ion: {"mols": concs * mult} for ion, mult in ion_spec.items()}
 
         # Call McCleskey model
         result = elecCondMcCleskey2012(float(T_C), ions)
@@ -299,7 +321,7 @@ def plot_study_concentration(data, compound, output_file,
                             show_delta=True, show_legend=False, show_title=True,
                             compound_latex=None, mccleskey_limit=None, colormap='tab10',
                             fontsize_label=14, fontsize_title=16, fontsize_legend=10,
-                            ion_spec=None):
+                            ion_spec=None, speciation=False):
     """
     Generate σ vs concentration plot with optional Gamry overlay and Delta subplot.
 
@@ -328,6 +350,9 @@ def plot_study_concentration(data, compound, output_file,
         McCleskey applicability limit (mol/kg) - draws vertical line
     fontsize_label, fontsize_title, fontsize_legend : int
         Font sizes
+    speciation : bool, optional
+        Use WATEQ4F speciation for the model curve (see
+        compute_mccleskey_model). Default False.
 
     Returns
     -------
@@ -346,11 +371,13 @@ def plot_study_concentration(data, compound, output_file,
     if show_delta:
         try:
             if ion_spec is not None:
-                # Use custom ion spec (for mixtures)
+                # Use custom ion spec (for mixtures). Speciation recipes are
+                # per-compound, so a bare ion_spec cannot be speciated.
                 model_data = compute_mccleskey_model(concs, unique_temps_K, ion_spec=ion_spec)
             else:
                 # Use default ion spec (for single salts)
-                model_data = compute_mccleskey_model(concs, unique_temps_K, compound=compound)
+                model_data = compute_mccleskey_model(concs, unique_temps_K, compound=compound,
+                                                     speciation=speciation)
         except ValueError:
             # No model available for this compound
             model_data = None
@@ -405,7 +432,8 @@ def plot_study_concentration(data, compound, output_file,
                 if ion_spec is not None:
                     g_model = compute_mccleskey_model(g_conc, [eis_temp_K], ion_spec=ion_spec)[0]
                 else:
-                    g_model = compute_mccleskey_model(g_conc, [eis_temp_K], compound=compound)[0]
+                    g_model = compute_mccleskey_model(g_conc, [eis_temp_K], compound=compound,
+                                                      speciation=speciation)[0]
 
                 # Compute percent difference
                 g_delta = 100.0 * (g_sigma - g_model) / g_model
@@ -431,7 +459,7 @@ def plot_study_temperature(data, compound, output_file,
                           show_legend=False, show_title=True,
                           compound_latex=None, colormap='tab10',
                           fontsize_label=14, fontsize_title=16, fontsize_legend=10,
-                          ion_spec=None):
+                          ion_spec=None, speciation=False):
     """
     Generate σ vs temperature plot with Delta subplot.
 
@@ -451,6 +479,9 @@ def plot_study_temperature(data, compound, output_file,
         LaTeX formatted compound name
     fontsize_label, fontsize_title, fontsize_legend : int
         Font sizes
+    speciation : bool, optional
+        Use WATEQ4F speciation for the model curve (see
+        compute_mccleskey_model). Default False.
 
     Returns
     -------
@@ -474,7 +505,8 @@ def plot_study_temperature(data, compound, output_file,
                 model_by_temp = compute_mccleskey_model(unique_concs, temps, ion_spec=ion_spec)
             else:
                 # Use default ion spec (for single salts)
-                model_by_temp = compute_mccleskey_model(unique_concs, temps, compound=compound)
+                model_by_temp = compute_mccleskey_model(unique_concs, temps, compound=compound,
+                                                        speciation=speciation)
             # Transpose to get one array per concentration
             model_by_conc = []
             for i in range(len(unique_concs)):

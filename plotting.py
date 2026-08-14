@@ -243,6 +243,7 @@ def annotate_right(ax, ys_raw, labels, *,
 
 def plot_sigma_vs_concentration(conc_data, sigma_data, temp_labels=None,
                                 sigma_errors=None, model_data=None,
+                                model_data_corrected=None,
                                 xlabel=r'Concentration (mol/kg$_{\mathrm{H_2O}}$)',
                                 title='Conductivity vs Concentration',
                                 show_delta=False, show_title=True, limit=None,
@@ -264,6 +265,11 @@ def plot_sigma_vs_concentration(conc_data, sigma_data, temp_labels=None,
         Error bars for each temperature curve
     model_data : list of array-like, length M, optional
         Model predictions for comparison (plotted as dashed lines)
+    model_data_corrected : list of array-like, length M, optional
+        Second model series, plotted dotted in the same per-series colours.
+        Intended for the WATEQ4F-speciated McCleskey model alongside the
+        unspeciated one. When both are given the two curves are labelled
+        'MC12' and 'MC12 + WATEQ4F'.
     xlabel : str
         X-axis label
     title : str
@@ -318,11 +324,23 @@ def plot_sigma_vs_concentration(conc_data, sigma_data, temp_labels=None,
         safe_errorbar(ax1, conc, sigma, yerr=err, fmt='o',
                      color=colors[i], ms=8, mew=1.5, capsize=4, label=label)
 
-    # Plot model data if provided (dashed lines for McCleskey model)
+    # Plot model data if provided (dashed lines for McCleskey model).
+    # Only label the model curves when both are drawn and so need telling apart;
+    # labelling unconditionally would insert a new "MC12" entry into existing
+    # legends (study_plots passes show_legend through to ax.legend()).
+    label_models = model_data is not None and model_data_corrected is not None
     if model_data is not None:
         for i, sigma_model in enumerate(model_data):
             ax1.plot(conc, sigma_model, ls="--", color=colors[i], lw=LineWidth,
-                    alpha=0.7, zorder=1)
+                    alpha=0.7, zorder=1,
+                    label='MC12' if (label_models and i == 0) else None)
+
+    # Speciated model (dotted), same per-series colours so the pair reads together
+    if model_data_corrected is not None:
+        for i, sigma_model in enumerate(model_data_corrected):
+            ax1.plot(conc, sigma_model, ls=":", color=colors[i], lw=LineWidth,
+                    alpha=0.9, zorder=1.5,
+                    label='MC12 + WATEQ4F' if i == 0 else None)
 
     # Formatting
     ax1.grid(True, alpha=0.6)
@@ -338,7 +356,14 @@ def plot_sigma_vs_concentration(conc_data, sigma_data, temp_labels=None,
         ax1.axvline(limit, ls="--", color=(0.8, 0, 0), lw=2.5, alpha=0.8, zorder=2.5)
         # Position text label at 95% of y-axis height
         y_pos = ax1.get_ylim()[0] + 0.95 * (ax1.get_ylim()[1] - ax1.get_ylim()[0])
-        ax1.text(limit * 1.01, y_pos, f"McCleskey limit\n({limit:.4f} mol/kg)",
+        # This ceiling is the validity range of the *unspeciated* model: for a
+        # 2:2 electrolyte such as MgSO4 it is very low (0.01245 mol/kg) because
+        # ion association is ignored. The speciated curve remains usable well
+        # beyond it, so name which curve the limit applies to when both are shown.
+        limit_label = ("McCleskey limit\n({:.4f} mol/kg)".format(limit)
+                       if model_data_corrected is None else
+                       "MC12 limit\n({:.4f} mol/kg)".format(limit))
+        ax1.text(limit * 1.01, y_pos, limit_label,
                 color=(0.8, 0, 0), fontsize=11, fontweight="bold",
                 ha="left", va="top", bbox=dict(boxstyle="round,pad=0.3",
                 facecolor="white", edgecolor=(0.8, 0, 0), alpha=0.8))
@@ -379,6 +404,7 @@ def plot_sigma_vs_concentration(conc_data, sigma_data, temp_labels=None,
 
 def plot_sigma_vs_temperature(temp_data, sigma_data, conc_labels=None,
                               sigma_errors=None, model_data=None,
+                              model_data_corrected=None,
                               xlabel=r'Temperature (K)',
                               title='Conductivity vs Temperature',
                               show_delta=False, show_title=True, out_file=None,
@@ -400,6 +426,11 @@ def plot_sigma_vs_temperature(temp_data, sigma_data, conc_labels=None,
         Error bars for each concentration curve
     model_data : list of array-like, length M, optional
         Model predictions for comparison (plotted as dashed lines)
+    model_data_corrected : list of array-like, length M, optional
+        Second model series, plotted dotted in the same per-series colours.
+        Intended for the WATEQ4F-speciated McCleskey model alongside the
+        unspeciated one. When both are given the two curves are labelled
+        'MC12' and 'MC12 + WATEQ4F'.
     xlabel : str
         X-axis label
     title : str
@@ -452,11 +483,21 @@ def plot_sigma_vs_temperature(temp_data, sigma_data, conc_labels=None,
         safe_errorbar(ax1, temps, sigma, yerr=err, fmt='o',
                      color=colors[i], ms=8, mew=1.5, capsize=4, label=label)
 
-    # Plot model data if provided (dashed lines for McCleskey model)
+    # Plot model data if provided (dashed lines for McCleskey model).
+    # See plot_sigma_vs_concentration for why labels are conditional.
+    label_models = model_data is not None and model_data_corrected is not None
     if model_data is not None:
         for i, sigma_model in enumerate(model_data):
             ax1.plot(temps, sigma_model, ls="--", color=colors[i], lw=LineWidth,
-                    alpha=0.7, zorder=1)
+                    alpha=0.7, zorder=1,
+                    label='MC12' if (label_models and i == 0) else None)
+
+    # Speciated model (dotted), same per-series colours
+    if model_data_corrected is not None:
+        for i, sigma_model in enumerate(model_data_corrected):
+            ax1.plot(temps, sigma_model, ls=":", color=colors[i], lw=LineWidth,
+                    alpha=0.9, zorder=1.5,
+                    label='MC12 + WATEQ4F' if i == 0 else None)
 
     # Formatting
     ax1.grid(True, alpha=0.6)

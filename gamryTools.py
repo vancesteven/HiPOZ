@@ -7,7 +7,8 @@ from scipy.optimize import basinhopping
 from datetime import datetime as dtime
 from glob import glob
 import logging
-from matplotlib.cm import get_cmap
+from matplotlib import colormaps
+get_cmap = colormaps.get_cmap
 import matplotlib.colors as mc
 import colorsys
 from impedance.models.circuits import CustomCircuit

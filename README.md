@@ -53,7 +53,7 @@ python gamry_HiPOZ.py --harmonize data/20250815/zAnalysis20250815.csv
 
 - Load impedance data from Gamry instruments
 - Fit equivalent circuit models (CPE, RC, RC-R)
-- Interactive data curation with PyQt5 GUI
+- Interactive data curation with PyQt6 GUI
 - Calibration with KCl standards
 - Cell constant calculation and conductivity determination
 - Export to CSV with uncertainty quantification
@@ -61,52 +61,81 @@ python gamry_HiPOZ.py --harmonize data/20250815/zAnalysis20250815.csv
 
 ## Installation
 
+### Quick Install
+
+Dependencies are declared in `pyproject.toml` (everything pip can install) and
+`environment.yml` (the conda-only pieces). Install in editable mode so your edits
+to the source take effect immediately:
+
+```bash
+# Full environment from scratch (recommended)
+conda env create -f environment.yml
+conda activate hipoz
+pip install -e .
+
+# Or into an existing environment
+pip install -e .
+
+# With test dependencies
+pip install -e ".[dev]"
+```
+
 ### Version Requirements
 
-**Python Version:**
-- **Required: Python 3.11** (current production version)
-- Python 3.12+ not yet tested with PlanetProfile and SeaFreeze dependencies
-- Python 3.10 may work but not officially supported
+**Python:** 3.11 or newer. Verified on **3.11** and **3.14** (macOS arm64);
+3.12 and 3.13 should work but have not been exercised.
 
-**Critical Package Versions:**
-- **numpy 1.26.4** (required - compatibility with impedance package)
-- Later numpy versions (2.x) may cause issues with impedance fitting
+Python 3.14 requires the newest release of each compiled dependency, because
+those are the only versions with cp314 wheels:
 
-**Why Python 3.11?**
+| Package | 3.11 (tested) | 3.14 (required) |
+|---|---|---|
+| numpy | 1.26.4 | 2.5.2 |
+| pandas | 2.3.1 | 3.0.5 |
+| matplotlib | 3.10.5 | 3.11.1 |
+| scipy | 1.16.1 | 1.18.0 |
+| PyQt6 | 6.11.0 | 6.11.0 |
 
-We currently use Python 3.11 for maximum compatibility with PlanetProfile and SeaFreeze. While newer Python versions (3.12, 3.13) offer performance improvements and better error messages, upgrading would require:
-- Testing PlanetProfile compatibility
-- Testing SeaFreeze compatibility
-- Verifying impedance package stability
-- Updating CI/CD workflows
+The floors in `pyproject.toml` accommodate both. Circuit fitting was checked to
+be numerically equivalent across versions (identical data hashes; CPE fits agree
+to ~1e-9, i.e. optimizer float noise).
 
-**Python 3.12+ advantages** (for future consideration):
-- ✨ 5-10% performance improvements
-- ✨ Better error messages with syntax highlighting
-- ✨ Improved type hinting features
-- ✨ PEP 701: Better f-string syntax
-- ✨ Lower memory overhead
+**Note on numpy 2.x:** earlier versions of this README pinned numpy 1.26.4 out of
+concern for the `impedance` package. That pin is no longer needed — `impedance`
+1.7.1 works with numpy 2.5.2, and its upstream CI tests through Python 3.14.
 
-We plan to evaluate Python 3.12+ once dependencies are tested and stable.
+**Note on Qt:** the GUI uses **PyQt6**. PyQt5 has had no release since July 2024
+and is not actively validated against new Python versions. PyQt6 requires Python
+3.10+, so it runs on 3.11 as well.
 
-### Required Dependencies
+### Optional: Reaktoro (for speciation)
 
-Install with conda/mamba:
+Needed only for WATEQ4F speciation of the McCleskey conductivity model
+(`speciation.py`) and for PlanetProfile's CustomSolution ocean EOS. Reaktoro is
+distributed on **conda-forge only** — `pip` cannot install it:
+
 ```bash
-mamba install "numpy==1.26.4" matplotlib
+conda install -c conda-forge reaktoro
 ```
 
-Install with conda-forge:
-```bash
-mamba install -c conda-forge schemdraw
+Everything else works without it; requesting `speciation=True` without Reaktoro
+raises a clear ImportError.
+
+### First-run note
+
+Run HiPOZ from the repository directory. PlanetProfile looks for `configPP*.py`
+in the current working directory and, if they are absent, prompts interactively
+to copy its defaults:
+
+```
+configPP files not found in pwd: /some/other/dir. Copy from defaults to local dir? [y]/n
 ```
 
-Install with pip:
-```bash
-pip install impedance SeaFreeze PlanetProfile bidict PyQt5 tqdm
-```
+In a non-interactive context (a script, cron job, or piped command) that prompt
+raises `EOFError`. Either `cd` to the repo first, or answer the prompt once in
+the directory you intend to work from.
 
-**Important:** A working TeX installation is required for Matplotlib rendering. The plotting system uses LaTeX for figure labels and requires STIX fonts, siunitx, upgreek, and mhchem packages.
+**Important:** A working TeX installation is required for Matplotlib rendering. The plotting system uses LaTeX for figure labels and requires STIX fonts, siunitx, upgreek, and mhchem packages. Install MacTeX/TeX Live separately — conda's `texlive-core` generally does not provide these packages.
 
 ## Usage
 
@@ -265,6 +294,77 @@ python mystudy_plots.py
 - `config_plots.py` - Universal settings (fonts, colors, options)
 - `[study]_plots.py` - Study-specific scripts
 
+### McCleskey (2012) Model and WATEQ4F Speciation
+
+McCleskey et al. (2012) — "MC12" — computes conductivity as a sum over **free,
+charged** species, `sigma = SUM lambda_i(I,T) * m_i`, where the free molalities
+come from a WATEQ4F speciation calculation. Neutral complexes such as
+`MgSO4(aq)` are absent from the sum because they carry no current. That omission
+*is* the speciation correction.
+
+By default `compute_mccleskey_model()` uses total (analytical) molality, i.e. it
+assumes full dissociation. Pass `speciation=True` to run the speciation step:
+
+```python
+from study_plots import compute_mccleskey_model
+
+# Default: total molality, full dissociation assumed
+sigma = compute_mccleskey_model(concs, temps_K, compound='MgSO4')
+
+# WATEQ4F speciation (needs Reaktoro)
+sigma = compute_mccleskey_model(concs, temps_K, compound='MgSO4',
+                                speciation=True)
+```
+
+`plot_study_concentration` and `plot_study_temperature` accept the same keyword,
+and `plotting.py` can draw both curves together (`model_data` dashed as `MC12`,
+`model_data_corrected` dotted as `MC12 + WATEQ4F`).
+
+**Why it matters.** Association is negligible for 1:1 salts but dominant for
+2:2 ones. Against the Mahboub dataset, all six MgSO4 concentrations lie above
+McCleskey's stated 0.01245 mol/kg validity limit (the lowest by 2x, the highest
+by 133x), and speciation cuts the RMS error 8-fold:
+
+| compound | MC12 (total) | MC12 + WATEQ4F |
+|---|---|---|
+| MgSO4 | 99.9% | **12.5%** |
+| NaCl | 9.1% | 9.1% (unchanged) |
+| NH4Cl | 4.8% | 4.8% (unchanged) |
+
+NaCl, KCl and NH4Cl are returned fully dissociated by WATEQ4F, so speciation
+leaves them alone — the conductivity-standard calibration path is unaffected.
+
+Check any dataset with:
+
+```bash
+python validate_speciation.py                  # Mahboub data
+python validate_speciation.py --dataset both   # plus Cortes
+python validate_speciation.py --no-speciation  # no Reaktoro needed
+```
+
+> **Known limitation.** The `lambda_0` values in the parameter table for the
+> charged complexes `NaSO4-` (357), `KSO4-` (234) and `NaCO3-` (188) are
+> implausibly large next to `Cl-` (77 S cm2/mol). Since speciation is what first
+> activates these species, they dominate wherever they form — `NaCO3-` alone
+> supplies 51% of speciated Na2CO3 conductivity — and push sigma *upward*, which
+> is backwards for an association correction. An equivalent-vs-molal convention
+> error was ruled out. **Only `MgSO4`, `NaCl`, `KCl` and `NH4Cl` speciation
+> should be trusted** (see `speciation.VERIFIED_COMPOUNDS`) until these are
+> checked against MC12's published table. `validate_speciation.py` flags this.
+
+For carbonate systems the input specification fixes the pH, which then dominates
+speciation (0.3 mol/kg Na2CO3: pH 11.4 supplying Na+/CO3-2 versus pH 7.7
+supplying Na+/HCO3-). `speciation.SALT_RECIPES` specifies the alkaline case —
+what you get dissolving solid Na2CO3, closed to atmospheric CO2 — explicitly
+rather than relying on a library default.
+
+**Coefficient corrections.** The parameter table was updated to match
+PlanetProfile commit `b6a34e2`, restoring dropped negative signs for `H_p1`,
+`CO3_m2`, `HCO3_m1`, `Fe_p3` and `KSO4_m1`, plus a missing zero in `CO3_m2`
+(`lam2: -0.00326` → `-0.000326`). Of these only `CO3_m2` affects the compounds
+studied here; it shifts Na2CO3 predictions by about -0.8% at 20 °C and -2.2% at
+40 °C.
+
 ## Common Workflows
 
 ### Workflow 1: First Time Analysis
@@ -346,14 +446,32 @@ Comprehensive guides available:
 
 ## Testing
 
-Run test suites:
 ```bash
-# Test format harmonization
-python tests/test_format_harmonization.py
+pip install -e ".[dev]"        # installs pytest
 
-# Test analysis workflow
+# Speciation and McCleskey model
+pytest tests/test_speciation.py -v
+
+# Data, table and plot generation
+pytest tests/test_latex_tables.py tests/test_benchtop_data.py \
+       tests/test_plot_generation.py
+
+# Individual scripts (not pytest-based)
+python tests/test_format_harmonization.py
 python mahboub2026/test_mahboub_analysis.py
 ```
+
+Speciation tests requiring Reaktoro skip cleanly when it is absent, so the suite
+runs in a plain pip environment.
+
+**Known pre-existing failures.** `pytest tests/` currently reports 3 failures and
+2 collection errors that are unrelated to speciation or the Qt migration; they
+also occur on the pre-change code. Additionally,
+`tests/test_gui_reorganization.py` **hangs when run headlessly**: its mock
+`TimeSeries` lacks an `uncertainties` attribute, so `plot_timeseries` raises and a
+*modal* `QMessageBox.critical` (`hipoz_data_selector_gui.py:592`) blocks forever
+with no display. Run the other test files, or add the missing attribute to the
+mock.
 
 ## Troubleshooting
 
@@ -381,9 +499,16 @@ python mahboub2026/test_mahboub_analysis.py
 ```
 hipozgenai/
 ├── gamry_HiPOZ.py              # Main entry point - launches GUI or headless analysis
-├── DataSelector.py            # PyQt5 GUI for interactive data curation
+├── hipoz_data_selector_gui.py # PyQt6 GUI for interactive data curation
 ├── gamryTools.py              # Core classes (Solution, TimeSeries, circuit fitting)
 ├── gamryPlots.py              # Publication-quality plotting functions
+├── plotting.py                # Low-level publication plot functions
+├── study_plots.py             # High-level study plot functions + McCleskey model
+├── sigmaElectricMcCleskey2012.py  # McCleskey et al. (2012) conductivity model
+├── speciation.py              # WATEQ4F speciation via Reaktoro (optional)
+├── validate_speciation.py     # Speciation validation against measurements
+├── pyproject.toml             # Dependency declarations (pip install -e .)
+├── environment.yml            # Conda environment (incl. conda-only reaktoro)
 ├── analysis_config.py         # Loads and parses analysis setup files (zAnalysis*.csv/json)
 │                              # - Identifies which files are standards vs measurements
 │                              # - Stores metadata (P, T, composition, concentrations)
