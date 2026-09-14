@@ -16,3 +16,11 @@ or delete existing entries. Format is defined in `AGENTS.md`.
 - Status: verified (merge commit inspected; `git diff fa82535 HEAD
   --name-status -- '*.py'` empty; PyQt6 + colormaps imports confirmed in
   `gamry_HiPOZ.py`, `gamryTools.py`, `Pan_HiP.py`, `study_plots.py`).
+
+## 2026-09-14 — claude-code — relocate root-level data folders into data/
+
+- Moved `20260801/`–`20260805/` (PressTemps + calibration logs, inherited from
+  main's upload) from the repo root to `data/<date>/`, matching every other
+  dated data folder. `git mv` only; file contents unchanged.
+- Same fix to be applied on `main`, per Steve's request.
+- Status: verified (git status shows pure renames; no content diff).
