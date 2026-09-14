@@ -24,3 +24,11 @@ or delete existing entries. Format is defined in `AGENTS.md`.
   dated data folder. `git mv` only; file contents unchanged.
 - Same fix to be applied on `main`, per Steve's request.
 - Status: verified (git status shows pure renames; no content diff).
+
+## 2026-09-14 — claude-code — apply same folder fix on main and push both
+
+- Applied the identical `git mv` on `main` (commit `5f4f723`, via the main
+  checkout at ~/src/HiPOZ; its unrelated local changes left untouched) and
+  pushed `main` to origin. Also pushed `hipozgenai` (`fa82535..4ad406a`).
+- Both branches now hold identical renames, so future merges resolve cleanly.
+- Status: verified (pushes confirmed by origin refs; rename-only commits).
