@@ -10,6 +10,10 @@ Run all tests:
 python tests/test_format_harmonization.py
 python tests/test_conductivity_writeback.py
 python tests/test_mahboub_analysis.py
+python tests/test_gui_initialization.py
+python tests/test_plot_generation.py
+python tests/test_latex_tables.py
+python tests/test_benchtop_data.py
 python mahboub2026/tests/test_error_handling.py
 ```
 
@@ -49,6 +53,62 @@ Integration test for Mahboub 2026 data.
 - ✅ P_MPa and T_K columns present
 
 **When to run:** After modifying data loading or Mahboub analysis.
+
+### test_gui_initialization.py
+Tests GUI initialization and widget creation.
+
+**What it verifies:**
+- ✅ DataSelector GUI initializes without errors
+- ✅ All tabs created (Timeseries, Bode & Nyquist, S vs P)
+- ✅ Data table populated with correct columns
+- ✅ All control buttons present
+- ✅ Plot canvases created for each tab
+- ✅ DataFrame structure and masks initialized
+
+**When to run:** After modifying GUI structure or widget creation.
+
+### test_plot_generation.py
+Tests plot generation for all visualization types.
+
+**What it verifies:**
+- ✅ Timeseries plots generate correctly
+- ✅ Bode plots (magnitude and phase)
+- ✅ Nyquist plots with equal aspect ratio
+- ✅ S vs P scatter plots with temperature coloring
+- ✅ Plot export to PNG and PDF
+- ✅ Error bar plotting
+- ✅ Multi-panel figure layout
+
+**When to run:** After modifying plotting functions or visualization features.
+
+### test_latex_tables.py
+Tests LaTeX table generation for publications.
+
+**What it verifies:**
+- ✅ Basic LaTeX table structure
+- ✅ Uncertainty formatting (value ± error)
+- ✅ Special characters (subscripts, superscripts)
+- ✅ Scientific notation
+- ✅ Multi-row headers
+- ✅ Column alignment (left, center, right)
+- ✅ Booktabs professional styling
+- ✅ Export to .tex files
+
+**When to run:** After modifying data export or table formatting.
+
+### test_benchtop_data.py
+Tests benchtop data accuracy against reference values.
+
+**What it verifies:**
+- ✅ JesusData2025.csv loads correctly
+- ✅ NaCl:MgSO4 data extraction
+- ✅ KCl data extraction
+- ✅ Unit conversions (mS/cm ↔ S/m)
+- ✅ Temperature dependence (S increases with T)
+- ✅ Concentration dependence (S increases with conc)
+- ✅ Replicate measurement consistency
+
+**When to run:** After processing new Cortes benchtop measurements.
 
 ## Study-Specific Tests
 
@@ -150,12 +210,17 @@ python -c "import gamryTools; import gamry_integration"
 - Mahboub analysis workflow
 - Gamry error handling
 - Data grouping and averaging
+- GUI initialization and widget creation
+- Plot generation (all types: timeseries, Bode, Nyquist, S vs P)
+- LaTeX table generation for publications
+- Benchtop data accuracy vs reference values
 
 ### Not Yet Tested ⚠️
-- GUI interactions
-- Circuit fitting convergence
-- Plot generation (visual verification)
+- Interactive GUI operations (button clicks, selections)
+- Circuit fitting convergence edge cases
+- Real-time plot updates during data selection
 - Edge cases (empty configs, malformed files)
+- Network-dependent operations
 
 ## Troubleshooting
 

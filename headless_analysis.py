@@ -14,7 +14,25 @@ import pandas as pd
 log = logging.getLogger('HiPOZ')
 
 
-def run_headless_analysis(timeseries, analysis_config, output_dir=None):
+def build_solution_lookup(measurements):
+    """
+    Build a {basename: Solution} lookup from an iterable of Solution objects.
+
+    Args:
+        measurements: Iterable of Solution objects (e.g. one folder's meas array)
+
+    Returns:
+        Dict keyed by file basename.
+    """
+    lookup = {}
+    for solution in measurements:
+        if solution is not None and getattr(solution, 'file', None):
+            lookup[Path(solution.file).name] = solution
+    return lookup
+
+
+def run_headless_analysis(timeseries, analysis_config, output_dir=None,
+                          solution_lookup=None):
     """
     Run calibration and measurement analysis without GUI.
 
@@ -28,20 +46,24 @@ def run_headless_analysis(timeseries, analysis_config, output_dir=None):
         timeseries: TimeSeries object with organized data
         analysis_config: AnalysisConfig object
         output_dir: Optional output directory. If None, saves to config file's directory.
+        solution_lookup: Optional {basename: Solution} lookup. If None, one is
+            built from all solutions across timeseries (all folders combined).
+            Pass a per-folder lookup to keep results scoped to a single folder.
 
     Returns:
         DataFrame with analyzed results
     """
     log.info("Running headless analysis mode")
 
-    # Build lookup of all solutions by filename
-    solution_lookup = {}
-    for date_data in timeseries.allMeas:
-        if date_data is not None:
-            for solution in date_data:
-                if solution is not None:
-                    fname = Path(solution.file).name
-                    solution_lookup[fname] = solution
+    # Build lookup of solutions by filename (all folders) unless one was provided
+    if solution_lookup is None:
+        solution_lookup = {}
+        for date_data in timeseries.allMeas:
+            if date_data is not None:
+                for solution in date_data:
+                    if solution is not None:
+                        fname = Path(solution.file).name
+                        solution_lookup[fname] = solution
 
     log.info(f"Found {len(solution_lookup)} solution objects")
 

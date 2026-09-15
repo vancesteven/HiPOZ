@@ -54,11 +54,12 @@ from config_plots import (
 
 # McCleskey (2012) applicability limits (mol/kg_H2O)
 # These mark the concentration range where the McCleskey model is validated
+# From McCleskey et al. (2012) Table 3
 MCCLESKEY_LIMITS = {
-    'NaCl': 0.9999,
-    'MgSO4': 0.01245,
-    'NH4Cl': 1.034,
-    'Na2CO3': 0.3041
+    'NaCl': 0.9999,      # Up to 1.0 mol/kg
+    'MgSO4': 0.01245,    # Up to ~0.012 mol/kg (low solubility)
+    'NH4Cl': 1.034,      # Up to ~1.0 mol/kg
+    'Na2CO3': 0.3041     # Up to ~0.3 mol/kg
 }
 
 # Get paths relative to parent directory (hipozgenai/)

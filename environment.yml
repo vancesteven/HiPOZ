@@ -1,0 +1,42 @@
+# Conda environment for HiPOZ.
+#
+#   conda env create -f environment.yml
+#   conda activate hipoz
+#   pip install -e .
+#
+# Everything pip can install is declared in pyproject.toml; this file covers the
+# pieces conda handles better (or at all):
+#   - reaktoro: not published on PyPI, conda-forge only. Optional here -- only
+#     needed if you use PlanetProfile's Reaktoro-backed CustomSolution ocean EOS.
+#     Note PlanetProfile imports it unconditionally in that code path.
+#   - TeX: matplotlib renders labels with LaTeX (STIX fonts, siunitx, upgreek,
+#     mhchem). Install MacTeX/TeX Live separately -- conda's texlive-core is
+#     usually not sufficient for these packages.
+name: hipoz
+
+channels:
+  - conda-forge
+
+dependencies:
+  # Verified on 3.11 and 3.14; pin to one when creating the env, e.g. python=3.14
+  - python>=3.11
+
+  # Compiled scientific stack -- conda builds tend to be better optimized than wheels
+  - numpy>=1.26
+  - scipy>=1.16
+  - matplotlib>=3.10
+  - pandas>=2.3
+
+  # Reaktoro: required for WATEQ4F speciation of the McCleskey (2012)
+  # conductivity model (speciation.py, and compute_mccleskey_model(
+  # speciation=True)), and for PlanetProfile's CustomSolution ocean EOS.
+  # conda-forge only -- not on PyPI -- and ships py314 builds as of 2.13.0.
+  # Optional: omit it and everything except speciation=True still works.
+  - reaktoro>=2.13
+
+  - pip
+  - pip:
+      # Installs this project plus every pip-resolvable dependency from
+      # pyproject.toml (PyQt6, impedance, SeaFreeze, PlanetProfile, schemdraw,
+      # bidict, tqdm).
+      - -e .

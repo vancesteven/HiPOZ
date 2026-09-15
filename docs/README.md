@@ -6,14 +6,40 @@ Complete documentation for the HiPOZ impedance analysis system.
 
 ### User Guides
 - **[Main README](../README.md)** - Project overview and getting started
+- **[Quick Start Guide](QUICK_START.md)** - Daily analysis workflow
+- **[GUI Overview](GUI_OVERVIEW.md)** - Data selector interface and features
+- **[GUI Architecture](GUI_ARCHITECTURE.md)** - Complete GUI implementation details
 - **[Calibration Guide](CALIBRATION.md)** - How to calibrate and analyze impedance data
 - **[Plotting Guide](PLOTTING.md)** - How to create publication plots
+- **[Plotting Features](PLOTTING_FEATURES.md)** - Detailed plotting function reference (NEW)
 
 ### Developer Guides
 - **[Testing Guide](TESTING.md)** - How to run and write tests
+- **[Test Suite Reference](../tests/README.md)** - Complete test documentation
 - **[Mahboub 2026 Study](../mahboub2026/README.md)** - Example study documentation
+- **[Cortes 2026 Study](../cortes2026/README.md)** - Another example study
 
 ## Documentation Files
+
+### QUICK_START.md
+Daily analysis workflow guide:
+- Auto-creating config files with GUI
+- Editing zAnalysis CSV files in Excel
+- Command reference for common operations
+- Configuration file formats (CSV/JSON)
+- Troubleshooting config file issues
+
+**When to use:** Starting daily data analysis or setting up new experiments.
+
+### GUI_OVERVIEW.md
+Complete Data Selector GUI reference:
+- Tab structure and navigation
+- Data table columns and editing
+- Workflow operations (Mark Standard, Associate Measurements)
+- Configuration file management
+- Keyboard shortcuts and advanced features
+
+**When to use:** Learning GUI features or customizing workflow.
 
 ### CALIBRATION.md
 Complete guide to the calibration workflow:
@@ -34,6 +60,28 @@ Guide to the publication plotting system:
 - Reusing functions for multiple studies
 
 **When to use:** Creating publication-quality conductivity plots.
+
+### GUI_ARCHITECTURE.md
+Complete GUI implementation documentation:
+- Current tab structure and layout system
+- Proposed tab-based redesign for future enhancement
+- Data table columns and auto-conversion logic
+- Multi-component solution handling
+- Calibration workflow and state management
+- Extension points for adding features
+
+**When to use:** Understanding GUI internals or planning modifications.
+
+### PLOTTING_FEATURES.md
+Detailed plotting function reference (NEW):
+- `plot_conductivity_vs_temperature()` - σ vs T with Arrhenius analysis
+- `plot_conductivity_vs_molality()` - σ vs m concentration dependence
+- Timeseries, Bode, Nyquist, and S vs P plots
+- LaTeX table generation for publications
+- Export options (PDF, PNG, SVG)
+- Customization and styling examples
+
+**When to use:** Creating custom plots or understanding plotting functions.
 
 ### TESTING.md
 Guide to testing HiPOZ code:

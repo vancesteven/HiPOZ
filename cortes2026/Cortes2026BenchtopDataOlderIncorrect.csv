@@ -1,0 +1,158 @@
+# Cortes et al. (2026) - Benchtop Conductivity Measurements
+#
+# Instrument: TBD (add details)
+# Reference: See Cortes et al. (2026) manuscript for full methodology
+#
+# Data description:
+# - All measurements from benchtop conductivity probe
+# - Gamry impedance data analyzed separately from raw Gamry files
+# - Temperatures: 5°C, 10°C, 20°C
+# - Compounds: KCl, NaCl, Na2SO4, NaCl:MgSO4 mixtures, Na2SO4:KCl mixtures,
+#              NaCl+Glycine, pure amino acids (Alanine, Aspartic Acid, Glutamic Acid, Glycine)
+# - Multiple replicates per condition for NaCl and organic compounds
+#
+# Columns:
+#   compound: Chemical formula or mixture notation
+#   concentration_molal: Molality (mol/kg_H2O)
+#     NOTE: Original data in M/L, assuming molal ≈ molar for dilute solutions
+#   temperature_C: Temperature (Celsius)
+#   temperature_K: Temperature (Kelvin)
+#   conductivity_Sm: Conductivity (S/m)
+#     NOTE: Converted from mS/cm by dividing by 10
+#   replicate: Replicate number
+#   source: Data source ('benchtop')
+#   notes: Additional notes
+#
+compound,concentration_molal,temperature_C,temperature_K,conductivity_Sm,replicate,source,notes
+Alanine,0.1,20.0,293.15,0.702,1,benchtop,"100 mM/L Alanine, replicate 1"
+Alanine,0.1,20.0,293.15,0.717,2,benchtop,"100 mM/L Alanine, replicate 2"
+Alanine,0.1,20.0,293.15,0.731,3,benchtop,"100 mM/L Alanine, replicate 3"
+Alanine,0.1,20.0,293.15,1.371,4,benchtop,"100 mM/L Alanine, replicate 4"
+Alanine,0.1,20.0,293.15,1.376,5,benchtop,"100 mM/L Alanine, replicate 5"
+Alanine,0.1,20.0,293.15,1.377,6,benchtop,"100 mM/L Alanine, replicate 6"
+Alanine,0.1,20.0,293.15,0.968,7,benchtop,"100 mM/L Alanine, replicate 7"
+Alanine,0.1,20.0,293.15,0.97,8,benchtop,"100 mM/L Alanine, replicate 8"
+Alanine,0.1,20.0,293.15,0.9800000000000001,9,benchtop,"100 mM/L Alanine, replicate 9"
+Aspartic Acid,0.1,20.0,293.15,85.3,1,benchtop,"100 mM/L Aspartic Acid, replicate 1"
+Aspartic Acid,0.1,20.0,293.15,85.24,2,benchtop,"100 mM/L Aspartic Acid, replicate 2"
+Aspartic Acid,0.1,20.0,293.15,85.2,3,benchtop,"100 mM/L Aspartic Acid, replicate 3"
+Aspartic Acid,0.1,20.0,293.15,82.72,4,benchtop,"100 mM/L Aspartic Acid, replicate 4"
+Aspartic Acid,0.1,20.0,293.15,82.72,5,benchtop,"100 mM/L Aspartic Acid, replicate 5"
+Aspartic Acid,0.1,20.0,293.15,82.83,6,benchtop,"100 mM/L Aspartic Acid, replicate 6"
+Aspartic Acid,0.1,20.0,293.15,84.75,7,benchtop,"100 mM/L Aspartic Acid, replicate 7"
+Aspartic Acid,0.1,20.0,293.15,84.74,8,benchtop,"100 mM/L Aspartic Acid, replicate 8"
+Aspartic Acid,0.1,20.0,293.15,84.76,9,benchtop,"100 mM/L Aspartic Acid, replicate 9"
+Glutamic Acid,0.1,20.0,293.15,53.5,1,benchtop,"100 mM/L Glutamic Acid, replicate 1"
+Glutamic Acid,0.1,20.0,293.15,53.760000000000005,2,benchtop,"100 mM/L Glutamic Acid, replicate 2"
+Glutamic Acid,0.1,20.0,293.15,53.839999999999996,3,benchtop,"100 mM/L Glutamic Acid, replicate 3"
+Glutamic Acid,0.1,20.0,293.15,55.089999999999996,4,benchtop,"100 mM/L Glutamic Acid, replicate 4"
+Glutamic Acid,0.1,20.0,293.15,55.11,5,benchtop,"100 mM/L Glutamic Acid, replicate 5"
+Glutamic Acid,0.1,20.0,293.15,55.129999999999995,6,benchtop,"100 mM/L Glutamic Acid, replicate 6"
+Glutamic Acid,0.1,20.0,293.15,56.81,7,benchtop,"100 mM/L Glutamic Acid, replicate 7"
+Glutamic Acid,0.1,20.0,293.15,56.779999999999994,8,benchtop,"100 mM/L Glutamic Acid, replicate 8"
+Glutamic Acid,0.1,20.0,293.15,56.96,9,benchtop,"100 mM/L Glutamic Acid, replicate 9"
+Glycine,0.1,20.0,293.15,0.9119999999999999,1,benchtop,"100 mM/L Glycine, replicate 1"
+Glycine,0.1,20.0,293.15,0.9400000000000001,2,benchtop,"100 mM/L Glycine, replicate 2"
+Glycine,0.1,20.0,293.15,0.9410000000000001,3,benchtop,"100 mM/L Glycine, replicate 3"
+Glycine,0.1,20.0,293.15,0.8640000000000001,4,benchtop,"100 mM/L Glycine, replicate 4"
+Glycine,0.1,20.0,293.15,1.002,5,benchtop,"100 mM/L Glycine, replicate 5"
+Glycine,0.1,20.0,293.15,1.009,6,benchtop,"100 mM/L Glycine, replicate 6"
+Glycine,0.1,20.0,293.15,1.166,7,benchtop,"100 mM/L Glycine, replicate 7"
+Glycine,0.1,20.0,293.15,1.169,8,benchtop,"100 mM/L Glycine, replicate 8"
+Glycine,0.1,20.0,293.15,1.174,9,benchtop,"100 mM/L Glycine, replicate 9"
+KCl,0.5,5.0,278.15,4.151,1,benchtop,0.5 M/L
+KCl,0.75,5.0,278.15,5.856,1,benchtop,0.75 M/L
+KCl,1.0,5.0,278.15,7.767,1,benchtop,1.0 M/L
+KCl,1.5,5.0,278.15,11.8,1,benchtop,1.5 M/L
+KCl,0.5,10.0,283.15,4.678,1,benchtop,0.5 M/L
+KCl,0.75,10.0,283.15,6.429,1,benchtop,0.75 M/L
+KCl,1.0,10.0,283.15,8.598,1,benchtop,1.0 M/L
+KCl,1.5,10.0,283.15,8.598,1,benchtop,1.5 M/L
+KCl,0.5,20.0,293.15,5.588,1,benchtop,0.5 M/L
+KCl,0.75,20.0,293.15,7.827,1,benchtop,0.75 M/L
+KCl,1.0,20.0,293.15,10.333,1,benchtop,1.0 M/L
+KCl,1.5,20.0,293.15,15.107,1,benchtop,1.5 M/L
+Na2SO4,0.5,5.0,278.15,3.747,1,benchtop,0.5 M/L
+Na2SO4,0.75,5.0,278.15,2.198,1,benchtop,0.75 M/L
+Na2SO4,0.5,10.0,283.15,4.114,1,benchtop,0.5 M/L
+Na2SO4,0.75,10.0,283.15,3.9770000000000003,1,benchtop,0.75 M/L
+Na2SO4,0.5,20.0,293.15,5.7829999999999995,1,benchtop,0.5 M/L
+Na2SO4,0.75,20.0,293.15,7.574,1,benchtop,0.75 M/L
+Na2SO4:KCl_1:1,0.5,5.0,278.15,7.048,1,benchtop,"1:1 mixture, 0.5 M/L each"
+Na2SO4:KCl_1:1,0.75,5.0,278.15,9.365,1,benchtop,"1:1 mixture, 0.75 M/L each"
+Na2SO4:KCl_1:1,1.0,5.0,278.15,11.273,1,benchtop,"1:1 mixture, 1.0 M/L each"
+Na2SO4:KCl_1:1,0.5,10.0,283.15,7.892,1,benchtop,"1:1 mixture, 0.5 M/L each"
+Na2SO4:KCl_1:1,0.75,10.0,283.15,10.57,1,benchtop,"1:1 mixture, 0.75 M/L each"
+Na2SO4:KCl_1:1,1.0,10.0,283.15,12.52,1,benchtop,"1:1 mixture, 1.0 M/L each"
+Na2SO4:KCl_1:1,0.5,20.0,293.15,9.843,1,benchtop,"1:1 mixture, 0.5 M/L each"
+Na2SO4:KCl_1:1,0.75,20.0,293.15,13.38,1,benchtop,"1:1 mixture, 0.75 M/L each"
+Na2SO4:KCl_1:1,1.0,20.0,293.15,15.780000000000001,1,benchtop,"1:1 mixture, 1.0 M/L each"
+Na2SO4:KCl_2:1,1.5,5.0,278.15,10.11,1,benchtop,1.5:0.75 M/L Na2SO4:KCl
+Na2SO4:KCl_2:1,1.5,10.0,283.15,11.43,1,benchtop,1.5:0.75 M/L Na2SO4:KCl
+Na2SO4:KCl_2:1,1.5,20.0,293.15,14.6,1,benchtop,1.5:0.75 M/L Na2SO4:KCl
+NaCl,0.5,20.0,293.15,4.368,1,benchtop,"0.5 M/L, replicate 1"
+NaCl,0.5,20.0,293.15,4.365,2,benchtop,"0.5 M/L, replicate 2"
+NaCl,0.5,20.0,293.15,4.366,3,benchtop,"0.5 M/L, replicate 3"
+NaCl,0.5,20.0,293.15,4.586,4,benchtop,"0.5 M/L, replicate 4"
+NaCl,0.5,20.0,293.15,4.579,5,benchtop,"0.5 M/L, replicate 5"
+NaCl,0.5,20.0,293.15,4.576,6,benchtop,"0.5 M/L, replicate 6"
+NaCl,0.75,20.0,293.15,6.354,1,benchtop,"0.75 M/L, replicate 1"
+NaCl,0.75,20.0,293.15,6.318,2,benchtop,"0.75 M/L, replicate 2"
+NaCl,0.75,20.0,293.15,6.326,3,benchtop,"0.75 M/L, replicate 3"
+NaCl,0.75,20.0,293.15,6.468999999999999,4,benchtop,"0.75 M/L, replicate 4"
+NaCl,0.75,20.0,293.15,6.4590000000000005,5,benchtop,"0.75 M/L, replicate 5"
+NaCl,0.75,20.0,293.15,6.456999999999999,6,benchtop,"0.75 M/L, replicate 6"
+NaCl,1.0,20.0,293.15,8.027,1,benchtop,"1.0 M/L, replicate 1"
+NaCl,1.0,20.0,293.15,8.033,2,benchtop,"1.0 M/L, replicate 2"
+NaCl,1.0,20.0,293.15,8.039,3,benchtop,"1.0 M/L, replicate 3"
+NaCl,1.0,20.0,293.15,8.399,4,benchtop,"1.0 M/L, replicate 4"
+NaCl,1.0,20.0,293.15,8.431000000000001,5,benchtop,"1.0 M/L, replicate 5"
+NaCl,1.0,20.0,293.15,8.429,6,benchtop,"1.0 M/L, replicate 6"
+NaCl,1.5,20.0,293.15,11.45,1,benchtop,"1.5 M/L, replicate 1"
+NaCl,1.5,20.0,293.15,11.42,2,benchtop,"1.5 M/L, replicate 2"
+NaCl,1.5,20.0,293.15,11.43,3,benchtop,"1.5 M/L, replicate 3"
+NaCl,1.5,20.0,293.15,11.629999999999999,4,benchtop,"1.5 M/L, replicate 4"
+NaCl,1.5,20.0,293.15,11.66,5,benchtop,"1.5 M/L, replicate 5"
+NaCl,1.5,20.0,293.15,11.68,6,benchtop,"1.5 M/L, replicate 6"
+NaCl+Glycine,0.5,20.0,293.15,4.612,1,benchtop,"0.5 M/L NaCl + 100mM/L glycine, replicate 1"
+NaCl+Glycine,0.5,20.0,293.15,4.61,2,benchtop,"0.5 M/L NaCl + 100mM/L glycine, replicate 2"
+NaCl+Glycine,0.5,20.0,293.15,4.612,3,benchtop,"0.5 M/L NaCl + 100mM/L glycine, replicate 3"
+NaCl+Glycine,0.5,20.0,293.15,4.4479999999999995,4,benchtop,"0.5 M/L NaCl + 100mM/L glycine, replicate 4"
+NaCl+Glycine,0.5,20.0,293.15,4.434,5,benchtop,"0.5 M/L NaCl + 100mM/L glycine, replicate 5"
+NaCl+Glycine,0.5,20.0,293.15,4.423,6,benchtop,"0.5 M/L NaCl + 100mM/L glycine, replicate 6"
+NaCl+Glycine,0.75,20.0,293.15,6.517,1,benchtop,"0.75 M/L NaCl + 100mM/L glycine, replicate 1"
+NaCl+Glycine,0.75,20.0,293.15,6.5329999999999995,2,benchtop,"0.75 M/L NaCl + 100mM/L glycine, replicate 2"
+NaCl+Glycine,0.75,20.0,293.15,6.537000000000001,3,benchtop,"0.75 M/L NaCl + 100mM/L glycine, replicate 3"
+NaCl+Glycine,0.75,20.0,293.15,6.4,4,benchtop,"0.75 M/L NaCl + 100mM/L glycine, replicate 4"
+NaCl+Glycine,0.75,20.0,293.15,6.401000000000001,5,benchtop,"0.75 M/L NaCl + 100mM/L glycine, replicate 5"
+NaCl+Glycine,0.75,20.0,293.15,6.412000000000001,6,benchtop,"0.75 M/L NaCl + 100mM/L glycine, replicate 6"
+NaCl+Glycine,1.0,20.0,293.15,8.475,1,benchtop,"1.0 M/L NaCl + 100mM/L glycine, replicate 1"
+NaCl+Glycine,1.0,20.0,293.15,8.492,2,benchtop,"1.0 M/L NaCl + 100mM/L glycine, replicate 2"
+NaCl+Glycine,1.0,20.0,293.15,8.504000000000001,3,benchtop,"1.0 M/L NaCl + 100mM/L glycine, replicate 3"
+NaCl+Glycine,1.0,20.0,293.15,8.089,4,benchtop,"1.0 M/L NaCl + 100mM/L glycine, replicate 4"
+NaCl+Glycine,1.0,20.0,293.15,8.113,5,benchtop,"1.0 M/L NaCl + 100mM/L glycine, replicate 5"
+NaCl+Glycine,1.0,20.0,293.15,8.108,6,benchtop,"1.0 M/L NaCl + 100mM/L glycine, replicate 6"
+NaCl+Glycine,1.5,20.0,293.15,11.7,1,benchtop,"1.5 M/L NaCl + 100mM/L glycine, replicate 1"
+NaCl+Glycine,1.5,20.0,293.15,11.7,2,benchtop,"1.5 M/L NaCl + 100mM/L glycine, replicate 2"
+NaCl+Glycine,1.5,20.0,293.15,11.709999999999999,3,benchtop,"1.5 M/L NaCl + 100mM/L glycine, replicate 3"
+NaCl+Glycine,1.5,20.0,293.15,11.5,4,benchtop,"1.5 M/L NaCl + 100mM/L glycine, replicate 4"
+NaCl+Glycine,1.5,20.0,293.15,11.5,5,benchtop,"1.5 M/L NaCl + 100mM/L glycine, replicate 5"
+NaCl+Glycine,1.5,20.0,293.15,11.53,6,benchtop,"1.5 M/L NaCl + 100mM/L glycine, replicate 6"
+NaCl:MgSO4_1:1,0.5,5.0,278.15,4.632,1,benchtop,Original: 0.5 M/L
+NaCl:MgSO4_1:1,0.75,5.0,278.15,5.659000000000001,1,benchtop,Original: 0.75 M/L
+NaCl:MgSO4_1:1,1.0,5.0,278.15,6.459999999999999,1,benchtop,Original: 1.0 M/L
+NaCl:MgSO4_1:1,1.5,5.0,278.15,6.865,1,benchtop,Original: 1.5 M/L
+NaCl:MgSO4_1:1,0.5,10.0,283.15,5.25,1,benchtop,Original: 0.5 M/L
+NaCl:MgSO4_1:1,0.75,10.0,283.15,6.470999999999999,1,benchtop,Original: 0.75 M/L
+NaCl:MgSO4_1:1,1.0,10.0,283.15,7.223000000000001,1,benchtop,Original: 1.0 M/L
+NaCl:MgSO4_1:1,1.5,10.0,283.15,7.574,1,benchtop,Original: 1.5 M/L
+NaCl:MgSO4_1:1,0.5,20.0,293.15,6.909000000000001,1,benchtop,Original: 0.5 M/L
+NaCl:MgSO4_1:1,0.75,20.0,293.15,8.609,1,benchtop,Original: 0.75 M/L
+NaCl:MgSO4_1:1,1.0,20.0,293.15,9.76,1,benchtop,Original: 1.0 M/L
+NaCl:MgSO4_1:1,1.5,20.0,293.15,10.41,1,benchtop,Original: 1.5 M/L
+NaCl:MgSO4_1:2,0.75,5.0,278.15,5.452,1,benchtop,0.75:1.5 M/L NaCl:MgSO4
+NaCl:MgSO4_1:2,0.75,10.0,283.15,6.247999999999999,1,benchtop,0.75:1.5 M/L NaCl:MgSO4
+NaCl:MgSO4_1:2,0.75,20.0,293.15,8.095,1,benchtop,0.75:1.5 M/L NaCl:MgSO4
+NaCl:MgSO4_2:1,1.5,5.0,278.15,8.017,1,benchtop,1.5:0.75 M/L NaCl:MgSO4
+NaCl:MgSO4_2:1,1.5,10.0,283.15,9.098,1,benchtop,1.5:0.75 M/L NaCl:MgSO4
+NaCl:MgSO4_2:1,1.5,20.0,293.15,11.559999999999999,1,benchtop,1.5:0.75 M/L NaCl:MgSO4

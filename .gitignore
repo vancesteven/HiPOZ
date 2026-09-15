@@ -14,6 +14,7 @@ data/*/*.csv
 data/*/*.json
 data/*/hipoz_*.csv
 hipoz_exports/
+archive/
 
 # User-specific files
 .claude/
@@ -25,3 +26,4 @@ JesusGraphs.py
 !analysis_config_example.csv
 !analysis_config_example.json
 !CortesDataTemplate.csv
+CLAUDE.md
