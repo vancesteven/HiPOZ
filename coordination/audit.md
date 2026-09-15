@@ -60,3 +60,24 @@ or delete existing entries. Format is defined in `AGENTS.md`.
   so main contains the full hipozgenai branch, bookkeeping commit included).
 - The local main checkout at ~/src/HiPOZ is now behind origin/main and needs a
   `git pull` there; not touched from this worktree.
+
+## 2026-09-15 — claude-code — curate uncommitted working tree per Steve
+
+- Steve chose per-group dispositions for the ~30 uncommitted files left out of
+  PR #2. Executed: (1) `978540a` — .gitignore policy, PyQt6 fix to
+  test_gui_reorganization.py, CLAUDE.md/AGENTS.md/CODEX-QUEUE/open-questions
+  now tracked, four new test suites with mechanical plumbing repairs, two
+  plotting docs moved under docs/, plot_all.sh + test_mccleskey_cortes.sh;
+  (2) `e7b5f6f` — Aug 18-20 2025 Cortes data folders, JesusCortes/ (minus
+  Office lock file), pre-20250624 benchtop CSV snapshot; (3) `af53f12` —
+  mahboub2026 revision .tex drafts + generate_correct_csv.py.
+- Discarded: regenerated cortes_plots PDFs (byte-identical sizes; restored
+  from HEAD); deleted six root session-note .md files. Left untracked per
+  Steve: Mahboub2026BenchtopData_INCORRECT.csv, mahboub2026_plots.py.save,
+  precision_formatting_report.md.
+- Tests run in a scratch venv (Linux container, no TeX, no libEGL):
+  test_benchtop_data 5/6 (KCl reference mismatch logged in open-questions,
+  NOT adjusted), test_latex_tables all pass after fixing a literal-string
+  assertion, test_plot_generation 5/7 (two need LaTeX), GUI suites not
+  runnable here. Status: verified for the curation itself; the test suites
+  are implemented, unverified pending a macOS run.
