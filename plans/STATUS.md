@@ -14,12 +14,12 @@ Propagating the hipozgenai branch to `main` (Steve's request, 2026-09-15).
 | Item | Owner | Status | Artifact |
 |---|---|---|---|
 | Merge origin/main lab data into hipozgenai | claude-code | verified | merge commit `eab7098`; audit entry 2026-09-14 in `coordination/audit.md` |
-| Propagate hipozgenai to main | claude-code | implemented, unverified | PR #2 (https://github.com/vancesteven/HiPOZ/pull/2), conflict-free vs `main` at `5f4f723`; merge pending Steve's approval — see Blockers |
+| Propagate hipozgenai to main | claude-code | verified | PR #2 merged by Steve 2026-09-15; merge commit `351853f` on `origin/main` contains branch tip `fd3718d` (`git merge-base --is-ancestor` confirmed) |
 
 Status must be one of `verified` / `implemented, unverified` / `not implemented`.
 
 ## Blockers
 
-- `gh pr merge 2` was denied by the session permission gate ("merge without
-  review"). Steve must merge PR #2 (GitHub UI or `gh pr merge 2 --merge`) or
-  approve a retry in an interactive session.
+- Uncommitted working-tree changes (Cortes plots/data, mahboub2026 drafts, new
+  tests, agent-lane files) were not part of PR #2 and need Steve's triage — see
+  the 2026-09-15 entry in `coordination/open-questions.md`.

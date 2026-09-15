@@ -50,3 +50,13 @@ or delete existing entries. Format is defined in `AGENTS.md`.
   decision on what to keep; logged in `coordination/open-questions.md`.
 - Status: implemented, unverified (PR open and mergeable; propagation not yet
   observed on `origin/main`).
+
+## 2026-09-15 — claude-code — PR #2 merged; hipozgenai propagated to main
+
+- Steve merged PR #2 (`gh pr merge 2 --merge`; the session permission gate had
+  blocked claude-code from merging it directly). Merge commit `351853f` on
+  `origin/main`.
+- Status: verified (`git merge-base --is-ancestor fd3718d origin/main` passes,
+  so main contains the full hipozgenai branch, bookkeeping commit included).
+- The local main checkout at ~/src/HiPOZ is now behind origin/main and needs a
+  `git pull` there; not touched from this worktree.
