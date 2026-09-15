@@ -32,3 +32,21 @@ or delete existing entries. Format is defined in `AGENTS.md`.
   pushed `main` to origin. Also pushed `hipozgenai` (`fa82535..4ad406a`).
 - Both branches now hold identical renames, so future merges resolve cleanly.
 - Status: verified (pushes confirmed by origin refs; rename-only commits).
+
+## 2026-09-15 — claude-code — open PR #2 to propagate hipozgenai to main
+
+- Steve asked to propagate this branch's functionality to `main`. Verified
+  `hipozgenai` (`81b29a8`) and `main` (`5f4f723`) are both in sync with origin
+  and that the merge is conflict-free (`git merge-tree --write-tree main
+  hipozgenai` exits 0; the intentionally duplicated data-folder renames
+  `4ad406a`/`5f4f723` auto-resolve).
+- Opened PR #2 (hipozgenai → main): https://github.com/vancesteven/HiPOZ/pull/2
+- `gh pr merge 2 --merge` was denied by the session permission gate
+  ("merge without review"), so the merge is left for Steve.
+- Uncommitted working-tree changes (modified cortes2026 plot PDFs and
+  `tests/test_gui_reorganization.py`; ~30 untracked files incl. root-level
+  planning .md notes, `JesusCortes/`, Aug 2025 Cortes data, mahboub2026 drafts)
+  are NOT part of the PR — they were never committed to the branch. Needs a
+  decision on what to keep; logged in `coordination/open-questions.md`.
+- Status: implemented, unverified (PR open and mergeable; propagation not yet
+  observed on `origin/main`).
