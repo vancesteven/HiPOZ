@@ -19,7 +19,7 @@ import numpy as np
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
 from hipoz_data_selector_gui import DataSelector
-from PyQt5.QtWidgets import QApplication
+from PyQt6.QtWidgets import QApplication
 
 
 @pytest.fixture(scope="session")
@@ -35,7 +35,7 @@ class MockTimeSeries:
     """Mock TimeSeries object for testing."""
     def __init__(self, n_points=5):
         self.filenames = [f"test_file_{i}.txt" for i in range(n_points)]
-        self.timestamps = pd.date_range('2025-01-01', periods=n_points, freq='H')
+        self.timestamps = pd.date_range('2025-01-01', periods=n_points, freq='h')
         self.Ts = np.array([298.0] * n_points)
         self.Ps = np.array([10.0] * n_points)
         self.Rcalc_ohm = np.array([100.0] * n_points)

@@ -26,4 +26,32 @@ JesusGraphs.py
 !analysis_config_example.csv
 !analysis_config_example.json
 !CortesDataTemplate.csv
-CLAUDE.md
+
+# Claude-flow and temporary files
+.claude-flow/
+.swarm/
+temp_cleanup/
+.mcp.json
+vectors.db
+
+# Build and test artifacts
+*.egg-info/
+tests/test_output/
+
+# Documentation snapshots (move to docs/ if needed)
+*_PLAN.md
+*_SUMMARY.md
+*_IMPLEMENTATION*.md
+*_VERIFICATION.md
+*_GUIDE.md
+*_FIX.md
+*_UPDATE.md
+*_COMPLETE.md
+*_DOCUMENTATION.md
+*_README.md
+TODO_LIST.md
+READY_FOR_COMMIT.md
+COMMIT_MESSAGE.md
+
+# CLAUDE.md and AGENTS.md are intentionally tracked: durable project and agent
+# instructions, not transient snapshots. Do not add them above.
