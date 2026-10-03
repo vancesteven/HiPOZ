@@ -81,3 +81,16 @@ or delete existing entries. Format is defined in `AGENTS.md`.
   assertion, test_plot_generation 5/7 (two need LaTeX), GUI suites not
   runnable here. Status: verified for the curation itself; the test suites
   are implemented, unverified pending a macOS run.
+
+## 2026-10-03 — claude-code — sigma(P,T) feature committed; origin/main data merged
+
+- Committed the sigma(P,T) work held since 2026-09-15 (`1f33a65`): new
+  plot_conductivity_PT in gamryPlots.py, lazy-loaded "σ(P,T)" DataSelector tab,
+  tests/test_pt_map.py (8 passing headless). Plot function verified by tests
+  and on the real 462-point KCl dataset; the Qt tab itself is implemented,
+  unverified until launched on macOS.
+- Merged `origin/main` (41b8bda) into hipozgenai (merge `58906cd`): 248
+  insert-only data files — KCl std 8 S/m at low/0C, Zachary Diaz 1 bar NaCl
+  0.5m, data/20260917-20260925. No code touched by the merge; no conflicts.
+- Status: verified for the merge (`git merge-base --is-ancestor origin/main
+  HEAD` passes; file count matches diffstat).
