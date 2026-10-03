@@ -129,3 +129,15 @@ or delete existing entries. Format is defined in `AGENTS.md`.
   points overlaid as 3D scatter). PNG from the real KCl dataset sent to Steve.
 - Status: verified for the function and CLI (15/15 pt-map tests + real-data
   run); the GUI tab is implemented, unverified pending a macOS launch.
+
+## 2026-10-03 — claude-code — conductivity isotherms (sigma vs P per T bin)
+
+- plot_conductivity_isotherms in gamryPlots.py (1 K default bins, error bars,
+  reference line); "σ(P) isotherms" DataSelector tab; sigma_P_isotherms
+  output in plot_sigma_PT.py with --t-bin. 19/19 pt-map tests pass; real-data
+  figure delivered to Steve.
+- Observation for the pressure-trend question: several isotherms dip
+  coherently near 100-125 MPa — the P ranges covered on 20260901-20260903,
+  the dates with the most negative day residuals. Supports day-to-day offsets
+  masquerading as pressure dependence.
+- Status: verified for function and CLI; GUI tab implemented, unverified.

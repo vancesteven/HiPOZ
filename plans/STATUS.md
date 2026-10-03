@@ -24,6 +24,7 @@ lab data merged in from origin/main. PR #3 (still open) now carries all of it.
 | plot_sigma_PT.py CLI (map from curated/raw data) | claude-code | verified | tests/test_plot_sigma_PT.py (4 passing); full KCl run reproduces delivered figures in sigma_PT_plots/ |
 | 3D sigma(P,T) surface (function + CLI output) | claude-code | verified | tests/test_pt_map.py 15/15 passing; sigma_PT_surface.png delivered 2026-10-03 |
 | 3D sigma(P,T) GUI tab ("σ(P,T) 3D", drag-to-rotate) | claude-code | implemented, unverified | needs GUI launch on macOS (no libEGL in container) |
+| sigma vs P isotherms (function + CLI + GUI tab) | claude-code | function/CLI verified; GUI tab implemented, unverified | tests/test_pt_map.py 19/19; sigma_P_isotherms.png delivered 2026-10-03 |
 
 Status must be one of `verified` / `implemented, unverified` / `not implemented`.
 
