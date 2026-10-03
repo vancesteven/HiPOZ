@@ -31,8 +31,9 @@ Curated dates only:
 
 Outputs land in --out-dir (default sigma_PT_plots/): sigma_PT_map.pdf/.png,
 sigma_PT_surface.pdf/.png (3D view; interactive rotation available in the
-GUI's "σ(P,T) 3D" tab), and with raw dates also raw_sigma_timeseries.pdf/.png
-and provisional_sigma.csv.
+GUI's "σ(P,T) 3D" tab), sigma_P_isotherms.pdf/.png (sigma vs P, one curve per
+temperature bin; --t-bin sets the bin width), and with raw dates also
+raw_sigma_timeseries.pdf/.png and provisional_sigma.csv.
 """
 import argparse
 import logging
@@ -63,8 +64,9 @@ def load_curated(dates, data_dir='data'):
     cur = pd.concat(frames, ignore_index=True)
     cur = cur[(cur['type'] == 'measurement')
               & (cur['exclude'].isna() | (cur['exclude'] == ''))].copy()
-    for c in ['P_MPa', 'T_K', 'conductivity_Sm', 'Z_Ohm']:
-        cur[c] = pd.to_numeric(cur[c], errors='coerce')
+    for c in ['P_MPa', 'T_K', 'conductivity_Sm', 'Z_Ohm', 'S_unc_pct']:
+        if c in cur:
+            cur[c] = pd.to_numeric(cur[c], errors='coerce')
     cur = cur.dropna(subset=['P_MPa', 'T_K', 'conductivity_Sm'])
     return cur
 
@@ -170,6 +172,31 @@ def make_surface(cur, raw, sigma_ref, title, out_dir, xtns):
     return paths
 
 
+def make_isotherms(cur, raw, sigma_ref, title, out_dir, xtns, t_bin_K):
+    import matplotlib.pyplot as plt
+    from gamryPlots import plot_conductivity_isotherms
+    unc = None
+    if 'S_unc_pct' in cur:
+        unc = (cur['conductivity_Sm'] * cur['S_unc_pct'] / 100.0).to_numpy()
+    fig = plt.figure(figsize=(9, 6))
+    ax, iso = plot_conductivity_isotherms(
+        fig, cur['P_MPa'], cur['T_K'], cur['conductivity_Sm'],
+        sigma_unc_Sm=unc, T_bin_K=t_bin_K, sigma_ref_Sm=sigma_ref,
+        title=title)
+    if raw is not None and len(raw) > 0 and iso:
+        ax.plot(raw['P_MPa'], raw['sigma_Sm'], '^', ms=5, mfc='none',
+                mec='r', mew=0.8, ls='none', label='provisional (raw fit)')
+        ax.legend(fontsize=7, ncols=2, title=f'T bins ({t_bin_K:g} K wide)',
+                  title_fontsize=8)
+    paths = []
+    for xtn in xtns:
+        p = out_dir / f'sigma_P_isotherms.{xtn}'
+        fig.savefig(p, dpi=300, bbox_inches='tight')
+        paths.append(p)
+    plt.close(fig)
+    return paths
+
+
 def make_raw_timeseries(raw, sigma_ref, out_dir, xtns):
     import matplotlib.pyplot as plt
     raw = raw.copy()
@@ -219,6 +246,8 @@ def main(argv=None):
                         help='Sanity cut: discard provisional sigma above this')
     parser.add_argument('--max-r-unc', type=float, default=0.2,
                         help='Sanity cut: discard fits with fractional R uncertainty above this')
+    parser.add_argument('--t-bin', type=float, default=1.0,
+                        help='Isotherm temperature bin width in K (default 1.0)')
     parser.add_argument('--max-files', type=int, default=None,
                         help='Fit at most this many files per raw date (for quick tests)')
     parser.add_argument('--no-tex', action='store_true',
@@ -258,6 +287,8 @@ def main(argv=None):
 
     paths = make_map(cur, raw, args.sigma_ref, args.title, out_dir, args.xtn)
     paths += make_surface(cur, raw, args.sigma_ref, args.title, out_dir, args.xtn)
+    paths += make_isotherms(cur, raw, args.sigma_ref, args.title, out_dir,
+                            args.xtn, args.t_bin)
     if raw is not None and len(raw) > 0:
         paths += make_raw_timeseries(raw, args.sigma_ref, out_dir, args.xtn)
     for p in paths:

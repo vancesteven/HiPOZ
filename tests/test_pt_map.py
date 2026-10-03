@@ -144,3 +144,44 @@ def test_pt_surface_empty(fig):
     assert ax.name != '3d', "Empty data should give a 2D message axes"
     assert len(ax.texts) > 0
     fig.canvas.draw()
+
+
+# --- isotherms companion (plot_conductivity_isotherms) -----------------------
+
+from gamryPlots import plot_conductivity_isotherms
+
+
+def test_isotherms_full_grid(fig):
+    P, T, sigma = make_grid_data(nP=6, nT=4)
+    ax, iso = plot_conductivity_isotherms(fig, P, T, sigma, sigma_ref_Sm=8.0)
+    assert len(iso) == 4, "One isotherm per distinct temperature expected"
+    for T_mean, line in iso:
+        assert len(line.get_xdata()) == 6, "Each isotherm should span all pressures"
+        xs = line.get_xdata()
+        assert np.all(np.diff(xs) >= 0), "Isotherm points should be sorted by P"
+    assert ax.get_legend() is not None
+    fig.canvas.draw()
+
+
+def test_isotherms_binning_merges_nearby_temps(fig):
+    # 298.0 and 298.4 K fall in the same 1 K bin; 303 K is separate
+    P = np.array([10., 20., 10., 20., 10., 20.])
+    T = np.array([298.0, 298.0, 298.4, 298.4, 303.0, 303.0])
+    S = np.array([8.0, 7.9, 8.01, 7.91, 8.5, 8.4])
+    ax, iso = plot_conductivity_isotherms(fig, P, T, S, T_bin_K=1.0)
+    assert len(iso) == 2
+
+
+def test_isotherms_with_uncertainties(fig):
+    P, T, sigma = make_grid_data(nP=5, nT=3)
+    unc = np.full_like(sigma, 0.05)
+    ax, iso = plot_conductivity_isotherms(fig, P, T, sigma, sigma_unc_Sm=unc)
+    assert len(iso) == 3
+    fig.canvas.draw()
+
+
+def test_isotherms_empty(fig):
+    ax, iso = plot_conductivity_isotherms(fig, [], [], [])
+    assert iso == []
+    assert len(ax.texts) > 0
+    fig.canvas.draw()

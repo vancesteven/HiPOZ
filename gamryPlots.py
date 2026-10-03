@@ -500,6 +500,96 @@ def plot_conductivity_PT_surface(fig, P_MPa, T_K, sigma_Sm, sigma_ref_Sm=None,
     return ax, (surf if surf is not None else sc)
 
 
+def plot_conductivity_isotherms(fig, P_MPa, T_K, sigma_Sm, sigma_unc_Sm=None,
+                                T_bin_K=1.0, sigma_ref_Sm=None,
+                                title='Conductivity isotherms vs pressure'):
+    """
+    Plot conductivity vs pressure as isotherms: one connected curve per
+    temperature level.
+
+    Measurements are grouped into temperature bins of width T_bin_K; each
+    bin's points are sorted by pressure and drawn as a line with markers,
+    colored by the bin's mean temperature (viridis over the full T range).
+    This is the clearest view of the pressure dependence itself, with the
+    temperature dependence factored out into separate curves.
+
+    Parameters
+    ----------
+    fig : matplotlib.figure.Figure
+        Figure to draw on; it is cleared first.
+    P_MPa, T_K, sigma_Sm : array-like
+        Pressure (MPa), temperature (K), and conductivity (S/m) per point.
+        Non-finite entries are dropped.
+    sigma_unc_Sm : array-like, optional
+        1-sigma uncertainties (S/m); drawn as error bars when given.
+    T_bin_K : float, optional
+        Temperature bin width in K (default 1.0).
+    sigma_ref_Sm : float, optional
+        Reference conductivity drawn as a horizontal dashed red line.
+    title : str, optional
+        Axes title.
+
+    Returns
+    -------
+    ax : matplotlib.axes.Axes
+    isotherms : list of (T_mean_K, line artist) for the curves drawn
+        (empty when there was no finite data).
+    """
+    import matplotlib as mpl
+
+    fig.clear()
+    ax = fig.add_subplot(111)
+
+    P = np.asarray(P_MPa, dtype=float).ravel()
+    T = np.asarray(T_K, dtype=float).ravel()
+    S = np.asarray(sigma_Sm, dtype=float).ravel()
+    U = (np.asarray(sigma_unc_Sm, dtype=float).ravel()
+         if sigma_unc_Sm is not None else np.full_like(S, np.nan))
+    ok = np.isfinite(P) & np.isfinite(T) & np.isfinite(S)
+    P, T, S, U = P[ok], T[ok], S[ok], U[ok]
+
+    isotherms = []
+    if S.size > 0:
+        T_C = T - 273.15
+        bins = np.round(T_C / T_bin_K) * T_bin_K
+        levels = np.unique(bins)
+        norm = mpl.colors.Normalize(vmin=T_C.min(), vmax=T_C.max()) \
+            if np.ptp(T_C) > 0 else mpl.colors.Normalize(vmin=T_C.min() - 1, vmax=T_C.max() + 1)
+        cmap = mpl.colormaps['viridis']
+
+        for lev in levels:
+            sel = bins == lev
+            order = np.argsort(P[sel])
+            Pi, Si, Ui = P[sel][order], S[sel][order], U[sel][order]
+            T_mean = T[sel].mean()
+            color = cmap(norm(T_C[sel].mean()))
+            label = f'{T_mean - 273.15:.1f} degC (n={sel.sum()})'
+            if np.any(np.isfinite(Ui)):
+                line = ax.errorbar(Pi, Si, yerr=np.where(np.isfinite(Ui), Ui, 0),
+                                   fmt='o-', ms=4, lw=1.1, capsize=2,
+                                   color=color, label=label)[0]
+            else:
+                line, = ax.plot(Pi, Si, 'o-', ms=4, lw=1.1, color=color, label=label)
+            isotherms.append((float(T_mean), line))
+
+        if sigma_ref_Sm is not None:
+            ax.axhline(sigma_ref_Sm, color='r', lw=1.0, ls='--', zorder=1)
+        # Keep the legend readable for many isotherms
+        ax.legend(fontsize=7, ncols=2 if len(levels) > 8 else 1,
+                  title=f'T bins ({T_bin_K:g} K wide)', title_fontsize=8)
+    else:
+        ax.text(0.5, 0.5, 'No data with conductivity, P, and T available.',
+                ha='center', va='center', transform=ax.transAxes,
+                fontsize=12, color='gray')
+
+    ax.set_xlabel('P (MPa)')
+    ax.set_ylabel(r'$\sigma$ (S/m)')
+    ax.set_title(title)
+    ax.grid(True, linestyle=':', linewidth=0.8, alpha=0.7)
+
+    return ax, isotherms
+
+
 def plot_sigma(all_meas, fig_size, out_fig_name, xtn):
     colorstr = 'gbryk'
     iColor = 0

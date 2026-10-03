@@ -15,7 +15,8 @@ import matplotlib.pyplot as plt
 import matplotlib.dates as mdates
 import pandas as pd
 import numpy as np
-from gamryPlots import plot_timeseries, plot_conductivity_PT, plot_conductivity_PT_surface
+from gamryPlots import (plot_timeseries, plot_conductivity_PT,
+                        plot_conductivity_PT_surface, plot_conductivity_isotherms)
 import logging
 from PlanetProfile.Thermodynamics.MgSO4.MgSO4Props import Ppt2molal, Molal2ppt
 from cortes_mccleskey import has_mccleskey_model, compute_mccleskey_for_data
@@ -256,6 +257,7 @@ class DataSelector(QMainWindow):
             'svp': False,  # σ vs P
             'svpt': False,  # σ(P,T) 2D map
             'svpt3d': False,  # σ(P,T) 3D surface
+            'svpiso': False,  # σ(P) isotherms
         }
 
         # McCleskey comparison toggle (default: on if applicable data present)
@@ -338,6 +340,11 @@ class DataSelector(QMainWindow):
             self.refresh_s_vs_pt3d_plot()
             self.plots_initialized['svpt3d'] = True
             log.debug("Lazy-loaded σ(P,T) 3D surface")
+
+        elif tab_name == "σ(P) isotherms" and not self.plots_initialized['svpiso']:
+            self.refresh_s_vs_p_isotherms_plot()
+            self.plots_initialized['svpiso'] = True
+            log.debug("Lazy-loaded σ(P) isotherms plot")
 
     def _on_mccleskey_toggle(self, state):
         """
@@ -436,6 +443,14 @@ class DataSelector(QMainWindow):
         self.svpt3d_layout.addWidget(self.svpt3d_canvas)
         self.svpt3d_tab.setLayout(self.svpt3d_layout)
 
+        # Create σ(P) isotherms tab
+        self.svpiso_tab = QWidget()
+        self.svpiso_layout = QVBoxLayout()
+        self.svpiso_figure = Figure()
+        self.svpiso_canvas = FigureCanvas(self.svpiso_figure)
+        self.svpiso_layout.addWidget(self.svpiso_canvas)
+        self.svpiso_tab.setLayout(self.svpiso_layout)
+
         # Create σ vs T tab
         self.svt_tab = QWidget()
         self.svt_layout = QVBoxLayout()
@@ -480,6 +495,7 @@ class DataSelector(QMainWindow):
         self.tabs.addTab(self.svp_tab, "σ vs P")
         self.tabs.addTab(self.svpt_tab, "σ(P,T)")
         self.tabs.addTab(self.svpt3d_tab, "σ(P,T) 3D")
+        self.tabs.addTab(self.svpiso_tab, "σ(P) isotherms")
         self.tabs.addTab(self.svt_tab, "σ vs T")
         self.tabs.addTab(self.svm_tab, "σ vs m")
 
@@ -1501,6 +1517,7 @@ class DataSelector(QMainWindow):
             self.refresh_s_vs_p_plot()
             self.refresh_s_vs_pt_plot()
             self.refresh_s_vs_pt3d_plot()
+            self.refresh_s_vs_p_isotherms_plot()
             self.refresh_sigma_vs_t_plot()
             self.refresh_sigma_vs_m_plot()
 
@@ -1929,6 +1946,43 @@ class DataSelector(QMainWindow):
         self.svpt3d_canvas.draw()
         self.plots_initialized['svpt3d'] = True
 
+    def refresh_s_vs_p_isotherms_plot(self):
+        """
+        Conductivity vs pressure as isotherms: one connected curve per
+        temperature bin (1 K wide), colored by temperature. The clearest view
+        of pressure dependence with temperature factored out.
+
+        Same data selection as refresh_s_vs_pt_plot (associated_mask filter);
+        sigma uncertainties from the table are drawn as error bars when
+        present. self.sigma_ref_Sm, if set, is a dashed red reference line.
+        """
+        if self.data is None or 'σ (S/m)' not in self.data or 'P (MPa)' not in self.data or 'T (K)' not in self.data:
+            return
+
+        try:
+            S = pd.to_numeric(self.data['σ (S/m)'], errors='coerce').to_numpy()
+            P = pd.to_numeric(self.data['P (MPa)'], errors='coerce').to_numpy()
+            T_K = pd.to_numeric(self.data['T (K)'], errors='coerce').to_numpy()
+            # table stores percent uncertainty; convert to S/m
+            U_pct = pd.to_numeric(self.data.get('σ± (S/m)'), errors='coerce').to_numpy()
+            U = S * U_pct / 100.0
+        except Exception:
+            return
+
+        self._ensure_mask_shape()
+        mask = np.isfinite(S) & np.isfinite(P) & np.isfinite(T_K) & self.associated_mask
+
+        ax, isotherms = plot_conductivity_isotherms(
+            self.svpiso_figure, P[mask], T_K[mask], S[mask],
+            sigma_unc_Sm=U[mask], sigma_ref_Sm=self.sigma_ref_Sm)
+        if not isotherms:
+            ax.text(0.5, 0.4, 'Use "Associate Measurements" to add points.',
+                    ha='center', va='center', transform=ax.transAxes,
+                    fontsize=10, color='gray')
+
+        self.svpiso_canvas.draw()
+        self.plots_initialized['svpiso'] = True
+
     def _ensure_mask_shape(self):
         n = len(self.data)
         if not hasattr(self, "associated_mask"):
@@ -1963,6 +2017,8 @@ class DataSelector(QMainWindow):
                 self.svpt_figure.savefig(str(basepath) + "_SvsPT.pdf", bbox_inches="tight")
             if hasattr(self, "svpt3d_figure") and len(self.svpt3d_figure.axes) > 0:
                 self.svpt3d_figure.savefig(str(basepath) + "_SvsPT3D.pdf", bbox_inches="tight")
+            if hasattr(self, "svpiso_figure") and len(self.svpiso_figure.axes) > 0:
+                self.svpiso_figure.savefig(str(basepath) + "_SvsP_isotherms.pdf", bbox_inches="tight")
             QMessageBox.information(self, "Export Successful", f"Saved plots with base: {basepath}")
         except Exception as e:
             QMessageBox.critical(self, "Export Error", str(e))
