@@ -109,3 +109,14 @@ or delete existing entries. Format is defined in `AGENTS.md`.
   question; NOT filtered or adjudicated here.
 - Status: verified for the fits and figures (scripts in session scratchpad;
   figures delivered). PR #3 merge still pending Steve (permission gate).
+
+## 2026-10-03 — claude-code — add plot_sigma_PT.py CLI script
+
+- Promoted the scratchpad sigma(P,T) analysis to a committed CLI,
+  plot_sigma_PT.py: curated zAnalysis loading, optional raw-date CPE fitting
+  with implied/overridden K_cell, map + time-ordered sweep figures (PDF/PNG),
+  provisional_sigma.csv. Tests in tests/test_plot_sigma_PT.py run against
+  real repo data; 12/12 pass headless together with tests/test_pt_map.py.
+- Full KCl-standard run verified; outputs in sigma_PT_plots/ (left
+  untracked for Steve to commit or discard).
+- Status: verified (tests + reproduced figures).
