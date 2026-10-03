@@ -15,7 +15,7 @@ import matplotlib.pyplot as plt
 import matplotlib.dates as mdates
 import pandas as pd
 import numpy as np
-from gamryPlots import plot_timeseries
+from gamryPlots import plot_timeseries, plot_conductivity_PT
 import logging
 from PlanetProfile.Thermodynamics.MgSO4.MgSO4Props import Ppt2molal, Molal2ppt
 from cortes_mccleskey import has_mccleskey_model, compute_mccleskey_for_data
@@ -254,10 +254,15 @@ class DataSelector(QMainWindow):
             'svt': False,  # σ vs T
             'svm': False,  # σ vs m
             'svp': False,  # σ vs P
+            'svpt': False,  # σ(P,T) 2D map
         }
 
         # McCleskey comparison toggle (default: on if applicable data present)
         self.show_mccleskey = True
+
+        # Optional reference conductivity (S/m) highlighted as a contour in the
+        # σ(P,T) tab, e.g. 8.0 for the nominal NIST-traceable KCl standard
+        self.sigma_ref_Sm = None
 
         self.init_ui()
         self.current_std = []
@@ -322,6 +327,11 @@ class DataSelector(QMainWindow):
             self.refresh_s_vs_p_plot()
             self.plots_initialized['svp'] = True
             log.debug("Lazy-loaded σ vs P plot")
+
+        elif tab_name == "σ(P,T)" and not self.plots_initialized['svpt']:
+            self.refresh_s_vs_pt_plot()
+            self.plots_initialized['svpt'] = True
+            log.debug("Lazy-loaded σ(P,T) plot")
 
     def _on_mccleskey_toggle(self, state):
         """
@@ -404,6 +414,14 @@ class DataSelector(QMainWindow):
         self.svp_layout.addWidget(self.svp_canvas)
         self.svp_tab.setLayout(self.svp_layout)
 
+        # Create σ(P,T) 2D map tab
+        self.svpt_tab = QWidget()
+        self.svpt_layout = QVBoxLayout()
+        self.svpt_figure = Figure()
+        self.svpt_canvas = FigureCanvas(self.svpt_figure)
+        self.svpt_layout.addWidget(self.svpt_canvas)
+        self.svpt_tab.setLayout(self.svpt_layout)
+
         # Create σ vs T tab
         self.svt_tab = QWidget()
         self.svt_layout = QVBoxLayout()
@@ -446,6 +464,7 @@ class DataSelector(QMainWindow):
         self.tabs.addTab(self.timeseries_tab, "Timeseries")
         self.tabs.addTab(self.plots_tab, "Bode & Nyquist")
         self.tabs.addTab(self.svp_tab, "σ vs P")
+        self.tabs.addTab(self.svpt_tab, "σ(P,T)")
         self.tabs.addTab(self.svt_tab, "σ vs T")
         self.tabs.addTab(self.svm_tab, "σ vs m")
 
@@ -1465,6 +1484,7 @@ class DataSelector(QMainWindow):
 
             # Update conductivity scatter plots
             self.refresh_s_vs_p_plot()
+            self.refresh_s_vs_pt_plot()
             self.refresh_sigma_vs_t_plot()
             self.refresh_sigma_vs_m_plot()
 
@@ -1829,6 +1849,40 @@ class DataSelector(QMainWindow):
         # auto-save curated data and plots
         # self.save_curated_outputs()
 
+    def refresh_s_vs_pt_plot(self):
+        """
+        2D map of conductivity in the P-T plane: points at (P, T) colored by σ,
+        with interpolated iso-conductivity contours when enough points span an
+        area. Separates pressure from temperature dependence, e.g. to check
+        whether an apparent σ vs P trend is really temperature drift.
+
+        Uses self.data so it reflects table edits, and the same associated_mask
+        filter as refresh_s_vs_p_plot. If self.sigma_ref_Sm is set, that
+        iso-line (e.g. the standard's nominal value) is highlighted in red.
+        """
+        if self.data is None or 'σ (S/m)' not in self.data or 'P (MPa)' not in self.data or 'T (K)' not in self.data:
+            return
+
+        try:
+            S = pd.to_numeric(self.data['σ (S/m)'], errors='coerce').to_numpy()
+            P = pd.to_numeric(self.data['P (MPa)'], errors='coerce').to_numpy()
+            T_K = pd.to_numeric(self.data['T (K)'], errors='coerce').to_numpy()
+        except Exception:
+            return
+
+        self._ensure_mask_shape()
+        mask = np.isfinite(S) & np.isfinite(P) & np.isfinite(T_K) & self.associated_mask
+
+        ax, sc = plot_conductivity_PT(self.svpt_figure, P[mask], T_K[mask], S[mask],
+                                      sigma_ref_Sm=self.sigma_ref_Sm)
+        if sc is None:
+            ax.text(0.5, 0.4, 'Use "Associate Measurements" to add points.',
+                    ha='center', va='center', transform=ax.transAxes,
+                    fontsize=10, color='gray')
+
+        self.svpt_canvas.draw()
+        self.plots_initialized['svpt'] = True
+
     def _ensure_mask_shape(self):
         n = len(self.data)
         if not hasattr(self, "associated_mask"):
@@ -1859,6 +1913,8 @@ class DataSelector(QMainWindow):
                 self.nyquist_figure.savefig(str(basepath) + "_Nyquist.pdf", bbox_inches="tight")
             if hasattr(self, "svp_figure") and len(self.svp_figure.axes) > 0:
                 self.svp_figure.savefig(str(basepath) + "_SvsP.pdf", bbox_inches="tight")
+            if hasattr(self, "svpt_figure") and len(self.svpt_figure.axes) > 0:
+                self.svpt_figure.savefig(str(basepath) + "_SvsPT.pdf", bbox_inches="tight")
             QMessageBox.information(self, "Export Successful", f"Saved plots with base: {basepath}")
         except Exception as e:
             QMessageBox.critical(self, "Export Error", str(e))

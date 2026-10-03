@@ -328,6 +328,90 @@ def plot_timeseries(timeseries, fig_size=None, out_fig_name=None, xtn=None, figu
         plt.show()
 
 
+def plot_conductivity_PT(fig, P_MPa, T_K, sigma_Sm, sigma_ref_Sm=None,
+                         title='Conductivity in the P--T plane'):
+    """
+    Draw a 2D map of conductivity in the pressure-temperature plane onto fig.
+
+    Each measurement is a point at (P, T) colored by its conductivity, so
+    pressure and temperature dependence can be separated visually: an apparent
+    trend in a 1D sigma-vs-P plot that is really driven by temperature drift
+    shows up here as color varying along T rather than along P.
+
+    When at least 4 points span a non-degenerate area, an interpolated
+    filled-contour background with labeled iso-conductivity lines is drawn
+    beneath the points. If sigma_ref_Sm is given (e.g. the nominal value of a
+    conductivity standard), the iso-line at that value is highlighted in red.
+
+    Parameters
+    ----------
+    fig : matplotlib.figure.Figure
+        Figure to draw on; it is cleared first.
+    P_MPa, T_K, sigma_Sm : array-like
+        Pressure (MPa), temperature (K), and conductivity (S/m) per point.
+        Non-finite entries are dropped.
+    sigma_ref_Sm : float, optional
+        Reference conductivity to highlight as a contour, if it falls within
+        the range of the data.
+    title : str, optional
+        Axes title.
+
+    Returns
+    -------
+    ax : matplotlib.axes.Axes
+    sc : matplotlib.collections.PathCollection or None
+        The scatter artist, or None when there were no finite points.
+    """
+    fig.clear()
+    ax = fig.add_subplot(111)
+
+    P = np.asarray(P_MPa, dtype=float).ravel()
+    T = np.asarray(T_K, dtype=float).ravel()
+    S = np.asarray(sigma_Sm, dtype=float).ravel()
+    ok = np.isfinite(P) & np.isfinite(T) & np.isfinite(S)
+    P, T, S = P[ok], T[ok], S[ok]
+    T_C = T - 273.15
+
+    sc = None
+    if S.size > 0:
+        vmin, vmax = float(np.min(S)), float(np.max(S))
+        spans_area = S.size >= 4 and np.ptp(P) > 0 and np.ptp(T_C) > 0
+        if spans_area and vmax > vmin:
+            # Triangulation can fail on (near-)collinear points; the scatter
+            # below is drawn regardless, so just skip the background then.
+            try:
+                levels = np.linspace(vmin, vmax, 13)
+                ax.tricontourf(P, T_C, S, levels=levels, cmap='viridis',
+                               alpha=0.6, vmin=vmin, vmax=vmax)
+                lines = ax.tricontour(P, T_C, S, levels=levels, colors='k',
+                                      linewidths=0.4, alpha=0.5)
+                ax.clabel(lines, fontsize=7, fmt='%.2f')
+                if sigma_ref_Sm is not None and vmin < sigma_ref_Sm < vmax:
+                    ref = ax.tricontour(P, T_C, S, levels=[sigma_ref_Sm],
+                                        colors='r', linewidths=1.2)
+                    ax.clabel(ref, fontsize=8, fmt='%.2f')
+            except Exception as e:
+                log.debug(f'sigma(P,T) contour interpolation skipped: {e}')
+        color_kw = {'c': S, 'cmap': 'viridis'}
+        if vmax > vmin:
+            color_kw.update(vmin=vmin, vmax=vmax)
+        sc = ax.scatter(P, T_C, s=36, edgecolors='k', linewidths=0.4,
+                        zorder=3, **color_kw)
+        cbar = fig.colorbar(sc, ax=ax)
+        cbar.set_label(r'$\sigma$ (S/m)')
+        if sigma_ref_Sm is not None:
+            cbar.ax.axhline(sigma_ref_Sm, color='r', linewidth=1.2)
+    else:
+        ax.text(0.5, 0.5, 'No data with conductivity, P, and T available.',
+                ha='center', va='center', transform=ax.transAxes,
+                fontsize=12, color='gray')
+
+    ax.set_xlabel('P (MPa)')
+    ax.set_ylabel('T (degC)')
+    ax.set_title(title)
+    ax.grid(True, linestyle=':', linewidth=0.8, alpha=0.7)
+
+    return ax, sc
 
 
 def plot_sigma(all_meas, fig_size, out_fig_name, xtn):

@@ -38,6 +38,9 @@ vectors.db
 *.egg-info/
 tests/test_output/
 
+# Per-user PlanetProfile configs (auto-generated on first import)
+UserConfigs/
+
 # Documentation snapshots (move to docs/ if needed)
 *_PLAN.md
 *_SUMMARY.md
