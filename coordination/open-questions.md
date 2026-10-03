@@ -35,3 +35,20 @@ the tolerance was changed; the test is committed as-is and fails until
 resolved. The companion NaCl:MgSO4 check (expected 69.09) passes.
 
 Steve: which number is correct for 20C, 0.5 M KCl — 55.88 or 57.83?
+
+## 2026-10-03 — what are the Sept 22-25 "Default" runs? (affects sigma(P,T) map)
+
+The 171 raw sweeps uploaded to main in data/20260922-20260925 (all at 1-4 MPa,
+~295-296 K, description "Default") were circuit-fitted with the usual CPE
+model and converted with the curated dataset's shared K_cell = 128.40 1/m.
+The resulting provisional sigma values step between flat plateaus (e.g. 9/22:
+5.9 -> 6.6 -> 7.9 -> 8.6 S/m; 9/25 ends 7.5 -> 9.1 -> 11.7 -> 13.6), i.e.
+these are NOT one fixed 52.168-ppt standard — they look like deliberate
+composition/condition steps. Only ~9% of sweeps fall near nominal 8 S/m.
+
+Steve: what was varied in these runs (dilutions? different standards? cell
+work?), and which sweeps, if any, are the 8 S/m standard? Until then they are
+excluded from quantitative pressure-trend fits; the plateaus near 8.3 S/m at
+1-3 MPa vs the curated 8.11 S/m at 190 MPa (same T band) would imply only a
+~ -2% change over 190 MPa if they are the undiluted standard with unchanged
+K_cell.

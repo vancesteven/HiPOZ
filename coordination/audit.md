@@ -94,3 +94,18 @@ or delete existing entries. Format is defined in `AGENTS.md`.
   0.5m, data/20260917-20260925. No code touched by the merge; no conflicts.
 - Status: verified for the merge (`git merge-base --is-ancestor origin/main
   HEAD` passes; file count matches diffstat).
+
+## 2026-10-03 — claude-code — sigma(P,T) map updated with Sept 22-25 raw data
+
+- Fitted all 171 new raw sweeps (CPE, 10-100 kHz band) from
+  data/20260922-20260925; zero fit failures. No zAnalysis configs exist for
+  these dates, so sigma is provisional via the curated dataset's shared
+  K_cell = 128.40 1/m (identical across all 13 curated dates, sd ~0).
+- Rebuilt the sigma(P,T) map: contours from curated Aug 18 - Sep 10 data,
+  new points overlaid as marked provisional triangles; companion figure of
+  time-ordered sweeps shows plateau structure. Both PNGs sent to Steve.
+- Finding: new sweeps step between distinct sigma plateaus (2.7-13.6 S/m) at
+  fixed P,T — multiple solutions/conditions, not noise. Logged as an open
+  question; NOT filtered or adjudicated here.
+- Status: verified for the fits and figures (scripts in session scratchpad;
+  figures delivered). PR #3 merge still pending Steve (permission gate).
