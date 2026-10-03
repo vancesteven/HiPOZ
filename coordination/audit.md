@@ -120,3 +120,12 @@ or delete existing entries. Format is defined in `AGENTS.md`.
 - Full KCl-standard run verified; outputs in sigma_PT_plots/ (left
   untracked for Steve to commit or discard).
 - Status: verified (tests + reproduced figures).
+
+## 2026-10-03 — claude-code — 3D sigma(P,T) surface function, GUI tab, CLI output
+
+- plot_conductivity_PT_surface in gamryPlots.py; "σ(P,T) 3D" DataSelector tab
+  (interactive rotation via Qt canvas); sigma_PT_surface.pdf/.png added to
+  plot_sigma_PT.py outputs (surface from curated data only, provisional raw
+  points overlaid as 3D scatter). PNG from the real KCl dataset sent to Steve.
+- Status: verified for the function and CLI (15/15 pt-map tests + real-data
+  run); the GUI tab is implemented, unverified pending a macOS launch.
