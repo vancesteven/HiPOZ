@@ -414,6 +414,92 @@ def plot_conductivity_PT(fig, P_MPa, T_K, sigma_Sm, sigma_ref_Sm=None,
     return ax, sc
 
 
+def plot_conductivity_PT_surface(fig, P_MPa, T_K, sigma_Sm, sigma_ref_Sm=None,
+                                 title='Conductivity surface in the P--T plane'):
+    """
+    Draw a 3D surface of conductivity over the pressure-temperature plane.
+
+    Companion to plot_conductivity_PT: the same data as a rotatable 3D view
+    (interactive when shown in a GUI canvas; drag to rotate). A triangulated
+    surface is drawn when at least 4 points span a non-degenerate area;
+    measured points are always shown as a 3D scatter. If sigma_ref_Sm lies
+    within the data range, a translucent red plane marks it.
+
+    Parameters
+    ----------
+    fig : matplotlib.figure.Figure
+        Figure to draw on; it is cleared first.
+    P_MPa, T_K, sigma_Sm : array-like
+        Pressure (MPa), temperature (K), and conductivity (S/m) per point.
+        Non-finite entries are dropped.
+    sigma_ref_Sm : float, optional
+        Reference conductivity marked as a horizontal plane.
+    title : str, optional
+        Axes title.
+
+    Returns
+    -------
+    ax : matplotlib.axes.Axes
+        3D axes, or 2D axes with a message when there are no finite points.
+    artist : mpl_toolkits.mplot3d artist or None
+        The surface if one was drawn, else the scatter, else None.
+    """
+    fig.clear()
+
+    P = np.asarray(P_MPa, dtype=float).ravel()
+    T = np.asarray(T_K, dtype=float).ravel()
+    S = np.asarray(sigma_Sm, dtype=float).ravel()
+    ok = np.isfinite(P) & np.isfinite(T) & np.isfinite(S)
+    P, T, S = P[ok], T[ok], S[ok]
+    T_C = T - 273.15
+
+    if S.size == 0:
+        ax = fig.add_subplot(111)
+        ax.text(0.5, 0.5, 'No data with conductivity, P, and T available.',
+                ha='center', va='center', transform=ax.transAxes,
+                fontsize=12, color='gray')
+        ax.set_title(title)
+        return ax, None
+
+    ax = fig.add_subplot(111, projection='3d')
+    vmin, vmax = float(np.min(S)), float(np.max(S))
+
+    surf = None
+    if S.size >= 4 and np.ptp(P) > 0 and np.ptp(T_C) > 0 and vmax > vmin:
+        # Triangulation fails on (near-)collinear points; fall back to scatter.
+        try:
+            surf = ax.plot_trisurf(P, T_C, S, cmap='viridis', alpha=0.75,
+                                   linewidth=0.2, edgecolor='0.4',
+                                   vmin=vmin, vmax=vmax)
+        except Exception as e:
+            log.debug(f'sigma(P,T) surface triangulation skipped: {e}')
+
+    color_kw = {'c': S, 'cmap': 'viridis'}
+    if vmax > vmin:
+        color_kw.update(vmin=vmin, vmax=vmax)
+    sc = ax.scatter(P, T_C, S, s=18, edgecolors='k', linewidths=0.3,
+                    depthshade=False, **color_kw)
+
+    if sigma_ref_Sm is not None and vmin <= sigma_ref_Sm <= vmax and np.ptp(P) > 0 and np.ptp(T_C) > 0:
+        Pg, Tg = np.meshgrid([P.min(), P.max()], [T_C.min(), T_C.max()])
+        ax.plot_surface(Pg, Tg, np.full_like(Pg, sigma_ref_Sm, dtype=float),
+                        color='r', alpha=0.15, shade=False)
+
+    mappable = surf if surf is not None else sc
+    cbar = fig.colorbar(mappable, ax=ax, shrink=0.65, pad=0.1)
+    cbar.set_label(r'$\sigma$ (S/m)')
+    if sigma_ref_Sm is not None:
+        cbar.ax.axhline(sigma_ref_Sm, color='r', linewidth=1.2)
+
+    ax.set_xlabel('P (MPa)')
+    ax.set_ylabel('T (degC)')
+    ax.set_zlabel(r'$\sigma$ (S/m)')
+    ax.set_title(title)
+    ax.view_init(elev=22, azim=-120)
+
+    return ax, (surf if surf is not None else sc)
+
+
 def plot_sigma(all_meas, fig_size, out_fig_name, xtn):
     colorstr = 'gbryk'
     iColor = 0

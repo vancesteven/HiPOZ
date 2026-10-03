@@ -111,3 +111,36 @@ def test_pt_map_temperature_in_celsius(fig):
     ys = sc.get_offsets()[:, 1]
     assert np.isclose(ys.max(), 25.0)
     assert np.isclose(ys.min(), 0.0)
+
+
+# --- 3D surface companion (plot_conductivity_PT_surface) ---------------------
+
+from gamryPlots import plot_conductivity_PT_surface
+
+
+def test_pt_surface_full_grid(fig):
+    P, T, sigma = make_grid_data()
+    ax, artist = plot_conductivity_PT_surface(fig, P, T, sigma, sigma_ref_Sm=8.0)
+    assert ax.name == '3d', "Should produce 3D axes"
+    assert artist is not None
+    assert len(fig.axes) >= 2, "Colorbar axes should be present"
+    assert ax.get_zlabel() != ""
+    fig.canvas.draw()
+
+
+def test_pt_surface_collinear_falls_back_to_scatter(fig):
+    T = np.linspace(263, 323, 6)
+    P = np.full_like(T, 100.0)
+    sigma = 8.0 + 0.05 * (T - 298.15)
+    ax, artist = plot_conductivity_PT_surface(fig, P, T, sigma)
+    assert ax.name == '3d'
+    assert artist is not None, "Scatter fallback expected for collinear points"
+    fig.canvas.draw()
+
+
+def test_pt_surface_empty(fig):
+    ax, artist = plot_conductivity_PT_surface(fig, [], [], [])
+    assert artist is None
+    assert ax.name != '3d', "Empty data should give a 2D message axes"
+    assert len(ax.texts) > 0
+    fig.canvas.draw()

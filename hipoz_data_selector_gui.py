@@ -15,7 +15,7 @@ import matplotlib.pyplot as plt
 import matplotlib.dates as mdates
 import pandas as pd
 import numpy as np
-from gamryPlots import plot_timeseries, plot_conductivity_PT
+from gamryPlots import plot_timeseries, plot_conductivity_PT, plot_conductivity_PT_surface
 import logging
 from PlanetProfile.Thermodynamics.MgSO4.MgSO4Props import Ppt2molal, Molal2ppt
 from cortes_mccleskey import has_mccleskey_model, compute_mccleskey_for_data
@@ -255,6 +255,7 @@ class DataSelector(QMainWindow):
             'svm': False,  # σ vs m
             'svp': False,  # σ vs P
             'svpt': False,  # σ(P,T) 2D map
+            'svpt3d': False,  # σ(P,T) 3D surface
         }
 
         # McCleskey comparison toggle (default: on if applicable data present)
@@ -332,6 +333,11 @@ class DataSelector(QMainWindow):
             self.refresh_s_vs_pt_plot()
             self.plots_initialized['svpt'] = True
             log.debug("Lazy-loaded σ(P,T) plot")
+
+        elif tab_name == "σ(P,T) 3D" and not self.plots_initialized['svpt3d']:
+            self.refresh_s_vs_pt3d_plot()
+            self.plots_initialized['svpt3d'] = True
+            log.debug("Lazy-loaded σ(P,T) 3D surface")
 
     def _on_mccleskey_toggle(self, state):
         """
@@ -422,6 +428,14 @@ class DataSelector(QMainWindow):
         self.svpt_layout.addWidget(self.svpt_canvas)
         self.svpt_tab.setLayout(self.svpt_layout)
 
+        # Create σ(P,T) 3D surface tab (interactive: drag to rotate)
+        self.svpt3d_tab = QWidget()
+        self.svpt3d_layout = QVBoxLayout()
+        self.svpt3d_figure = Figure()
+        self.svpt3d_canvas = FigureCanvas(self.svpt3d_figure)
+        self.svpt3d_layout.addWidget(self.svpt3d_canvas)
+        self.svpt3d_tab.setLayout(self.svpt3d_layout)
+
         # Create σ vs T tab
         self.svt_tab = QWidget()
         self.svt_layout = QVBoxLayout()
@@ -465,6 +479,7 @@ class DataSelector(QMainWindow):
         self.tabs.addTab(self.plots_tab, "Bode & Nyquist")
         self.tabs.addTab(self.svp_tab, "σ vs P")
         self.tabs.addTab(self.svpt_tab, "σ(P,T)")
+        self.tabs.addTab(self.svpt3d_tab, "σ(P,T) 3D")
         self.tabs.addTab(self.svt_tab, "σ vs T")
         self.tabs.addTab(self.svm_tab, "σ vs m")
 
@@ -1485,6 +1500,7 @@ class DataSelector(QMainWindow):
             # Update conductivity scatter plots
             self.refresh_s_vs_p_plot()
             self.refresh_s_vs_pt_plot()
+            self.refresh_s_vs_pt3d_plot()
             self.refresh_sigma_vs_t_plot()
             self.refresh_sigma_vs_m_plot()
 
@@ -1883,6 +1899,36 @@ class DataSelector(QMainWindow):
         self.svpt_canvas.draw()
         self.plots_initialized['svpt'] = True
 
+    def refresh_s_vs_pt3d_plot(self):
+        """
+        3D surface of conductivity over the P-T plane (drag to rotate).
+
+        Same data selection as refresh_s_vs_pt_plot (associated_mask filter);
+        self.sigma_ref_Sm, if set, is shown as a translucent red plane.
+        """
+        if self.data is None or 'σ (S/m)' not in self.data or 'P (MPa)' not in self.data or 'T (K)' not in self.data:
+            return
+
+        try:
+            S = pd.to_numeric(self.data['σ (S/m)'], errors='coerce').to_numpy()
+            P = pd.to_numeric(self.data['P (MPa)'], errors='coerce').to_numpy()
+            T_K = pd.to_numeric(self.data['T (K)'], errors='coerce').to_numpy()
+        except Exception:
+            return
+
+        self._ensure_mask_shape()
+        mask = np.isfinite(S) & np.isfinite(P) & np.isfinite(T_K) & self.associated_mask
+
+        ax, artist = plot_conductivity_PT_surface(self.svpt3d_figure, P[mask], T_K[mask], S[mask],
+                                                  sigma_ref_Sm=self.sigma_ref_Sm)
+        if artist is None:
+            ax.text(0.5, 0.4, 'Use "Associate Measurements" to add points.',
+                    ha='center', va='center', transform=ax.transAxes,
+                    fontsize=10, color='gray')
+
+        self.svpt3d_canvas.draw()
+        self.plots_initialized['svpt3d'] = True
+
     def _ensure_mask_shape(self):
         n = len(self.data)
         if not hasattr(self, "associated_mask"):
@@ -1915,6 +1961,8 @@ class DataSelector(QMainWindow):
                 self.svp_figure.savefig(str(basepath) + "_SvsP.pdf", bbox_inches="tight")
             if hasattr(self, "svpt_figure") and len(self.svpt_figure.axes) > 0:
                 self.svpt_figure.savefig(str(basepath) + "_SvsPT.pdf", bbox_inches="tight")
+            if hasattr(self, "svpt3d_figure") and len(self.svpt3d_figure.axes) > 0:
+                self.svpt3d_figure.savefig(str(basepath) + "_SvsPT3D.pdf", bbox_inches="tight")
             QMessageBox.information(self, "Export Successful", f"Saved plots with base: {basepath}")
         except Exception as e:
             QMessageBox.critical(self, "Export Error", str(e))

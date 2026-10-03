@@ -30,8 +30,9 @@ Curated dates only:
   python plot_sigma_PT.py --dates 20260818 20260827 --sigma-ref 8.0
 
 Outputs land in --out-dir (default sigma_PT_plots/): sigma_PT_map.pdf/.png,
-and with raw dates also raw_sigma_timeseries.pdf/.png and
-provisional_sigma.csv.
+sigma_PT_surface.pdf/.png (3D view; interactive rotation available in the
+GUI's "σ(P,T) 3D" tab), and with raw dates also raw_sigma_timeseries.pdf/.png
+and provisional_sigma.csv.
 """
 import argparse
 import logging
@@ -142,6 +143,33 @@ def make_map(cur, raw, sigma_ref, title, out_dir, xtns):
     return paths
 
 
+def make_surface(cur, raw, sigma_ref, title, out_dir, xtns):
+    import matplotlib.pyplot as plt
+    from gamryPlots import plot_conductivity_PT_surface
+    fig = plt.figure(figsize=(9.5, 7))
+    # Surface from curated data only; provisional points would put multiple
+    # sigma values at one (P,T) spot and spike the triangulation.
+    ax, artist = plot_conductivity_PT_surface(
+        fig, cur['P_MPa'], cur['T_K'], cur['conductivity_Sm'],
+        sigma_ref_Sm=sigma_ref, title=title)
+    if raw is not None and len(raw) > 0 and artist is not None:
+        vmin = float(cur['conductivity_Sm'].min())
+        vmax = float(cur['conductivity_Sm'].max())
+        ax.scatter(raw['P_MPa'], raw['T_K'] - 273.15, raw['sigma_Sm'],
+                   c=raw['sigma_Sm'].clip(vmin, vmax), cmap='viridis',
+                   vmin=vmin, vmax=vmax, marker='^', s=30, edgecolors='r',
+                   linewidths=0.5, depthshade=False,
+                   label='provisional (raw fit)')
+        ax.legend(loc='upper left', fontsize=8)
+    paths = []
+    for xtn in xtns:
+        p = out_dir / f'sigma_PT_surface.{xtn}'
+        fig.savefig(p, dpi=300, bbox_inches='tight')
+        paths.append(p)
+    plt.close(fig)
+    return paths
+
+
 def make_raw_timeseries(raw, sigma_ref, out_dir, xtns):
     import matplotlib.pyplot as plt
     raw = raw.copy()
@@ -229,6 +257,7 @@ def main(argv=None):
         log.info(f'Wrote {csv_path}')
 
     paths = make_map(cur, raw, args.sigma_ref, args.title, out_dir, args.xtn)
+    paths += make_surface(cur, raw, args.sigma_ref, args.title, out_dir, args.xtn)
     if raw is not None and len(raw) > 0:
         paths += make_raw_timeseries(raw, args.sigma_ref, out_dir, args.xtn)
     for p in paths:
