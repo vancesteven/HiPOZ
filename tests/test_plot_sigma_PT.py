@@ -9,14 +9,31 @@ sys.path.insert(0, '.')
 import matplotlib
 matplotlib.use('Agg')
 
+from pathlib import Path
+
 import pandas as pd
 import pytest
 
 import plot_sigma_PT
 
+# Curated zAnalysis CSVs are deliberately gitignored (per-user GUI state), so
+# checkouts without them must skip rather than fail; paths are anchored to the
+# repo root so the tests pass regardless of pytest's working directory.
+REPO = Path(__file__).resolve().parent.parent
+DATA_DIR = str(REPO / 'data')
+
+def needs_zanalysis(*dates):
+    missing = [d for d in dates
+               if not (REPO / 'data' / d / f'zAnalysis{d}.csv').exists()]
+    if missing:
+        pytest.skip(f'curated zAnalysis CSV not present for {missing} '
+                    f'(gitignored per-user GUI state)')
+
 
 def test_map_from_curated_dates(tmp_path):
+    needs_zanalysis('20260818', '20260827')
     rc = plot_sigma_PT.main([
+        '--data-dir', DATA_DIR,
         '--dates', '20260818', '20260827',
         '--sigma-ref', '8.0', '--no-tex',
         '--xtn', 'png',
@@ -29,7 +46,9 @@ def test_map_from_curated_dates(tmp_path):
 
 
 def test_map_with_raw_dates(tmp_path):
+    needs_zanalysis('20260827')
     rc = plot_sigma_PT.main([
+        '--data-dir', DATA_DIR,
         '--dates', '20260827',
         '--raw-dates', '20260922',
         '--max-files', '2',
@@ -49,11 +68,12 @@ def test_map_with_raw_dates(tmp_path):
 
 def test_curated_date_without_zanalysis_raises(tmp_path):
     with pytest.raises(FileNotFoundError):
-        plot_sigma_PT.load_curated(['20260922'])
+        plot_sigma_PT.load_curated(['20260922'], DATA_DIR)
 
 
 def test_implied_k_cell_matches_curated_dataset():
-    cur = plot_sigma_PT.load_curated(['20260827'])
+    needs_zanalysis('20260827')
+    cur = plot_sigma_PT.load_curated(['20260827'], DATA_DIR)
     k = plot_sigma_PT.implied_k_cell(cur)
     # The Aug-Sep 2026 KCl study used a single shared cell constant
     assert k == pytest.approx(128.40, abs=0.05)

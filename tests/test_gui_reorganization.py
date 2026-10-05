@@ -132,15 +132,24 @@ def test_bode_nyquist_button_removed(qapp):
     assert not hasattr(selector, 'btn_create_plots')
 
 
-def test_auto_plot_on_selection(qapp):
-    """Test that plots are auto-generated when selection changes."""
+def test_manual_plot_update_wiring(qapp):
+    """Plots update via the Update Plots button (auto-plot-on-selection was
+    removed deliberately: it made table interaction sluggish)."""
     ts = MockTimeSeries()
     selector = DataSelector(ts)
 
-    # Check that selection changed signal is connected
-    assert selector.table.selectionModel().selectionChanged.isSignalConnected(
-        selector.on_table_selection_changed
-    )
+    assert hasattr(selector, 'btn_update_plots'), "Update Plots button missing"
+    assert hasattr(selector, 'update_all_plots'), "update_all_plots method missing"
+
+    # PyQt6 bound signals have no isSignalConnected(); disconnect() raises
+    # TypeError if the slot was never connected, so a successful disconnect
+    # proves the connection existed. Reconnect to leave the GUI intact.
+    sig = selector.btn_update_plots.clicked
+    try:
+        sig.disconnect(selector.update_all_plots)
+    except TypeError:
+        assert False, "update_all_plots is not connected to btn_update_plots"
+    sig.connect(selector.update_all_plots)
 
 
 def test_refresh_sigma_vs_t_method(qapp):
