@@ -210,3 +210,16 @@ or delete existing entries. Format is defined in `AGENTS.md`.
   test-covered; on-screen visual confirmation on macOS remains the bar for
   'verified' per the UI rule.
 - Status: verified (test run above; fixes exercised the changed paths).
+
+## 2026-10-05 — claude-code — macOS suite green except open KCl question
+
+- Steve's rerun after the test fixes: 82 passed, 9 skipped, 1 failed —
+  the sole failure is test_kcl_extraction (55.88 vs 57.83 mS/cm), which
+  stays red pending Steve's answer to the 2026-09-15 open question.
+- The 9 skips match the Reaktoro-marked speciation tests: Reaktoro is NOT
+  installed in the environment that ran pytest. Until it is
+  (conda/mamba install -c conda-forge reaktoro), the 'auto' speciation mode
+  falls back to total molality and regenerate_cortes_figures.sh would
+  produce non-speciated MgSO4/Na2SO4 curves (it warns, but proceeds).
+- Status: verified (TeX plot-export tests and both GUI suites pass on
+  macOS; GUI tabs construct correctly under the real Qt platform).
