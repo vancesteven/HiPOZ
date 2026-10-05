@@ -27,7 +27,6 @@ lab data merged in from origin/main. PR #3 (still open) now carries all of it.
 | 3D sigma(P,T) GUI tab ("σ(P,T) 3D", drag-to-rotate) | claude-code | implemented, unverified | needs GUI launch on macOS (no libEGL in container) |
 | sigma vs P isotherms (function + CLI output) | claude-code | verified | tests/test_pt_map.py 19/19; sigma_P_isotherms.png delivered 2026-10-03 |
 | sigma vs P isotherms GUI tab ("σ(P) isotherms") | claude-code | implemented, unverified | needs GUI launch on macOS (no libEGL in container) |
-
 | McCleskey total-ionic-strength fix | claude-code | verified | tests/test_mccleskey_ionic_strength.py (KCl standards within 1%); audit 2026-10-05 |
 | WATEQ4F speciation in Cortes pipeline (auto mode) | claude-code | implemented, unverified | fallback path tested here; speciated path needs Reaktoro (Mac) — run validate_speciation.py and pytest tests/test_speciation.py |
 
