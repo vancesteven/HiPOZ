@@ -32,6 +32,10 @@ def create_mock_timeseries():
     ts.Ps = [10, 20, 30, 40, 50]  # MPa
     ts.Rcalc_ohm = [100.0, 95.0, 90.0, 85.0, 80.0]
     ts.percent_uncertainties = [2.0, 2.0, 2.0, 2.0, 2.0]
+    # plot_timeseries iterates these in lockstep with timestamps/Rcalc_ohm
+    ts.uncertainties = [2.0, 1.9, 1.8, 1.7, 1.6]
+    ts.colors = ['C0'] * n
+    ts.markers = ['o'] * n
     ts.conductivities_Sm = [None, None, None, None, None]
     ts.conductivities_unc_pct = [None, None, None, None, None]
 

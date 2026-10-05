@@ -550,8 +550,13 @@ def main():
                        help="WATEQ4F speciation for McCleskey curves: 'auto' uses it "
                             "when Reaktoro is installed (default); 'on' requires it; "
                             "'off' runs on total molality")
+    parser.add_argument('--no-tex', action='store_true',
+                       help='Disable LaTeX text rendering (for machines without TeX)')
 
     args = parser.parse_args()
+
+    if args.no_tex:
+        plt.rcParams['text.usetex'] = False
 
     global SPECIATION
     SPECIATION = {'auto': 'auto', 'on': True, 'off': False}[args.speciation]

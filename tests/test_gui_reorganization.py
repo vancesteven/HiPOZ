@@ -40,6 +40,10 @@ class MockTimeSeries:
         self.Ps = np.array([10.0] * n_points)
         self.Rcalc_ohm = np.array([100.0] * n_points)
         self.percent_uncertainties = np.array([2.0] * n_points)
+        # plot_timeseries iterates these in lockstep with timestamps/Rcalc_ohm
+        self.uncertainties = self.Rcalc_ohm * self.percent_uncertainties / 100
+        self.colors = ['C0'] * n_points
+        self.markers = ['o'] * n_points
         self.conductivities_Sm = np.array([0.01] * n_points)
         self.conductivities_unc_pct = np.array([2.0] * n_points)
         self.frequencies = [np.logspace(1, 5, 10) for _ in range(n_points)]
