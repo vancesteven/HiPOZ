@@ -52,3 +52,21 @@ excluded from quantitative pressure-trend fits; the plateaus near 8.3 S/m at
 1-3 MPa vs the curated 8.11 S/m at 190 MPa (same T band) would imply only a
 ~ -2% change over 190 MPa if they are the undiluted standard with unchanged
 K_cell.
+
+## 2026-10-05 — regenerate Cortes McCleskey figures with fixed I + speciation?
+
+Two model corrections landed on hipozgenai (see audit, 2026-10-05):
+1. elecCondMcCleskey2012 now evaluates lambda_i at the TOTAL effective ionic
+   strength, as MC12 specifies (was per-ion). KCl standards: errors improve
+   from +2.3..+4.6% to within +-0.75%. This shifts EVERY McCleskey curve.
+2. The Cortes pipeline (cortes_mccleskey.py, plot_cortes_with_mccleskey.py)
+   now supports WATEQ4F speciation ('auto': on when Reaktoro is present).
+   Benchtop validation shows MgSO4 RMS error is 78.6% WITHOUT speciation.
+
+Both change figures intended for the Cortes et al. (2026) paper. Steve:
+confirm before the paper figures are regenerated with the corrected model
+(run on the Mac, where Reaktoro is installed, so 'auto' speciation engages).
+Also: extend speciation.VERIFIED_COMPOUNDS to Na2SO4/Na2CO3 after
+validate_speciation.py's MC12+spec column checks out there — the lambda
+coefficients for NaSO4-/KSO4-/NaCO3- are now verified verbatim against the
+published USGS table, so the old "provisional" doubt is retired.

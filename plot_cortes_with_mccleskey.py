@@ -35,6 +35,18 @@ import cortes_mccleskey as cm
 from study_plots import compute_mccleskey_model, ION_SPECS
 from plotting import pdiff
 
+# WATEQ4F speciation mode for the McCleskey curves: 'auto' (on when Reaktoro
+# is available and the salt has a recipe), True, or False. Set from
+# --speciation in main().
+SPECIATION = 'auto'
+
+
+def _mc_model(concs, temps, compound):
+    """compute_mccleskey_model with the script-wide speciation setting."""
+    return compute_mccleskey_model(
+        concs, temps, compound=compound,
+        speciation=cm.resolve_speciation(compound, SPECIATION))
+
 # Configure LaTeX
 try:
     plt.rcParams['text.usetex'] = True
@@ -271,7 +283,7 @@ def plot_with_integrated_mccleskey(data_list, compound, x_data, x_label, y_data,
         # Compute McCleskey at average temperature
         concs_model = w_model
         temps_model = np.array([avg_temp])
-        model_result = compute_mccleskey_model(concs_model, temps_model, compound=compound)
+        model_result = _mc_model(concs_model, temps_model, compound)
         model_sigma_unified = model_result[0]
 
         # Plot single unified model line (black dashed)
@@ -332,11 +344,11 @@ def plot_with_integrated_mccleskey(data_list, compound, x_data, x_label, y_data,
                 temps_data = np.array([group_val])
 
                 # Compute model: returns list of length 1, containing array of length n_concs
-                model_result = compute_mccleskey_model(concs_model, temps_model, compound=compound)
+                model_result = _mc_model(concs_model, temps_model, compound)
                 model_sigma = model_result[0]  # Extract the single array
 
                 # Compute at data points for delta
-                model_result_data = compute_mccleskey_model(concs_data, temps_data, compound=compound)
+                model_result_data = _mc_model(concs_data, temps_data, compound)
                 model_sigma_data = model_result_data[0]
 
                 # Plot individual temperature line segment (colored dashed line)
@@ -365,12 +377,12 @@ def plot_with_integrated_mccleskey(data_list, compound, x_data, x_label, y_data,
                 temps_data = x_vals
 
                 # Compute model: returns list of length n_temps, each containing array of length 1
-                model_result = compute_mccleskey_model(concs_model, temps_model, compound=compound)
+                model_result = _mc_model(concs_model, temps_model, compound)
                 # Extract first element of each array (since we only have one concentration)
                 model_sigma = np.array([r[0] for r in model_result])
 
                 # Compute at data points for delta
-                model_result_data = compute_mccleskey_model(concs_data, temps_data, compound=compound)
+                model_result_data = _mc_model(concs_data, temps_data, compound)
                 model_sigma_data = np.array([r[0] for r in model_result_data])
 
                 # Plot model as smooth dashed line
@@ -534,8 +546,15 @@ def main():
                        help='Include McCleskey model comparison (low-P data only)')
     parser.add_argument('--p-threshold', '-p', type=float, default=5.0,
                        help='Pressure threshold for McCleskey comparison (MPa, default: 5.0)')
+    parser.add_argument('--speciation', choices=['auto', 'on', 'off'], default='auto',
+                       help="WATEQ4F speciation for McCleskey curves: 'auto' uses it "
+                            "when Reaktoro is installed (default); 'on' requires it; "
+                            "'off' runs on total molality")
 
     args = parser.parse_args()
+
+    global SPECIATION
+    SPECIATION = {'auto': 'auto', 'on': True, 'off': False}[args.speciation]
 
     # Create output directories
     output_dir = Path(args.output_dir)

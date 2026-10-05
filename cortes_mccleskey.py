@@ -75,7 +75,32 @@ def has_mccleskey_model(compound):
     return compound in ION_SPECS
 
 
-def compute_mccleskey_for_data(data, compound):
+def resolve_speciation(compound, speciation='auto'):
+    """
+    Decide whether WATEQ4F speciation should be used for this compound.
+
+    'auto' turns speciation on when Reaktoro is installed and the compound has
+    a speciation recipe; otherwise the model falls back to total molality
+    (full dissociation), which is exact for salts WATEQ4F leaves fully
+    dissociated (NaCl, KCl, NH4Cl) but overestimates sigma for associating
+    salts such as MgSO4 and Na2SO4.
+    """
+    if speciation != 'auto':
+        return bool(speciation)
+    try:
+        import speciation as spec
+        if compound in spec.SALT_RECIPES and spec.available():
+            return True
+        if compound in spec.SALT_RECIPES:
+            print(f"Note: Reaktoro not installed; McCleskey model for {compound} "
+                  f"uses total molality (no speciation). For associating salts "
+                  f"this overestimates sigma; conda install -c conda-forge reaktoro.")
+    except Exception:
+        pass
+    return False
+
+
+def compute_mccleskey_for_data(data, compound, speciation='auto'):
     """
     Compute McCleskey model predictions for dataset.
 
@@ -85,6 +110,12 @@ def compute_mccleskey_for_data(data, compound):
         Measurement data with w_molal and T_K columns
     compound : str
         Compound name
+    speciation : 'auto' or bool, optional
+        'auto' (default) uses WATEQ4F speciation (free charged-ion molalities,
+        neutral complexes excluded, charged complexes like NaSO4- included)
+        whenever Reaktoro is available and the compound has a recipe --
+        matching the McCleskey et al. (2012) method. True forces it (raises
+        without Reaktoro); False runs on total molality.
 
     Returns
     -------
@@ -98,6 +129,8 @@ def compute_mccleskey_for_data(data, compound):
         print(f"Warning: Missing w_molal or T_K columns for {compound}")
         return None
 
+    use_spec = resolve_speciation(compound, speciation)
+
     # Get unique (concentration, temperature) pairs
     concs = data['w_molal'].values
     temps = data['T_K'].values
@@ -107,7 +140,8 @@ def compute_mccleskey_for_data(data, compound):
     for i, (conc, temp) in enumerate(zip(concs, temps)):
         try:
             # Compute model for single point
-            result = compute_mccleskey_model([conc], [temp], compound=compound)
+            result = compute_mccleskey_model([conc], [temp], compound=compound,
+                                             speciation=use_spec)
             model_sigma[i] = result[0][0]
         except Exception as e:
             print(f"Warning: McCleskey model failed for {compound} at {conc} mol/kg, {temp} K: {e}")

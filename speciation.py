@@ -68,26 +68,29 @@ PHREEQC_TO_MCCLESKEY = {
     'CO3-2': 'CO3_m2',
     'HCO3-': 'HCO3_m1',
     'HSO4-': 'HSO4_m1',
-    # WARNING -- provisional. The lambda_0(25 C) values for these three charged
-    # complexes look implausible next to Cl- (77 S cm2/mol): NaSO4- 357 (4.6x),
-    # KSO4- 234 (3.1x), NaCO3- 188 (2.4x). A singly-charged complex should sit
-    # near or below Cl-. Because speciation is what first activates them, they
-    # dominate the result wherever they form: NaCO3- alone supplies 51% of the
-    # speciated conductivity of 0.3 molal Na2CO3 from just 0.19 molal, pushing
-    # sigma *up* -- backwards for an association correction. An
-    # equivalent-vs-molal convention error was ruled out (0.001 molal MgSO4
-    # reproduces literature to -0.9% on molality, +92% on equivalents), so the
-    # values are anomalous in the table itself. Verify against MC12's published
-    # parameter table before trusting speciated sulfate/carbonate results.
-    # MgSO4 is unaffected: it needs only the neutral MgSO4(aq) exclusion plus
-    # Mg+2 and SO4-2, all of which check out.
+    # RESOLVED 2026-10-05 (was flagged provisional). The surprisingly large
+    # lambda_0(25 C) values for these charged complexes -- NaSO4- 357, KSO4-
+    # 234, NaCO3- 188 S cm2/mol vs Cl- 77 -- are NOT transcription errors: all
+    # six coefficients plus B for each species match the published USGS
+    # McCleskey et al. (2012) table verbatim (checked against the
+    # USGS-distributed coefficient set, www.gwb.com/data/conductivity-USGS.dat).
+    # They are EFFECTIVE parameters: MC12 fit them jointly with WATEQ4F
+    # speciation against whole-electrolyte conductivity data, so they absorb
+    # whatever conductivity the speciation assigns to the ion pair and are only
+    # meaningful when multiplied by WATEQ4F free molalities -- exactly how this
+    # module uses them. Do not compare them to infinite-dilution single-ion
+    # mobilities. (Note the companion fix in sigmaElectricMcCleskey2012.py:
+    # lambda_i must be evaluated at the TOTAL effective ionic strength.)
     'NaSO4-': 'NaSO4_m1',
     'KSO4-': 'KSO4_m1',
     'NaCO3-': 'NaCO3_m1',
 }
 
-# Compounds whose speciated result is trustworthy today. The others speciate
-# correctly but multiply free molalities by the suspect lambdas flagged above.
+# Compounds whose speciated result has been validated against benchtop
+# measurements. The lambda table is now verified against the published USGS
+# coefficients (see above), so Na2SO4/Na2CO3 are expected to be fine too --
+# run validate_speciation.py against the benchtop CSVs (needs Reaktoro) and
+# extend this tuple once their columns check out.
 VERIFIED_COMPOUNDS = ('MgSO4', 'NaCl', 'KCl', 'NH4Cl')
 
 # Salt -> (elements to speciate, {input ion: moles per mole of salt}).

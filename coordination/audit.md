@@ -141,3 +141,35 @@ or delete existing entries. Format is defined in `AGENTS.md`.
   the dates with the most negative day residuals. Supports day-to-day offsets
   masquerading as pressure dependence.
 - Status: verified for function and CLI; GUI tab implemented, unverified.
+
+## 2026-10-05 — claude-code — McCleskey/WATEQ4F review for the Cortes paper
+
+- Steve asked to confirm the McCleskey analysis accounts for neutral and
+  semi-charged species via Reaktoro, matching MC12's WATEQ4F approach.
+- CONFIRMED in speciation.py: neutral complexes (MgSO4(aq) etc.) are excluded
+  from the conductivity sum by the charge test but constrain mass balance;
+  charged complexes (NaSO4-, KSO4-, NaCO3-, HSO4-, HCO3-) map to lambda
+  entries. Reference free-ion fractions re-verified INDEPENDENTLY in this
+  container with USGS PHREEQC 3.8.6 compiled from source + its wateq4f.dat
+  (MgSO4 free fraction 0.590 @ 0.0249 m, 0.257 @ 1.6616 m; I 0.0587/1.706;
+  NaSO4- = 0.096 m in 0.3 m Na2SO4). Reaktoro itself cannot run here
+  (conda-forge has no linux-aarch64 build; container is ARM) — the
+  @requires_reaktoro tests skip and must be run on the Mac.
+- RESOLVED the "provisional" lambda doubt: all coefficients for the charged
+  complexes match the published USGS table verbatim (checked against
+  www.gwb.com/data/conductivity-USGS.dat). They are effective parameters,
+  valid only together with WATEQ4F speciation; comment updated.
+- FOUND + FIXED: elecCondMcCleskey2012 evaluated lambda_i at per-ion I
+  instead of total effective I. KCl standards 0.01/0.1/1 molal: +2.3/+4.3/
+  +4.6% error before, within +-0.75% after. New anchor tests in
+  tests/test_mccleskey_ionic_strength.py. Upstream PlanetProfile notified via
+  ~/src/coordination/inbox/claude-planetprofile.md.
+- FOUND + WIRED: the Cortes pipeline never passed speciation=True.
+  cortes_mccleskey.compute_mccleskey_for_data and
+  plot_cortes_with_mccleskey.py (--speciation auto|on|off) now use WATEQ4F
+  speciation when Reaktoro is available. validate_speciation.py vs benchtop:
+  MgSO4 RMS error 78.6% without speciation — speciation is required there.
+- Status: verified for the I fix and fallback plumbing (54 tests pass, 3
+  pre-existing failures unrelated); implemented, unverified for the
+  speciated runtime path in the Cortes pipeline (needs Reaktoro on the Mac).
+  Paper-figure regeneration awaits Steve (open-questions 2026-10-05).
