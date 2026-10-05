@@ -192,3 +192,21 @@ or delete existing entries. Format is defined in `AGENTS.md`.
 - Status: verified for wiring/smoke and test fixes (26 tests pass here);
   final figures not implemented until regenerate_cortes_figures.sh runs on
   the Mac.
+
+## 2026-10-05 — claude-code — macOS test failures triaged and fixed
+
+- Steve's full pytest run (71 passed) surfaced: missing 'gui' fixture (7
+  ERRORs) and stale GUI expectations (3-tab layout, S-column names,
+  btn_create_plots, 'Ready' status, removed auto-plot handler) in the GUI
+  suites; PyQt6 isSignalConnected API gap; test_plot_sigma_PT requiring
+  gitignored per-user zAnalysis CSVs. All fixed; sigma_PT tests now skip
+  cleanly where curated CSVs are absent and anchor paths to the repo root.
+- NOT touched: test_kcl_extraction (55.88 vs 57.83) — still Steve's open
+  question from 2026-09-15.
+- New capability: GUI suites now run headless in the container (pip PyQt6 +
+  conda-forge libegl/libgl via LD_LIBRARY_PATH, QT_QPA_PLATFORM=offscreen,
+  usetex off). 48 passed / 9 Reaktoro skips across affected files. The
+  sigma(P,T)/3D/isotherm tabs' construction and lazy-load wiring are now
+  test-covered; on-screen visual confirmation on macOS remains the bar for
+  'verified' per the UI rule.
+- Status: verified (test run above; fixes exercised the changed paths).
