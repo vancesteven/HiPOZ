@@ -29,6 +29,7 @@ lab data merged in from origin/main. PR #3 (still open) now carries all of it.
 | sigma vs P isotherms GUI tab ("σ(P) isotherms") | claude-code | implemented, unverified | needs GUI launch on macOS (no libEGL in container) |
 | McCleskey total-ionic-strength fix | claude-code | verified | tests/test_mccleskey_ionic_strength.py (KCl standards within 1%); audit 2026-10-05 |
 | WATEQ4F speciation in Cortes pipeline (auto mode) | claude-code | implemented, unverified | fallback path tested here; speciated path needs Reaktoro (Mac) — run validate_speciation.py and pytest tests/test_speciation.py |
+| Cortes paper figures regenerated with corrected model | claude-code | not implemented | approved by Steve 2026-10-05; old figures archived; run ./regenerate_cortes_figures.sh on the Mac (needs TeX + Reaktoro) |
 
 Status must be one of `verified` / `implemented, unverified` / `not implemented`.
 

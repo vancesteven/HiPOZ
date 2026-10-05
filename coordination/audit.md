@@ -173,3 +173,22 @@ or delete existing entries. Format is defined in `AGENTS.md`.
   pre-existing failures unrelated); implemented, unverified for the
   speciated runtime path in the Cortes pipeline (needs Reaktoro on the Mac).
   Paper-figure regeneration awaits Steve (open-questions 2026-10-05).
+
+## 2026-10-05 — claude-code — figure regeneration staged; GUI test mocks fixed
+
+- Steve approved regenerating the Cortes figures. Pre-fix figures archived
+  (34 PDFs) in cortes2026/figures_archive_20261005_pre_mccleskey_fix/.
+- cortes2026_plots.py now passes speciation='auto' per compound;
+  plot_cortes_with_mccleskey.py gains --no-tex; regenerate_cortes_figures.sh
+  added — run it ON THE MAC (TeX + Reaktoro) to produce the final figures;
+  this container can neither render TeX fonts nor speciate via Reaktoro.
+- Smoke-verified the full cortes2026_plots.py pipeline post-wiring (22 PDFs
+  into a scratch dir, fallback mode). Preview of final curves produced with
+  compiled PHREEQC speciation and sent to Steve: MgSO4's old +90% model
+  overshoot collapses; NaSO4- carries ~40% of sulfate in 0.5 m Na2SO4.
+- Fixed MockTimeSeries in tests/test_gui_reorganization.py and
+  tests/test_gui_initialization.py (missing uncertainties/colors/markers;
+  AttributeError Steve hit running pytest on macOS).
+- Status: verified for wiring/smoke and test fixes (26 tests pass here);
+  final figures not implemented until regenerate_cortes_figures.sh runs on
+  the Mac.
