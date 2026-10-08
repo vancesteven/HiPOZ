@@ -70,3 +70,26 @@ Also: extend speciation.VERIFIED_COMPOUNDS to Na2SO4/Na2CO3 after
 validate_speciation.py's MC12+spec column checks out there — the lambda
 coefficients for NaSO4-/KSO4-/NaCO3- are now verified verbatim against the
 published USGS table, so the old "provisional" doubt is retired.
+
+## 2026-10-08 — two gaps left after the Cortes figure regeneration
+
+1. **Mixtures are not speciated.** WATEQ4F speciation is only implemented for
+   single salts (speciation.SALT_RECIPES). The NaCl:MgSO4 and Na2SO4:KCl
+   mixture figures therefore get the ionic-strength fix but still assume full
+   dissociation. For NaCl:MgSO4 this overestimates the model, because
+   MgSO4(aq) association is large (only 26-59% of Mg stays free in pure
+   MgSO4 over 0.02-1.7 m). Recommendation: generalize free_ion_molalities()
+   to take an arbitrary {ion: molality} input with the union of elements
+   (e.g. 'Na Mg Cl S O H'). It's a small change in Reaktoro, but it changes
+   the mixture figures, so it needs your OK and has to be verified on the Mac.
+2. **Four eis_plots weren't rebuilt and still show the pre-fix model:**
+   mccleskey_comparison/MgSO4_vs_{concentration,temperature}_mccleskey.pdf,
+   mixtures/Mixtures_vs_concentration.pdf, and
+   single_salts/NaCl_vs_concentration.pdf. They come from the April
+   0c435df run. The current plot_cortes_with_mccleskey.py run on the default
+   dates (20250813-15Cortes) doesn't produce them, apparently because those
+   dates have no MgSO4 single-salt EIS data. Copies are already in the
+   archive. Options: (a) regenerate them using the dates that originally
+   produced them, if you know which ones; (b) remove them from eis_plots/
+   so nobody mistakes them for current results (git rm; the archive keeps a
+   copy); (c) leave them. Recommendation: (b), unless they are paper figures.

@@ -1,6 +1,6 @@
 # Status — hipozgenai
 
-Updated: 2026-10-05
+Updated: 2026-10-08
 
 Refresh the `Updated:` line and the affected sections in any session that
 pushes commits, integrates artifacts, or changes a queue.
@@ -28,8 +28,10 @@ lab data merged in from origin/main. PR #3 (still open) now carries all of it.
 | sigma vs P isotherms (function + CLI output) | claude-code | verified | tests/test_pt_map.py 19/19; sigma_P_isotherms.png delivered 2026-10-03 |
 | sigma vs P isotherms GUI tab ("σ(P) isotherms") | claude-code | implemented, unverified | needs GUI launch on macOS (no libEGL in container) |
 | McCleskey total-ionic-strength fix | claude-code | verified | tests/test_mccleskey_ionic_strength.py (KCl standards within 1%); audit 2026-10-05 |
-| WATEQ4F speciation in Cortes pipeline (auto mode) | claude-code | implemented, unverified | fallback path tested here; speciated path needs Reaktoro (Mac) — run validate_speciation.py and pytest tests/test_speciation.py |
-| Cortes paper figures regenerated with corrected model | claude-code | not implemented | approved by Steve 2026-10-05; old figures archived; run ./regenerate_cortes_figures.sh on the Mac (needs TeX + Reaktoro) |
+| WATEQ4F speciation in Cortes pipeline (auto mode) | claude-code | verified | regenerated cortes_plots/na2so4_vs_concentration.pdf (Reaktoro, macOS) matches independent PHREEQC 3.8.6 + wateq4f.dat at all 6 (T,m) points; audit 2026-10-08 |
+| Cortes paper figures regenerated with corrected model | claude-code | verified | Steve ran regenerate_cortes_figures.sh 2026-10-08; committed; old figures in cortes2026/figures_archive_20261005_pre_mccleskey_fix/ |
+| Speciation for mixtures (NaCl:MgSO4, Na2SO4:KCl) | claude-code | not implemented | mixtures use fixed-I full dissociation only; see open-questions 2026-10-08 |
+| Stale pre-fix eis_plots not rebuilt by current script (4 PDFs) | claude-code | not implemented | see open-questions 2026-10-08 |
 
 Status must be one of `verified` / `implemented, unverified` / `not implemented`.
 
