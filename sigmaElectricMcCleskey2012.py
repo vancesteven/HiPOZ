@@ -53,6 +53,19 @@ def elecCondMcCleskey2012(T_C, ions):
     else:
         raise ValueError("No ion data available")
 
+    # Effective ionic strength of the WHOLE solution, I = 0.5 * sum_i m_i z_i^2.
+    # McCleskey et al. (2012) evaluate every lambda_i(T, I) at this shared I,
+    # not at a per-ion partial value; using per-ion I under-corrects lambda and
+    # overestimates sigma by several percent at molal concentrations
+    # (e.g. +4.6% vs the 111.3 mS/cm KCl standard at 1 molal).
+    I = None
+    for ion_name, ion_data in ions.items():
+        if ion_name in data:
+            mols = np.atleast_1d(ion_data['mols'])
+            contrib = 0.5 * mols * data[ion_name]['z']**2
+            I = contrib if I is None else I + contrib
+    I2 = np.sqrt(I)
+
     for ion_name, ion_data in ions.items():
         if ion_name in data:
             mols = np.atleast_1d(ion_data['mols'])
@@ -60,10 +73,6 @@ def elecCondMcCleskey2012(T_C, ions):
             B = data[ion_name]['B']
             Ad = np.array([data[ion_name]['A2'], data[ion_name]['A1'], data[ion_name]['A0']])
             l210 = np.array([data[ion_name]['lam2'], data[ion_name]['lam1'], data[ion_name]['lam0']])
-
-            # Ionic strength calculations
-            I = 0.5 * mols * z**2
-            I2 = np.sqrt(I)
 
             # Evaluate polynomial coefficients for temperature dependency
             lam0 = np.polyval(l210, T_C)  # (num_TC,)

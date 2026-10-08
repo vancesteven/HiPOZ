@@ -30,6 +30,7 @@ from study_plots import (
     plot_study_concentration,
     plot_study_temperature
 )
+import cortes_mccleskey as cm
 
 # Gamry impedance data loading (using cortes_data_processing)
 import cortes_data_processing as cdp
@@ -364,7 +365,10 @@ for compound in compounds_to_plot:
         fontsize_label=FONTSIZE_AXIS_LABEL,
         fontsize_title=FONTSIZE_TITLE,
         fontsize_legend=FONTSIZE_LEGEND,
-        ion_spec=mixture_ion_spec
+        ion_spec=mixture_ion_spec,
+        # WATEQ4F speciation when Reaktoro is available and the salt has a
+        # recipe (mixtures resolve to False automatically)
+        speciation=cm.resolve_speciation(compound, 'auto')
     )
     print(f"  Saved to {OUTPUT_DIR}/{safe_filename_stem(compound)}_vs_concentration.pdf")
     if gamry_data_comp:
@@ -384,7 +388,8 @@ for compound in compounds_to_plot:
         fontsize_label=FONTSIZE_AXIS_LABEL,
         fontsize_title=FONTSIZE_TITLE,
         fontsize_legend=FONTSIZE_LEGEND,
-        ion_spec=mixture_ion_spec
+        ion_spec=mixture_ion_spec,
+        speciation=cm.resolve_speciation(compound, 'auto')
     )
     print(f"  Saved to {OUTPUT_DIR}/{safe_filename_stem(compound)}_vs_temperature.pdf")
     print()

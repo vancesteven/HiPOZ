@@ -19,7 +19,7 @@ import numpy as np
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
 from hipoz_data_selector_gui import DataSelector
-from PyQt5.QtWidgets import QApplication
+from PyQt6.QtWidgets import QApplication
 
 
 @pytest.fixture(scope="session")
@@ -35,11 +35,15 @@ class MockTimeSeries:
     """Mock TimeSeries object for testing."""
     def __init__(self, n_points=5):
         self.filenames = [f"test_file_{i}.txt" for i in range(n_points)]
-        self.timestamps = pd.date_range('2025-01-01', periods=n_points, freq='H')
+        self.timestamps = pd.date_range('2025-01-01', periods=n_points, freq='h')
         self.Ts = np.array([298.0] * n_points)
         self.Ps = np.array([10.0] * n_points)
         self.Rcalc_ohm = np.array([100.0] * n_points)
         self.percent_uncertainties = np.array([2.0] * n_points)
+        # plot_timeseries iterates these in lockstep with timestamps/Rcalc_ohm
+        self.uncertainties = self.Rcalc_ohm * self.percent_uncertainties / 100
+        self.colors = ['C0'] * n_points
+        self.markers = ['o'] * n_points
         self.conductivities_Sm = np.array([0.01] * n_points)
         self.conductivities_unc_pct = np.array([2.0] * n_points)
         self.frequencies = [np.logspace(1, 5, 10) for _ in range(n_points)]
@@ -128,15 +132,24 @@ def test_bode_nyquist_button_removed(qapp):
     assert not hasattr(selector, 'btn_create_plots')
 
 
-def test_auto_plot_on_selection(qapp):
-    """Test that plots are auto-generated when selection changes."""
+def test_manual_plot_update_wiring(qapp):
+    """Plots update via the Update Plots button (auto-plot-on-selection was
+    removed deliberately: it made table interaction sluggish)."""
     ts = MockTimeSeries()
     selector = DataSelector(ts)
 
-    # Check that selection changed signal is connected
-    assert selector.table.selectionModel().selectionChanged.isSignalConnected(
-        selector.on_table_selection_changed
-    )
+    assert hasattr(selector, 'btn_update_plots'), "Update Plots button missing"
+    assert hasattr(selector, 'update_all_plots'), "update_all_plots method missing"
+
+    # PyQt6 bound signals have no isSignalConnected(); disconnect() raises
+    # TypeError if the slot was never connected, so a successful disconnect
+    # proves the connection existed. Reconnect to leave the GUI intact.
+    sig = selector.btn_update_plots.clicked
+    try:
+        sig.disconnect(selector.update_all_plots)
+    except TypeError:
+        assert False, "update_all_plots is not connected to btn_update_plots"
+    sig.connect(selector.update_all_plots)
 
 
 def test_refresh_sigma_vs_t_method(qapp):

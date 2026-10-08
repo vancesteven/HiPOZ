@@ -1,0 +1,720 @@
+% \documentclass[twocolumn,11pt]{article}
+\documentclass[journal=aesccq,manuscript=article]{achemso}
+
+% \usepackage[modulo]{lineno}
+\usepackage{float}
+\usepackage{comment}
+\usepackage{chemformula} % Formula subscripts using \ch{}
+\usepackage{siunitx} % consistent si notation
+\usepackage[T1]{fontenc} % Use modern font encodings
+\usepackage{booktabs}
+\usepackage{amsmath}
+\usepackage{graphicx}
+\usepackage{caption}
+\usepackage{lipsum} % For placeholder text
+\usepackage{longtable}
+\usepackage{geometry}
+\usepackage{xcolor}
+\usepackage[version=4]{mhchem}
+\usepackage{hyperref}
+\usepackage{graphicx}
+\usepackage{subcaption}
+
+
+\sisetup{
+    range-phrase = -,
+    range-units = single
+    }  
+
+\newcommand{\pp}{\texttt{PlanetProfile}}
+\newcommand{\pplink}{\href{https://github.com/vancesteven/PlanetProfile}{\pp}}
+
+
+
+% Bibliography handling
+% \usepackage[citestyle=authoryear,bibstyle=authoryear,sorting=none,maxnames=99]{biblatex}
+% % \DeclareNameAlias{author}{family-given}
+% \addbibresource{references.bib}
+
+
+% \geometry{top=1in, bottom=1in, left=1in, right=1in}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% Meta-data block
+%% ---------------
+%% Each author should be given as a separate \author command.
+%%
+%% Corresponding authors should have an e-mail given after the author
+%% name as an \email command. Phone and fax numbers can be given
+%% using \phone and \fax, respectively; this information is optional.
+%%
+%% The affiliation of authors is given after the authors; each
+%% \affiliation command applies to all preceding authors not already
+%% assigned an affiliation.
+%%
+%% The affiliation takes an option argument for the short name.  This
+%% will typically be something like "University of Somewhere".
+%%
+%% The \altaffiliation macro should be used for new address, etc.
+%% On the other hand, \alsoaffiliation is used on a per author basis
+%% when authors are associated with multiple institutions.
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\author{Leïla Mahboub}
+\affiliation{École Supérieure de Physique et de Chimie Industrielles de la Ville de Paris, Université PSL, 75005}
+\author{Jessica M. Weber}
+\affiliation{Jet Propulsion Laboratory, California Institute of Technology, 91109}
+\email{jessica.weber@jpl.nasa.gov}
+\author{Jesus Cortes}
+\affiliation{Colby College, Waterville, Maine, 04901}
+\author{Catherine Psarakis}
+\affiliation{Department of Earth, Planetary, and Space Sciences, University of California, Los Angeles, 90095}
+\alsoaffiliation{Jet Propulsion Laboratory, California Institute of Technology, 91109}
+\author{Mohit Melwani Daswani}
+\affiliation{Jet Propulsion Laboratory, California Institute of Technology, 91109}
+\alsoaffiliation{Earth-Life Science Institute, Institute of Science Tokyo, 152-8550 Tokyo, Japan}
+\author{Steven D. Vance}
+\affiliation{Jet Propulsion Laboratory, California Institute of Technology, 91109}
+
+\title[Electrical Oceans]{Electrical Properties of Icy World Oceans from Laboratory Measurements}
+
+\abbreviations{IR,NMR,UV}
+\keywords{ocean worlds, electrical conductivity, magnetic induction, laboratory studies, Europa}
+
+\begin{document}
+% \linenumbers
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% The "tocentry" environment can be used to create an entry for the
+%% graphical table of contents. It is given here as some journals
+%% require that it is printed as part of the abstract page. It will
+%% be automatically moved as appropriate.
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% \begin{tocentry}
+
+% Some journals require a graphical entry for the Table of Contents.
+% This should be laid out ``print ready'' so that the sizing of the
+% text is correct.
+
+% Inside the \texttt{tocentry} environment, the font used is Helvetica
+% 8\,pt, as required by \emph{Journal of the American Chemical
+% Society}.
+
+% The surrounding frame is 9\,cm by 3.5\,cm, which is the maximum
+% permitted for  \emph{Journal of the American Chemical Society}
+% graphical table of content entries. The box will not resize if the
+% content is too big: instead it will overflow the edge of the box.
+
+% This box and the associated title will always be printed on a
+% separate page at the end of the document.
+
+% \end{tocentry}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% The abstract environment will automatically gobble the contents
+%% if an abstract is not used by the target journal.
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{abstract}
+
+Many icy bodies are hypothesized to harbor subsurface liquid-water oceans, with Jupiter's moon Europa among the most promising for astrobiology. 
+NASA's Europa Clipper mission will collect magnetic induction measurements to constrain Europa's ocean composition and thickness. 
+Interpreting this information requires accurate electrical conductivity data extending to the range of possible compositions, temperatures, and pressures in Europa's ocean. 
+Here we report more comprehensive laboratory measurements of electrical conductivity for Europa-relevant brines (NaCl, \ch{MgSO4}, \ch{NH4Cl}, \ch{Na2CO3}, and their mixtures) in the temperature range from $\SIrange[]{263.15}{298.15}{\kelvin}$ and concentrations up to $\SI{150}{g \per kg_{H2O}}$, at ambient pressure. 
+% The results reveal that the widely used \cite{McCleskey2012} model overestimates conductivity by up to \% at high concentrations and subzero temperatures, with deviations large enough to cause misinterpretation of Europa Clipper magnetic field measurements. 
+This project provides critical experimental constraints for interpreting upcoming Europa Clipper data and enables stronger assessments of Europa's ocean composition and its potential to support life.
+\end{abstract}
+
+\section{Introduction}
+
+Jupiter's moon Europa is one of the most promising candidates for hosting extraterrestrial life due to its subsurface liquid water ocean, essential chemical elements, and possible energy to support metabolic processes \cite{kivelson2000galileo, vance2023investigating, NASARoadmapOceanWorlds,isik_thermodynamic_2025}. 
+% The study of Europa's subsurface ocean is crucial for understanding its geophysical and geochemical properties, as well as assessing its potential habitability.
+Understanding the composition of Europa's ocean is key to evaluating its potential to support life, which would critically inform future spacecraft mission concepts dedicated to searching for extant life\cite{vance2023investigating}. 
+The presence of Europa's induced magnetic field, as first detected by the Galileo mission, strongly indicates the existence of a global ocean beneath its icy shell \cite{kivelson2000galileo}. 
+NASA's Europa Clipper mission, designed to perform dozens of close flybys of Europa beginning in 2031, aims to characterize the ice shell and ocean, assessing the composition of non-ice materials, and investigating geological activity that connects the moon's surface to its interior\cite{roberts2023exploring}. 
+ Europa Clipper's combined geophysical sounding investigation will probe the ice shell with radar and topographic imaging; and detailed investigations of the moon's magnetic induction, and static and dynamic gravity (tides) \citep{roberts2023exploring}. 
+ These combined measurements might be used to break degeneracies in interpreting results.
+Starting shortly after Europa Clipper begins its investigation, ESA's JUpiter Icy moons Explorer (JUICE) will conduct highly complementary magnetic induction measurements at all three of Jupiter's large icy moons, Europa, Ganymede, and Callisto\cite{vanhoolst2024geophysical}.
+For simplicity, in this work we focus on Europa and Europa Clipper, but note the broader applicability of the results.
+
+Achieving Europa Clipper's science objectives requires accurate electrical conductivity data and representations to interpret magnetic induction measurements.
+The reference information needed to support Europa Clipper's composition investigation from geophysical sounding has not been systematically validated against the potentially extreme conditions of composition, temperature, and pressure possible in Europa's ocean \cite{vance2021magnetic}. 
+The knowledge gap pertaining to electrical conductivity of solutions at low temperature and high pressure introduces unknown uncertainties into magnetic induction forward modeling and could limit the science return from Europa Clipper data.
+Existing electrical conductivity frameworks, particularly the widely-used representation of \citet{McCleskey2012}, lack systematic experimental validation at subzero temperatures, especially for multi-component brines and carbonate-containing solutions that may be representative of Europa's subsurface ocean\citep{castillorogez2022contribution}. 
+Critically, the input data for this framework does not include direct measurements in \ce{MgSO4}, a possible main component of Europa's ocean \cite{melwani2021metamorphic}. 
+Instead, the contributions of \ce{Mg^{2+}} and \ce{SO4^{2-}} to conductivity are inferred from the other studied compounds such as \ce{MgCl2} and \ce{H2SO4} \cite{McCleskey_2011}.
+Major goals of this work are thus to test the suitability for extrapolating conductivity for  the studied species to high concentrations and low temperatures that may be relevant to Europa's ocean.
+
+Current knowledge of Europa comes mainly from Galileo spacecraft results and telescopic observations from ground- and space-based telescopes.
+Europa likely has an ocean maintained by heating from eccentricity tides, driven by Europa’s orbital resonance with Io and Ganymede \cite{behounkova2021tidally}. 
+Remote sensing spectroscopic observations in the ultraviolet, visible, and infrared wavelengths have been used to identify features of hydration or radiation induced discoloration for diverse salt phases, including \ch{NaCl}, \ch{MgSO4} (as meridianiite, \ce{MgSO4*11H2O}) , carbonates, and \ch{H2SO4}, which are likely products of subsurface ocean-rock interaction, micrometeorites and dust from space, and radiolytic processing from intense ionizing radiation controlled by Jupiter's magnetosphere \cite{McCord1999HydratedSalts,carlson2009europa,trumbo2019sodium,trumbo2023distribution,becker2024exploring}. 
+These surface compositions provide key constraints on the underlying ocean chemistry, though the connection between surface salts and ocean composition remains poorly constrained due to ice shell processes and surface alteration by radiolysis. 
+Surface characterization has been limited by the spatial coverage and spectral resolution of the Galileo Near Infrared Mapping Spectrometer.
+% The specific salts present result from water-rock interactions beneath the sea floor and the formation and transport processes of the ice shell \cite{zolotov2009chemical} that might maintain the chemical disequilibria needed to support metabolic processes \cite{hand2009astrobiology,becker2024exploring}. 
+
+ Europa's ocean composition can be inferred based on remote sensing and in situ measurements of the surface composition and geology  \cite{becker2024exploring}, referenced to possible cosmochemical constraints\cite{melwani2021metamorphic}. 
+ Thermodynamic models suggest that Europa’s ocean may have a pH between 7 and 10, influenced by the relative concentrations of carbonates, sulfates, and chlorides and controlled by redox buffers such as dissolved \ce{H2}, \ce{CO2}, and \ce{O2}.
+% These inferrences are highly model dependent, although these estimates would be further improved with additional mission data \cite{melwani2021metamorphic}. 
+The oxidation state of the ocean, influenced by oxidants delivered from the surface and reductants from water-rock interactions at the seafloor, is a critical parameter affecting its habitability, and also a control on the ocean's salinity that will be investigated by Europa Clipper \cite{vance2016geophysical,vance2023investigating}. The planned geophysical investigations offer a test of ocean and ice properties inferred from Europa Clipper's other instrument investigations.
+The ocean's density and electrical conductivity are directly controlled by the ice shell thickness (and thus the melting temperature at the top of the ocean) and by the ocean's salinity.
+Candidate physical properties based on laboratory data can be coupled into the joint inversion of magnetic induction and gravity data to the extent that suitable information on these properties is available.
+
+
+Experimental studies are thus vital to refining our understanding of Europa's ocean and contextualizing the scientific data that will be returned by Europa Clipper. The present effort improves our understanding of the electrical conductivity of aqueous salt solutions representative of Europa’s ocean through laboratory measurements at a range of temperatures and salinities that have not yet been fully explored. This work begins to address electrical conductivity for the broad range of predictions for Europa's ocean composition and pH\cite{weber2023review}. 
+% We incorporate these new data into open-source planetary modeling tools to enable improved forward models of Europa’s subsurface environment that predict the possible magnetic induction signatures that will be observed by the Europa Clipper mission.
+
+The main objectives of this study are to measure the electrical conductivity of various salt solutions at temperatures relevant to the ocean of Europa ($\SIrange[]{263.15}{298.15}{\kelvin}$); to compare these results with the widely used molal conductivity model of \citeauthor{McCleskey2012}; to assess how different salt compositions, including \ch{NaCl}, \ch{MgSO4}, \ch{NH4Cl} and \ch{Na2CO3}, affect the electrical properties of these solutions and their implications for inferring Europa’s ocean composition through the combined remote sensing measurements planned for Europa Clipper. 
+% By improving our understanding of Europa’s ocean chemistry and physical properties, this research will contribute to the interpretation of future observations from the Europa Clipper mission and enhance our broader understanding of ocean worlds in the outer solar system.
+
+\section{Materials and Methods}
+
+\begin{table}[h]
+    \centering
+    \caption{Aqueous solutions prepared for the present conductivity probe measurements ($\SI{}{mol \per kg_\mathrm{\ce{H2O}}}$). 
+    }
+    \label{tab:solutions}
+    \begin{tabular}{l l}
+      \hline
+        \textbf{Salt Type} & \textbf{Concentrations (mol/kg)} \\
+      \hline
+        \ch{NaCl} & 0.1711, 0.5133, 0.8556, 1.2344, 1.7112, 2.5687 \\
+        \ch{MgSO4} & 0.0249, 0.3323, 0.6646, 0.9970, 1.4124, 1.6616 \\
+        \ch{NH4Cl} & 0.1870, 0.5368, 1.4021, 1.8695 \\
+        \ch{Na2CO3} & 0.0472, 0.0943, 0.2359, 0.3774, 0.5189 \\
+        \ch{NaCl}:\ch{MgSO4}:\ch{Na2CO3} (1:1:1) & 0.05, 0.30, 0.40, 0.70 \\
+      \hline
+    \end{tabular}
+\end{table}
+
+
+\subsection{Experimental Conductivity Data for Europa Ocean Analogs}  
+Diverse aqueous salt solutions were prepared to simulate the hypothetical oceanic conditions of Europa, covering a temperature range ($\SIrange[]{263.15}{298.15}{\kelvin}$).
+The solutions contained different salt concentrations (\ch{NaCl}, \ch{MgSO4}, \ch{NH4Cl}, \ch{Na2CO3}, or a \ce{NaCl}--{MgSO4}--{Na2CO3} mixture; Table~\ref{tab:solutions}) (Figure~\ref{fig:phase diagram}). 
+Concentrations are expressed in molality ($\SI{}{mol \per kg}$), defined as moles per kilogram of added water.
+The mixed salt solutions consisted of \ch{NaCl}:\ch{MgSO4}:\ch{Na2CO3} in equal mole proportions (1:1:1 mol) and a total concentration range $\SIrange{0.05}{0.7}{mol\per kg}$. 
+This composition was chosen to study the behavior of a simplified but realistic Europa ocean analog containing chlorinated salts, sulfates, and carbonates, with an equal ratio between the three components.
+
+\begin{figure}[t!]
+    \centering
+    \includegraphics[width=0.7\linewidth]{figures/PhaseDiagramRevMolKg.jpg}
+    \caption{Phase diagram showing experimental conditions (symbols listed in legend) tested for the salts in this study, alongside relevant melting lines from prior literature \citep{CRC2005, Hogenboom1995, SmithsonianTables1956, Stefan-Kharicha2018, SodaAshHandbook}.
+    The region above a given melting line indicates where the solution is liquid, and below indicates where the system is solid.}
+    \label{fig:phase diagram}
+\end{figure}
+
+%These compositions were selected on the basis of existing data on Europa's subsurface ocean.\cite{zolotov2009chemical} 
+%All solutions were prepared using ultrapure Milli-Q water (resistivity $\geq$ 18.2 M$\Omega\cdot$cm at \SI{298.15}{\kelvin}) to ensure the absence of ionic contaminants. 
+The salts (anhydrous unless otherwise noted) were obtained from Sigma-Aldrich with purity $\geq 99\%$. 
+%The salts were weighted out on a VWR BALANCE B2 Series with a 3 door draft shield directly into the 50 mL Falcon tube utilized for the analysis. Its repeatability is 0.1 mg and its linearity is plus/minus 0.02 mg.  Following this, the salts were then dissolved in Milli-Q water (purity of 18.2 M$\Omega$·cm) to reach the desired concentrations. 
+The salts were weighed on a VWR BALANCE~B2 Series with a three-door draft shield, and placed directly into the $\SI{50}{mL}$ Falcon tubes utilized for the analysis. 
+The balance repeatability was $\SI{0.1}{mg}$, with linearity of $\pm \SI{0.025}{mg}$. 
+The salts were dissolved in Milli-Q water (purity of $\SI{18.2}{M \Omega \cdot cm}$), the volume of which was measured using a $\SI{100}{mL}$ graduated cylinder ($\pm 1$~mL), to reach the desired concentrations. 
+The resulting uncertainty in concentration was estimated to be approximately 1\%.
+
+% The use of ultrapure water was critical in this study because even trace levels of extraneous ions can influence the electrical conductivity measurements and the crystallization behavior of the salts (Table~\ref{tab:water}). 
+% Ultrapure water is particularly important in the context of simulating extraterrestrial oceanic environments, such as that of Europa, where the ionic composition will be tightly constrained and low-concentration effects are significant. 
+
+Electrical conductivities were measured using the Thermo Scientific ORION Star A329 conductimeter, with a rated measurement range $\SIrange{0.001}{3000}{\micro\siemens}$. 
+The device provides a precision of 0.5\% of the reading ±1 digit for values above $\SI{3}{\micro \siemens}$, and 0.5\% of the reading $±\SI{0.01}{\micro \siemens}$ for values equal to or below $\SI{3}{\micro \siemens}$.
+The device was calibrated at room temperature prior to experiments using three standard potassium chloride (KCl) conductivity solutions: Fisher Scientific NIST-traceable standards at 
+$\SI{0.2074}{S \per m}$, $\SI{1.5000}{\siemens \per m}$, and $\SI{8.0}{\siemens \per m}$
+% $\SI{2074}{\micro\siemens\per\centi\meter}$, $\SI{15 000}{\micro\siemens\per\centi\meter}$, and $\SI{80}{\milli\siemens\per\centi\meter}$
+. 
+Each standard includes tabulated data on its electrical conductivity in 20 increments from $\SIrange{278.15}{304.15}{\kelvin}$. 
+The temperature coefficient of the conductivity probe normalizes all measurements to a reference temperature, and its baseline correction is to room temperature measurements, which was not desired for measurements of other temperatures. 
+To assess the temperature dependence of the conductivity, this temperature coefficient was set to 0.0\%. 
+Calibrations were taken between $\SIrange[]{278.15}{293.15}{\kelvin}$ even though the experimental measurements were performed at lower temperatures down to $\SI{263.15}{\kelvin}$.
+% (Figure~\ref{fig:probe}. 
+This analysis showed a correction relative to the calibration fluids approaching 5\% at $\SI{278.2}{\kelvin}$ and up to 15\% at $\SI{293.15}{\kelvin}$. 
+We attribute these discrepancies to the non-linear temperature dependence of conductivity in salt solutions. 
+The Supplemental Information includes more information about the accuracy and precision of the probe, as well as the complete data set for the probe measurements.
+The assessed uncertainty for the individual measurements for the different solutions accounts for the combined uncertainties resulting from sample preparation, temperature control, and  measurement of temperature and electrical conductivity.
+% The deviations remain within an acceptable range for the purpose of detecting global conductivity trends, especially given the relative nature of our comparative analysis across different salts and concentrations.
+
+A PolyScience AD07R-40-A11B $\SI{7}{\liter}$ immersion chiller was used to ensure precise temperature control throughout the defined range. 
+This system offers high stability with a temperature accuracy of $\pm \SI{0.1}{\kelvin}$ and a rapid response time, making it ideal for the stringent thermal sensitivity of our experiment.
+Sample vials were immersed in the chiller bath for ten minutes before measurements were collected. 
+The ten-minute equilibration time was chosen to ensure that the solution inside the vials reached thermal equilibrium with the circulating bath of the chiller. 
+The characteristic thermal time constant $\tau$ of the system was estimated from the lumped-capacitance approximation. 
+Our equilibration protocol provides a conservative margin (nearly $9\tau$; see Supplemental information). 
+This margin ensures that the solutions reached the target temperature before measurements. 
+Each of the temperatures studied in this work was also verified with a mercury thermometer, providing confidence that the bath temperature indicated by the chiller was reached.
+
+To gain further confidence in the probe measurements, especially at elevated concentration, we conducted measurements with a Gamry~600+ potentiostat in \ce{NaCl} and \ce{MgSO4} up to $\SI{1}{MHz}$ using a two-probe configuration. 
+The measurements used a custom PTFE enclosure comprising a 0.99"~OD cylinder with an internal volume of $\SI{100}{mL}$. 
+Standard 1/16'' titanium rod was used as the electrode material, with four rods inserted in a roughly square configuration axially about 1/4'' into the cell. 
+The system was sealed by means of a finger cot held on the end of the cylinder by a flange and o-ring. 
+A cell constant was obtained by repeat measurements in the same 
+$\SI{1.5000}{S \per m}$ and $\SI{8.0}{S \per m}$
+% $\SI{15 000}{\micro\siemens\per\centi\meter}$ and $\SI{80}{\milli\siemens\per\centi\meter}$ 
+standards. 
+The cell constant was found to be consistent for several weeks over the course of our experiments. 
+Complex impedance spectra were fit with a custom implementation of the open source impedance.py software\citep{murbach2020impedance}, with the fluid resistivity modeled as a resistor in series with a constant phase element in parallel with an RC circuit (see Supplemental Information). 
+Triplicate measurements were repeatable to better than 0.2\%. 
+Nevertheless, we assume an uncertainty of 4\%.
+Measurements were made at room temperature, not in the immersion chiller, and were verified by thermocouple. 
+We conservatively assess an uncertainty in temperature of up to $\SI{0.5}{\kelvin}$. 
+This uncertainty in temperature corresponds to up to 7\% uncertainty in conductivity for NaCl and about 5\% for \ce{MgSO4} (see Supplemental Information).
+
+\subsection{Assessment of mineral saturation}
+To evaluate whether our experimental solutions remained fully dissolved or approached saturation limits, we performed geochemical equilibrium calculations using PHREEQC \citep{parkhurst_description_2013} with a recalibrated and extended version of the FREZCHEM database \citep{naseem_salt_2023, toner_soluble_2013, marion_frezchem:_2010}. 
+These calculations are detailed in the Supplementary Information.
+
+\subsection{Theoretical comparison} 
+
+The experimental conductivity data were processed using custom \texttt{python} scripts developed for this study. 
+We compare the measured values with predictions of the \citet[][MC12]{McCleskey2012} representation of previously collected conductivity data for various ions in the range $\SIrange{278.15}{363.15}{\kelvin}$ \cite{McCleskey_2011}.
+This semi-empirical framework is widely used to estimate the conductivity of natural waters and electrolyte / salt solutions.
+
+The MC12 representation is based on the concept of molar conductivity at infinite dilution, with additional empirical terms that account for temperature and ionic strength. 
+The model assumes complete dissociation of salts and applies additive rules to enable prediction of ionic contributions to conductivity in multicomponent solutions. 
+Although the representation performs reliably for concentrations below $\SI{0.7}{mol \per kg}$, it does not account for specific ion interactions, ion pairing, or viscosity changes that become increasingly important at high concentrations.
+
+These predicted values for different studied ion systems at the respective concentrations and temperatures were computed using MC12.
+The resulting predictions were systematically compared to the experimentally measured conductivities obtained with the conductivity meter. 
+This comparison was carried out over the entire range of concentrations and temperatures studied, allowing us to evaluate the performance of the model under our specific experimental conditions and to identify any deviations. 
+To assess its robustness to extrapolation, we also applied the comparison outside of the validated range of MC12, up to $\SI{2.5687}{mol \per kg}$ (for NaCl), at subzero temperatures as low as $\SI{263.15}{\kelvin}$, and at high conductivities (above the stated limit of 
+$\SI{7}{S \per m}$
+% $\SI{70000}{\micro\siemens\per\centi\meter}$) 
+. 
+We applied a $\pm5\%$ uncertainty to each value, which represents the stated upper bounds on the reproducibility and accuracy of the model \cite{McCleskey_2011,McCleskey2012}
+
+The relative deviations between our measurements and MC12 are computed as:
+\begin{equation}\label{eqn:Delta}
+\Delta = \frac{\sigma_{\mathrm{exp}} - \sigma_{\mathrm{model}}}{\sigma_{\mathrm{model}}} \times 100\%
+\end{equation}
+where $\sigma_{\mathrm{exp}}$ is the experimental conductivity and $\sigma_{\mathrm{model}}$ is the modeled conductivity.
+% This metric expresses the model error as a percentage of the experimental value. %It is used in the figure to quantify the deviation across a wide range of temperatures and ionic strengths.
+% Such a comparison is conceptually analogous to the approach adopted by McCleskey et al., who evaluated the performance of their conductivity models by analyzing the relative deviations from experimental data. Here, $\Delta$ provides a direct means to assess the predictive power of the model under different physicochemical conditions.
+
+
+\section{Results}
+
+\subsection{Experimental Conductivity Data for Europa Ocean Analogs}  
+
+Table~S2 provides the electrical conductivity values obtained from the conductivity meter for all the studied aqueous salt solutions at various concentrations to subzero temperatures. 
+These concentrations represent candidate compositions for Europa's subsurface ocean. 
+The entries marked with an asterisk (\textasteriskcentered) are based on fewer than three replicate measurements. 
+In some cases, repeated measurements were not possible because samples froze at low temperatures. 
+In other cases, conductivity values at very low concentrations were too small to yield reproducible readings within the probe's limits of precision. 
+Although these single-point measurements contribute to useful trends, they should be interpreted with caution because of their limited repeatability.
+The uncertainties reported combine experimental repeatability (standard deviation of the three replicates), systematic errors associated with the probe and its calibration, and uncertainty in the measured temperature. 
+The total uncertainty is the addition of these components in quadrature.
+The measurements show increasing conductivity with both temperature and salt concentration for the individual electrolytes, consistent with expectations.
+
+% At the same time, the measured conductivity decreases with temperature but remains significant, confirming that even at $263.15\,\mathrm{K}$ , the ocean can conduct currents induced by magnetic fields, supporting the assumptions of the magnetic models proposed by \citet{Kivelson2000, Kivelson2023}.
+
+To evaluate the robustness of the experimental results, the electrical conductivity of the NaCl and $\text{MgSO}_4$ solutions was compared with benchmark data from the literature\cite{arps1953, defense1964, tomsic2002, McCleskey_2011}. 
+Good agreement was found across the investigated concentration and temperature ranges, confirming the accuracy of our experimental setup. 
+Refer to Figure \ref{fig:lit_conductivity} for a detailed comparison between our measurements and these literature sources.
+
+
+%\begin{figure}[htbp]
+  %  \centering
+   % \includegraphics[width=0.7\textwidth]%{figures/Graph_lit_NACL.png}
+    %\caption{Electrical conductivity of NaCl solutions as a function of concentration for different temperatures. Experimental data (dashed lines) from this work show good agreement with literature data from \citet{arps1953,defense1964} and \citet{McCleskey_2011} experiments (scatter points).}
+    %\label{fig:lit_conductivity}
+%\end{figure}
+
+
+\begin{figure}[htbp]
+    \centering
+
+    \begin{subfigure}{0.7\textwidth}
+        \centering
+        \includegraphics[width=\linewidth]{figures/Graph_lit_NACL.png}
+        % \caption{NaCl}
+        \label{fig:cond_nacl}
+    \end{subfigure}
+
+    \vspace{1em}
+
+    \begin{subfigure}{0.7\textwidth}
+        \centering
+        \includegraphics[width=\linewidth]{figures_final/MGSO_TOMSIC (2).png}
+        % \caption{$\mathrm{MgSO_4}$}
+        \label{fig:cond_mgso4}
+    \end{subfigure}
+
+    \caption{Electrical conductivity as a function of concentration for different temperatures.
+    Comparison of experimental data with previously published measurements for (upper) NaCl(aq)\cite{arps1953, defense1964, McCleskey_2011} and (lower) $\mathrm{MgSO_4}$ (aq)\cite{tomsic2002}.}
+    \label{fig:lit_conductivity}
+\end{figure}
+
+%The predicted phase diagrams for the solutions studied indicate the concentrations and subzero temperatures at which crystallization or precipitation should occur (Figure~\ref{fig:phase diagram}). 
+%However, during our experiments, no visible solid phases were observed at temperatures where the solutions were expected to be in a solid state within the container, except for several values marked with asterisks in Table~S2. 
+%We interpret these observations for the single salt solutions as evidence that the solutions remained in metastable supercooled conditions during the measurements. 
+%This assessment was supported by occasional temperature measurements \textbf{by mercury thermometer????} taken inside the sample tube during the experiments. 
+%At low concentrations, nucleation of the crystalline phases is often hampered and solutions may remain in a supercooled metastable liquid state \cite{marion2005effects}. 
+%Additionally, the absence of visually identifiable precipitates could indicate the development of amorphous phases, particularly relevant at low ionic strength and under slow cooling conditions.
+% These findings highlight a key limitation of using equilibrium phase diagrams to predict the behavior under nonequilibrium or planetary-relevant conditions. 
+%The trends of the measured conductivity in these metastable solutions are continuous with adjacent measurements, suggesting the samples remained fully liquid.
+% Our results underscore the need to consider kinetic effects and metastability when extrapolating laboratory data to environments such as the subsurface ocean of Europa. 
+
+The predicted phase diagrams for the solutions studied indicate the concentrations and subzero temperatures at which crystallization or precipitation should occur (Figure~\ref{fig:phase diagram}). 
+However, during our experiments, no mineral precipitation was observed for these single-salt solutions. Visible solid phases were absent even at temperatures where the equilibrium state is solid, except for partial freezing observed in some samples at very low temperatures (marked with asterisks in Table~S2). 
+We interpret these observations for the single-salt solutions as evidence that the solutions largely remained in metastable supercooled conditions during the measurements. 
+At low concentrations, nucleation of crystalline phases (both ice and salts) is often hampered, allowing solutions to remain in a supercooled metastable liquid state \cite{marion2005effects}. 
+The trends of the measured conductivity in these solutions are continuous with adjacent measurements, suggesting that even where partial freezing occurred, the samples remained sufficiently liquid for the bulk conductivity to follow a predictable temperature dependence. 
+The relevance of metastable supercooled states in natural icy-moon environments is considered further in Section~\ref{sec:discussion}.
+
+\subsection{Theoretical comparison} 
+
+\begin{figure}[ht]
+    \centering
+
+    \begin{minipage}{0.40\textwidth}
+        \centering
+        \includegraphics[width=\linewidth]{figures_final/graphique_nacl.pdf}
+        \caption*{(a)}
+    \end{minipage}
+    \hfill
+    \begin{minipage}{0.40\textwidth}
+        \centering
+        \includegraphics[width=\linewidth]{figures_final/graphique_mgso4.pdf}
+        \caption*{(b)}
+    \end{minipage}
+    
+    \begin{minipage}{0.40\textwidth}
+        \centering
+        \includegraphics[width=\linewidth]{figures_final/graphique_nh4cl.pdf}
+        \caption*{(c)}
+    \end{minipage}
+    \hfill
+    \begin{minipage}{0.40\textwidth}
+        \centering
+        \includegraphics[width=\linewidth]{figures_final/graphique_na2co3.pdf}
+        \caption*{(d)}
+    \end{minipage}
+
+    \caption{Electrical conductivity versus concentration for aqueous (a) \ch{NaCl}, (b) \ch{MgSO4}, (c) \ch{NH4Cl}, and (d)\ch{Na2CO3}. 
+    Each subplot shows conductivity measurements (points and solid lines) and predictions of the MC12 molar conductivity model\cite{McCleskey2012} (indicated in dashed lines) at the studied concentrations and temperatures. 
+    Large filled circles for NaCl and \ce{MgSO4} solutions denote two-probe potentiostat measurements at $\SI{293.15}{\kelvin}$ that match the probe data to within better than 11\%. 
+    The consistency with increasing concentration suggests ion shielding effects do not alter the probe reading at the elevated concentrations studied. 
+    Deviations of the experimental measurements relative to the reference MC12 model (lines) or potentiostat (points) are plotted (in \%) for each composition. 
+    For singly charged NaCl, \ce{NH4Cl}, and \ce{Na2CO3} near room temperature, the measurements have modest deviations from the MC12 model for concentrations below the identified ``McCleskey limit'' of concentration  (vertical red line) based on the MC12 input data\cite{McCleskey_2011}. 
+    \ce{MgSO4} shows much larger deviations, demonstrating inaccuracy in the molal predictions solely inferred from other solutions containing Mg and \ce{SO4}.}
+    \label{fig:global}
+\end{figure}
+
+\begin{figure}[ht]
+    \centering
+
+    % Première ligne
+    \begin{minipage}{0.38\textwidth}
+        \centering
+        \includegraphics[width=\linewidth]{figures_final/graphique_nacl_T.pdf}
+        \caption*{(a)}
+    \end{minipage}
+    \hfill
+    \begin{minipage}{0.38\textwidth}
+        \centering
+        \includegraphics[width=\linewidth]{figures_final/graphique_mgso4_T.pdf}
+        \caption*{(b)}
+    \end{minipage}
+
+    \vspace{0.4cm}
+
+    % Deuxième ligne
+    \begin{minipage}{0.38\textwidth}
+        \centering
+        \includegraphics[width=\linewidth]{figures_final/graphique_nh4cl_T.pdf}
+        \caption*{(c)}
+    \end{minipage}
+    \hfill
+    \begin{minipage}{0.38\textwidth}
+        \centering
+        \includegraphics[width=\linewidth]{figures_final/graphique_na2co3_T.pdf}
+        \caption*{(d)}
+    \end{minipage}
+    \label{fig:temp}
+    \caption{Electrical conductivity vs temperature for aqueous (a) NaCl, (b) 
+    \ce{MgSO4}, (c) \ce{NH4Cl}, and (d) \ce{Na2CO3}. 
+    The solid lines trace experimental results for the labeled molal concentrations, the dashed lines are predictions from the MC12\cite{McCleskey2012} model for ionic conductivity. 
+    As in Figure ~\ref{fig:global}, large filled circles for NaCl and \ce{MgSO4} denote two-probe potentiostat measurements at $\SI{293.15}{\kelvin}$, which agree with the probe data to within 11\%. 
+    Lower panels show deviations (in \%) of the experimental measurements from the reference MC12 model (lines). 
+    At the highest concentrations, large discrepancies from the measurements occur even within the temperature range of previously studied measurements\cite{McCleskey_2011} (right of the red lines).}
+    \label{fig:CondsVsT}
+    % The vertical red line in panel (a) indicates the lower limit of validity of the model.}
+\end{figure}
+
+
+Figures~\ref{fig:global} and \ref{fig:CondsVsT} show the concentration and temperature dependence of experimental and theoretical electrical conductivity $\sigma$ for aqueous \ch{NaCl}, \ch{MgSO4}, \ch{NH4Cl}, and \ce{Na2CO3} across the studied range of temperatures from $\SIrange{263.15}{298.15}{\kelvin}$. 
+The solid lines trace experimental results for the labeled molal concentrations, the dashed lines are predictions from the MC12\cite{McCleskey2012} model for ionic conductivity. 
+Large filled circles for NaCl and \ce{MgSO4} denote two-probe potentiostat measurements at $\SI{293,15}{\kelvin}$ that match the probe data to within 9\% and 11\%, respectively. 
+Deviations of the experimental measurements relative to the reference MC12 model (lines) or potentiostat (points) are plotted (in \%) for each composition, showing large discrepancies from the measurements even within the concentration/temperature ranges of the reference measurements\cite{McCleskey_2011} (left/right of the red lines).
+
+MC12 consistently overestimates the conductivity above \SI{1.2}{mol\per\kg} compared to our experiments for \ch{NaCl}, \ch{MgSO4}, \ch{NH4Cl}, and \ce{Na2CO3}, confirming expected limitations when extrapolating the representation for  ion solutions beyond the model range. 
+These deviations can be attributed to reduced mobility of \ch{NH4+} and \ch{Cl-} ions and the effects of ion pairing at lower temperatures.
+
+Electrical conductivity increases almost linearly with increasing \ch{NaCl} concentration in all temperature ranges (Figure~\ref{fig:global}a), with only a slight deviation from linearity at higher concentrations likely due to interionic interactions that reduce ionic mobility\cite{Chattopadhyay2025, Mourouga2022Activity, Hemond2023Activity}. 
+In the range of standard temperatures ($\SI{293.15}{\kelvin}$ and $\SI{298.15}{K}$), and for concentrations below the identified limits of the previous study by McCleskey et al.\cite{McCleskey_2011}, the values for \ce{NaCl} match to within the assessed uncertainty of 5\%. 
+Potentiostat measurements at $\SI{293.15}{\kelvin}$ and 0.5 and $\SI{1}{\mol\per\kg}$ agree with the probe measurements to within $\leq8\%$. 
+Significant deviations of up to 20\% from the reference MC12 representation are observed at the highest concentrations. 
+If we assess a 5\% nominal uncertainty in the MC12 predictions, the model representation of conductivity agrees with our measurements up to the $\SI{1}{mol\per\kg}$ limit of the MC12 input data. 
+
+The deviation (\ $ \Delta \ $) becomes increasingly negative with concentration, indicating that MC12 progressively overestimates conductivity at higher salt concentrations.
+This pattern suggests that the model becomes less reliable as the ionic strength increases, possibly because of increased ion pairing and viscosity effects not captured in the model.
+
+% \ch{MgSO4} solutions exhibit a markedly different behavior and larger deviations with errors that exceed 150\%  at high concentrations . (Figure~\ref{fig:global}b). 
+%After an initial rise with increasing concentration, electrical conductivity tends to plateau at higher concentrations, especially for lower temperatures. 
+%This plateau likely arises from the strong association between divalent \ch{Mg^{2+}} cations and \ch{SO4^{2-}} anions, which form stable contact ion pairs and larger neutral aggregates (e.g., \ch{MgSO4^0}, \ch{Mg(SO4)_2^{2-}}). 
+%These associated species significantly reduce the number of free-charge carriers in solution. 
+%As a result, even though the total ionic concentration increases, the effective ionic mobility contributing to conductivity remains nearly constant or may even decrease. 
+%This effect is further enhanced at low temperatures because of decreased thermal energy and higher solution viscosity, both of which favor ion association and hinder ionic movement. At higher temperatures, increased ionic mobility and disruption of hydration shells may lead to greater deviations from the assumptions embedded in MC12, which does not explicitly account for such interactions in concentrated \textbackslash{}ce\{MgSO4\} systems.
+
+
+\ce{MgSO4} solutions exhibit a markedly different behavior and larger deviations from the empirical models, with differences exceeding 150\% at high concentrations (Figure~\ref{fig:global}b). 
+After an initial rise with increasing concentration, electrical conductivity tends to plateau, especially at lower temperatures. 
+This plateau arises from the strong association between divalent \ce{Mg^{2+}} cations and \ce{SO4^{2-}} anions, which form stable contact ion pairs and larger neutral aggregates (e.g., \ce{MgSO4^0}, \ce{Mg(SO4)_2^{2-}}); these associated species significantly reduce the number of free-charge carriers in solution \citep{marcus_ion_2006}. 
+As a result, even though the total ionic concentration increases, the effective ionic mobility contributing to conductivity remains nearly constant or may even decrease. 
+
+This strong association effect is further enhanced at low temperatures due to decreased thermal energy and higher solution viscosity, both of which favor ion association and hinder ionic movement \citep{Anderko1997,kim_electrical_2019, zhang_experimental_2020}.
+Such complex solution effects—notably ion pairing and reduced ionic activity—indicate the necessity for models that incorporate concentration-dependent non-idealities beyond the scope of the empirical MC12 approach \citep{rebello_correlations_2020, pan_electrical_2020}. 
+Multiple studies have similarly concluded that in concentrated electrolytes, simple molarity-based models do not account for the specific interaction parameters and hydration shell disruptions that govern conductivity \citep{chalikian2001structural, toner2017lowtemperaturesulfate}. 
+%As a result, at higher concentrations, increased ionic mobility and shifting association equilibria lead to greater deviations from the assumptions embedded in MC12, which does not explicitly account for these non-ideal behaviors in concentrated \ce{MgSO4} systems.
+
+The behavior of \ch{Na2CO3} solutions (Figure~\ref{fig:global}d) became non-linear at low temperatures, so here we do not include near-freezing data in the plots comparing to MC12. 
+% A small discontinuity in conductivity is observed at 270.15 K in all the \ce{Na2CO3} solutions. This could probably arise from a brief fluctuation in temperature control. Points at this temperature must therefore be interpreted with caution.
+The deviations from MC12 remain within 10\% for standard temperatures ($\SI{293.15}{\kelvin}$ and $\SI{298.15}{\kelvin}$), but for certain combinations of temperature (especially for $\SI{270.15}{\kelvin}$ and $\SI{272.15}{\kelvin}$) and concentration, deviations reached as high as $\SIrange{50}{60}{\percent}$. 
+This variability may arise from complex speciation equilibria involving carbonate and bicarbonate ions, and the potential formation of ion pairs or clusters, as discussed above for \ce{MgSO4}.
+
+In contrast to the other solutions, \ch{NH4Cl}(aq) showed the highest conductivities among the four salt solutions tested for equivalent concentrations (up to $\SI{19.1}{S \per m}$ at $\SI{55}{g \per kg}$ and $\SI{293.15}{\kelvin}$). 
+The conductivity of \ce{NH4Cl} solutions increases almost linearly with concentration (Figure~\ref{fig:global}c), consistent with the absence of strong ion pairing between \ch{NH4+} and \ch{Cl-}.
+The observed decrease in conductivity (Figure~S2) with decreasing temperature highlights the influence of temperature on dissolution and ionic mobility. 
+
+In general, electrical conductivity values computed using MC12 show roughly linear trends. 
+This model fits \ch{NH4Cl}, but exhibits a very different trend from the experimental behavior of \ch{MgSO4} at all temperatures, where the effect of ion pairs is important, giving a plateau at high concentrations (Figures ~\ref{fig:global}d, e and f). 
+As noted above, MC12 was not formulated using data for \ce{MgSO4}, and is not optimally suited for divalent cations. 
+Therefore, the  up to $3\times$ disagreement between the measurements and the MC12 predictions is not surprising.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.5\linewidth]{figures_final/graphique_mixtures.pdf}
+    \caption{Conductivity vs concentration for the 1:1:1 stoichiometric combination of \ce{MgSO4}:\ce{NaCl}:\ce{Na2CO3}. 
+    Colored markers correspond to experimental data at various temperatures, with error bars representing total uncertainties.}
+    \label{fig:mixtures}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.5\linewidth]{figures_final/graphique_mixtures_T.pdf}
+    \caption{Electrical conductivity vs temperature for for the 1:1:1 stoichiometric combination of  \ce{MgSO4}:\ce{NaCl}:\ce{Na2CO3}. 
+    Colored markers correspond to experimental data at various temperatures, with error bars representing total uncertainties.}
+    \label{fig:mixtures_T}
+\end{figure}
+
+
+Figures~\ref{fig:mixtures} and \ref{fig:mixtures_T} show the experimental conductivity results for the mixed electrolyte solution as a function of molal concentration and at different temperatures (from $\SIrange{263.2}{298.2}{\kelvin}$). 
+Conductivity increases with concentration as a result of increased abundance of mobile ionic species.
+However, at the highest concentration tested ($\SI{0.7}{mol \per kg}$), a significant decrease in conductivity is observed at the temperatures studied $\SI{272.15}{\kelvin}$, $\SI{293.15}{\kelvin}$, and $\SI{298.15}{\kelvin}$. 
+
+%This behavior can be attributed to several well-known effects occurring in concentrated electrolyte solutions: 
+%At high concentrations, ion pairing or the formation of larger ionic aggregates becomes more likely, reducing the number of free-charge carriers in the solution. 
+%The increased ionic strength and decreased availability of solvent molecules decreases ionic mobility because of stronger ion-ion and ion-solvent interactions. 
+%Furthermore, the viscosity of the solution tends to increase with concentration, further hindering ion transport. 
+%Additional non-ideal interactions arise in mixed electrolyte systems such as the one studied here, and competition between different ionic species may exacerbate these effects. 
+%As a result, the overall conductivity does not continue to increase with concentration but instead shows a maximum followed by a decline.
+
+
+This decline can primarily be attributed to the dominant effect of mineral precipitation (notably magnesium carbonates like nesquehonite or lansfordite) at higher concentrations. While the mixed-salt system is supersaturated across the studied range, the extent of precipitation at \SI{0.7}{mol \per kg} is sufficient to outweigh the addition of new salt. The formation of these solid phases removes \ce{Mg^{2+}} and \ce{CO3^{2-}} ions from the solution, thereby reducing the number of free charge carriers available for transport. Although ion pairing and increased viscosity naturally reduce ionic mobility at high concentrations, the sharp drop observed at \SI{0.7}{mol \per kg} confirms that the removal of ions through phase separation has become the prevailing mechanism.
+
+
+The MC12\cite{McCleskey2012} ionic molal conductivity representation is designed to provide accurate estimates of electrical conductivity for a wide range of aqueous electrolyte solutions. 
+However, its validity is generally limited to concentrations below approximately $\SI{1}{\mol \per kg}$\cite{McCleskey_2011,McCleskey2012}. 
+As previously noted, deviations may occur due to effects not fully accounted for in the model, including ion pairing, non-ideal ionic interactions, and changes in ionic activity. 
+Consequently, when applying MC12 to experimental data beyond this concentration range, especially for multicomponent or complex mixtures, caution is warranted even as concentrations approach this theoretical limit.
+
+
+Furthermore, measurements at higher temperatures generally diverge more from the model at high concentrations (Figure~\ref{fig:global}) except for \ce{NH4Cl}. 
+For these solutions, the conductivity curve versus concentration has a notable downward curvature at elevated concentrations
+Thus, the divergence from MC12 may indicate that increasing ion association at elevated concentration causes the conductivity to plateau, even with decreasing solvent viscosity at elevated temperatures.
+This plateau effect is particularly pronounced for \ch{MgSO4} compared to \ch{NaCl} due to increased ion pairing, where increasing temperature becomes ineffective at higher concentration thresholds.
+
+Ion shielding or concentration polarization, where accumulation of ions near electrode surfaces reduces the effective electric field, may lower measured conductivity at high concentration.
+However, our potentiostat measurements for NaCl and \ce{MgSO4} (Figure~\ref{fig:global}a, b) show no systematic increase in deviation from the probe measurements with concentration, ruling out significant shielding effects. 
+
+% Another possible source of error in the measurements comes from the choice not to use the probe temperature correction, especially at temperatures outside the rated range for the probe. 
+% However, differences between our measurements and McCleskey's do not show a systematic dependence on temperature that might indicate poor performance of the conductivity probe.
+
+%The discrepancies observed between the experimental measurements and the predictions of the MC12 representation can be explained by a difference between the theoretical concentration used in the model and the concentration actually dissolved in the solution. Indeed, the solubility of salts decreases significantly with temperature. This difference in dissolved concentration distorts the direct comparison with a model that assumes a homogeneous, fully dissolved solution, as shown in greater detail in the Supplement.
+
+%\subsection{Mineral saturation and metastability}
+
+%Geochemical equilibrium calculations using WATEQ4F predict that several salt hydrates should precipitate under our experimental conditions\citep{ball_users_1991}: (1) meridianiite (\ce{MgSO4*11H2O}) in \ce{MgSO4} solutions, (2) natron (\ce{Na2CO3*10H2O}) in \ce{Na2CO3} solutions, and (3) mirabilite (\ce{Na2SO4*10H2O}), nesquehonite (\ce{MgCO3*3H2O}), and lansfordite (\ce{MgCO3*5H2O}) in the mixed salt solutions.
+%In addition, partial or complete freezing should have occurred (see Supplementary Information). 
+%Such precipitation would sequester ions from solution, reducing the effective concentration and measured conductivity, and conversely, freezing would sequester water and increase the concentration of ions in solution.
+
+%However, visual inspection revealed no solid phases in most single-salt solutions (with isolated exceptions marked with asterisks in Table~S2). In some instances at the lowest temperatures, a partial ice fraction was observed at the bottom of the cell. 
+%The continuous trends in measured conductivity (Figures~\ref{fig:global}, \ref{fig:CondsVsT}, \ref{fig:mixtures}) across predicted phase boundaries (Figure~\ref{fig:phase diagram}) further indicate that solutions remained in metastable supersaturated states rather than achieving thermodynamic equilibrium. 
+%This behavior is consistent with previous observations of kinetically hindered nucleation in concentrated brines at low temperatures \citep{marion2005effects}, where the energy barrier for crystal formation prevents precipitation despite thermodynamic driving forces.
+
+%WATEQ4F uses the MC12 ionic molal conductivity representation  \citep{McCleskey2012}. 
+%This geochemical speciation model determines how ions distribute among free species, ion pairs, and complexes. 
+%WATEQ4F does not enforce mineral precipitation, instead calculating conductivity for the dissolved aqueous phase regardless of saturation state. 
+%Our experimental conditions are therefore directly comparable to WATEQ4F calculations: both represent metastable solutions at nominal concentrations. 
+%The observed deviations of MC12 from our measurements reflect the limitations of the model in capturing ion interactions under extreme conditions, rather than differences in how precipitation is treated.
+
+\subsection{Mineral saturation and metastability}
+
+Geochemical equilibrium calculations (see Supplementary Information) predict that several salt hydrates should precipitate under our experimental conditions: (1) meridianiite (\ce{MgSO4*11H2O}) in \ce{MgSO4} solutions, (2) natron (\ce{Na2CO3*10H2O}) in \ce{Na2CO3} solutions, and (3) mirabilite (\ce{Na2SO4*10H2O}), nesquehonite (\ce{MgCO3*3H2O}), and lansfordite (\ce{MgCO3*5H2O}) in the mixed-salt solutions. In addition, partial or complete freezing is thermodynamically predicted across much of the subzero temperature range. Such precipitation would sequester ions from solution, reducing the effective concentration and conductivity, while freezing would sequester water and increase the concentration of remaining ions.
+
+However, visual inspection revealed different behaviors between systems. For single-salt solutions, no mineral precipitation was observed; only a partial ice fraction was noted in specific instances at the lowest temperatures (marked with asterisks in Table~S2). In contrast, visible precipitates were observed across all temperatures and concentrations for the mixed-salt system. Despite these phase separations, the measured conductivity followed continuous trends (Figures~\ref{fig:global}, \ref{fig:CondsVsT}, \ref{fig:mixtures}) without the sharp discontinuities expected at thermodynamic equilibrium. This suggests that the solutions remained in kinetically hindered, partially metastable states where mineral formation was insufficient to achieve full equilibrium depletion. This behavior is consistent with previous observations of kinetically hindered nucleation in concentrated brines at low temperatures \citep{marion2005effects}, where the energy barrier for crystal formation prevents precipitation despite thermodynamic driving forces.
+
+The MC12 ionic molal conductivity representation \citep{McCleskey2012} used by WATEQ4F does not enforce mineral precipitation, calculating conductivity for the aqueous phase at nominal concentrations. Since no mineral precipitation was observed in our single-salt solutions, these measurements provide an opportunity to evaluate the model's physical accuracy in metastable states. The significant deviations observed in these simple systems—particularly for divalent species like \ce{MgSO4}—demonstrate that the model's limitations likely stem from its representation of complex ion interactions, such as ion pairing and non-ideality at high concentrations. Consequently, while precipitation in the mixed-salt system may contribute to the observed discrepancies, the fundamental errors identified in the single-salt benchmarks suggest that the model's inherent limitations in aqueous speciation and temperature extrapolation remain the dominant factors.
+
+\subsection{Discussion - Implications for magnetic investigations of Europa and other ocean worlds}\label{sec:discussion}
+
+% Our results indicate that while the MC12 ionic conductivity model serves as a useful first-order approximation under Europa-like scenarios, it requires adjustments or extensions to fully capture the behavior of candidate Europa ocean compositions. 
+Our results extend the available electrical conductivity data for aqueous systems to high concentrations and lower temperatures (Figure~\ref{fig:lit_conductivity}).
+The chosen concentrations were based on ranges from previous work and the temperature range is within what was previously modeled by Vance et al \cite{vance2018geophysical}. This work is in no way comprehensive to the possible conditions of concentration and composition (salinity), or pressure and temperature needed to constrain ocean conditions. 
+Our work comprises a beginning to developing a broader framework for computing ionic contributions to electrical conductivity in simulated extraterrestrial oceans\citep{vance2021magnetic}. 
+
+%Focusing specifically on \ce{MgSO4}, our measurements for magnesium sulfate, a key potential component of Europa's ocean, exhibit lower conductivity than predicted by MC12. 
+Our measurements for magnesium sulfate, a key potential component of Europa's ocean, exhibit lower conductivity than predicted by MC12, with our measured values not exceeding $\SI{5}{S \per m}$ which is consistent to values compiled by Hand et al. 2007\citep{hand2007empirical} and similar to the lowest pressure measurements of \citet{pan2020electrical} that were around $\SI{1}{S \per m}$ for a 10wt\% ($\SI{0.923}{\mol \per kg}$) solution near room temperature and $\SI{200}{MPa}$. 
+The present experimental data thus contribute valuable constraints for future model refinements in planetary science and astrobiology applications.
+The MC12 model fails to fully account for ion pairing, viscosity increases, and specific ionic interactions, all of which become dominant in the concentrated, sub-zero brines of icy moons. At high concentrations, these non-ideal effects and reduced solubility outpace the empirical scope of the MC12 approach, highlighting the necessity for models that explicitly incorporate concentration-dependent non-idealities.
+%The MC12 model does not fully account for ion pairing, viscosity changes at high concentrations, or specific interactions between ions---effects that become more significant in concentrated brines or at sub-zero temperatures expected in the subsurface oceans of icy moons. 
+%At high concentrations, complex solution effects likely dominate---such as ion pairing and reduced solubility---indicating the necessity for models that incorporate concentration-dependent non-idealities beyond the empirical scope of the MC12 approach.
+%Discrepancies with predictions based on the McCleskey model suggest adjustments to the salinity and temperature assumptions in geophysical models.
+
+Our experimental uncertainties stem mainly from probe calibration and temperature gradients, and were better than $\pm5\%$. 
+At higher concentrations, electrode saturation---shielding by ions clustered around the electrodes---might decrease the measured conductivity from the expected bulk value (more in the Supplemental Information). 
+The uncertainty at higher concentrations region may be higher, but comparison with potentiostat measurements in $\ce{MgSO4}$ suggests that electrode shielding was not a concern.
+% The consistent overestimation of conductivity by MC12 with increasing temperature for all studied solutions suggests a problem with the MC12 parameters, or systematic errors in our probe or those used by McCleskey et al 2011 \cite{McCleskey_2011}.
+
+In this work we do not experimentally address the anticipated increase in conductivity with pressure ($<\SI{200}{MPa}$) for modest salinities noted by \citet{adams1931effect,horne1967electrical} and \citet{ueno1979effect}. 
+The effects of pressure on electrical conductivity are also not considered by MC12.
+% Our initial results indicate that pressure has no major effect on the measured electrical conductivity within the explored range.
+Increasing pressure up to several hundred MPa is expected to slightly reduce the viscosity of liquid water and aqueous solutions, which can lead to a modest increase in ionic mobility and electrical conductivity. 
+Based on existing models and simulations relevant to Europa (e.g., \citep{psarakis2024electrical}), this pressure effect is generally secondary compared to much larger changes driven by temperature and salinity over the same range, but pressure effects become much more important in larger worlds such as Ganymede and Callisto \citep{vance2021magnetic}. 
+% Pressure is therefore expected to moderately shift absolute conductivity values while largely preserving the temperature--salinity trends reported in this study. 
+Further experimental investigations at elevated pressures nevertheless represent a valuable direction for future work.
+
+
+The metastable supersaturated states observed in our results are highly relevant to natural icy-moon environments. In subsurface oceans, high-pressure conditions (up to $\sim$\SI{200}{MPa}) significantly depress the freezing point of aqueous solutions, potentially stabilizing at depth states that are metastable at \SI{0.1}{MPa}. 
+
+Furthermore, complex solutes with divalent and molecular ions, such as \ce{MgSO4} and \ce{Na2CO3}, act as potent kinetic inhibitors by increasing the activation energy barrier for nucleation \citep{toner2017lowtemperaturesulfate}. This mechanism allows liquid brines—located within grain boundaries in tidally strained ice \citep{mccarthy2016tidal} or the porous ``mushy layer'' at the ice-ocean interface \cite{Buffo2021}—to remain metastable and electrically conductive well below their equilibrium freezing points for geologically relevant periods \citep{toner_formation_2014}. As local pressure fluctuates over Europa’s \SI{85}{hr} tidal cycle, these metastable conditions may be regularly reinforced. Consequently, our conductivity data provide a more accurate representation of the liquid phases within icy shells than models based strictly on thermodynamic equilibrium.
+
+
+%The metastable supersaturated states observed in our results is relevant to natural icy-moon environments.
+% While globally persistent supercooled oceans are unlikely, pressure and salinity significantly shift phase boundaries and may favor the persistence of liquid brines near the freezing interface in Europa’s ice shell and upper ocean (e.g., \citep{marion_aqueous_2012, vance_geophysical_2018}). 
+%Salt solutions, including MgSO$_4$-bearing systems, can exhibit strong kinetic inhibition of crystallization and remain metastable well below their equilibrium freezing temperatures for extended periods \citep{toner_formation_2014}. 
+% Such localized and transient metastable states may still influence bulk electrical properties relevant to geophysical observations.
+%The high-pressure environment of subsurface oceans significantly depresses the freezing point of aqueous solutions, potentially rendering states that are metastable at $\SI{0.1}{MPa}$ thermodynamically stable at depth \cite{vance2018geophysical}. 
+%Fluids form easily at grain boundaries in tidally strained ice \citep{mccarthy2016tidal}.
+%Moreover, in the porous ``mushy layer'' at the ice-ocean interface, high concentrations of complex solutes (e.g., \ce{MgSO4}, \ce{Na2CO3}) act as potent kinetic inhibitors, maintaining liquid brines well below their theoretical equilibrium freezing points for extended periods \cite{Buffo2021}. 
+%The pressure in these nearly frozen regions changes over the $\SI{85}{hr}$ period of Europa's orbit (tidal cycle), so  metastable conditions could regularly occur in these environments. 
+
+%Furthermore, high-pressure conditions (up to $\sim$200~MPa) and the presence of complex solutes like \ce{MgSO4} or \ce{Na2CO3} significantly increase the activation energy barrier for nucleation \citep{toner_physicochemical_2017}, potentially allowing these metastable liquid veins to remain electrically conductive over geologically relevant periods. Consequently, our conductivity data provide a more accurate representation of the liquid phases within icy shells than models based strictly on thermodynamic equilibrium.
+
+
+
+
+
+% Thus, the conductivity values reported for supercooled states are representative of the liquid phases likely to exist within the thermal gradients of icy shells or in pockets of upwelling ocean water.
+
+% The observed persistence of liquid states well below equilibrium freezing points is highly relevant to the geophysical modeling of icy moons. In environments such as Europa’s ice shell, the kinetic inhibition of ice crystallization (supercooling) and salt precipitation can persist over significant scales. In the porous "mushy layer" at the ice-ocean interface, the absence of heterogeneous nucleation seeds and the confinement of brines within micro-channels can effectively stabilize liquid phases \citep{buffo_dynamics_2021}. 
+
+
+
+The relevance of our conductivity measurements to ocean world exploration can be evaluated relative to spacecraft observation constraints. 
+Analysis of Galileo magnetometer data revealed induced magnetic field perturbations at Europa with a normalized amplitude in the range 0.7-0.97 at Jupiter's 11.23-hour rotation synodic period in the reference frame of Europa's orbit\citep{kivelson2000galileo,zimmer2000subsurface}. 
+The higher ``perfect conductor'' end of that range is generally regarded in the literature as more likely. 
+Forward modeling \citet{vance2021magnetic} has shown that matching these observations requires ocean electrical conductivities ranging from approximately 0.3--0.4~S/m for dilute brines ($\sim$0.35--1~wt\%) to 3.1--3.8~S/m for concentrated \ce{MgSO4} or seawater solutions ($\sim$10~wt\% or 3.5~wt\% respectively), depending on ice shell thickness (5--30~km) and ocean composition.
+Our measured conductivities at subzero temperatures here fall within these ranges. A cold concentrated ocean comprising the studied solutions could explain the Galileo observations.
+
+The Europa Clipper magnetic induction investigation will sample Europa's induction response not only strong synodic oscillation ($\sim\SI{250}{nT}$) but also the weaker ($\sim\SI{14}{nT}$) and much longer period ($\SI{85.2}{hr}$) orbital signal caused by the eccentricity of Europa's orbit\citep{kivelsonv2023europa}. 
+The nominal 49 flybys of the prime mission will allow for sampling of both the amplitude and phase responses of these signals, which can most easily be expressed as their real ($Re$) and imaginary ($Im$) components of the complex amplitude determined from the inversion of the overall dataset. 
+The complex amplitude $\mathcal{A}_1^e$ accounts for phase lag of the excitation response relative to the excitation of the oscillation in Jupiter's field as described by \citeauthor{vance2021magnetic} (2021). 
+Figure~\ref{fig:MagSens} depicts the real (blue) and imaginary (orange) components of the predicted synodic and orbital amplitudes $\mathcal{A}_1^e$ vs electrical conductivity, which is mapped to the conductivity of seawater on the top x axis via the Gibbs Seawater software toolbox\cite{mcdougall2011getting}.
+The amplitudes are calculated as per Vance et al.\cite{vance2021magnetic} assuming a $\SI{20}{km}$ ice shell overlying a $\SI{135}{km}$ (with $R_\mathrm{Europa}=\SI{1561}{km}$.
+
+The new laboratory measurements are most important for extending the domain of temperature and composition for the studied solutions to cover more of the range of possible conditions in Europa's ocean. 
+Here we demonstrate that the present measurements are sufficiently precise so as not to limit the interpretation of results from Europa Clipper's magnetic induction investigation. 
+The amplitude curves in Figure~\ref{fig:MagSens} are used to determine the limiting sensitivity in conductivity (thinner solid lines) and concentration (dashed lines) relative to the $\SI{1.5}{nT}$ sensitivity of the Europa Clipper Magnetometer investigation\cite{kivelsonv2023europa}:$\Delta X_B = B\frac{\partial X}{\partial B_\mathrm{max}}$.
+ The black rectangles on the upper x axis depict approximate reference concentrations of salt for lower\cite{zolotov2001composition} and upper\cite{kargel_europas_2000} limits from published models of Europa's ocean composition along with Earth's seawater.
+Because the $~\sim \SI{14}{nT}$ amplitude of the orbital oscillation is much weaker than the $\SI{250}{nT}$ synodic oscillation\cite{kivelsonv2023europa}. 
+Therefore, the limiting sensitivities for the orbital signal (lighter shades) are much larger. 
+The better than $\pm5\%$ precision of the present measurements is only limiting for very low salinities, at or below published predictions and corresponding to the low end of the range of synodic amplitudes less favored in the literature. 
+Rectangular patches indicate assessed sensitivity and concentration coverage for select studies\cite{McCleskey_2011,pan2021electrical}.
+Note that these studies are not comprehensive in coverage in temperature or pressure.
+
+Implicit in this analysis is the assumption that the electrical conductivity and concentration derivatives of seawater's electrical conductivity are roughly the same as those for the different solutions we studied, which is not strictly true. Also, the strong temperature suppression of the freezing temperature of ice by some salts means that even strongly conducting solutions may fall into the very low temperature regime explored here, where the sensitivity of conductivity concentration is smaller. 
+
+\begin{figure}[ht]
+    \centering
+    \includegraphics[width=0.5\linewidth]{figures_final/DeltaSigmaBEuropa20km_v2.pdf}
+    \caption{Limiting precision of conductivity knowledge relative to the assessed $\SI{1.5}{nT}$ sensitivity of the Europa Clipper Magnetometer (ECM) investigation of magnetic induction\citep{kivelsonv2023europa}.
+    Thick blue and orange lines depict the real and imaginary components of the maximum  induction responses to magnetic oscillations from Jupiter's rotation (synodic; darker) and  Europa's orbital eccentricity (lighter). 
+    These curves are used to compute limiting sensitivities to relative in conductivity ($\Delta \sigma_B$, $-$) and salinity ($\Delta m_B$, $- -$), normalized to $\SI{25}{km}$ above Europa's surface. 
+    The calculation assumes a $\SI{20}{km}$ ice shell overlying a $\SI{135}{km}$ deep ocean with seawater composition at $\SI{271}{\kelvin}$ and $
+    \SI{10}{MPa}$. Rectangular patches indicate assessed sensitivity and concentration coverage for select studies\cite{McCleskey_2011,pan2021electrical}.
+    Figure is updated from \citeauthor{psarakis2024electrical} (2024)\cite{psarakis2024electrical}}
+    \label{fig:MagSens}
+\end{figure}
+
+
+
+% The experimental results could be incorporated in future work into the \href{https://github.com/vancesteven/planetprofile}{\texttt{PlanetProfile}} open-source Python framework \cite{vance2018geophysical, styczinski2023selfconsistent} to model self-consistent internal profiles of Europa’s ocean. \texttt{PlanetProfile} is a planetary structure tool that calculates the radial profiles of ice and ocean layers while considering thermodynamic and compositional constraints relevant to icy ocean worlds. It includes flexible routines to couple equations of state, phase transitions, and thermophysical parameters such as density, thermal expansivity, and electrical conductivity.
+
+Because the dependence of electrical conductivity on salinity and temperature directly affects the ocean’s magnetic response measurable by the Europa Clipper mission, forward models seeking to link the ocean's composition to Europa's magnetic induction response will need to account for these new data, especially at sub-zero temperatures \cite{vance2021magnetic,styczinski2023selfconsistent}. 
+As noted in previous work, the lower conductivity at low $T$ indicates that the lower end of possible ocean temperatures in ocean worlds might yield magnetic induction responses that are more difficult for a spacecraft to detect \cite{vance2021magnetic,castillorogez2022contribution,vance2023investigating,cochrane2025stronger}.
+% The suite of measurements by Europa Clipper and Juice will help constrain the thickness of the ice shell and the temperature at the ice-ocean interface, which will reveal the lower bound on temperatures in the ocean that need to be covered by the input laboratory data. 
+
+\section{Conclusion}
+
+The experimental results from this study provide a more comprehensive assessment of the electrical conductivity behavior in the aqueous systems \ch{NaCl}, \ch{MgSO4}, \ch{NH4Cl}, \ch{Na2CO3}, and \ce{NaCl}-\ce{MgSO4}-\ce{NaCO3} across a broad temperature range, including sub-zero conditions relevant to icy moons such as Europa. 
+The electrical conductivity was found to increase with both concentration and temperature, with notable deviations from the \citet{McCleskey2012} model (MC12) emerging under non-standard conditions—--particularly at high concentrations and low temperatures.
+MC12 provides good predictive accuracy for simple monovalent salts like \ch{NaCl} and \ch{NH4Cl}, but its performance is less accurate in systems with multivalent ions or complex aqueous speciation such as \ch{MgSO4} and \ch{Na2CO3}.
+The present findings emphasize that MC12, while effective under moderate conditions, does not fully account for non-ideal solution behavior in highly concentrated or cryogenic brines. 
+This finding is particularly important for analyzing returned magnetic field information on subsurface oceans in icy planetary bodies, where cryogenic brines are expected.
+% Experimental deviations can be attributed to ion pairing, increased viscosity, reduced solubility, and potential measurement artifacts such as electrode shielding.
+
+Integrating these conductivity results into planetary modeling tools like PlanetProfile\cite{vance2018geophysical} will allow a broader inquiry into the range of possible magnetic induction responses of subsurface oceans. 
+In particular, reduced conductivity at low temperatures will create weaker magnetic signals that might challenge the detection capabilities of missions such as Europa Clipper.
+The low electrical conductivity values for \ce{MgSO4} are particularly important in this context.
+The present findings thus constitute an important part of efforts to improve the interpretation of magnetometer data and refining models of ocean composition, salinity, and thermal structure in extraterrestrial environments.
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% The "Acknowledgement" section can be given in all manuscript
+%% classes.  This should be given within the "acknowledgement"
+%% environment, which will make the correct section or running title.
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{acknowledgement}
+
+% Please use ``The authors thank \ldots'' rather than ``The
+% authors would like to thank \ldots''.
+
+% The author thanks Mats Dahlgren for version one of \textsf{achemso},
+% and Donald Arseneau for the code taken from \textsf{cite} to move
+% citations after punctuation. Many users have provided feedback on the
+% class, which is reflected in all of the different demonstrations
+% shown in this document.
+
+Part of this work was carried out at the Jet Propulsion Laboratory (JPL), California Institute of Technology, under a contract with NASA (80NM0018D0004). Copyright 2025. All rights reserved.
+Funding for JMW, SDV, MMD, LM, and CP was provided by NASA’s Precursor Science Investigations for Europa (22-PSIE22\_2-0024) and Solar System Workings (23-SSW23-0080) Programs. 
+JC was funded by the Maine Space Grant.
+
+\end{acknowledgement}
+
+Supporting Information: The Supplemental Information includes \texttt{python} scripts to generate the figures, the potentiostat conductivity data, more information about the properties of water, methods of uncertainty calculations, and geochemical equilibrium methods and figures. 
+
+The authors declare no competing financial interests.
+
+
+\bibliography{references.bib}
+
+
+\end{document}
+
+
+
+
+
+
+
+
+
+
+
+
