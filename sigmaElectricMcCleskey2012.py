@@ -58,12 +58,13 @@ def elecCondMcCleskey2012(T_C, ions):
     # not at a per-ion partial value; using per-ion I under-corrects lambda and
     # overestimates sigma by several percent at molal concentrations
     # (e.g. +4.6% vs the 111.3 mS/cm KCl standard at 1 molal).
-    I = None
+    # Ions without parameters (e.g. neutral MgSO4(aq)) carry no current and
+    # add nothing to I; if none are known, I is zero and sigma stays 0.
+    I = np.zeros(size_mols)
     for ion_name, ion_data in ions.items():
         if ion_name in data:
             mols = np.atleast_1d(ion_data['mols'])
-            contrib = 0.5 * mols * data[ion_name]['z']**2
-            I = contrib if I is None else I + contrib
+            I = I + 0.5 * mols * data[ion_name]['z']**2
     I2 = np.sqrt(I)
 
     for ion_name, ion_data in ions.items():

@@ -72,3 +72,19 @@ def test_compute_for_data_auto_matches_off_without_reaktoro():
     auto = cm.compute_mccleskey_for_data(data, 'KCl', speciation='auto')
     off = cm.compute_mccleskey_for_data(data, 'KCl', speciation=False)
     np.testing.assert_allclose(auto, off)
+
+
+def test_ions_without_parameters_give_zero_not_crash():
+    """Only unknown/neutral species (e.g. MgSO4(aq)): I = 0, sigma = 0."""
+    out = elecCondMcCleskey2012(25.0, {'MgSO4': {'mols': np.array([1.0])}})['sigma_Sm']
+    assert float(np.atleast_1d(out).ravel()[0]) == 0.0
+
+
+def test_unknown_species_do_not_change_total_I():
+    m = 0.5
+    base = {'Na_p1': {'mols': np.array([m])}, 'Cl_m1': {'mols': np.array([m])}}
+    with_neutral = {'Na_p1': {'mols': np.array([m])}, 'Cl_m1': {'mols': np.array([m])},
+                    'MgSO4': {'mols': np.array([0.3])}}
+    s1 = elecCondMcCleskey2012(25.0, base)['sigma_Sm'][0][0]
+    s2 = elecCondMcCleskey2012(25.0, with_neutral)['sigma_Sm'][0][0]
+    assert s1 == pytest.approx(s2)

@@ -278,3 +278,20 @@ or delete existing entries. Format is defined in `AGENTS.md`.
   tests/test_cortes_concentrations.py, 23 pass; committed comparison script
   reproduces numbers via PHREEQC). Mixture speciation via Reaktoro is
   implemented, unverified until the Mac run.
+
+## 2026-10-17 — claude-code — fix regression: sqrt(None) when no ion has parameters
+
+- Steve's macOS run: 103 passed, 2 skipped (the two tests that skip when
+  Reaktoro is present), 2 failed. The failures were test_kcl_extraction
+  (still the open reference question) and test_speciation.py::
+  test_neutral_species_excluded.
+- Cause: the 2026-10-05 total-I refactor initialized I as None, so a call
+  whose ions all lack McCleskey parameters (the test's neutral MgSO4(aq)
+  probe) hit np.sqrt(None). The old per-ion code returned 0. I now starts as
+  zeros: unknown species add nothing to I and sigma stays 0. This went
+  unnoticed until now because the test is Reaktoro-gated.
+- Regression tests added in tests/test_mccleskey_ionic_strength.py (no
+  Reaktoro needed): unknown-only input gives 0; unknown species don't change I.
+- Same run verifies mixture speciation: the three PHREEQC-cross-validated
+  mixture tests passed under Reaktoro.
+- Status: verified (25 pass here; the failing probe now returns 0.0).

@@ -30,7 +30,7 @@ lab data merged in from origin/main. PR #3 (still open) now carries all of it.
 | McCleskey total-ionic-strength fix | claude-code | verified | tests/test_mccleskey_ionic_strength.py (KCl standards within 1%); audit 2026-10-05 |
 | WATEQ4F speciation in Cortes pipeline (auto mode) | claude-code | verified | regenerated cortes_plots/na2so4_vs_concentration.pdf (Reaktoro, macOS) matches independent PHREEQC 3.8.6 + wateq4f.dat at all 6 (T,m) points; audit 2026-10-08 |
 | Cortes paper figures regenerated with corrected model | claude-code | verified | Steve ran regenerate_cortes_figures.sh 2026-10-08; committed; old figures in cortes2026/figures_archive_20261005_pre_mccleskey_fix/ |
-| Speciation for mixtures (NaCl:MgSO4, Na2SO4:KCl) | claude-code | implemented, unverified | Reaktoro path; 3 PHREEQC-cross-validated tests skip here — run pytest tests/test_speciation.py on the Mac |
+| Speciation for mixtures (NaCl:MgSO4, Na2SO4:KCl) | claude-code | verified | Steve's macOS run 2026-10-17: test_mixture_nacl_mgso4_matches_phreeqc, test_mixture_na2so4_kcl_matches_phreeqc, test_mixture_speciation_lowers_model pass (Reaktoro vs PHREEQC references) |
 | Benchtop molarity -> molality conversion | claude-code | verified | tests/test_cortes_concentrations.py; cortes2026/molarity_to_molality.py (PHREEQC pitzer.dat densities) |
 | Mixture ion_spec per first component (1.5-3x concentration error) | claude-code | verified | tests/test_cortes_concentrations.py; Na2SO4:KCl 1:1 RMS 34.2% -> 2.3% (prepost_summary.txt) |
 | Pre/post-fix McCleskey comparison | claude-code | verified | cortes2026/prepost_comparison/ (PHREEQC backend; rerun with Reaktoro via regenerate_cortes_figures.sh) |
