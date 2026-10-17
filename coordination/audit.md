@@ -295,3 +295,23 @@ or delete existing entries. Format is defined in `AGENTS.md`.
 - Same run verifies mixture speciation: the three PHREEQC-cross-validated
   mixture tests passed under Reaktoro.
 - Status: verified (25 pass here; the failing probe now returns 0.0).
+
+## 2026-10-17 — claude-code — NaCl "speciated values higher" query: not a bug
+
+- Steve: speciated NaCl values vs concentration look higher than pre-fix,
+  but speciation should only lower sigma. Checked against the regenerated
+  nacl_vs_concentration.pdf. The post-fix MODEL is LOWER than pre-fix at
+  every point (e.g. 4.363 -> 4.139 S/m at 0.5 M, 20 C). The Delta panel is
+  (data - model)/model, so its increase (+2.5 -> +8.1% at 0.5 M) reflects
+  the lower model. The computed values reproduce the plotted Delta exactly.
+- Speciation is a no-op for NaCl: wateq4f.dat has no NaCl(aq) pair (PHREEQC
+  1.546 m NaCl at 20 C gives Na+ = Cl- = 1.546). The NaCl change comes from
+  the total-ionic-strength fix (down about 5%), partly offset by the molality
+  conversion (data move to higher m).
+- My compare_prepost_mccleskey.py used the opposite sign, (model-data)/data,
+  which added to the confusion. It now uses the figures' convention
+  (positive = data above model); outputs regenerated.
+- Steve's Reaktoro run reproduced the PHREEQC prepost_summary.txt
+  byte-for-byte (independent confirmation of mixture speciation on the Mac).
+  Committed his regenerated figures.
+- Status: verified (numerical reproduction of the plotted Delta values).

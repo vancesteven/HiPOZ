@@ -156,14 +156,16 @@ def score(df, backend):
                    T_C=r.T_C, meas=r.conductivity_Sm)
         for v in 'ABC':
             rec[v] = model(v, r.compound, r.molar, r.T_C, backend)
-            rec[f'pct_{v}'] = 100 * (rec[v] - rec['meas']) / rec['meas']
+            # Same convention as the paper figures' Delta panel:
+            # positive = data above model
+            rec[f'pct_{v}'] = 100 * (rec['meas'] - rec[v]) / rec[v]
         rows.append(rec)
     return pd.DataFrame(rows)
 
 
 def summary_text(res):
     lines = [f'{"compound":16s} {"n":>3s}  {"A pre-fix":>13s} {"B 2026-10-08":>13s} '
-             f'{"C post-fix":>13s}   RMS % misfit (mean bias %)']
+             f'{"C post-fix":>13s}   RMS Delta % (mean Delta %); Delta = (data - model)/model']
     for c in COMPOUNDS:
         s = res[res.compound == c]
         cells = [f'{np.sqrt((s[f"pct_{v}"] ** 2).mean()):5.1f} ({s[f"pct_{v}"].mean():+5.1f})'
