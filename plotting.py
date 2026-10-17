@@ -88,6 +88,12 @@ def safe_errorbar(ax, x, y, yerr=None, **kwargs):
     return ax.errorbar(x, y, yerr=yerr_use, **kwargs)
 
 
+# Axis label for Delta panels; spells out the sign so a positive value reads
+# unambiguously as data above model (matches pdiff(data, model)).
+DELTA_LABEL = (r'$\Delta = (\sigma_\mathrm{data} - \sigma_\mathrm{model})'
+               r'/\sigma_\mathrm{model}$ (\%)')
+
+
 def pdiff(x, y):
     """
     Percent difference: 100*(x - y)/y with NaN-safe behavior.
@@ -384,7 +390,7 @@ def plot_sigma_vs_concentration(conc_data, sigma_data, temp_labels=None,
 
         ax2.grid(True, alpha=0.6)
         ax2.set_xlabel(xlabel, fontsize=fontsize_label)
-        ax2.set_ylabel(r'$\Delta$ (\%)', fontsize=fontsize_label)
+        ax2.set_ylabel(DELTA_LABEL, fontsize=fontsize_label)
         tight_xlim(ax2, conc, pad_left=0.03, pad_right=0.10)
     else:
         ax1.set_xlabel(xlabel, fontsize=fontsize_label)
@@ -524,7 +530,7 @@ def plot_sigma_vs_temperature(temp_data, sigma_data, conc_labels=None,
 
         ax2.grid(True, alpha=0.6)
         ax2.set_xlabel(xlabel, fontsize=fontsize_label)
-        ax2.set_ylabel(r'$\Delta$ (\%)', fontsize=fontsize_label)
+        ax2.set_ylabel(DELTA_LABEL, fontsize=fontsize_label)
         ax2.set_xlim(tmin, tmax + 0.10 * (tmax - tmin))
     else:
         ax1.set_xlabel(xlabel, fontsize=fontsize_label)

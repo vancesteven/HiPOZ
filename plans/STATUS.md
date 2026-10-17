@@ -34,6 +34,7 @@ lab data merged in from origin/main. PR #3 (still open) now carries all of it.
 | Benchtop molarity -> molality conversion | claude-code | verified | tests/test_cortes_concentrations.py; cortes2026/molarity_to_molality.py (PHREEQC pitzer.dat densities) |
 | Mixture ion_spec per first component (1.5-3x concentration error) | claude-code | verified | tests/test_cortes_concentrations.py; Na2SO4:KCl 1:1 RMS 34.2% -> 2.3% (prepost_summary.txt) |
 | Pre/post-fix McCleskey comparison | claude-code | verified | cortes2026/prepost_comparison/ (PHREEQC backend; rerun with Reaktoro via regenerate_cortes_figures.sh) |
+| Delta axis label states (data - model)/model | claude-code | verified | tests/test_delta_label.py; paper PDFs need regeneration on the Mac |
 | Stale pre-fix eis_plots not rebuilt by current script (4 PDFs) | claude-code | not implemented | see open-questions 2026-10-08 |
 
 Status must be one of `verified` / `implemented, unverified` / `not implemented`.

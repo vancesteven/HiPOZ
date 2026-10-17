@@ -315,3 +315,14 @@ or delete existing entries. Format is defined in `AGENTS.md`.
   byte-for-byte (independent confirmation of mixture speciation on the Mac).
   Committed his regenerated figures.
 - Status: verified (numerical reproduction of the plotted Delta values).
+
+## 2026-10-17 — claude-code — Delta axis label states sign convention
+- Per Steve: the Delta panels now read
+  "Delta = (sigma_data - sigma_model)/sigma_model (%)". The label is defined
+  once as plotting.DELTA_LABEL and used by plotting.py (concentration and
+  temperature panels) and plot_cortes_with_mccleskey.py (both panels).
+  Verified that every Delta computation (pdiff, compute_delta) is
+  (data - model)/model, so the label matches the plotted values.
+- Status: verified (tests/test_delta_label.py; container render without TeX
+  confirms the label fits the 8x10 in figure). The Cortes paper PDFs have not
+  been regenerated yet; Steve reruns ./regenerate_cortes_figures.sh on the Mac.

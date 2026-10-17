@@ -33,7 +33,7 @@ import cortes_mccleskey as cm
 
 # Import McCleskey model computation and utilities
 from study_plots import compute_mccleskey_model, ION_SPECS
-from plotting import pdiff
+from plotting import pdiff, DELTA_LABEL
 
 # WATEQ4F speciation mode for the McCleskey curves: 'auto' (on when Reaktoro
 # is available and the salt has a recipe), True, or False. Set from
@@ -165,7 +165,7 @@ def plot_with_mccleskey_subplot(subset, compound, x_data, x_label,
 
     # Formatting - Delta panel
     ax2.set_xlabel(x_label, fontsize=14)
-    ax2.set_ylabel(r'$\Delta$ (\%)', fontsize=14)
+    ax2.set_ylabel(DELTA_LABEL, fontsize=14)
     ax2.grid(True, alpha=0.3)
     ax2.axhline(0, color='gray', ls='-', lw=1, alpha=0.5)
 
@@ -427,7 +427,7 @@ def plot_with_integrated_mccleskey(data_list, compound, x_data, x_label, y_data,
 
     # Formatting - Delta panel
     ax2.set_xlabel(x_label, fontsize=14)
-    ax2.set_ylabel(r'$\Delta$ (\%)', fontsize=14)
+    ax2.set_ylabel(DELTA_LABEL, fontsize=14)
     ax2.grid(True, alpha=0.3)
     ax2.axhline(0, color='gray', ls='-', lw=1, alpha=0.5)
 
