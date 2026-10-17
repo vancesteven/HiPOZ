@@ -112,6 +112,19 @@ SALT_RECIPES = {
     'Na2CO3': ('Na C O H',     {'Na+': 2.0, 'CO3-2': 1.0}),
 }
 
+# Input ion (PHREEQC name) -> element(s) it brings into the chemical system.
+# Mixture speciation builds its element set from the union over the inputs.
+ION_ELEMENTS = {
+    'Na+': 'Na', 'K+': 'K', 'Li+': 'Li', 'Cs+': 'Cs', 'NH4+': 'N',
+    'Ca+2': 'Ca', 'Mg+2': 'Mg', 'Ba+2': 'Ba', 'Sr+2': 'Sr',
+    'Cl-': 'Cl', 'F-': 'F', 'Br-': 'Br', 'NO3-': 'N',
+    'SO4-2': 'S', 'CO3-2': 'C', 'HCO3-': 'C',
+}
+
+# McCleskey ion key -> PHREEQC input species, for speciating an ion_spec.
+MCCLESKEY_TO_PHREEQC = {v: k for k, v in PHREEQC_TO_MCCLESKEY.items()
+                        if k in ION_ELEMENTS}
+
 # Speciating elemental S or N lets Reaktoro form reduced species (S4-2, S5-2,
 # HS-, NH4+ from NO3- ...) that cannot occur in an oxidised benchtop solution
 # prepared from a sulfate or ammonium salt. They come back at ~1e-20 molal and
@@ -151,70 +164,71 @@ def _reaktoro():
     return _RKT
 
 
-def _system(compound):
-    """Build (and cache) the Reaktoro chemical system for one salt."""
-    if compound not in _SYSTEMS:
+def _system(elements):
+    """Build (and cache) the Reaktoro chemical system for an element string."""
+    key = ' '.join(sorted(elements.split()))
+    if key not in _SYSTEMS:
         rkt = _reaktoro()
-        if compound not in SALT_RECIPES:
-            raise ValueError(
-                f'No speciation recipe for {compound!r}. '
-                f'Known: {sorted(SALT_RECIPES)}')
-        elements, _ = SALT_RECIPES[compound]
         db = rkt.PhreeqcDatabase(WATEQ4F_DB)
-        phase = rkt.AqueousPhase(rkt.speciate(elements))
+        phase = rkt.AqueousPhase(rkt.speciate(key))
         phase.set(rkt.ActivityModelPhreeqc(db))
-        _SYSTEMS[compound] = rkt.ChemicalSystem(db, phase)
-    return _SYSTEMS[compound]
+        _SYSTEMS[key] = rkt.ChemicalSystem(db, phase)
+    return _SYSTEMS[key]
 
 
-def free_ion_molalities(compound, m_total, T_K, P_MPa=0.1):
+def _elements_for(inputs):
+    """Element string covering a {phreeqc_ion: molality} input, plus O and H."""
+    unknown = [ion for ion in inputs if ion not in ION_ELEMENTS]
+    if unknown:
+        raise ValueError(f'No element mapping for input ion(s) {unknown}; '
+                         f'known: {sorted(ION_ELEMENTS)}')
+    return ' '.join(sorted({ION_ELEMENTS[ion] for ion in inputs} | {'O', 'H'}))
+
+
+def free_ion_molalities_composition(inputs, T_K, P_MPa=0.1):
     """
-    Speciate a binary salt solution and return free charged-ion molalities.
+    Speciate an arbitrary solution and return free charged-species molalities.
 
     Parameters
     ----------
-    compound : str
-        Salt name, one of SALT_RECIPES (e.g. 'MgSO4', 'Na2CO3').
-    m_total : float
-        Total (analytical) salt molality, mol/kg water.
-    T_K : float
-        Temperature in K.
-    P_MPa : float, optional
-        Pressure in MPa. Default 0.1 MPa (1 bar). Speciation is only weakly
-        pressure dependent over the benchtop range.
+    inputs : dict
+        {PHREEQC input ion: molality}, e.g. for 0.5 m NaCl + 0.5 m MgSO4
+        {'Na+': 0.5, 'Cl-': 0.5, 'Mg+2': 0.5, 'SO4-2': 0.5}. The input must be
+        charge balanced (it is, for any combination of neutral salts).
+    T_K, P_MPa : float
+        Temperature (K) and pressure (MPa).
 
     Returns
     -------
-    dict
-        {mccleskey_ion_key: free_molality}, containing charged species only.
-        Neutral complexes (e.g. MgSO4(aq)) are absent by design. Returns an
-        empty dict for m_total <= 0.
+    dict or None
+        {mccleskey_ion_key: free_molality} over charged species only (neutral
+        complexes such as MgSO4(aq) are excluded by design), or None if the
+        equilibrium solve did not converge. Empty dict when all inputs are 0.
     """
-    m_total = float(m_total)
-    T_K = float(T_K)
-    if m_total <= 0:
+    inputs = {ion: float(m) for ion, m in inputs.items() if float(m) > 0}
+    if not inputs:
         return {}
+    T_K = float(T_K)
 
-    key = (compound, round(m_total, 10), round(T_K, 6), round(float(P_MPa), 6))
+    key = (tuple(sorted((ion, round(m, 10)) for ion, m in inputs.items())),
+           round(T_K, 6), round(float(P_MPa), 6))
     if key in _CACHE:
         return _CACHE[key]
 
     rkt = _reaktoro()
-    system = _system(compound)
-    _, inputs = SALT_RECIPES[compound]
+    system = _system(_elements_for(inputs))
 
     state = rkt.ChemicalState(system)
     state.temperature(T_K, 'kelvin')
     state.pressure(float(P_MPa), 'MPa')
     state.set('H2O', 1.0, 'kg')
-    for ion, per_mole in inputs.items():
-        state.set(ion, m_total * per_mole, 'mol')
+    for ion, molal in inputs.items():
+        state.set(ion, molal, 'mol')
 
     result = rkt.EquilibriumSolver(system).solve(state)
     if not result.succeeded():
-        log.warning(
-            f'Speciation did not converge for {compound} at {m_total:.4g} molal, '
-            f'{T_K:.2f} K; falling back to total molality for this point.')
+        log.warning(f'Speciation did not converge for {inputs} at {T_K:.2f} K; '
+                    f'falling back to total molality for this point.')
         _CACHE[key] = None
         return None
 
@@ -240,6 +254,73 @@ def free_ion_molalities(compound, m_total, T_K, P_MPa=0.1):
 
     _CACHE[key] = ions
     return ions
+
+
+def speciated_ions_from_spec(ion_spec, concs_molal, T_K, P_MPa=0.1):
+    """
+    Speciate a solution given as a McCleskey ion_spec scaled by concentration.
+
+    The mixture counterpart of speciated_ions_dict: ion_spec is
+    {mccleskey_ion_key: moles per unit concentration} (e.g. the Cortes mixture
+    specs), and each concentration c gives inputs {ion: c * mult}. Returns the
+    {ion_key: {'mols': ndarray}} shape elecCondMcCleskey2012 expects.
+    Non-convergent points fall back to the unspeciated stoichiometric values.
+    """
+    unknown = [k for k in ion_spec if k not in MCCLESKEY_TO_PHREEQC]
+    if unknown:
+        raise ValueError(f'Cannot speciate ion_spec entries {unknown}: no '
+                         f'PHREEQC input species mapping')
+    concs = np.atleast_1d(np.asarray(concs_molal, dtype=float))
+    per_conc = []
+    for c in concs:
+        inputs = {MCCLESKEY_TO_PHREEQC[k]: c * mult for k, mult in ion_spec.items()}
+        ions = free_ion_molalities_composition(inputs, T_K, P_MPa=P_MPa)
+        if ions is None:
+            ions = {k: c * mult for k, mult in ion_spec.items()}
+        per_conc.append(ions)
+    keys = sorted({k for ions in per_conc for k in ions})
+    return {k: {'mols': np.array([ions.get(k, 0.0) for ions in per_conc])}
+            for k in keys}
+
+
+def can_speciate_spec(ion_spec):
+    """True if every ion in a McCleskey ion_spec maps to a PHREEQC input."""
+    return bool(ion_spec) and all(k in MCCLESKEY_TO_PHREEQC for k in ion_spec)
+
+
+def free_ion_molalities(compound, m_total, T_K, P_MPa=0.1):
+    """
+    Speciate a binary salt solution and return free charged-ion molalities.
+
+    Parameters
+    ----------
+    compound : str
+        Salt name, one of SALT_RECIPES (e.g. 'MgSO4', 'Na2CO3').
+    m_total : float
+        Total (analytical) salt molality, mol/kg water.
+    T_K : float
+        Temperature in K.
+    P_MPa : float, optional
+        Pressure in MPa. Default 0.1 MPa (1 bar). Speciation is only weakly
+        pressure dependent over the benchtop range.
+
+    Returns
+    -------
+    dict
+        {mccleskey_ion_key: free_molality}, containing charged species only.
+        Neutral complexes (e.g. MgSO4(aq)) are absent by design. Returns an
+        empty dict for m_total <= 0.
+    """
+    if compound not in SALT_RECIPES:
+        raise ValueError(f'No speciation recipe for {compound!r}. '
+                         f'Known: {sorted(SALT_RECIPES)}')
+    m_total = float(m_total)
+    if m_total <= 0:
+        return {}
+    _, inputs = SALT_RECIPES[compound]
+    return free_ion_molalities_composition(
+        {ion: m_total * per_mole for ion, per_mole in inputs.items()},
+        T_K, P_MPa=P_MPa)
 
 
 def speciated_ions_dict(compound, concs_molal, T_K, P_MPa=0.1):

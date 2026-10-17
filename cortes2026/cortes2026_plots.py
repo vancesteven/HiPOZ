@@ -31,6 +31,7 @@ from study_plots import (
     plot_study_temperature
 )
 import cortes_mccleskey as cm
+from cortes_mccleskey import get_mixture_ion_spec
 
 # Gamry impedance data loading (using cortes_data_processing)
 import cortes_data_processing as cdp
@@ -105,57 +106,6 @@ os.makedirs(OUTPUT_DIR, exist_ok=True)
 # ========================================
 # Helper Functions
 # ========================================
-
-def get_mixture_ion_spec(compound):
-    """
-    Get ion specification for mixture compounds to enable McCleskey predictions.
-
-    For mixtures like Na2SO4:KCl_2:1, parse the ratio and create combined ion spec.
-    Assumes ratio is by molar concentration.
-
-    Returns
-    -------
-    ion_spec : dict or None
-        Ion specification for McCleskey model, or None if not a supported mixture
-    """
-    # Na2SO4:KCl mixtures
-    if compound.startswith('Na2SO4:KCl_'):
-        ratio_str = compound.split('_')[-1]  # e.g., "2:1"
-        try:
-            ratio_parts = [float(x) for x in ratio_str.split(':')]
-            na2so4_frac = ratio_parts[0] / sum(ratio_parts)
-            kcl_frac = ratio_parts[1] / sum(ratio_parts)
-
-            # Combined ion spec (relative to 1 mol/kg total)
-            ion_spec = {
-                'Na_p1': 2.0 * na2so4_frac,  # 2 Na+ per Na2SO4
-                'SO4_m2': na2so4_frac,       # 1 SO4²⁻ per Na2SO4
-                'K_p1': kcl_frac,            # 1 K+ per KCl
-                'Cl_m1': kcl_frac            # 1 Cl⁻ per KCl
-            }
-            return ion_spec
-        except:
-            return None
-
-    # NaCl:MgSO4 mixtures
-    if compound.startswith('NaCl:MgSO4_'):
-        ratio_str = compound.split('_')[-1]
-        try:
-            ratio_parts = [float(x) for x in ratio_str.split(':')]
-            nacl_frac = ratio_parts[0] / sum(ratio_parts)
-            mgso4_frac = ratio_parts[1] / sum(ratio_parts)
-
-            ion_spec = {
-                'Na_p1': nacl_frac,          # 1 Na+ per NaCl
-                'Cl_m1': nacl_frac,          # 1 Cl⁻ per NaCl
-                'Mg_p2': mgso4_frac,         # 1 Mg²+ per MgSO4
-                'SO4_m2': mgso4_frac         # 1 SO4²⁻ per MgSO4
-            }
-            return ion_spec
-        except:
-            return None
-
-    return None
 
 def extract_compound_overlay_data(gamry_df, compound, pressure_max=None):
     """
@@ -366,9 +316,9 @@ for compound in compounds_to_plot:
         fontsize_title=FONTSIZE_TITLE,
         fontsize_legend=FONTSIZE_LEGEND,
         ion_spec=mixture_ion_spec,
-        # WATEQ4F speciation when Reaktoro is available and the salt has a
-        # recipe (mixtures resolve to False automatically)
-        speciation=cm.resolve_speciation(compound, 'auto')
+        # WATEQ4F speciation when Reaktoro is available: single salts via
+        # their recipe, mixtures via their ion_spec
+        speciation=cm.resolve_speciation(compound, 'auto', ion_spec=mixture_ion_spec)
     )
     print(f"  Saved to {OUTPUT_DIR}/{safe_filename_stem(compound)}_vs_concentration.pdf")
     if gamry_data_comp:
@@ -389,7 +339,7 @@ for compound in compounds_to_plot:
         fontsize_title=FONTSIZE_TITLE,
         fontsize_legend=FONTSIZE_LEGEND,
         ion_spec=mixture_ion_spec,
-        speciation=cm.resolve_speciation(compound, 'auto')
+        speciation=cm.resolve_speciation(compound, 'auto', ion_spec=mixture_ion_spec)
     )
     print(f"  Saved to {OUTPUT_DIR}/{safe_filename_stem(compound)}_vs_temperature.pdf")
     print()

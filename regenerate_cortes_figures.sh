@@ -38,4 +38,9 @@ python3 plot_cortes_with_mccleskey.py --show-mccleskey \
     --output-dir cortes2026/eis_plots
 
 echo ""
+echo "--- 3/3: pre/post-fix comparison -> cortes2026/prepost_comparison/ ---"
+python3 cortes2026/compare_prepost_mccleskey.py
+
+echo ""
 echo "Done. Compare against cortes2026/figures_archive_20261005_pre_mccleskey_fix/"
+echo "Quantitative before/after: cortes2026/prepost_comparison/prepost_summary.txt"

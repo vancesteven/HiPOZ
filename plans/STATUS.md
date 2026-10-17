@@ -1,6 +1,6 @@
 # Status — hipozgenai
 
-Updated: 2026-10-08
+Updated: 2026-10-17
 
 Refresh the `Updated:` line and the affected sections in any session that
 pushes commits, integrates artifacts, or changes a queue.
@@ -30,7 +30,10 @@ lab data merged in from origin/main. PR #3 (still open) now carries all of it.
 | McCleskey total-ionic-strength fix | claude-code | verified | tests/test_mccleskey_ionic_strength.py (KCl standards within 1%); audit 2026-10-05 |
 | WATEQ4F speciation in Cortes pipeline (auto mode) | claude-code | verified | regenerated cortes_plots/na2so4_vs_concentration.pdf (Reaktoro, macOS) matches independent PHREEQC 3.8.6 + wateq4f.dat at all 6 (T,m) points; audit 2026-10-08 |
 | Cortes paper figures regenerated with corrected model | claude-code | verified | Steve ran regenerate_cortes_figures.sh 2026-10-08; committed; old figures in cortes2026/figures_archive_20261005_pre_mccleskey_fix/ |
-| Speciation for mixtures (NaCl:MgSO4, Na2SO4:KCl) | claude-code | not implemented | mixtures use fixed-I full dissociation only; see open-questions 2026-10-08 |
+| Speciation for mixtures (NaCl:MgSO4, Na2SO4:KCl) | claude-code | implemented, unverified | Reaktoro path; 3 PHREEQC-cross-validated tests skip here — run pytest tests/test_speciation.py on the Mac |
+| Benchtop molarity -> molality conversion | claude-code | verified | tests/test_cortes_concentrations.py; cortes2026/molarity_to_molality.py (PHREEQC pitzer.dat densities) |
+| Mixture ion_spec per first component (1.5-3x concentration error) | claude-code | verified | tests/test_cortes_concentrations.py; Na2SO4:KCl 1:1 RMS 34.2% -> 2.3% (prepost_summary.txt) |
+| Pre/post-fix McCleskey comparison | claude-code | verified | cortes2026/prepost_comparison/ (PHREEQC backend; rerun with Reaktoro via regenerate_cortes_figures.sh) |
 | Stale pre-fix eis_plots not rebuilt by current script (4 PDFs) | claude-code | not implemented | see open-questions 2026-10-08 |
 
 Status must be one of `verified` / `implemented, unverified` / `not implemented`.

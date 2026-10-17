@@ -62,9 +62,11 @@ def compute_mccleskey_model(conc_molal, temps_K, compound=None, ion_spec=None,
         calculation (via `speciation.py`, which needs Reaktoro) instead of
         assuming full dissociation. This is what McCleskey et al. actually
         specify: neutral complexes such as MgSO4(aq) carry no current and are
-        excluded from the sum. Requires `compound` (a speciation recipe cannot
-        be inferred from a bare ion_spec) and leaves 1:1 salts such as NaCl and
-        KCl essentially unchanged, since WATEQ4F returns them fully dissociated.
+        excluded from the sum. Single salts use their recipe from
+        speciation.SALT_RECIPES; otherwise the ion_spec itself is speciated
+        (mixtures such as NaCl + MgSO4), provided every ion maps to a PHREEQC
+        input species. Leaves 1:1 salts such as NaCl and KCl essentially
+        unchanged, since WATEQ4F returns them fully dissociated.
         Default False, which reproduces the historical behaviour exactly.
 
     Returns
@@ -83,12 +85,18 @@ def compute_mccleskey_model(conc_molal, temps_K, compound=None, ion_spec=None,
     concs = np.asarray(conc_molal, dtype=float)
     temps_C = np.asarray(temps_K, dtype=float) - 273.15
 
+    use_recipe = False
     if speciation:
         import speciation as _spec
-        if compound is None or compound not in _spec.SALT_RECIPES:
+        # Single salts use their recipe; anything else (e.g. a mixture) is
+        # speciated from its ion_spec, which must map onto PHREEQC inputs.
+        use_recipe = compound is not None and compound in _spec.SALT_RECIPES
+        if not use_recipe and not _spec.can_speciate_spec(ion_spec):
             raise ValueError(
-                f"speciation=True needs a compound with a speciation recipe; "
-                f"got {compound!r}. Known: {sorted(_spec.SALT_RECIPES)}")
+                f"speciation=True needs a compound with a speciation recipe "
+                f"or an ion_spec whose ions all map to PHREEQC inputs; got "
+                f"compound={compound!r}, ion_spec={ion_spec!r}. Known "
+                f"recipes: {sorted(_spec.SALT_RECIPES)}")
 
     sigma_by_temp = []
     for T_C in temps_C:
@@ -96,7 +104,10 @@ def compute_mccleskey_model(conc_molal, temps_K, compound=None, ion_spec=None,
         if speciation:
             # Free charged-species molalities from WATEQ4F; neutral complexes
             # (e.g. MgSO4(aq)) are absent, which is the whole point.
-            ions = _spec.speciated_ions_dict(compound, concs, float(T_C) + 273.15)
+            if use_recipe:
+                ions = _spec.speciated_ions_dict(compound, concs, float(T_C) + 273.15)
+            else:
+                ions = _spec.speciated_ions_from_spec(ion_spec, concs, float(T_C) + 273.15)
         else:
             ions = {ion: {"mols": concs * mult} for ion, mult in ion_spec.items()}
 

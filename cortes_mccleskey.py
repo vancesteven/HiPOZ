@@ -75,23 +75,67 @@ def has_mccleskey_model(compound):
     return compound in ION_SPECS
 
 
-def resolve_speciation(compound, speciation='auto'):
+def get_mixture_ion_spec(compound):
+    """
+    Get ion specification for mixture compounds to enable McCleskey predictions.
+
+    For mixtures like Na2SO4:KCl_2:1, parse the ratio and create combined ion spec.
+
+    The ion spec is per mole of the FIRST component, because the benchtop
+    `concentration_molal` column carries the first component's concentration:
+    'Na2SO4:KCl_2:1' at 1.5 is 1.5 M Na2SO4 + 0.75 M KCl, and
+    'Na2SO4:KCl_1:1' at 0.5 is 0.5 M of each (see the CSV `notes`). An earlier
+    version normalized the ratio to sum to 1, which evaluated the model at
+    1/2 (1:1), 2/3 (2:1) or 1/3 (1:2) of the actual concentrations.
+
+    Returns
+    -------
+    ion_spec : dict or None
+        Ion specification for McCleskey model, or None if not a supported mixture
+    """
+    if not compound.startswith(('Na2SO4:KCl_', 'NaCl:MgSO4_')):
+        return None
+    try:
+        r1, r2 = (float(x) for x in compound.split('_')[-1].split(':'))
+    except ValueError:
+        return None
+    second = r2 / r1  # moles of second salt per mole of first
+
+    if compound.startswith('Na2SO4:KCl_'):
+        return {
+            'Na_p1': 2.0,       # 2 Na+ per Na2SO4
+            'SO4_m2': 1.0,      # 1 SO4^2- per Na2SO4
+            'K_p1': second,     # 1 K+ per KCl
+            'Cl_m1': second,    # 1 Cl- per KCl
+        }
+    return {
+        'Na_p1': 1.0,           # 1 Na+ per NaCl
+        'Cl_m1': 1.0,           # 1 Cl- per NaCl
+        'Mg_p2': second,        # 1 Mg^2+ per MgSO4
+        'SO4_m2': second,       # 1 SO4^2- per MgSO4
+    }
+
+
+def resolve_speciation(compound, speciation='auto', ion_spec=None):
     """
     Decide whether WATEQ4F speciation should be used for this compound.
 
-    'auto' turns speciation on when Reaktoro is installed and the compound has
-    a speciation recipe; otherwise the model falls back to total molality
-    (full dissociation), which is exact for salts WATEQ4F leaves fully
-    dissociated (NaCl, KCl, NH4Cl) but overestimates sigma for associating
-    salts such as MgSO4 and Na2SO4.
+    'auto' turns speciation on when Reaktoro is installed and either the
+    compound has a single-salt speciation recipe or ion_spec (e.g. a mixture)
+    maps entirely onto PHREEQC input species. Otherwise the model falls back
+    to total molality (full dissociation), which is exact for salts WATEQ4F
+    leaves fully dissociated (NaCl, KCl, NH4Cl) but overestimates sigma for
+    associating salts and mixtures containing them (MgSO4, Na2SO4).
     """
     if speciation != 'auto':
         return bool(speciation)
     try:
         import speciation as spec
-        if compound in spec.SALT_RECIPES and spec.available():
+        speciable = (compound in spec.SALT_RECIPES
+                     or (ion_spec is not None and spec.can_speciate_spec(ion_spec)))
+        if speciable and spec.available():
             return True
-        if compound in spec.SALT_RECIPES:
+        if speciable:
             print(f"Note: Reaktoro not installed; McCleskey model for {compound} "
                   f"uses total molality (no speciation). For associating salts "
                   f"this overestimates sigma; conda install -c conda-forge reaktoro.")

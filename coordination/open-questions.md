@@ -93,3 +93,24 @@ published USGS table, so the old "provisional" doubt is retired.
    produced them, if you know which ones; (b) remove them from eis_plots/
    so nobody mistakes them for current results (git rm; the archive keeps a
    copy); (c) leave them. Recommendation: (b), unless they are paper figures.
+
+## 2026-10-17 — remaining Cortes model-data misfits are data or validity-range issues (Steve to adjudicate)
+
+After the corrections (cortes2026/prepost_comparison/prepost_summary.txt):
+1. **Benchtop reads high.** Cortes 1.0 M KCl at 20 C (= 1.031 mol/kg, about
+   the 1 D Demal standard) measures 10.61 S/m. Demal interpolated to 20 C
+   gives about 10.19 S/m, so the meter reads +4%. That accounts for most of
+   the residual NaCl misfit (-1..-7%, largest at low concentration). Was the
+   benchtop meter's cell constant calibrated against a standard far from
+   these conductivities? Recommendation: state it in the paper, or apply a
+   KCl-referenced correction factor (your call; not done).
+2. **Na2SO4 benchtop data are non-physical.** sigma at 5 C exceeds sigma at
+   10 C at both 0.5 and 0.75 M. 0.75 M at 5/10 C and the 2:1 Na2SO4:KCl
+   mixture (1.6 m Na2SO4) are supersaturated with respect to mirabilite.
+   Recommend excluding them from the model comparison, or flagging them.
+3. **High-concentration MgSO4 mixtures exceed the model's validity range.**
+   NaCl:MgSO4 at 1.0-1.5 M is at an effective I of about 3-5 mol/kg, vs
+   McCleskey (2012)'s validated I <= 0.7. The model overshoots there by
+   13-43%. Recommend marking the validity limit on the figures.
+4. Supersedes the 2026-10-08 item 1 (mixtures not speciated): now
+   implemented; verify on the Mac.
