@@ -326,3 +326,29 @@ or delete existing entries. Format is defined in `AGENTS.md`.
 - Status: verified (tests/test_delta_label.py; container render without TeX
   confirms the label fits the 8x10 in figure). The Cortes paper PDFs have not
   been regenerated yet; Steve reruns ./regenerate_cortes_figures.sh on the Mac.
+
+## 2026-10-17 — claude-code — mark McCleskey validity limit; fix mixture speciation in paper figures
+- Source of the limit: McCleskey et al. (2012, GCA 77:369) validate effective
+  ionic strength 0.0004-0.7 mol/kg (USGS publication page abstract).
+- cortes2026/mccleskey_validity_limits.py (new) finds the first-component
+  molality where PHREEQC/wateq4f I_eff = 0.7 at 5/10/20/25 C. NaCl, KCl: 0.700
+  (no pairs). Na2SO4 0.291-0.297; MgSO4 0.372-0.491; Na2SO4:KCl 1:1/1:2/2:1
+  0.209/0.162/0.244; NaCl:MgSO4 1:1/1:2/2:1 0.221/0.138/0.323 (5 C values).
+  MCCLESKEY_LIMITS now holds the 5 C (most restrictive) values; it replaces
+  the earlier unsourced table (NaCl 0.9999, MgSO4 0.01245, NH4Cl 1.034,
+  Na2CO3 0.3041). NH4Cl and Na2CO3 now have no limit line (not computed; not
+  in the Cortes data).
+- Figures: dashed line plus light shading beyond the limit on both
+  concentration panels (x-axis widened to include the line); temperature plots
+  star the concentrations beyond the limit, with a footnote. Only NaCl/KCl
+  0.5 m points are inside the range; all sulfate data lie beyond it.
+- Bug found while wiring this: study_plots called compute_mccleskey_model
+  without speciation whenever ion_spec was given, so the paper's mixture
+  figures (cortes_plots/*:*) were unspeciated even though cortes2026_plots
+  requested speciation. The module-level mixture speciation (Reaktoro tests,
+  prepost comparison) was correct; only the figure path dropped it. Fixed in
+  all three call sites. The 2026-10-17 "Speciation for mixtures" STATUS row
+  is narrowed to the module; the figure path is implemented, unverified until
+  Steve regenerates with Reaktoro.
+- Status: limit verified (tests/test_mccleskey_validity.py, renders);
+  mixture figure speciation implemented, unverified.

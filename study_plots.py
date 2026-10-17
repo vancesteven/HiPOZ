@@ -381,14 +381,10 @@ def plot_study_concentration(data, compound, output_file,
     model_data = None
     if show_delta:
         try:
-            if ion_spec is not None:
-                # Use custom ion spec (for mixtures). Speciation recipes are
-                # per-compound, so a bare ion_spec cannot be speciated.
-                model_data = compute_mccleskey_model(concs, unique_temps_K, ion_spec=ion_spec)
-            else:
-                # Use default ion spec (for single salts)
-                model_data = compute_mccleskey_model(concs, unique_temps_K, compound=compound,
-                                                     speciation=speciation)
+            # Mixtures pass ion_spec; compute_mccleskey_model speciates it
+            # when speciation is on (single salts use their recipe)
+            model_data = compute_mccleskey_model(concs, unique_temps_K, compound=compound,
+                                                 ion_spec=ion_spec, speciation=speciation)
         except ValueError:
             # No model available for this compound
             model_data = None
@@ -440,11 +436,9 @@ def plot_study_concentration(data, compound, output_file,
             # Assume EIS data is at ~293 K (20°C) - find closest temperature
             eis_temp_K = 293.15  # Default assumption for 1 bar measurements
             try:
-                if ion_spec is not None:
-                    g_model = compute_mccleskey_model(g_conc, [eis_temp_K], ion_spec=ion_spec)[0]
-                else:
-                    g_model = compute_mccleskey_model(g_conc, [eis_temp_K], compound=compound,
-                                                      speciation=speciation)[0]
+                g_model = compute_mccleskey_model(g_conc, [eis_temp_K], compound=compound,
+                                                  ion_spec=ion_spec,
+                                                  speciation=speciation)[0]
 
                 # Compute percent difference
                 g_delta = 100.0 * (g_sigma - g_model) / g_model
@@ -470,7 +464,7 @@ def plot_study_temperature(data, compound, output_file,
                           show_legend=False, show_title=True,
                           compound_latex=None, colormap='tab10',
                           fontsize_label=14, fontsize_title=16, fontsize_legend=10,
-                          ion_spec=None, speciation=False):
+                          ion_spec=None, speciation=False, mccleskey_limit=None):
     """
     Generate σ vs temperature plot with Delta subplot.
 
@@ -493,6 +487,9 @@ def plot_study_temperature(data, compound, output_file,
     speciation : bool, optional
         Use WATEQ4F speciation for the model curve (see
         compute_mccleskey_model). Default False.
+    mccleskey_limit : float, optional
+        McCleskey applicability limit (mol/kg). Curves at higher
+        concentration get a '*' label and a footnote.
 
     Returns
     -------
@@ -500,6 +497,11 @@ def plot_study_temperature(data, compound, output_file,
     """
     # Get benchtop data
     temps, sigmas, errors, conc_labels = organize_for_temp_plot(data, compound)
+    beyond_limit = (mccleskey_limit is not None
+                    and any(float(c) > mccleskey_limit for c in conc_labels))
+    if mccleskey_limit is not None:
+        conc_labels = [f'{c}*' if float(c) > mccleskey_limit else c
+                       for c in conc_labels]
 
     # Get unique concentrations
     comp_data = data[compound]
@@ -511,13 +513,8 @@ def plot_study_temperature(data, compound, output_file,
     if show_delta:
         try:
             # Compute McCleskey model (transposed: one array per concentration)
-            if ion_spec is not None:
-                # Use custom ion spec (for mixtures)
-                model_by_temp = compute_mccleskey_model(unique_concs, temps, ion_spec=ion_spec)
-            else:
-                # Use default ion spec (for single salts)
-                model_by_temp = compute_mccleskey_model(unique_concs, temps, compound=compound,
-                                                        speciation=speciation)
+            model_by_temp = compute_mccleskey_model(unique_concs, temps, compound=compound,
+                                                    ion_spec=ion_spec, speciation=speciation)
             # Transpose to get one array per concentration
             model_by_conc = []
             for i in range(len(unique_concs)):
@@ -545,6 +542,13 @@ def plot_study_temperature(data, compound, output_file,
         fontsize_title=fontsize_title,
         fontsize_legend=fontsize_legend
     )
+
+    if show_delta and beyond_limit:
+        fig.axes[0].text(0.02, 0.98,
+                         r"* beyond MC12 range ($I_\mathrm{eff} > 0.7$ mol/kg)",
+                         transform=fig.axes[0].transAxes, ha='left', va='top',
+                         color=(0.8, 0, 0), fontsize=fontsize_legend)
+        fig.savefig(output_file, dpi=300, bbox_inches='tight')
 
     return fig
 

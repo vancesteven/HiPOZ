@@ -318,7 +318,9 @@ for compound in compounds_to_plot:
         ion_spec=mixture_ion_spec,
         # WATEQ4F speciation when Reaktoro is available: single salts via
         # their recipe, mixtures via their ion_spec
-        speciation=cm.resolve_speciation(compound, 'auto', ion_spec=mixture_ion_spec)
+        speciation=cm.resolve_speciation(compound, 'auto', ion_spec=mixture_ion_spec),
+        # McCleskey (2012) validated range ends at I_eff = 0.7 mol/kg
+        mccleskey_limit=cm.get_mccleskey_limit(compound) if show_delta_plot else None
     )
     print(f"  Saved to {OUTPUT_DIR}/{safe_filename_stem(compound)}_vs_concentration.pdf")
     if gamry_data_comp:
@@ -339,7 +341,8 @@ for compound in compounds_to_plot:
         fontsize_title=FONTSIZE_TITLE,
         fontsize_legend=FONTSIZE_LEGEND,
         ion_spec=mixture_ion_spec,
-        speciation=cm.resolve_speciation(compound, 'auto', ion_spec=mixture_ion_spec)
+        speciation=cm.resolve_speciation(compound, 'auto', ion_spec=mixture_ion_spec),
+        mccleskey_limit=cm.get_mccleskey_limit(compound) if show_delta_plot else None
     )
     print(f"  Saved to {OUTPUT_DIR}/{safe_filename_stem(compound)}_vs_temperature.pdf")
     print()

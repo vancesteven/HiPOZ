@@ -94,6 +94,20 @@ DELTA_LABEL = (r'$\Delta = (\sigma_\mathrm{data} - \sigma_\mathrm{model})'
                r'/\sigma_\mathrm{model}$ (\%)')
 
 
+def draw_validity_limit(ax, limit):
+    """Mark a model validity limit: dashed line, shading beyond it.
+
+    The shading extends well past the current right edge so it still fills
+    the axes if the x-limits widen later (e.g. annotate_right); the current
+    x-limits are kept.
+    """
+    lo, hi = ax.get_xlim()
+    ax.axvline(limit, ls="--", color=(0.8, 0, 0), lw=2.5, alpha=0.8, zorder=2.5)
+    ax.axvspan(limit, hi + 10 * (hi - lo), color=(0.8, 0, 0), alpha=0.06,
+               lw=0, zorder=0)
+    ax.set_xlim(lo, hi)
+
+
 def pdiff(x, y):
     """
     Percent difference: 100*(x - y)/y with NaN-safe behavior.
@@ -357,24 +371,25 @@ def plot_sigma_vs_concentration(conc_data, sigma_data, temp_labels=None,
     # Set y-axis minimum to 0 (conductivity cannot be negative)
     ax1.set_ylim(bottom=0)
 
-    # Draw McCleskey applicability limit if specified
-    if limit is not None:
-        ax1.axvline(limit, ls="--", color=(0.8, 0, 0), lw=2.5, alpha=0.8, zorder=2.5)
-        # Position text label at 95% of y-axis height
-        y_pos = ax1.get_ylim()[0] + 0.95 * (ax1.get_ylim()[1] - ax1.get_ylim()[0])
-        # This ceiling is the validity range of the *unspeciated* model: for a
-        # 2:2 electrolyte such as MgSO4 it is very low (0.01245 mol/kg) because
-        # ion association is ignored. The speciated curve remains usable well
-        # beyond it, so name which curve the limit applies to when both are shown.
-        limit_label = ("McCleskey limit\n({:.4f} mol/kg)".format(limit)
-                       if model_data_corrected is None else
-                       "MC12 limit\n({:.4f} mol/kg)".format(limit))
-        ax1.text(limit * 1.01, y_pos, limit_label,
-                color=(0.8, 0, 0), fontsize=11, fontweight="bold",
-                ha="left", va="top", bbox=dict(boxstyle="round,pad=0.3",
-                facecolor="white", edgecolor=(0.8, 0, 0), alpha=0.8))
+    # Concentrations the x-axis must span: the data, plus the validity limit
+    # so that its line stays visible when every point lies beyond it
+    xspan = conc if limit is None else np.append(conc, limit)
+    tight_xlim(ax1, xspan, pad_left=0.03, pad_right=0.10)
 
-    tight_xlim(ax1, conc, pad_left=0.03, pad_right=0.10)
+    # McCleskey (2012) validity limit (effective ionic strength 0.7 mol/kg):
+    # line at the limit, light shading over the unvalidated range
+    if limit is not None:
+        draw_validity_limit(ax1, limit)
+        y_pos = ax1.get_ylim()[0] + 0.95 * (ax1.get_ylim()[1] - ax1.get_ylim()[0])
+        # sigma rises with concentration, so the top just right of the
+        # limit is clear of data
+        x_off = 0.01 * (ax1.get_xlim()[1] - ax1.get_xlim()[0])
+        ax1.text(limit + x_off, y_pos,
+                 "MC12 limit\n" r"$I_\mathrm{eff} = 0.7$ mol/kg" "\n"
+                 f"({limit:.3f} mol/kg)",
+                 color=(0.8, 0, 0), fontsize=11, fontweight="bold",
+                 ha="left", va="top", bbox=dict(boxstyle="round,pad=0.3",
+                 facecolor="white", edgecolor=(0.8, 0, 0), alpha=0.8))
 
     # Right-edge labels
     ys_right = [np.asarray(sigma, float)[-1] if len(sigma) > 0 else np.nan
@@ -391,7 +406,9 @@ def plot_sigma_vs_concentration(conc_data, sigma_data, temp_labels=None,
         ax2.grid(True, alpha=0.6)
         ax2.set_xlabel(xlabel, fontsize=fontsize_label)
         ax2.set_ylabel(DELTA_LABEL, fontsize=fontsize_label)
-        tight_xlim(ax2, conc, pad_left=0.03, pad_right=0.10)
+        tight_xlim(ax2, xspan, pad_left=0.03, pad_right=0.10)
+        if limit is not None:
+            draw_validity_limit(ax2, limit)
     else:
         ax1.set_xlabel(xlabel, fontsize=fontsize_label)
 
