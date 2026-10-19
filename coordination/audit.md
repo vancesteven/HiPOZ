@@ -399,3 +399,22 @@ or delete existing entries. Format is defined in `AGENTS.md`.
   Oct 14-15 by T and P sequence). Identities and issues logged in
   open-questions 2026-10-19. Committed with the notebook photos. No data or
   configs changed.
+
+## 2026-10-19 — claude-code — import Zachary Diaz's analysis; bath P/T
+- import_zanalysis_workbook.py (new) wrote data/20260917, 20260923, 20260924,
+  20260925 (rows split from the 9/24 workbook by file date; notes name the
+  9/24 standard) and 20261009 zAnalysis CSV+JSON from labnotes/*.xlsx. Notes
+  carry the source workbook and the 9/23 red/blue before/after-recalibration
+  flag. All referenced data files present.
+- Check: headless re-fit of the Sep folders (cal-map 25 <- 24) reproduces his
+  R and sigma within 0.05% for all 108 measurements; K = 119.60, 119.89,
+  118.62.
+- Steve: 0 MPa rows are chiller-bath measurements. The pipeline took P/T from
+  the vessel header (e.g. 2.34 MPa, 301.45 K for a -1 C bath point).
+  analysis_config.bath_state now lets config rows with P_MPa = 0 override the
+  header, unless the header shows the vessel above 5 MPa (data/20260818 has
+  a standard row with P = 0 recorded at 137 MPa). Scan of existing configs:
+  20260219 (296 K, bath) also affected; Mahboub 20250813 (T = 0) not.
+- Tests: tests/test_bath_state.py 4 pass; full suite 100 pass, 1 known
+  failure (test_kcl_extraction); two tests with hard-coded Dropbox paths
+  (test_conductivity_writeback, test_format_harmonization) cannot run here.

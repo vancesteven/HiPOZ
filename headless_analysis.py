@@ -11,8 +11,20 @@ import numpy as np
 from pathlib import Path
 import pandas as pd
 
+from analysis_config import bath_state
+
 log = logging.getLogger('HiPOZ')
 
+
+def _state(sol, entry):
+    """(P, T) for a result row: chiller-bath config values (see
+    bath_state), else the Gamry file header, else the config entry."""
+    bath = bath_state(entry, getattr(sol, 'P_MPa', None))
+    if bath:
+        return bath
+    P = sol.P_MPa if getattr(sol, 'P_MPa', None) is not None else entry.get('P_MPa', '')
+    T = sol.T_K if getattr(sol, 'T_K', None) is not None else entry.get('T_K', '')
+    return P, T
 
 def build_solution_lookup(measurements):
     """
@@ -150,9 +162,7 @@ def run_headless_analysis(timeseries, analysis_config, output_dir=None,
                     (R_unc / sol.Rcalc_ohm)**2
                 ) if R_unc > 0 else 0
 
-                # Get P and T from solution object (highest priority) or config entry
-                P_val = sol.P_MPa if hasattr(sol, 'P_MPa') and sol.P_MPa is not None else meas_entry.get('P_MPa', '')
-                T_val = sol.T_K if hasattr(sol, 'T_K') and sol.T_K is not None else meas_entry.get('T_K', '')
+                P_val, T_val = _state(sol, meas_entry)
 
                 # Build result row
                 result = {
@@ -188,9 +198,7 @@ def run_headless_analysis(timeseries, analysis_config, output_dir=None,
 
                 sol = solution_lookup[std_fname]
 
-                # Get P and T from solution object (highest priority) or config entry
-                P_val = sol.P_MPa if hasattr(sol, 'P_MPa') and sol.P_MPa is not None else std_entry.get('P_MPa', '')
-                T_val = sol.T_K if hasattr(sol, 'T_K') and sol.T_K is not None else std_entry.get('T_K', '')
+                P_val, T_val = _state(sol, std_entry)
 
                 result = {
                     'group_name': group_name,

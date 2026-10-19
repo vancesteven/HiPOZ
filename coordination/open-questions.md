@@ -179,3 +179,12 @@ Questions:
    is not McCleskey; his plotted McCleskey points match our pre-fix model
    (per-ion I bug). Source of the 'Lit' table?
 5. Import his tables as zAnalysis configs for these folders?
+
+### 2026-10-19 resolution (Steve)
+- Q2 above: at 0 MPa the sample holder is immersed in the PolyCool chiller
+  bath; T and P at 0 MPa are the bath values. Implemented: config rows with
+  P_MPa = 0 (and header P <= 5 MPa) now override the Gamry header P/T in the
+  headless and GUI paths (analysis_config.bath_state).
+- Q5: imported (import_zanalysis_workbook.py). Oct 9 rows carry a note about
+  the unresolved cell constant (Q1). Suspect rows (Trial 1 at -1 C, end of
+  Trial 2) imported unexcluded, as Zachary left them.

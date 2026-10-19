@@ -16,6 +16,44 @@ import numpy as np
 log = logging.getLogger('HiPOZ')
 
 
+# Header pressures above this cannot be a bath run (the vessel transducer
+# reads 1-3 MPa at ambient)
+BATH_MAX_HEADER_P_MPA = 5.0
+
+
+def bath_state(entry, header_P_MPa=None) -> Optional[Tuple[float, float]]:
+    """
+    (P_MPa, T_K) from a config entry recorded in the chiller bath, else None.
+
+    Measurements at ambient pressure are made with the sample holder immersed
+    in the PolyCool chiller bath, where the vessel's pressure transducer and
+    thermometer do not see the sample. Such rows are recorded with
+    P_MPa = 0 and the bath temperature as T_K, and those values replace the
+    ones in the Gamry file header. A row whose file header shows the vessel
+    under pressure (header_P_MPa > BATH_MAX_HEADER_P_MPA) is not a bath run.
+    """
+    if not isinstance(entry, dict):
+        return None
+    try:
+        P = float(entry.get('P_MPa'))
+        T = float(entry.get('T_K'))
+    except (TypeError, ValueError):
+        return None
+    if header_P_MPa is not None and header_P_MPa > BATH_MAX_HEADER_P_MPA:
+        return None
+    if P == 0 and np.isfinite(T) and T > 0:
+        return P, T
+    return None
+
+
+def _header_P(timeseries, idx):
+    """Header pressure of file idx in a TimeSeries, or None."""
+    try:
+        return float(timeseries.Ps[idx])
+    except (AttributeError, IndexError, TypeError, ValueError):
+        return None
+
+
 class AnalysisConfig:
     """
     Handles loading and applying analysis configuration from file.
@@ -114,7 +152,8 @@ class AnalysisConfig:
         (all optional except group_name, filename, type)
         Where type is 'standard' or 'measurement'
         Exclude can be: 'yes', 'true', '1', or 'x' to skip this file
-        P_MPa and T_K are informational only (actual values loaded from data files)
+        P_MPa and T_K are informational only (actual values loaded from data
+        files), except for chiller-bath rows with P_MPa = 0 (see bath_state)
         """
         try:
             groups_dict = {}
@@ -356,6 +395,9 @@ class AnalysisConfig:
 
             idx = self.find_file_index(std_file, timeseries)
             if idx is not None:
+                bath = bath_state(std_entry, _header_P(timeseries, idx))
+                if bath:
+                    std_metadata['P_MPa'], std_metadata['T_K'] = bath
                 result['standard_indices'].append(idx)
                 result['standard_conductivities'].append(explicit_conductivity)  # None if not specified
                 result['standard_metadata'].append(std_metadata)  # Store full metadata
@@ -391,6 +433,9 @@ class AnalysisConfig:
 
             idx = self.find_file_index(meas_file, timeseries)
             if idx is not None:
+                bath = bath_state(meas_entry, _header_P(timeseries, idx))
+                if bath:
+                    metadata['P_MPa'], metadata['T_K'] = bath
                 result['measurement_indices'].append(idx)
                 result['measurement_metadata'].append(metadata)
                 log.debug(f"Found measurement: {Path(meas_file).name} at index {idx}")
