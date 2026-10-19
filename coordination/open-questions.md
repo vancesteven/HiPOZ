@@ -127,3 +127,26 @@ concentration, and which files are standards, before they can be curated.
    (2 files) are in the curated set as ordinary measurements. Exclude?
 3. Aug 19-20 use the Aug 18 cell constant (--cal-map). Aug 21 has standards
    (Jesus: data inaccurate except standards). Prefer an Aug 21 calibration?
+
+## 2026-10-19 — Findings from labnotes/ (Jesus/Rose notebook, 2/5/26-8/29/26)
+1. Temperature compensation: the notebook records discovering ~3/8/26 that
+   probe temperature compensation had to be turned off in settings. The 2/5/26
+   room-temperature (22.4-22.8 C) NaCl readings (0.5 M: 47.02/46.92/46.75;
+   1 M: 86.47/86.33/86.28 mS/cm) match 25 C literature values (about 46.8 and
+   85.8), i.e. they were compensated to 25 C. Benchtop rows taken before the
+   fix may be compensated: candidate cause of the ~+4% meter offset and of
+   the two NaCl 20 C replicate groups (4.37 vs 4.58 S/m at 0.5 M). The CSV
+   has no measurement dates; which session is each row from?
+2. Probe cell factor changed 0.485 (3/17) -> 0.477 (3/19), 1.7%.
+3. Not in Cortes2026BenchtopData.csv: the 1.5 M NaCl + 0.0-1.0 M MgSO4
+   series (probe at RT 2/26, 10 C 3/17, 5 C 3/19; 3 readings each), and the
+   Gamry runs of the same series on 6/18-6/24/26 (page 7 gives a
+   time->composition map that matches data/20260618,22,24 triplet-for-
+   triplet; standards 84 uS, 2764 uS, 15 mS, 80 mS at 10:21-10:38 6/18).
+   Curate them? Confirm '1:2' and '2:1' are 0.75:1.5 and 1.5:0.75 M.
+4. Aug 2026 KCl high-pressure log: leak at 3:30 pm 8/19 (bolts tightened);
+   Lauda chiller broke 8/20; automated 30->0->30 C cycles (1 h per 5 C step)
+   from 8/27 at ~76 MPa, ~86 MPa 8/28 (dropped to ~72 MPa overnight, possible
+   leak), ~96 MPa 8/29. Relevant to the KCl sigma(P,T) diagnosis.
+5. Pages 9, 10 and 12 were not photographed (no IMG_0203); the notes do not
+   cover Aug 2025 or Oct 2026.

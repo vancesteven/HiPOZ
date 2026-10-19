@@ -380,3 +380,11 @@ or delete existing entries. Format is defined in `AGENTS.md`.
   (adjudication is Steve's).
 - Status: implemented, unverified for the paper PDFs (tests/test_cortes_loader.py
   passes; container render inspected). zAnalysis configs are gitignored.
+
+## 2026-10-19 — claude-code — read labnotes/ photos
+- 10 notebook pages, 2/5/26-8/29/26 (benchtop NaCl and NaCl:MgSO4, June
+  Gamry mixture runs, Aug 2026 high-pressure log). Findings logged in
+  open-questions 2026-10-19 (temperature compensation before ~3/8/26;
+  uncurated June Gamry mixture data with a time->composition map; Aug 2026
+  leak/chiller events). No data changed. labnotes/ (40 MB JPEG) left
+  untracked pending Steve's decision.
