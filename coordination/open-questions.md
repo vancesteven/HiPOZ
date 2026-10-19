@@ -114,3 +114,16 @@ After the corrections (cortes2026/prepost_comparison/prepost_summary.txt):
    13-43%. Recommend marking the validity limit on the figures.
 4. Supersedes the 2026-10-08 item 1 (mixtures not speciated): now
    implemented; verify on the Mac.
+
+## 2026-10-19 — Oct 2026 high-pressure uploads: which solution is which?
+data/20261005-20261015 (merged from main) are all described 'Default'. Steve
+says they include KCl and NaCl high-pressure runs. Needed per date: solute,
+concentration, and which files are standards, before they can be curated.
+
+## 2026-10-19 — Aug 2025 Cortes HP data adjudication
+1. Aug 19 20 C descending sweep is about 9% below Aug 18/20 at matching P.
+   Keep, flag, or exclude?
+2. Aug 18 'Interesting Test' (3 files) and 'do not take first reading/value'
+   (2 files) are in the curated set as ordinary measurements. Exclude?
+3. Aug 19-20 use the Aug 18 cell constant (--cal-map). Aug 21 has standards
+   (Jesus: data inaccurate except standards). Prefer an Aug 21 calibration?

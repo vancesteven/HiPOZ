@@ -37,17 +37,23 @@ def load_cortes_data(data_dirs):
         dir_name = Path(data_dir).name
         date_only = dir_name[:8] if len(dir_name) >= 8 else dir_name
 
-        csv_file = Path('data') / data_dir / f'zAnalysis{date_only}.csv'
-
-        if not csv_file.exists():
-            print(f"Warning: {csv_file} not found")
+        # Configs are named after the date (zAnalysis20250818.csv) or, for
+        # folders set up with --cal-map, the full folder name
+        # (zAnalysis20250819Cortes.csv)
+        candidates = [Path('data') / data_dir / f'zAnalysis{name}.csv'
+                      for name in (date_only, dir_name)]
+        csv_file = next((c for c in candidates if c.exists()), None)
+        if csv_file is None:
+            print(f"Warning: {candidates[0]} not found")
             continue
 
         df = pd.read_csv(csv_file)
 
-        # Filter to measurements with conductivity
+        # Filter to measurements with conductivity, dropping excluded rows
+        excluded = (df['exclude'].astype(str).str.lower() == 'true'
+                    if 'exclude' in df.columns else False)
         df_meas = df[(df['type'] == 'measurement') &
-                     (df['conductivity_Sm'].notna())].copy()
+                     (df['conductivity_Sm'].notna()) & ~excluded].copy()
 
         if len(df_meas) > 0:
             all_data.append(df_meas)

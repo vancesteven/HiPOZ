@@ -1,6 +1,6 @@
 # Status — hipozgenai
 
-Updated: 2026-10-17
+Updated: 2026-10-19
 
 Refresh the `Updated:` line and the affected sections in any session that
 pushes commits, integrates artifacts, or changes a queue.
@@ -37,6 +37,8 @@ lab data merged in from origin/main. PR #3 (still open) now carries all of it.
 | Delta axis label states (data - model)/model | claude-code | verified | tests/test_delta_label.py; paper PDFs need regeneration on the Mac |
 | Mixture speciation reaches paper figures (study_plots dropped speciation for ion_spec) | claude-code | implemented, unverified | tests/test_mccleskey_validity.py::test_mixture_figures_request_speciation passes; speciated mixture PDFs need Reaktoro run on the Mac (regenerate_cortes_figures.sh) |
 | McCleskey validity limit (I_eff = 0.7 mol/kg) marked on paper figures | claude-code | verified | tests/test_mccleskey_validity.py (8 pass); container renders of NaCl, Na2SO4:KCl 1:1, NaCl:MgSO4 1:1 inspected; limits from cortes2026/mccleskey_validity_limits.py (PHREEQC wateq4f) |
+| Merge origin/main Oct 5-15 2026 high-pressure uploads | claude-code | verified | merge commit `a8d2c12`; `git merge-base --is-ancestor origin/main HEAD` passes; compositions not recorded in files (all 'Default') - see open-questions 2026-10-19 |
+| Aug 18-20 2025 Cortes NaCl 0.5 m high-pressure data in Cortes plots | claude-code | implemented, unverified | Aug 19-20 fitted (cortes2026/curate_aug2025_hp.py + headless --cal-map from Aug 18, K = 92.21); tests/test_cortes_loader.py passes; container render of NaCl_0.5M_vs_pressure inspected; paper PDFs need regenerate_cortes_figures.sh on the Mac |
 | Stale pre-fix eis_plots not rebuilt by current script (4 PDFs) | claude-code | not implemented | see open-questions 2026-10-08 |
 
 Status must be one of `verified` / `implemented, unverified` / `not implemented`.

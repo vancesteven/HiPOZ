@@ -216,7 +216,8 @@ print("Loading Gamry impedance data from zAnalysis files...")
 import os as _os
 original_dir = _os.getcwd()
 _os.chdir(PARENT_DIR)
-gamry_data_dirs = ['20250813Cortes', '20250814Cortes', '20250815Cortes']
+gamry_data_dirs = ['20250813Cortes', '20250814Cortes', '20250815Cortes',
+                   '20250818Cortes', '20250819Cortes', '20250820Cortes']
 gamry_df_raw = cdp.load_cortes_data(gamry_data_dirs)
 _os.chdir(original_dir)
 

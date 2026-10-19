@@ -438,7 +438,7 @@ def plot_with_integrated_mccleskey(data_list, compound, x_data, x_label, y_data,
 
 
 def plot_simple(data_list, compound_type, x_data, x_label, y_data, output_file,
-                use_pressure_colormap=False):
+                use_pressure_colormap=False, use_temperature_colormap=False):
     """
     Plot without McCleskey comparison (all pressure data).
 
@@ -458,11 +458,23 @@ def plot_simple(data_list, compound_type, x_data, x_label, y_data, output_file,
         Output file path
     use_pressure_colormap : bool
         If True and x_data is 'T_K', use pressure as colormap
+    use_temperature_colormap : bool
+        If True and x_data is 'P_MPa', use temperature (deg C) as colormap,
+        so that runs at different temperatures read as separate isotherms
     """
     fig, ax = plt.subplots(figsize=FIGSIZE)
 
-    # Use pressure colormap for temperature plots if requested
-    if use_pressure_colormap and x_data == 'T_K' and len(data_list) > 0:
+    # Colour by the other state variable: P for temperature plots, T for
+    # pressure plots
+    if use_pressure_colormap and x_data == 'T_K':
+        color_col, color_label, cmap = 'P_MPa', 'Pressure (MPa)', plt.cm.viridis
+    elif use_temperature_colormap and x_data == 'P_MPa':
+        color_col, color_label, cmap = 'T_K', 'Temperature (°C)', plt.cm.coolwarm
+    else:
+        color_col = None
+    colormapped = color_col is not None
+
+    if colormapped and len(data_list) > 0:
         # Collect all data for colormap scaling
         all_pressures = []
         all_x = []
@@ -471,23 +483,23 @@ def plot_simple(data_list, compound_type, x_data, x_label, y_data, output_file,
 
         for comp_key, comp, molal, subset in data_list:
             subset = subset.sort_values(x_data)
-            if 'P_MPa' in subset.columns:
-                all_pressures.extend(subset['P_MPa'].values)
+            if color_col in subset.columns:
+                c = subset[color_col].values
+                all_pressures.extend(c - 273.15 if color_col == 'T_K' else c)
                 all_x.extend(subset[x_data].values)
                 all_y.extend(subset[y_data].values)
                 if 'conductivity_sem' in subset.columns:
                     all_yerr.extend(subset['conductivity_sem'].values)
 
         if len(all_pressures) > 0:
-            # Create scatter plot with pressure colormap
+            # Create scatter plot with the colormap
             norm = plt.Normalize(vmin=min(all_pressures), vmax=max(all_pressures))
-            cmap = plt.cm.viridis
 
             scatter = ax.scatter(all_x, all_y, c=all_pressures, cmap=cmap, norm=norm,
                                s=MARKER_SIZE**2, alpha=0.8, edgecolors='black', linewidths=1)
 
             # Add colorbar
-            cbar = plt.colorbar(scatter, ax=ax, label='Pressure (MPa)')
+            cbar = plt.colorbar(scatter, ax=ax, label=color_label)
             cbar.ax.tick_params(labelsize=10)
 
             # Add error bars separately (no color)
@@ -518,8 +530,8 @@ def plot_simple(data_list, compound_type, x_data, x_label, y_data, output_file,
     ax.set_ylabel(r'$\sigma$ (S/m)' if LATEX else 'σ (S/m)', fontsize=14)
     ax.set_title(f'{compound_type} - Conductivity vs {x_label.split()[0]}', fontsize=16)
 
-    # Only show legend if not using pressure colormap
-    if not (use_pressure_colormap and x_data == 'T_K'):
+    # Only show legend if not using a colormap
+    if not colormapped:
         ax.legend(fontsize=10, loc='best')
 
     ax.grid(True, alpha=0.3)
@@ -538,7 +550,8 @@ def main():
         description='Generate Cortes publication plots with optional McCleskey comparison',
         formatter_class=argparse.RawDescriptionHelpFormatter
     )
-    parser.add_argument('dates', nargs='*', default=['20250813Cortes', '20250814Cortes', '20250815Cortes'],
+    parser.add_argument('dates', nargs='*', default=['20250813Cortes', '20250814Cortes', '20250815Cortes',
+                                                       '20250818Cortes', '20250819Cortes', '20250820Cortes'],
                        help='Data directories to process')
     parser.add_argument('--output-dir', '-o', default='cortes_plots',
                        help='Output directory')
@@ -620,7 +633,7 @@ def main():
         if nacl_05m:
             output_p = single_salts_dir / 'NaCl_0.5M_vs_pressure.pdf'
             plot_simple(nacl_05m, 'NaCl (0.5 mol/kg)', 'P_MPa', 'Pressure (MPa)',
-                       'conductivity_Sm', output_p)
+                       'conductivity_Sm', output_p, use_temperature_colormap=True)
             plot_count += 1
             print(f"  ✓ Plot {plot_count}: {output_p}")
 

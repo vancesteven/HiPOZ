@@ -352,3 +352,31 @@ or delete existing entries. Format is defined in `AGENTS.md`.
   Steve regenerates with Reaktoro.
 - Status: limit verified (tests/test_mccleskey_validity.py, renders);
   mixture figure speciation implemented, unverified.
+
+## 2026-10-19 — claude-code — restore Aug 18-20 2025 Cortes high-pressure data; merge Oct 2026 uploads
+- Merged origin/main (a8d2c12): data/20261005-20261015 Gamry files (to about
+  200 MPa), all described 'Default'; composition is not identifiable from the
+  files. Logged in open-questions.
+- "Missing older high-pressure plots": the Cortes plot scripts loaded only
+  Aug 13-15. Aug 18 (NaCl 0.5 m, 20 C, to 598 MPa) was curated but never
+  loaded; Aug 19 (-1/10/20 C) and Aug 20 (20/35/45 C, to 695 MPa) were never
+  fitted (blank zAnalysis templates).
+- Jesus's labelled copies (JesusCortes/Data/08.1x.25) matched to the Default_
+  files by the in-file timestamp. cortes2026/curate_aug2025_hp.py sets NaCl
+  0.5 m (w_ppt 28.39, as Aug 18) and excludes his flagged files (inaccurate,
+  taken too early) plus six unlabelled Aug 20 files: Aug 19 15/102 excluded,
+  Aug 20 57/99 (the whole 45 C sweep is flagged).
+- Fitted headless with the user's --cal-map design (19,20 <- 18); borrowed
+  cell constant K = 92.21 S/m-ohm (8.0 S/m standard, 11.53 ohm). The borrow
+  step drops excluded rows and the exclude column from the config; the
+  curation script and template backups preserve the record.
+- Loader now accepts zAnalysis<folder>.csv as well as zAnalysis<date>.csv,
+  and skips exclude=True rows. NaCl_0.5M_vs_pressure is coloured by T so the
+  isotherms separate.
+- Observations for Steve: sigma peaks at 200-250 MPa at every T; the Aug 19
+  20 C descending sweep sits about 9% below Aug 18/20 at the same P (thermal
+  equilibration?); Aug 18 ambient readings include Jesus's 'Interesting Test'
+  and 'do not take first reading' files (spread 4.05-4.87 S/m). Not excluded
+  (adjudication is Steve's).
+- Status: implemented, unverified for the paper PDFs (tests/test_cortes_loader.py
+  passes; container render inspected). zAnalysis configs are gitignored.
