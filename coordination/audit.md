@@ -388,3 +388,7 @@ or delete existing entries. Format is defined in `AGENTS.md`.
   uncurated June Gamry mixture data with a time->composition map; Aug 2026
   leak/chiller events). No data changed. labnotes/ (40 MB JPEG) left
   untracked pending Steve's decision.
+
+## 2026-10-19 — claude-code — commit labnotes/ photos
+- Per Steve: committed labnotes/IMG_0195-0205.jpeg (10 files, about 38 MB;
+  notebook pages 1-8, 11, 13) as plain git objects (repo does not use LFS).
