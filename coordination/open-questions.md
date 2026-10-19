@@ -150,3 +150,32 @@ concentration, and which files are standards, before they can be curated.
    leak), ~96 MPa 8/29. Relevant to the KCl sigma(P,T) diagnosis.
 5. Pages 9, 10 and 12 were not photographed (no IMG_0203); the notes do not
    cover Aug 2025 or Oct 2026.
+
+## 2026-10-19 — Zachary Diaz's analysis (labnotes/*.xlsx, KCl PNG): what it settles and raises
+Run identities (supersedes part of "Oct 2026 uploads: which solution is which?"
+and the Sep 22-25 run-identity question):
+- 20260917 / 20260923 / 20260924+25: 0.5 m NaCl (28.39 ppt), 1 bar,
+  T cycles at bath setpoints -1, 5, 20, 25 C (Trials 1-3; 9/23 compares
+  before/after a Gamry instrument recalibration). Standard: 8 S/m, Z = 14.95 /
+  14.99 / 14.83 ohm (K ~ 119-120). Sep 21-22 are not covered.
+- 20261009: 5 wt% NaCl (50.021 ppt, 0.901 m), 0 -> 200 -> 0 MPa at 22.8 C;
+  reversible to <0.1%. No standard row; his sigma implies K = 100.2.
+- 20261014-15: the KCl-standard sigma(P) plot (23.1-23.5 C, 0-200-0 MPa)
+  matches these dates. Rises 8.0 -> 8.55 S/m; one 124 MPa triplet at 8.97
+  is an outlier.
+- 20261005-08: still unidentified (Oct 6: two 0-200-0 sweeps; Oct 7-8: slow
+  sweep).
+Questions:
+1. Oct 9 cell constant: 5 wt% NaCl at 20 C is 7.01 S/m (CRC), and the Cortes
+   benchtop NaCl interpolates to about 7.3; his 5.945 S/m at 22.8 C is ~20%
+   low. With the September K (~119.6) it would be ~7.1. Which standard set
+   K = 100.2, and did the cell change between September and October?
+2. His T_K is the bath setpoint; the vessel thermometer read ~300 K
+   throughout the 1-bar runs. Is the setpoint the right sample temperature?
+3. Trial 1 at -1 C reads 31% below his reference (1.85 vs 2.70 S/m) and the
+   following 5 C step stays low: partial freezing? Trial 2 ends with three
+   readings at 2.5-2.6 S/m at 25 C (Z 45-48 ohm): exclude?
+4. His 'Lit Value' column (2.699, 3.134, 4.431, 4.874 S/m at -1/5/20/25 C)
+   is not McCleskey; his plotted McCleskey points match our pre-fix model
+   (per-ion I bug). Source of the 'Lit' table?
+5. Import his tables as zAnalysis configs for these folders?

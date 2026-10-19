@@ -392,3 +392,10 @@ or delete existing entries. Format is defined in `AGENTS.md`.
 ## 2026-10-19 — claude-code — commit labnotes/ photos
 - Per Steve: committed labnotes/IMG_0195-0205.jpeg (10 files, about 38 MB;
   notebook pages 1-8, 11, 13) as plain git objects (repo does not use LFS).
+
+## 2026-10-19 — claude-code — read Zachary Diaz's analysis; commit his files
+- labnotes/: four zAnalysis workbooks (9/17, 9/23, 9/24 0.5 m NaCl T series;
+  10/9 5 wt% NaCl P series) and a KCl-standard sigma(P) PNG (matched to
+  Oct 14-15 by T and P sequence). Identities and issues logged in
+  open-questions 2026-10-19. Committed with the notebook photos. No data or
+  configs changed.
