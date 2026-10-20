@@ -15,6 +15,16 @@ import csv
 from pathlib import Path
 import argparse
 
+FIELDNAMES = ['group_name', 'filename', 'P_MPa', 'T_K', 'type',
+              'conductivity_Sm', 'comp', 'w_ppt', 'w_molal', 'exclude', 'notes']
+
+
+def _extras(entry):
+    """Columns outside FIELDNAMES (e.g. Z_Ohm in imported workbooks), kept
+    verbatim so a CSV -> JSON -> CSV round trip does not drop them."""
+    return {k: v for k, v in entry.items()
+            if k and k not in FIELDNAMES and v not in (None, '')}
+
 
 def csv_to_json(csv_path: Path) -> dict:
     """Convert CSV calibration config to JSON structure."""
@@ -80,6 +90,8 @@ def csv_to_json(csv_path: Path) -> dict:
         if row.get('notes'):
             entry['notes'] = row['notes']
 
+        entry.update(_extras(row))
+
         # Add to appropriate list
         file_type = row.get('type', 'measurement').lower()
         if file_type == 'standard':
@@ -124,6 +136,7 @@ def json_to_csv(json_path: Path) -> list:
                 'exclude': 'x' if std.get('exclude') else '',
                 'notes': std.get('notes', '')
             }
+            row.update(_extras(std))
             rows.append(row)
 
         # Process measurements
@@ -141,6 +154,7 @@ def json_to_csv(json_path: Path) -> list:
                 'exclude': 'x' if meas.get('exclude') else '',
                 'notes': meas.get('notes', '')
             }
+            row.update(_extras(meas))
             rows.append(row)
 
     return rows
@@ -238,8 +252,9 @@ def harmonize_config(file_path: Path, force: bool = False, verbose: bool = True,
             return None
 
         # Write CSV
-        fieldnames = ['group_name', 'filename', 'P_MPa', 'T_K', 'type',
-                     'conductivity_Sm', 'comp', 'w_ppt', 'w_molal', 'exclude', 'notes']
+        fieldnames = list(FIELDNAMES)
+        for row in csv_rows:
+            fieldnames += [k for k in row if k not in fieldnames]
 
         with open(csv_path, 'w', newline='') as f:
             writer = csv.DictWriter(f, fieldnames=fieldnames)

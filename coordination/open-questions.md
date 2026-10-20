@@ -188,3 +188,14 @@ Questions:
 - Q5: imported (import_zanalysis_workbook.py). Oct 9 rows carry a note about
   the unresolved cell constant (Q1). Suspect rows (Trial 1 at -1 C, end of
   Trial 2) imported unexcluded, as Zachary left them.
+
+### 2026-10-20 resolution (Steve)
+- Excluded: the whole Oct 9 run (Q1 still open, so absolute sigma is unusable)
+  and the three end-of-Trial-2 readings (Q3, second half). Applied by
+  curate_diaz_2026.py; reasons in docs/DIAZ_2026_ANALYSIS.md.
+- Trial 1 at -1 C and the low 5 C triplet after it stay included (Q3, first
+  half, not decided).
+- Still open: Q1 (Oct 9 K), Q4 ('Lit' source), Oct 5-8 identity. New: the
+  trials disagree by up to ~11% at 20 C (Trials 1 and 3 below 'Lit', Trial 2
+  above), and Trial 2 reads 0.9-3.6% higher after the Gamry recalibration
+  against a pre-recalibration standard. Cause unknown; see the doc.

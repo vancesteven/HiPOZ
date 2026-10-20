@@ -305,8 +305,33 @@ def _update_config_with_conductivities(analysis_config, results, output_path: Pa
     import json
     import csv as csv_module
 
+    if is_csv_input:
+        # Update the CSV in place so excluded rows (which the loader drops
+        # from calibration_groups) and any extra columns survive, then
+        # regenerate the JSON from it.
+        with open(config_path, newline='') as f:
+            reader = csv_module.DictReader(f)
+            fieldnames = list(reader.fieldnames or [])
+            rows = list(reader)
+        if 'conductivity_Sm' not in fieldnames:
+            fieldnames.append('conductivity_Sm')
+        for row in rows:
+            if (row.get('type', '').lower() == 'measurement'
+                    and row.get('filename') in conductivity_lookup):
+                row['conductivity_Sm'] = conductivity_lookup[row['filename']]
+        log.info(f"Writing updated config to CSV: {config_path}")
+        with open(config_path, 'w', newline='') as f:
+            writer = csv_module.DictWriter(f, fieldnames=fieldnames)
+            writer.writeheader()
+            writer.writerows(rows)
+        from harmonize_config import harmonize_config
+        json_path = harmonize_config(config_path, force=True, verbose=False)
+        log.info(f"Writing updated config to JSON: {json_path}")
+        log.info("✓ Original config files updated with computed conductivities")
+        return
+
     # Update CSV
-    csv_path = config_path if is_csv_input else config_path.with_suffix('.csv')
+    csv_path = config_path.with_suffix('.csv')
     log.info(f"Writing updated config to CSV: {csv_path}")
 
     fieldnames = ['group_name', 'filename', 'P_MPa', 'T_K', 'type',
@@ -356,7 +381,7 @@ def _update_config_with_conductivities(analysis_config, results, output_path: Pa
                     writer.writerow(row)
 
     # Update JSON
-    json_path = config_path if not is_csv_input else config_path.with_suffix('.json')
+    json_path = config_path
     log.info(f"Writing updated config to JSON: {json_path}")
 
     with open(json_path, 'w') as f:
@@ -397,9 +422,10 @@ def _save_config_with_results(analysis_config, output_dir: Path, timestamp: str)
 
         # Create matching JSON
         log.info(f"Creating matching JSON: {json_output}")
+        from harmonize_config import csv_to_json
         with open(json_output, 'w') as f:
             json.dump({
-                'calibration_groups': analysis_config.calibration_groups,
+                'calibration_groups': csv_to_json(config_path)['calibration_groups'],
                 'generated_by': 'HiPOZ headless analysis',
                 'timestamp': timestamp,
                 'source_csv': str(config_path)

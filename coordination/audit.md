@@ -418,3 +418,23 @@ or delete existing entries. Format is defined in `AGENTS.md`.
 - Tests: tests/test_bath_state.py 4 pass; full suite 100 pass, 1 known
   failure (test_kcl_extraction); two tests with hard-coded Dropbox paths
   (test_conductivity_writeback, test_format_harmonization) cannot run here.
+
+## 2026-10-20 — claude-code — Diaz exclusions; config round-trip fixes; analysis doc
+- Steve: exclude the Oct 9 5 wt% NaCl run (sigma ~20% low, K unresolved) and
+  the three readings at the end of Trial 2 (9/23 17:40-17:41, Z 45-48 ohm).
+  curate_diaz_2026.py (new) sets exclude=x with the reason in notes;
+  20260923: 3 of 49 rows, 20261009: 45 of 45. Idempotent.
+- Found while verifying: a headless run deleted excluded rows (and the
+  workbook's Z_Ohm/Z_unc_Ohm/S_unc_pct columns) from CSV configs, because the
+  write-back rewrote the CSV from loaded groups, and auto-harmonize
+  (JSON -> CSV) kept only 11 columns. Write-back now edits the CSV in place
+  and regenerates JSON; harmonize_config round-trips extra columns.
+  JSON -> CSV still blanks measurement sigma (unchanged).
+- Re-imported 20260923 and 20261009 from the workbooks (--force; same Oct 9
+  --note), re-ran curation, then headless 20260923: 45 analysed, config keeps
+  49 rows / 14 columns / 3 excluded; results at bath setpoints, P = 0.
+- docs/DIAZ_2026_ANALYSIS.md (new): runs, import, bath convention, check,
+  per-trial results, exclusions, open items.
+- Tests: tests/test_curate_diaz_2026.py 4 pass; full suite 108 pass, 1 known
+  failure (test_kcl_extraction); test_conductivity_writeback (4) and
+  test_format_harmonization (4) pass with their Dropbox chdir patched out.
