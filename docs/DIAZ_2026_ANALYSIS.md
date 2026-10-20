@@ -106,22 +106,14 @@ analyses.
 Steve decided both exclusions on 2026-10-20. Trial 1 at −1 °C and the low
 5 °C triplet after it are **not** excluded.
 
-## Pipeline fixes made along the way
+## Config preservation
 
-Two config round trips lost data. Both are covered by tests in
-`tests/test_curate_diaz_2026.py`.
-- **Headless write-back.** It rewrote CSV configs from the loaded
-  calibration groups. The CSV loader drops excluded rows, so every headless
-  run deleted the excluded rows, their reasons, and any extra columns.
-  `headless_analysis._update_config_with_conductivities` now updates the CSV
-  in place and regenerates the JSON from it.
-- **CSV ↔ JSON harmonization.** `harmonize_config`, which runs automatically
-  at load, wrote only the 11 standard columns. Extra columns such as Z_Ohm
-  now round-trip.
-
-JSON → CSV harmonization still blanks measurement σ, as before. For excluded
-rows, his σ therefore survives only in the workbook, while his Z stays in the
-config.
+Every analysis path used to rewrite the config files from a lossy view and
+erased data that view did not hold: excluded rows and their reasons, extra
+columns such as Z_Ohm, groups, and measurement σ. All writers now go
+through `config_store.py`, which merges changes into the existing rows. See
+docs/CONFIG_PRESERVATION.md (2026-10-20). Since the earlier runs had erased
+the Sep 23 and Oct 9 columns, both were re-imported from the workbooks.
 
 ## Open
 

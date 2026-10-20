@@ -26,6 +26,37 @@ def _extras(entry):
             if k and k not in FIELDNAMES and v not in (None, '')}
 
 
+def sync_rows(new_rows: list, old_rows: list, keep_rows: bool = True) -> list:
+    """Rows of the file being synced from (new) merged onto the file being
+    replaced (old). Columns only old has are kept.
+
+    keep_rows=True (JSON -> CSV): additive. Rows only old has are kept, and a
+    blank new value does not overwrite a filled old one, so a stale or
+    older-format JSON cannot delete CSV data (rows, exclusions, notes).
+    keep_rows=False (CSV -> JSON): the CSV, the file people edit, wins
+    outright for every column it has, and rows deleted from it stay deleted.
+    """
+    old = {r.get('filename'): r for r in old_rows}
+    seen = set()
+    out = []
+    for r in new_rows:
+        merged = dict(old.get(r.get('filename'), {}))
+        merged.update({k: v for k, v in r.items()
+                       if not keep_rows or v not in ('', None) or k not in merged})
+        out.append(merged)
+        seen.add(r.get('filename'))
+    kept = [r for r in old_rows if r.get('filename') not in seen] if keep_rows else []
+    if kept:
+        print(f"NOTE: kept {len(kept)} row(s) missing from the source: "
+              + ', '.join(str(r.get('filename')) for r in kept[:5]))
+    return out + kept
+
+
+def _read_csv_rows(csv_path: Path) -> list:
+    with open(csv_path, 'r', newline='') as f:
+        return list(csv.DictReader(f))
+
+
 def csv_to_json(csv_path: Path) -> dict:
     """Convert CSV calibration config to JSON structure."""
 
@@ -34,10 +65,17 @@ def csv_to_json(csv_path: Path) -> dict:
         reader = csv.DictReader(f)
         rows = list(reader)
 
+    return rows_to_json(rows)
+
+
+def rows_to_json(rows: list) -> dict:
+    """Convert CSV-style row dicts (values str or numbers) to JSON structure."""
+
     # Group by calibration group
     groups = {}
     for row in rows:
-        group_name = row.get('group_name', 'Group 1')
+        row = {k: '' if v is None else str(v) for k, v in row.items() if k}
+        group_name = row.get('group_name') or 'Group 1'
         if group_name not in groups:
             groups[group_name] = {
                 'name': group_name,
@@ -47,7 +85,7 @@ def csv_to_json(csv_path: Path) -> dict:
 
         # Build entry
         entry = {
-            'filename': row['filename']
+            'filename': row.get('filename', '')
         }
 
         # Add optional fields if present
@@ -115,7 +153,7 @@ def json_to_csv(json_path: Path) -> list:
         data = json.load(f)
 
     # Extract groups
-    groups = data.get('calibration_groups', [])
+    groups = data.get('calibration_groups', data.get('calibrations', []))
 
     rows = []
     for group in groups:
@@ -123,6 +161,8 @@ def json_to_csv(json_path: Path) -> list:
 
         # Process standards
         for std in group.get('standards', []):
+            if not isinstance(std, dict):
+                std = {'filename': str(std)}
             row = {
                 'group_name': group_name,
                 'filename': std.get('filename', ''),
@@ -141,13 +181,15 @@ def json_to_csv(json_path: Path) -> list:
 
         # Process measurements
         for meas in group.get('measurements', []):
+            if not isinstance(meas, dict):
+                meas = {'filename': str(meas)}
             row = {
                 'group_name': group_name,
                 'filename': meas.get('filename', ''),
                 'P_MPa': meas.get('P_MPa', ''),
                 'T_K': meas.get('T_K', ''),
                 'type': 'measurement',
-                'conductivity_Sm': '',  # Measurements don't have known conductivity
+                'conductivity_Sm': meas.get('conductivity_Sm', ''),  # computed; the GUI restores it
                 'comp': meas.get('comp', ''),
                 'w_ppt': meas.get('w_ppt', ''),
                 'w_molal': meas.get('w_molal', ''),
@@ -212,15 +254,24 @@ def harmonize_config(file_path: Path, force: bool = False, verbose: bool = True,
         if verbose:
             print(f"Reading CSV: {file_path}")
 
-        json_data = csv_to_json(file_path)
-
-        # Determine output path
         json_path = file_path.with_suffix('.json')
 
         if json_path.exists() and not force:
             print(f"WARNING: JSON file already exists: {json_path}")
             print("Use --force to overwrite")
             return None
+
+        rows = _read_csv_rows(file_path)
+        json_data = {}
+        if json_path.exists():
+            try:
+                with open(json_path) as f:
+                    json_data = {k: v for k, v in json.load(f).items()
+                                 if k not in ('calibration_groups', 'calibrations')}
+                rows = sync_rows(rows, json_to_csv(json_path), keep_rows=False)
+            except (OSError, ValueError, AttributeError) as e:
+                print(f"WARNING: could not merge existing {json_path}: {e}")
+        json_data['calibration_groups'] = rows_to_json(rows)['calibration_groups']
 
         # Write JSON
         with open(json_path, 'w') as f:
@@ -251,13 +302,19 @@ def harmonize_config(file_path: Path, force: bool = False, verbose: bool = True,
             print("Use --force to overwrite")
             return None
 
-        # Write CSV
         fieldnames = list(FIELDNAMES)
+        if csv_path.exists():
+            with open(csv_path, newline='') as f:
+                fieldnames = list(csv.DictReader(f).fieldnames or FIELDNAMES)
+            fieldnames += [k for k in FIELDNAMES if k not in fieldnames]
+            csv_rows = sync_rows(csv_rows, _read_csv_rows(csv_path))
+
+        # Write CSV
         for row in csv_rows:
-            fieldnames += [k for k in row if k not in fieldnames]
+            fieldnames += [k for k in row if k and k not in fieldnames]
 
         with open(csv_path, 'w', newline='') as f:
-            writer = csv.DictWriter(f, fieldnames=fieldnames)
+            writer = csv.DictWriter(f, fieldnames=fieldnames, extrasaction='ignore')
             writer.writeheader()
             writer.writerows(csv_rows)
 

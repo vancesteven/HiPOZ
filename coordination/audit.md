@@ -438,3 +438,25 @@ or delete existing entries. Format is defined in `AGENTS.md`.
 - Tests: tests/test_curate_diaz_2026.py 4 pass; full suite 108 pass, 1 known
   failure (test_kcl_extraction); test_conductivity_writeback (4) and
   test_format_harmonization (4) pass with their Dropbox chdir patched out.
+
+## 2026-10-20 — claude-code — analysis no longer erases zAnalysis contents
+- Steve: "it's a bug that analysis erases the contents of the csv and json".
+  Four writers rebuilt configs from lossy views (calibration_groups or the
+  GUI table): headless write-back, GUI save (cleared every exclude flag,
+  collapsed groups, dropped rows/columns, wrote old 'calibrations' JSON),
+  --cal-map write_config, and the load-time JSON -> CSV sync (dropped extra
+  columns and measurement sigma; a stale JSON newer than the CSV erased what
+  it lacked; this is what stripped 20260925's columns in today's run).
+- config_store.py (new): read all rows/columns, merge {filename: fields},
+  write JSON then CSV atomically. Headless, GUI and --cal-map now use it.
+  harmonize_config.sync_rows: JSON -> CSV additive (keeps CSV-only rows and
+  columns; blanks never overwrite values); CSV -> JSON: CSV wins, deleted
+  rows stay deleted. json_to_csv keeps measurement sigma and accepts string
+  entries and the old 'calibrations' key.
+- Verified: tests/test_config_store.py 6 pass; full suite 114 pass, 1 known
+  failure (test_kcl_extraction), the two Dropbox-path tests pass patched.
+  Real data: headless 20260923 and 20260925 (--cal-map 20260925=20260924,
+  starting from the stale pre-fix JSON): rows, columns, exclusions and notes
+  unchanged; only sigma (<= 0.044%) and the borrowed standard row changed.
+- GUI save: implemented, unverified in the running GUI (method-level test
+  only). docs/CONFIG_PRESERVATION.md (new).
