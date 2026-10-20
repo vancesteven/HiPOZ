@@ -1,0 +1,555 @@
+% \documentclass[twocolumn,11pt]{article}
+\documentclass[journal=aesccq,manuscript=suppinfo]{achemso}
+\SectionNumbersOn
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% Place any additional packages needed here.  Only include packages
+%% which are essential, to avoid problems later.
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% \usepackage[modulo]{lineno}
+\usepackage{chemformula} % Formula subscripts using \ch{}
+\usepackage{siunitx} % consistent si notation
+\usepackage[T1]{fontenc} % Use modern font encodings
+\usepackage{booktabs}
+\usepackage[version=4]{mhchem}
+\usepackage{amsmath}
+\usepackage{graphicx}
+\usepackage{caption}
+\usepackage{lipsum} % For placeholder text
+\usepackage{longtable}
+\usepackage{geometry}
+\usepackage[table]{xcolor}
+
+% prefix "S" to figure and table numbers
+\renewcommand{\thefigure}{S\arabic{figure}}
+\renewcommand{\thetable}{S\arabic{table}}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% If issues arise when submitting your manuscript, you may want to
+%% un-comment the next line.  This provides information on the
+%% version of every file you have used.
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%\listfiles
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% Place any additional macros here.  Please use \newcommand* where
+%% possible, and avoid layout-changing macros (which are not used
+%% when typesetting).
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% \newcommand*\mycommand[1]{\texttt{\emph{#1}}}
+
+% Bibliography handling
+% \usepackage[citestyle=authoryear,bibstyle=authoryear,sorting=none,maxnames=99]{biblatex}
+% % \DeclareNameAlias{author}{family-given}
+% \addbibresource{references.bib}
+
+
+% \geometry{top=1in, bottom=1in, left=1in, right=1in}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% Meta-data block
+%% ---------------
+%% Each author should be given as a separate \author command.
+%%
+%% Corresponding authors should have an e-mail given after the author
+%% name as an \email command. Phone and fax numbers can be given
+%% using \phone and \fax, respectively; this information is optional.
+%%
+%% The affiliation of authors is given after the authors; each
+%% \affiliation command applies to all preceding authors not already
+%% assigned an affiliation.
+%%
+%% The affiliation takes an option argument for the short name.  This
+%% will typically be something like "University of Somewhere".
+%%
+%% The \altaffiliation macro should be used for new address, etc.
+%% On the other hand, \alsoaffiliation is used on a per author basis
+%% when authors are associated with multiple institutions.
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% \author{Leïla Mahboub, Jessica M Weber*, Catherine Psarakis, Mohit Melwani Daswani, \and Steven D. Vance*}
+% \date{}
+\author{Leïla Mahboub}
+\affiliation{Ecole d'ingénieurs, centre de recherche et d'Innovation - Labellisée \#HRS4R - Composante de l'Université PSL}
+\author{Jessica M. Weber}
+\affiliation{Jet Propulsion Laboratory, California Institute of Technology}
+\author{Jesus Cortes}
+\affiliation{Colby College, Waterville, Maine}
+\author{Catherine Psarakis}
+\affiliation{Department of Applied Chemistry, University of California, Los Angeles}
+\author{Mohit Melwani Daswani}
+\affiliation{Jet Propulsion Laboratory, California Institute of Technology}
+\author{Steven D. Vance}
+\affiliation{Jet Propulsion Laboratory, California Institute of Technology}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% The document title should be given as usual. Some journals require
+%% a running title from the author: this should be supplied as an
+%% optional argument to \title.
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\title[Electrical Oceans]{Electrical Properties of Icy World Oceans from Laboratory Measurements}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% Some journals require a list of abbreviations or keywords to be
+%% supplied. These should be set up here, and will be printed after
+%% the title and author information, if needed.
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\abbreviations{IR,NMR,UV}
+\keywords{ocean worlds, electrical conductivity, magnetic induction}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% The manuscript does not need to include \maketitle, which is
+%% executed automatically.
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{document}
+\tableofcontents
+% \section{Table of Contents}
+% \begin{enumerate}
+%     \item 
+%     \item Tables of electrical conductivity data
+% \end{enumerate}
+% electrical conductivity data pg XXX
+% table on water differences pg XXX
+
+
+\newpage
+% \linenumbers
+\section{Supplemental files}
+
+\subsection{Python and Matlab scripts}
+\begin{itemize} 
+  \item \verb|MahboubEtAl2026.py|: Python script containing data for this work, which generates the main data Figures 2-5. Tested with python 3.11, numpy 1.26.4, and matplotlib 3.10.8. Requires \verb|sigmaElectricMcCleskey2012.py|
+  \item \verb|sigmaElectricMcCleskey2012.py| and \verb|elecCondMcCleskey2012.m|: Python and Matlab functions to compute the contributions of the ionic molal electric conductivity developed by \citet{McCleskey2012}.
+  \item \verb|ElectricalConductivityErrors.m|: Matlab function to generate the estimated uncertainty correlations in temperature and concentration for a specified ionic system (e.g. Figs.~\ref{fig:uncert_McCleskeyNaCl} and \ref{fig:uncert_McCleskeyMgSO4}).
+  \item \verb|McCleskeyFig1.m|: Matlab script to validate model implementation by reproducing Figure 1 of \citet{McCleskey2012}.
+\end{itemize}
+
+\subsection{Potentiostat Data Files}
+
+\textbf{NaCl}
+\begin{itemize}
+  \item \verb|Standard_80ms_cm_For_NaCl_Measurements_20250813_111634.txt|
+  \item \verb|Standard_80ms_cm_For_NaCl_Measurements_20250813_111727.txt|
+  \verb|Standard_80ms_cm_For_NaCl_Measurements_20250813_111820|
+  \item \verb|NaCl_P5M_0MPa_Roomtemp_20250813_131622.txt|
+  \item \verb|NaCl_P5M_0MPa_Rootemp_ 20250813_131431.txt|
+  \item \verb|NaCl_P5M_0MPa_Rootemp_20250813_131526.txt|
+  \item \verb|NaCl_1M_0MPa_Roomtemp_20250813_115907.txt|
+  \item \verb|NaCl_1M_0MPa_Roomtemp_20250813_120000.txt|
+  \item \verb|NaCl_1M_0MPa_Roomtemp_20250813_120053.txt|
+\end{itemize}
+
+\textbf{\ce{MgSO4}}
+\begin{itemize}
+  \item \verb|Standard_80ms_cm_For_MgSO4_Measurements_20250815_133521.txt|
+  \item \verb|MgSO4_P5m_20C_20250815_145921.txt|
+  \item \verb|MgSO4_P5m_20C_20250815_150015.txt|
+  \item \verb|MgSO4_P5m_20C_20250815_150109.txt|
+  \item \verb|MgSO4_P75m_20C_20250815_160519.txt|
+  \item \verb|MgSO4_P75m_20C_20250815_160613.txt|
+  \item \verb|MgSO4_P75m_20C_20250815_160705.txt|
+  \item \verb|MgSO4_1m_20C_20250815_161947.txt|
+  \item \verb|MgSO4_1m_20C_20250815_162040.txt|
+  \item \verb|MgSO4_1m_20C_20250815_162133.txt|
+  \item \verb|MgSO4_1P5m_20C_20250815_162742.txt|
+  \item \verb|MgSO4_1P5m_20C_20250815_162835.txt|
+  \item \verb|MgSO4_1P5m_20C_20250815_162928.txt|
+\end{itemize}
+\newpage
+
+\section{Properties of water used in this study}
+% \onecolumn 
+
+% \begin{table*}[htbp]
+% \centering
+% \captionsetup{justification=centering}
+% \caption{Properties of various types of water}
+% \renewcommand{\arraystretch}{3} % Ajustement de la hauteur des lignes
+% \footnotesize
+% \setlength{\tabcolsep}{5pt} % Ajustement de l'espacement des colonnes
+%     \begin{tabular}{lc|c}
+% \toprule
+%  \textbf{Water used} & \textbf{Conductivity ($\mu$S/cm)} & \textbf{Total Dissolved Solids (ppm)} \\ 
+% \midrule
+% \ch{MilliQ} & 1.17  & 1.07 \\
+% \midrule
+% \ch{DI} & 2.67  & 1.80 \\
+% \midrule
+% \ch{Sink Water} & 681  & 335 \\
+% \bottomrule
+%     \end{tabular}
+%  % Fermeture correcte de \resizebox
+% \end{table*}
+% %A listing of the contents of each file supplied as Supporting Information
+% % should be included. For instructions on what should be included in the
+% %Supporting Information as well as how to prepare this material for
+% % publications, refer to the journal's Instructions for Authors.
+
+
+\begin{table*}[ht]
+\centering
+\captionsetup{justification=centering}
+\caption{Properties of various types of water}
+\renewcommand{\arraystretch}{3} 
+\footnotesize
+\setlength{\tabcolsep}{5pt} 
+    \begin{tabular}{lc|c}
+\toprule
+ \textbf{Type of water} & \textbf{Conductivity (S/m)} & \textbf{Total Dissolved Solids (ppm)} \\ 
+\midrule
+\ch{MilliQ} & 1{.}17 $\times 10^{-4}$  & 1.07 \\
+\midrule
+\ch{DI} & 2{.}67 $\times 10^{-4}$  & 1.80 \\
+\midrule
+Sink Water & 6{.}81 $\times 10^{-2}$  & 335 \\
+\bottomrule
+\end{tabular}
+\label{tab:water}
+\end{table*}
+
+\newpage
+\section{Relative probe error}
+\begin{figure}[ht]
+    \centering
+    \includegraphics[width=0.5\linewidth]{figures/ERROR_FINAL.jpg}
+    \caption{Relative error (\%) of the probe used in this work as a function of temperature for three conductivity standards: 80~mS/cm, 15000~$\mu$S/cm, and 2764~$\mu$S/cm. The errors were calculated by comparing the measured values with the tabulated values provided by the OAKTON standard datasheets. For each temperature, the relative error is defined as: $\text{Relative error (\%)} = \frac{\text{measured value} - \text{tabulated value}}{\text{tabulated value}} \times 100$.  The tabulated values account for temperature dependence as specified by the manufacturer.}
+    \label{fig:probecalibration}
+\end{figure}
+
+\newpage
+\section{Electrical conductivity data}
+
+\begin{table*}[h!t]
+\centering
+\captionsetup{justification=centering}
+\caption{Experimental electrical conductivity values (in S/m) for aqueous solutions in this study at various concentrations and temperatures ranging from 263.15 K to 298.15 K. 
+Each value represents the mean of repeated measurements, with  uncertainties propagating via quadrature the individual error sources. 
+Values marked with a single asterisk (*) correspond to single measurements due to sample freezing preventing repeated tests. Values marked with a double asterisk (**) indicate samples where partial freezing was visually observed during the measurement for some replicates. The letter 'F' indicates no measurement was possible due to the absence of liquid samples. All other measurements were performed in triplicate.
+Measurements in red for \ce{Na2CO3} were not included in the analysis in the main text because of significant non-linear trends attributed to possible complex speciation equilibria involving carbonate and bicarbonate ions, and the potential formation of ion pairs or clusters.}
+\label{tab:conductivitydata}
+\renewcommand{\arraystretch}{2.3} % Réduit hauteur des lignes (1 = normal)
+\footnotesize
+\setlength{\tabcolsep}{6pt} % Réduit espacement horizontal des colonnes (6pt par défaut)
+
+\resizebox{\textwidth}{!}{ % Ajuste la largeur automatique
+
+\begin{tabular}{lc|ccccccc}
+\toprule
+ \textbf{Salt} & \textbf{Conc (mol/kg\ce{H2O})} & \textbf{263.15 K} & \textbf{267.15 K} & \textbf{270.15 K} & \textbf{272.15 K} & \textbf{278.15 K} & \textbf{293.15 K} & \textbf{298.15 K} \\
+ \\ 
+\midrule
+\ch{NaCl}  & 0.1711 & $0.7852* \pm 0.0234$ & $0.8649* \pm 0.0278$ & $0.9823 \pm 0.0528$ & $0.9847 \pm 0.0293$ & $1.1820 \pm 0.0418$ & $1.6113 \pm 0.0505$ & $1.7727 \pm 0.0557$ \\
+&0.5133 & $2.1743 \pm 0.1021$ & $2.3533 \pm 0.0810$ & $2.5050 \pm 0.0964$ & $2.6990 \pm 0.0951$ & $3.1343 \pm 0.0959$ & $4.4307 \pm 0.1323$ & $4.8737 \pm 0.1455$ \\
+&0.8556 & $3.1820 \pm 0.1056$ & $3.5487 \pm 0.1139$ & $3.9440 \pm 0.1647$ & $4.1137 \pm 0.1482$ & $4.8507 \pm 0.1646$ & $6.8430 \pm 0.2098$ & $7.5273 \pm 0.2307$ \\
+&1.2834 & $4.4507 \pm 0.1768$ & $5.1140 \pm 0.1648$ & $5.4793 \pm 0.1638$ & $5.6953 \pm 0.1748$ & $6.8403 \pm 0.2168$ & $9.5800 \pm 0.2871$ & $10.5380 \pm 0.3158$ \\
+&1.7112 & $5.7470 \pm 0.2133$ & $6.3817 \pm 0.2213$ & $7.0060 \pm 0.2245$ & $7.1933 \pm 0.2636$ & $8.6653 \pm 0.2786$ & $12.0500 \pm 0.3591$ & $13.2550 \pm 0.3950$ \\
+&2.5667 & $7.6640 \pm 0.3239$ & $8.5290 \pm 0.2586$ & $9.2313 \pm 0.3059$ & $9.5450 \pm 0.2906$ & $11.3400 \pm 0.3618$ & $16.0033 \pm 0.4805$ & $17.6037 \pm 0.5285$ \\
+\midrule 
+\ch{MgSO4} & 0.0249 & F & $0.1889 \pm 0.0188$ & $0.1683 \pm 0.0465$ & $0.1930 \pm 0.0102$ & $0.2209 \pm 0.0097$ & $0.3112 \pm 0.0128$ & $0.3423 \pm 0.0140$ \\
+& 0.3323 & $1.1090* \pm 0.0330$ & $1.1723 \pm 0.0458$ & $1.2797 \pm 0.0469$ & $1.3787 \pm 0.0580$ & $1.5993 \pm 0.0498$ & $2.2943 \pm 0.0710$ & $2.5237 \pm 0.0781$ \\
+& 0.6646 & $1.5500* \pm 0.0461$ & $1.8210 \pm 0.0588$ & $1.9340 \pm 0.0866$ & $2.1143 \pm 0.0673$ & $2.5187 \pm 0.0761$ & $3.6417 \pm 0.1084$ & $4.0060 \pm 0.1193$ \\
+& 0.9970 & $2.0370* \pm 0.0606$ & $2.2263 \pm 0.0805$ & $2.4713 \pm 0.0758$ & $2.6320 \pm 0.0805$ & $3.1110 \pm 0.0960$ & $4.4403 \pm 0.2288$ & $4.8847 \pm 0.2515$ \\
+&1.4124 & $2.1787* \pm 0.0666$ & $2.4390 \pm 0.0884$ & $2.7707 \pm 0.1322$ & $2.9163 \pm 0.0886$ & $3.5000 \pm 0.1106$ & $5.1337 \pm 0.1531$ & $5.6470 \pm 0.1685$ \\
+&1.6616& $2.2353* \pm 0.0774$ & $2.4713 \pm 0.0955$ ** & $2.7767 \pm 0.0830$ & $2.9483 \pm 0.1109$ & $3.5430 \pm 0.1082$ & $5.3050 \pm 0.1740$ & $5.8353 \pm 0.1915$ \\
+\midrule
+\ch{NH4Cl} & 0.1870  & $0.9741 \pm 0.1389$ ** & $1.1877 \pm 0.0558$ & $1.2603 \pm 0.0385$ & $1.3343 \pm 0.0452$ & $1.5493 \pm 0.0516$ & $2.1160 \pm 0.0634$ & $2.3276 \pm 0.0698$ \\
+& 0.9348  & $4.7517 \pm 0.1697$ & $5.2710 \pm 0.2081$ & $5.5857 \pm 0.1879$ & $5.9827 \pm 0.1975$ & $6.9087 \pm 0.2165$ & $9.4327 \pm 0.2826$ & $10.3759 \pm 0.3109$ \\
+& 1.4021  & $6.9420 \pm 0.2291$ & $7.6387 \pm 0.2418$ & $8.2280 \pm 0.2513$ & $8.6027 \pm 0.2602$ & $9.9713 \pm 0.2999$ & $13.5000 \pm 0.4154$ & $14.8500 \pm 0.4569$ \\
+& 1.8695 & $9.0340 \pm 0.3579$ & $9.9220 \pm 0.3127$ & $10.6400 \pm 0.3579$ & $11.2633 \pm 0.4601$ & $13.0533 \pm 0.4011$ & $17.3867 \pm 0.5288$ & $19.1253 \pm 0.5817$ \\
+\midrule
+\ch{Na$_2$CO$_3$} & 0.0472 & \color{red}{$0.2990 \pm 0.0094$} & \color{red}{$0.3786 \pm 0.0216$} & \color{red}{$0.6193 \pm 0.0194$} & \color{red}{$0.6550 \pm 0.0206$} & $0.5143 \pm 0.0164$ & $0.7475 \pm 0.0235$ & $0.8222 \pm 0.0259$ \\
+& 0.0943 & \color{red}{$0.5329 \pm 0.0161$} & \color{red}{$0.6548 \pm 0.0197$} & \color{red}{$1.1038 \pm 0.0335$} & \color{red}{$1.1667 \pm 0.0354$} & $0.9145 \pm 0.0307$ & $1.3323 \pm 0.0403$ & $1.4656 \pm 0.0444$ \\
+& 0.2359 & \color{red}{$1.1184 \pm 0.0343$} & \color{red}{$1.4057 \pm 0.0476$} & \color{red}{$2.3187 \pm 0.0714$} & \color{red}{$2.4506 \pm 0.0755$} & $1.8973 \pm 0.0565$ & $2.7960 \pm 0.0859$ & $3.0756 \pm 0.0945$ \\
+& 0.3774 & \color{red}{$1.5959 \pm 0.0517$} & \color{red}{$1.9567 \pm 0.0636$} & \color{red}{$3.3086 \pm 0.1075$} & \color{red}{$3.4932 \pm 0.1134$} & $2.6770 \pm 0.0806$ & $3.9897 \pm 0.1292$ & $4.3886 \pm 0.1421$ \\
+& 0.5189 & \color{red}{$1.9823 \pm 0.0603$} & \color{red}{$2.4180 \pm 0.0733$} & \color{red}{$4.1115 \pm 0.1259$} & \color{red}{$4.3404 \pm 0.1329$} & $3.3867 \pm 0.1012$ & $4.9557 \pm 0.1507$ & $5.4512 \pm 0.1657$ \\
+\midrule
+\ch{NaCl}:\ch{MgSO4}:\ch{Na2SO4} (1:1:1) & 
+0.05 & $0.6665* \pm 0.0198$ & & & $0.8441 \pm 0.0264$ &  & $1.3747 \pm 0.0085$ & $1.51213 \pm 0.0094$\\
+& 0.10 & $1.1355* \pm 0.0567$ & & & $1.5227 \pm 0.0705$ &  & $2.4587 \pm 0.0781$ &  $2.70453 \pm 0.0859$\\
+& 0.40 & $3.2887 \pm 0.1140$ ** & & & $4.0220 \pm 0.1257$ &  & $6.6827 \pm 0.0674$&  $7.35093 \pm 0.0741$\\
+& 0.70 & $3.0870 \pm 0.2373$ ** && &  $3.5753 \pm 0.1230$ &  & $5.8820 \pm 0.1847$ & $6.47020 \pm 0.2032$\\
+\end{tabular}}
+
+\end{table*}
+
+
+% \begin{figure}
+%     \centering
+    
+%     \includegraphics[width=0.5\linewidth]{figures/SAL_Final.jpg}
+%     \label{fig:Salinity}
+%     \caption{Salinity as a function of temperature for NaCl (circles), MgSO$_4$ (squares), and NH$_4$Cl (diamonds). Salinity values decreases with salt concentration between 293.15~K and 263.15~K. All the salts show linear trends.
+%  }
+%     \label{fig:nacl}
+% \end{figure}
+
+
+% \begin{figure}[H]
+%     \centering
+
+%     % Première ligne
+%     \begin{minipage}{0.45\textwidth}
+%         \centering
+%         \includegraphics[width=\linewidth]{figures/FINAL_DIFF2_NACL.jpg}
+%         \caption*{(a)}
+%     \end{minipage}
+%     \hfill
+%     \begin{minipage}{0.45\textwidth}
+%         \centering
+%         \includegraphics[width=\linewidth]{figures/FINAL_DIFF2_MGSO.jpg}
+%         \caption*{(b) $\mathrm{MgSO_4}$}
+%     \end{minipage}
+
+%     \vspace{0.4cm}
+
+%     % Deuxième ligne
+%     \begin{minipage}{0.45\textwidth}
+%         \centering
+%         \includegraphics[width=\linewidth]{figures/FINAL_DIFF2_NH4CL.jpg}
+%         \caption*{(c)}
+%     \end{minipage}
+%     \hfill
+%     \begin{minipage}{0.45\textwidth}
+%         \centering
+%         \includegraphics[width=\linewidth]{figures/FINAL_DIFF2_NACO.jpg}
+%         \caption*{(d)}
+%     \end{minipage}
+
+%     % Deuxième ligne
+%     \begin{minipage}{0.9\textwidth}
+%         \centering
+%         \includegraphics[width=\linewidth]{figures/FINAL_LEG_DIFF2.jpg}
+%     \end{minipage}
+   
+
+%     \caption*{Figure S3: Relative error $\Delta$
+% between experimental electrical conductivities and those calculated using the McCleskey model for (a) NaCl, (b) MgSO₄, (c) NH₄Cl, and (d) Na₂CO₃. The main horizontal axis represents the experimental electrical conductivity (S/m), while the upper axis indicates the corresponding ionic strength (mol/kg). The different points correspond to temperatures between 263.15 K and 298.15 K. $\Delta$ is calculated in the same way as in Figure 2.}
+%     \label{fig:4subplots}
+% \end{figure}
+\newpage
+
+
+
+\section{Potentiostat measurements and equivalent circuit fitting}
+We conducted measurements with a Gamry 600+ potentiostat in \ce{NaCl} and \ce{MgSO4} using a two-probe configuration. 
+The measurements employed a custom ptfe enclosure comprising a 0.99" OD cylinder with an internal volume of $\SI{100}{mL}$. 
+Standard 1/16'' titanium rod was used as the electrode material, with four rods inserted in a roughly square configuration axially about 1/4'' into the cell. 
+Only two of the rods were used in the two-probe configuration that is appropriate for conductive aqueous fluids. 
+The system was sealed by means of a finger cot held on the end of the cylinder by a flange and o-ring. 
+
+Complex impedance spectra were fit with a custom implementation of the open source impedance.py software\citep{murbach2020impedance}.
+The resulting framework for organizing and analyzing the data, under development to aid in collecting further electrical impedance spectroscopy measurements, is available as the open-source python package \verb|HiPOZ|\cite{vance2026HIPOZ}.
+Fluid resistivity $R_1$ is modeled as a resistor in series with a constant phase element paralleled to an RC circuit. 
+Figure~\ref{fig:circuit} displays the circuit.
+A cell constant  $K$ was obtained by repeat measurements in the same $\SI{15 000}{\micro\siemens\per\centi\meter}$, and $\SI{80}{\milli\siemens\per\centi\meter}$ standards, where $K=\sigma_\mathrm{std}R_{1\mathrm{std}}$. 
+The cell constant was found to be consistent for several weeks over the course of our experiments. 
+The measured conductivities reported here are only those obtained at 1~atm of pressure for the purpose of comparing with probe measurements.
+  
+Inferred impedances and associated conductivity values ($\sigma_\mathrm{meas}=K/R_{1\mathrm{meas}}$) are reported in Tables~\ref{tab:NaClPotentiostat} and \ref{tab:MgSO4Potentiostat}, with formal uncertainties of the analysis.
+Triplicate measurements were repeatable to better than 0.2\%.
+Nevertheless we assign an uncertainty of 4\%.
+Measurements were made at room temperature, not in the immersion chiller, and were verified by thermocouple. 
+We conservatively assess an uncertainty in temperature of up to $\SI{0.5}{\kelvin}$ for NaCl.
+We assess a temperature uncertainty of $\SI{1}{\kelvin}$ for \ce{MgSO4}. 
+Adding this uncertainty in temperature corresponds to an overall uncertainty of 5\% in conductivity for NaCl and 6\% for \ce{MgSO4} (Section \ref{section:Tmuncertainty}). 
+The 10-minute equilibration time was chosen to ensure that the solution inside the vials reached thermal equilibrium with the circulating bath of the PolyScience AD07R-40-A11B chiller.
+
+A simple thermal time-constant estimate using the lumped capacitance approximation gives:
+$\tau=  \rho c V /h A$.
+ For a $\SI{30}{mL}$ water solution in a Falcon tube ($\sim \SI{0.031}{kg}$, $\sim \SI{0.006}{m^2}$) immersed in a stirred cooling bath ($h\sim \SI{300}{W \per m^2 \per \kelvin}$), the calculated time constant is $\tau = \SI{68}{s}$. 
+ Thermal equilibrium is reached at approximately 5.7 minutes. 
+ Our 10-minute equilibration protocol thus provides a significant safety margin. 
+
+The temperature was also controlled for each temperature below $\SI{273.15}{\kelvin}$ with a mercury thermometer and we assumed that the temperature showed by the chiller was reached 
+
+
+
+
+\begin{figure}
+    \centering
+    \includegraphics[width=0.5\linewidth]{figures_final/CPEcircuit.pdf}
+    \caption{Equivalent circuit fit to the potentiostat measurements.}
+    \label{fig:circuit}
+\end{figure}
+
+\begin{table}[ht]
+\centering
+\begin{tabular}{lrrrr}
+\hline
+$w$ (molal) NaCl & $T$ (K) &  $Z$ (\si{\ohm})  & $\sigma$ (\si{S/m})   \\
+\hline
+$K=92.152$ & 293 & 11.519 $\pm$ 0.003 & 8.0  \\%$\pm$ n/a  \\%& 0.04603 \\
+0.5 & 293 & 11.132 $\pm$ 0.003 & 8.28 $\pm$ 0.04 \\%& 0.003902 \\%& 0.04714 \\
+0.5 & 293 & 11.129 $\pm$ 0.003 & 8.28 $\pm$ 0.04  \\%& 0.004118 %& 0.04973 \\
+0.5 & 293 & 11.137 $\pm$ 0.003 & 8.27 $\pm$ 0.04   \\% & 0.004173 \\%& 0.05044 \\
+1.0 & 293 & 19.633 $\pm$ 0.015 & 4.69 $\pm$ 0.03 \\%& 0.003971 \\%& 0.08459 \\
+1.0 & 293 & 19.656 $\pm$ 0.015 & 4.69 $\pm$ 0.03  \\%& 0.003935 \\% 0.08393 \\
+1.0 & 293 & 20.348 $\pm$ 0.015 & 4.53 $\pm$ 0.03   \\%& 0.004264 \\% 0.09414 \\
+\hline
+\end{tabular}
+\caption{Conductivity of aqueous NaCl computed from impedance using a cell constant inferred from the first (standard) row. 
+Uncertainties propagated from the impedance.}
+\label{tab:NaClPotentiostat}
+
+\end{table}
+
+
+
+\begin{table}[ht]
+\centering
+\caption{Conductivity computed from impedance using a cell constant inferred from the first (standard) row. .}
+\begin{tabular}{lrrrr}
+\hline
+ $w$ (molal) \ce{MgSO4} & $T$ (K) &  $Z$ (\si{\ohm})  & $\sigma$ (\si{S/m})   \\
+\hline
+$K =81.976$  &  292    &10.247 $\pm$  0.065     &  8.0  \\% $\pm$ n/a              \\    
+0.5  &  292    &24.644 $\pm$  0.039     &  3.326 $\pm$ 0.008 \\
+0.5  &  292    &24.619 $\pm$  0.031     &  3.330 $\pm$ 0.006   \\   
+0.5  &  292    &24.637 $\pm$  0.036     &  3.327 $\pm$ 0.007    \\
+0.75 &  292    &19.664 $\pm$  0.077     &  4.169 $\pm$ 0.023  \\    
+0.75 &  292    &19.668 $\pm$  0.057     &  4.168 $\pm$ 0.017   \\
+0.75 &  292    &19.656 $\pm$  0.042     &  4.170 $\pm$ 0.013    \\  
+1    &  292    &16.797 $\pm$  0.056     &  4.880 $\pm$ 0.023  \\  
+1    &  292    &16.800 $\pm$  0.048     &  4.879 $\pm$ 0.020   \\
+1    &  292    &16.822 $\pm$  0.040     &  4.873 $\pm$ 0.016    \\
+1.5  &  292    &14.655 $\pm$  0.046     &  5.594 $\pm$ 0.025  \\
+1.5  &  292    &14.649 $\pm$  0.047     &  5.596 $\pm$ 0.025   \\
+1.5  &  292    &14.661 $\pm$  0.043     &  5.591 $\pm$ 0.023    \\
+ \hline
+\end{tabular}
+\caption{Conductivity of aqueous \ce{MgSO4} computed from impedance using a cell constant inferred from the first (standard) row. 
+Uncertainties propagated from the impedance.}
+\label{tab:MgSO4Potentiostat}
+\end{table}
+
+
+\newpage
+
+\section{Uncertainty in conductivity relative to temperature and concentration}\label{section:Tmuncertainty}
+
+Figures~\ref{fig:uncert_McCleskeyNaCl} and \ref{fig:uncert_McCleskeyMgSO4} show contours of uncertainty (in \% and S/m, respectively) for the propagation of unit uncertainty in composition and temperature for NaCl and \ce{MgSO4}.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.9\linewidth]{figures/DeviationsNaClElec.png}
+    \caption{\textbf{NaCl}. Estimated uncertainties in electrical conductivity correlated with the corresponding uncertainties in temperature (left, in \%) and concentration (right, in S/m). Computed using the MC12\cite{McCleskey2012} model.}
+    \label{fig:uncert_McCleskeyNaCl}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.9\linewidth]{figures/DeviationsNaClElec.png}
+    \caption{\textbf{\ce{MgSO4}}. 
+    Estimated uncertainties in electrical conductivity correlated with the corresponding uncertainties in temperature (left, in \%) and concentration (right, in S/m). 
+    Computed using the MC12\cite{McCleskey2012} model, which demonstrably overestimates the temperature and concentration derivatives for the conductivity of \ce{MgSO4}.}
+    \label{fig:uncert_McCleskeyMgSO4}
+\end{figure}
+
+\newpage
+\section{Geochemical equilibrium modeling of mineral saturation}
+\subsection{Methods}
+To assess whether our experimental solutions approached mineral saturation limits, we performed geochemical equilibrium calculations using PHREEQC v3 \citep{parkhurst_description_2013} with a recalibrated FREZCHEM thermodynamic database by \citet{naseem_salt_2023}, based on previous work by \citet{toner_soluble_2013} and \citet{marion_frezchem:_2010}. This database includes Pitzer interaction parameters and temperature-dependent equilibrium constants for aqueous ions, their complexes, over 30 relevant mineral phases (but we suppressed magnesite and hydromagnesite, since their formation tends to be kinetically inhibited at low temperature), and water ice, with valid temperature ranges extending from 298 K down to approximately 230 K depending on composition. A limitation is the absence of nitrogen-bearing species, preventing analogous calculations for \ce{NH4Cl} solutions.
+
+%We performed two types of calculations. In the metastable mode, all solid phases were disabled, allowing calculation of saturation indices without removing species from solution. This represents the kinetically hindered state observed experimentally where dissolved species remain at nominal concentrations. In the equilibrium mode, all thermodynamically favorable solids were allowed to precipitate, removing ions from solution and representing the maximum deviation from experimental conditions. Temperature was decreased in 1 K increments from 298.15 K to 263.15 K, matching our experimental range. Initial concentrations matched experimental preparations. Following \citet{naseem_salt_2023}, we added a dummy element as an inert tracer to prevent numerical instabilities near complete freezing. PHREEQC output files were processed to extract solution properties, aqueous speciation, saturation indices, and total dissolved solids. All PHREEQC input files and the thermodynamic database are included in the Zenodo archive.
+
+We performed two types of calculations. In the metastable mode, all solid phases were disabled, allowing calculation of saturation indices without removing species from solution. This represents the idealized kinetically hindered state where dissolved species remain at nominal concentrations, providing a baseline for most of our experimental range. In the equilibrium mode, all thermodynamically favorable solids were allowed to precipitate, removing ions from the aqueous phase and representing the theoretical limit of complete mineral and ice formation. Temperature was decreased in 1 K increments from 298.15 K to 263.15 K, matching our experimental range. Initial concentrations matched experimental preparations. Following \citet{naseem_salt_2023}, we added a dummy element as an inert tracer to prevent numerical instabilities near complete freezing. PHREEQC output files were processed to extract solution properties, aqueous speciation, saturation indices, and total dissolved solids (TDS). All PHREEQC input files and the thermodynamic database are included in the Zenodo archive.
+
+\subsection{Results and discussion}
+PHREEQC calculation results are shown in Figures \ref{fig:NaCl_phreeqc_metastable}--\ref{fig:Na2CO3_phreeqc_thermodynamic}. 
+
+\begin{figure}[htb]
+    \centering
+    \includegraphics[width=\linewidth]{figures_final/NaCl_metastable_main_plots_minerals.pdf}
+    \caption{Metastable geochemical calculations (no mineral and ice formation allowed) for the freezing of NaCl solutions. TDS = total dissolved solids.}
+    \label{fig:NaCl_phreeqc_metastable}
+\end{figure}
+
+\begin{figure}[htb]
+    \centering
+    \includegraphics[width=\linewidth]{figures_final/NaCl_main_plots_minerals.pdf}
+    \caption{Thermodynamic geochemical calculations (mineral and ice formation allowed) for the freezing of NaCl solutions. TDS = total dissolved solids.}
+    \label{fig:NaCl_phreeqc_thermodynamic}
+\end{figure}
+
+\begin{figure}[htb]
+    \centering
+    \includegraphics[width=\linewidth]{figures_final/MgSO4_metastable_main_plots_minerals.pdf}
+    \caption{Metastable geochemical calculations (no mineral and ice formation allowed) for the freezing of \ce{MgSO4} solutions. TDS = total dissolved solids.}
+    \label{fig:MgSO4_phreeqc_metastable}
+\end{figure}
+
+\begin{figure}[htb]
+    \centering
+    \includegraphics[width=\linewidth]{figures_final/MgSO4_main_plots_minerals.pdf}
+    \caption{Thermodynamic geochemical calculations (mineral and ice formation allowed) for the freezing of \ce{MgSO4} solutions. TDS = total dissolved solids.}
+    \label{fig:MgSO4_phreeqc_thermodynamic}
+\end{figure}
+
+\begin{figure}[htb]
+    \centering
+    \includegraphics[width=\linewidth]{figures_final/Na2CO3_metastable_main_plots_minerals.pdf}
+    \caption{Metastable geochemical calculations (no mineral and ice formation allowed) for the freezing of \ce{Na2CO3} solutions. TDS = total dissolved solids.}
+    \label{fig:Na2CO3_phreeqc_metastable}
+\end{figure}
+
+\begin{figure}[htb]
+    \centering
+    \includegraphics[width=\linewidth]{figures_final/Na2CO3_main_plots_minerals.pdf}
+    \caption{Thermodynamic geochemical calculations (mineral and ice formation allowed) for the freezing of \ce{Na2CO3} solutions. TDS = total dissolved solids.}
+    \label{fig:Na2CO3_phreeqc_thermodynamic}
+\end{figure}
+
+\begin{figure}[htb]
+    \centering
+    \includegraphics[width=\linewidth]{figures_final/Mixed_salt_metastable_main_plots.pdf}
+    \caption{Metastable geochemical calculations (no mineral and ice formation allowed) for the freezing of mixed NaCl-\ce{MgSO4}-\ce{Na2CO3} solutions. TDS = total dissolved solids.}
+    \label{fig:Na2CO3_phreeqc_metastable}
+\end{figure}
+
+\begin{figure}[htb]
+    \centering
+    \includegraphics[width=\linewidth]{figures_final/Mixed_salts_main_plots.pdf}
+    \caption{Thermodynamic geochemical calculations (mineral and ice formation allowed) for the freezing of mixed NaCl-\ce{MgSO4}-\ce{Na2CO3} solutions. TDS = total dissolved solids.}
+    \label{fig:Na2CO3_phreeqc_thermodynamic}
+\end{figure}
+
+%In metastable mode (no precipitation enforced) results show that most salt systems remain close to or below mineral saturation across the experimental temperature range. For NaCl solutions, no mineral phases reach saturation, though ice becomes supersaturated below approximately -1 \textdegree C for 10 g/kg, progressing to -10 \textdegree C for 150 g/kg. For \ce{Na2CO3} solutions, only natron reaches supersaturation, occurring at 55 g/kg below -5 \textdegree C. For \ce{MgSO4} solutions, only meridianiite becomes supersaturated, at 150 g/kg below -8 \textdegree C.
+
+%The mixed salt system shows dramatically different behavior. Nesquehonite (\ce{MgCO3*3H2O}) and lansfordite (\ce{MgCO3*5H2O}) are supersaturated across all concentrations (0.05--0.7 mol/kg) and all temperatures (25 \textdegree C to -10 \textdegree C) studied. Mirabilite (\ce{Na2SO4*10H2O}) becomes supersaturated at 0.4 mol/kg below 2 \textdegree C and at 0.7 mol/kg below 10 \textdegree C. Ice supersaturates below -1 \textdegree C for 0.05--0.1 mol/kg solutions, below -4 \textdegree C for 0.4 mol/kg, and below -6 \textdegree C for 0.7 mol/kg. Despite this pervasive supersaturation (particularly the ubiquitous supersaturation of magnesium carbonates throughout the entire experimental range) no visible precipitation occurred except in isolated cases marked in Table \ref{tab:conductivitydata}.
+
+In metastable mode (no precipitation enforced) results show that most salt systems remain close to or below mineral saturation across the experimental temperature range. For NaCl solutions, no mineral phases reach saturation, though ice becomes supersaturated below approximately -1 \textdegree C for 10 g/kg, progressing to -10 \textdegree C for 150 g/kg. For \ce{Na2CO3} solutions, only natron reaches supersaturation, occurring at 55 g/kg below -5 \textdegree C. For \ce{MgSO4} solutions, only meridianiite becomes supersaturated, at 150 g/kg below -8 \textdegree C. Despite this, single-salt solutions remained largely metastable, with partial freezing observed only in some samples at the lowest temperatures (noted in Table~S2).
+
+The mixed salt system shows dramatically different behavior. Nesquehonite (\ce{MgCO3*3H2O}) and lansfordite (\ce{MgCO3*5H2O}) are supersaturated across all concentrations (0.05--0.7 mol/kg) and all temperatures (25 \textdegree C to -10 \textdegree C) studied. Mirabilite (\ce{Na2SO4*10H2O}) becomes supersaturated at 0.4 mol/kg below 2 \textdegree C and at 0.7 mol/kg below 10 \textdegree C. Ice supersaturates below -1 \textdegree C for 0.05--0.1 mol/kg solutions, below -4 \textdegree C for 0.4 mol/kg, and below -6 \textdegree C for 0.7 mol/kg. In contrast to single salts, visible precipitation occurred across all concentrations and temperatures for the mixed salt system, with additional freezing observed at -10 \textdegree C, as marked in Table \ref{tab:conductivitydata}.
+
+%When precipitation is enforced in thermodynamic equilibrium mode, minerals precipitate as soon as saturation is reached. For the mixed salt system at 0.05 mol/kg, nesquehonite forms between 25 \textdegree C and 10 \textdegree C, then lansfordite replaces it from 9 \textdegree C to -10 \textdegree C, while mirabilite forms below -2 \textdegree C and ice forms below -1 \textdegree C. At 0.7 mol/kg, nesquehonite forms from 25 \textdegree C to 8 \textdegree C, mirabilite forms continuously from 15 \textdegree C to -10 \textdegree C, lansfordite replaces nesquehonite below 7 \textdegree C, and ice forms below -4 \textdegree C. This sequential precipitation would dramatically reduce total dissolved solids. For example, at 0.7 mol/kg, TDS in the metastable case remains near 149 g/kg throughout cooling, but in the equilibrium case with precipitation, progressive removal of magnesium carbonates and sodium sulfate would substantially reduce dissolved ion concentrations.
+%Our experimental conductivity data show continuous smooth trends without the discontinuities that would accompany such precipitation events (Figures 2--4 in main text). The conductivity measurements continued through temperature ranges where thermodynamic models predict multiple minerals should co-precipitate, yet no such precipitation was observed. This confirms that solutions remained in kinetically hindered metastable states throughout the experimental temperature range. The contrast is particularly stark for the mixed salt solutions, where magnesium carbonate minerals are predicted to be supersaturated under all conditions studied yet formed no visible precipitates.
+%The persistence of metastability across such a wide range of supersaturation can be understood through classical nucleation theory, where nucleation rates depend exponentially on supersaturation and temperature. Even with substantial thermodynamic driving forces (supersaturation present across the entire experimental range for some minerals), kinetic barriers can prevent nucleation. Our experimental conditions favored such metastability: reagent-grade salts dissolved in cleaned glassware provided minimal heterogeneous nucleation sites, and equilibration times of approximately 10 minutes may have been insufficient for nucleation to overcome energy barriers, particularly at the low temperatures where molecular diffusion is slow.
+
+When precipitation is enforced in thermodynamic equilibrium mode, minerals precipitate as soon as saturation is reached. For the mixed salt system at 0.05 mol/kg, nesquehonite forms between 25 \textdegree C and 10 \textdegree C, then lansfordite replaces it from 9 \textdegree C to -10 \textdegree C, while mirabilite forms below -2 \textdegree C and ice forms below -1 \textdegree C. At 0.7 mol/kg, nesquehonite forms from 25 \textdegree C to 8 \textdegree C, mirabilite forms continuously from 15 \textdegree C to -10 \textdegree C, lansfordite replaces nesquehonite below 7 \textdegree C, and ice forms below -4 \textdegree C. This sequential precipitation would dramatically reduce total dissolved solids. For example, at 0.7 mol/kg, TDS in the metastable case remains near 149 g/kg throughout cooling, but in the equilibrium case with precipitation, progressive removal of magnesium carbonates and sodium sulfate would substantially reduce dissolved ion concentrations.
+
+Our experimental conductivity data show continuous smooth trends without the sharp discontinuities that would accompany such massive precipitation events (Figures 2--4 in main text). While visible precipitates were observed in the mixed-salt solutions, the measured conductivity did not drop to the levels predicted by the full equilibrium model. This suggests that the solutions remained in a kinetically hindered, partially metastable state throughout the experimental temperature range, where the extent of precipitation was limited. The contrast is significant for the mixed salt solutions: although magnesium carbonate minerals are predicted to be supersaturated under all conditions, the observed precipitation did not lead to the complete ionic depletion expected at thermodynamic equilibrium.
+
+The persistence of this partial metastability can be understood through classical nucleation theory, where nucleation rates depend exponentially on supersaturation and temperature. Even with substantial thermodynamic driving forces, kinetic barriers can prevent complete mineral recovery. Our experimental conditions favored such states: reagent-grade salts dissolved in cleaned glassware provided minimal heterogeneous nucleation sites. %, and equilibration times of approximately 10 minutes may have been insufficient for nucleation to fully overcome energy barriers, particularly at the low temperatures where molecular diffusion is slow.
+
+
+%The MC12 conductivity model framework uses WATEQ4F \citep{ball_users_1991, mccleskey_2012} for speciation calculations. Like our metastable mode calculations, WATEQ4F does not enforce mineral precipitation but instead calculates aqueous speciation for dissolved states regardless of saturation. Our comparison with MC12 is therefore internally consistent: both represent metastable conditions where dissolved concentrations equal nominal preparation values, and both calculate conductivity from dissolved species without accounting for precipitation. The observed deviations between our measurements and MC12 predictions thus reflect limitations in the model's representation of ion interactions, rather than differences in treatment of mineral precipitation, especially ion pairing for divalent species like \ce{MgSO4}, non-ideality at high concentrations, and temperature extrapolation beyond the original calibration range.
+
+The MC12 conductivity model framework uses WATEQ4F \citep{ball_users_1991, McCleskey2012} for speciation calculations. Like our metastable mode calculations, WATEQ4F does not enforce mineral precipitation but instead calculates aqueous speciation for dissolved states regardless of saturation. Our comparison with MC12 is therefore intended to be internally consistent, as both represent states where dissolved concentrations are assumed to be near nominal preparation values. While the observed precipitation in our mixed-salt experiments may have slightly reduced dissolved ion availability, the significant deviations between our measurements and MC12 predictions primarily reflect limitations in the model's representation of ion interactions. These include ion pairing for divalent species like \ce{MgSO4}, non-ideality at high concentrations, and temperature extrapolation beyond the original calibration range, which appear to be the dominant sources of error rather than the minor phase separations observed.
+
+\bibliography{references.bib}
+
+
+\end{document}
+
+
+
+
+
+
+
+
+
+
+
+
+|||

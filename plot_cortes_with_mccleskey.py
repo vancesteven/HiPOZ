@@ -33,7 +33,19 @@ import cortes_mccleskey as cm
 
 # Import McCleskey model computation and utilities
 from study_plots import compute_mccleskey_model, ION_SPECS
-from plotting import pdiff
+from plotting import pdiff, DELTA_LABEL
+
+# WATEQ4F speciation mode for the McCleskey curves: 'auto' (on when Reaktoro
+# is available and the salt has a recipe), True, or False. Set from
+# --speciation in main().
+SPECIATION = 'auto'
+
+
+def _mc_model(concs, temps, compound):
+    """compute_mccleskey_model with the script-wide speciation setting."""
+    return compute_mccleskey_model(
+        concs, temps, compound=compound,
+        speciation=cm.resolve_speciation(compound, SPECIATION))
 
 # Configure LaTeX
 try:
@@ -153,7 +165,7 @@ def plot_with_mccleskey_subplot(subset, compound, x_data, x_label,
 
     # Formatting - Delta panel
     ax2.set_xlabel(x_label, fontsize=14)
-    ax2.set_ylabel(r'$\Delta$ (\%)', fontsize=14)
+    ax2.set_ylabel(DELTA_LABEL, fontsize=14)
     ax2.grid(True, alpha=0.3)
     ax2.axhline(0, color='gray', ls='-', lw=1, alpha=0.5)
 
@@ -271,7 +283,7 @@ def plot_with_integrated_mccleskey(data_list, compound, x_data, x_label, y_data,
         # Compute McCleskey at average temperature
         concs_model = w_model
         temps_model = np.array([avg_temp])
-        model_result = compute_mccleskey_model(concs_model, temps_model, compound=compound)
+        model_result = _mc_model(concs_model, temps_model, compound)
         model_sigma_unified = model_result[0]
 
         # Plot single unified model line (black dashed)
@@ -332,11 +344,11 @@ def plot_with_integrated_mccleskey(data_list, compound, x_data, x_label, y_data,
                 temps_data = np.array([group_val])
 
                 # Compute model: returns list of length 1, containing array of length n_concs
-                model_result = compute_mccleskey_model(concs_model, temps_model, compound=compound)
+                model_result = _mc_model(concs_model, temps_model, compound)
                 model_sigma = model_result[0]  # Extract the single array
 
                 # Compute at data points for delta
-                model_result_data = compute_mccleskey_model(concs_data, temps_data, compound=compound)
+                model_result_data = _mc_model(concs_data, temps_data, compound)
                 model_sigma_data = model_result_data[0]
 
                 # Plot individual temperature line segment (colored dashed line)
@@ -365,12 +377,12 @@ def plot_with_integrated_mccleskey(data_list, compound, x_data, x_label, y_data,
                 temps_data = x_vals
 
                 # Compute model: returns list of length n_temps, each containing array of length 1
-                model_result = compute_mccleskey_model(concs_model, temps_model, compound=compound)
+                model_result = _mc_model(concs_model, temps_model, compound)
                 # Extract first element of each array (since we only have one concentration)
                 model_sigma = np.array([r[0] for r in model_result])
 
                 # Compute at data points for delta
-                model_result_data = compute_mccleskey_model(concs_data, temps_data, compound=compound)
+                model_result_data = _mc_model(concs_data, temps_data, compound)
                 model_sigma_data = np.array([r[0] for r in model_result_data])
 
                 # Plot model as smooth dashed line
@@ -415,7 +427,7 @@ def plot_with_integrated_mccleskey(data_list, compound, x_data, x_label, y_data,
 
     # Formatting - Delta panel
     ax2.set_xlabel(x_label, fontsize=14)
-    ax2.set_ylabel(r'$\Delta$ (\%)', fontsize=14)
+    ax2.set_ylabel(DELTA_LABEL, fontsize=14)
     ax2.grid(True, alpha=0.3)
     ax2.axhline(0, color='gray', ls='-', lw=1, alpha=0.5)
 
@@ -426,7 +438,7 @@ def plot_with_integrated_mccleskey(data_list, compound, x_data, x_label, y_data,
 
 
 def plot_simple(data_list, compound_type, x_data, x_label, y_data, output_file,
-                use_pressure_colormap=False):
+                use_pressure_colormap=False, use_temperature_colormap=False):
     """
     Plot without McCleskey comparison (all pressure data).
 
@@ -446,11 +458,23 @@ def plot_simple(data_list, compound_type, x_data, x_label, y_data, output_file,
         Output file path
     use_pressure_colormap : bool
         If True and x_data is 'T_K', use pressure as colormap
+    use_temperature_colormap : bool
+        If True and x_data is 'P_MPa', use temperature (deg C) as colormap,
+        so that runs at different temperatures read as separate isotherms
     """
     fig, ax = plt.subplots(figsize=FIGSIZE)
 
-    # Use pressure colormap for temperature plots if requested
-    if use_pressure_colormap and x_data == 'T_K' and len(data_list) > 0:
+    # Colour by the other state variable: P for temperature plots, T for
+    # pressure plots
+    if use_pressure_colormap and x_data == 'T_K':
+        color_col, color_label, cmap = 'P_MPa', 'Pressure (MPa)', plt.cm.viridis
+    elif use_temperature_colormap and x_data == 'P_MPa':
+        color_col, color_label, cmap = 'T_K', 'Temperature (°C)', plt.cm.coolwarm
+    else:
+        color_col = None
+    colormapped = color_col is not None
+
+    if colormapped and len(data_list) > 0:
         # Collect all data for colormap scaling
         all_pressures = []
         all_x = []
@@ -459,23 +483,23 @@ def plot_simple(data_list, compound_type, x_data, x_label, y_data, output_file,
 
         for comp_key, comp, molal, subset in data_list:
             subset = subset.sort_values(x_data)
-            if 'P_MPa' in subset.columns:
-                all_pressures.extend(subset['P_MPa'].values)
+            if color_col in subset.columns:
+                c = subset[color_col].values
+                all_pressures.extend(c - 273.15 if color_col == 'T_K' else c)
                 all_x.extend(subset[x_data].values)
                 all_y.extend(subset[y_data].values)
                 if 'conductivity_sem' in subset.columns:
                     all_yerr.extend(subset['conductivity_sem'].values)
 
         if len(all_pressures) > 0:
-            # Create scatter plot with pressure colormap
+            # Create scatter plot with the colormap
             norm = plt.Normalize(vmin=min(all_pressures), vmax=max(all_pressures))
-            cmap = plt.cm.viridis
 
             scatter = ax.scatter(all_x, all_y, c=all_pressures, cmap=cmap, norm=norm,
                                s=MARKER_SIZE**2, alpha=0.8, edgecolors='black', linewidths=1)
 
             # Add colorbar
-            cbar = plt.colorbar(scatter, ax=ax, label='Pressure (MPa)')
+            cbar = plt.colorbar(scatter, ax=ax, label=color_label)
             cbar.ax.tick_params(labelsize=10)
 
             # Add error bars separately (no color)
@@ -506,8 +530,8 @@ def plot_simple(data_list, compound_type, x_data, x_label, y_data, output_file,
     ax.set_ylabel(r'$\sigma$ (S/m)' if LATEX else 'σ (S/m)', fontsize=14)
     ax.set_title(f'{compound_type} - Conductivity vs {x_label.split()[0]}', fontsize=16)
 
-    # Only show legend if not using pressure colormap
-    if not (use_pressure_colormap and x_data == 'T_K'):
+    # Only show legend if not using a colormap
+    if not colormapped:
         ax.legend(fontsize=10, loc='best')
 
     ax.grid(True, alpha=0.3)
@@ -526,7 +550,8 @@ def main():
         description='Generate Cortes publication plots with optional McCleskey comparison',
         formatter_class=argparse.RawDescriptionHelpFormatter
     )
-    parser.add_argument('dates', nargs='*', default=['20250813Cortes', '20250814Cortes', '20250815Cortes'],
+    parser.add_argument('dates', nargs='*', default=['20250813Cortes', '20250814Cortes', '20250815Cortes',
+                                                       '20250818Cortes', '20250819Cortes', '20250820Cortes'],
                        help='Data directories to process')
     parser.add_argument('--output-dir', '-o', default='cortes_plots',
                        help='Output directory')
@@ -534,8 +559,20 @@ def main():
                        help='Include McCleskey model comparison (low-P data only)')
     parser.add_argument('--p-threshold', '-p', type=float, default=5.0,
                        help='Pressure threshold for McCleskey comparison (MPa, default: 5.0)')
+    parser.add_argument('--speciation', choices=['auto', 'on', 'off'], default='auto',
+                       help="WATEQ4F speciation for McCleskey curves: 'auto' uses it "
+                            "when Reaktoro is installed (default); 'on' requires it; "
+                            "'off' runs on total molality")
+    parser.add_argument('--no-tex', action='store_true',
+                       help='Disable LaTeX text rendering (for machines without TeX)')
 
     args = parser.parse_args()
+
+    if args.no_tex:
+        plt.rcParams['text.usetex'] = False
+
+    global SPECIATION
+    SPECIATION = {'auto': 'auto', 'on': True, 'off': False}[args.speciation]
 
     # Create output directories
     output_dir = Path(args.output_dir)
@@ -596,7 +633,7 @@ def main():
         if nacl_05m:
             output_p = single_salts_dir / 'NaCl_0.5M_vs_pressure.pdf'
             plot_simple(nacl_05m, 'NaCl (0.5 mol/kg)', 'P_MPa', 'Pressure (MPa)',
-                       'conductivity_Sm', output_p)
+                       'conductivity_Sm', output_p, use_temperature_colormap=True)
             plot_count += 1
             print(f"  ✓ Plot {plot_count}: {output_p}")
 

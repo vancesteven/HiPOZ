@@ -15,7 +15,8 @@ import matplotlib.pyplot as plt
 import matplotlib.dates as mdates
 import pandas as pd
 import numpy as np
-from gamryPlots import plot_timeseries
+from gamryPlots import (plot_timeseries, plot_conductivity_PT,
+                        plot_conductivity_PT_surface, plot_conductivity_isotherms)
 import logging
 from PlanetProfile.Thermodynamics.MgSO4.MgSO4Props import Ppt2molal, Molal2ppt
 from cortes_mccleskey import has_mccleskey_model, compute_mccleskey_for_data
@@ -254,10 +255,17 @@ class DataSelector(QMainWindow):
             'svt': False,  # σ vs T
             'svm': False,  # σ vs m
             'svp': False,  # σ vs P
+            'svpt': False,  # σ(P,T) 2D map
+            'svpt3d': False,  # σ(P,T) 3D surface
+            'svpiso': False,  # σ(P) isotherms
         }
 
         # McCleskey comparison toggle (default: on if applicable data present)
         self.show_mccleskey = True
+
+        # Optional reference conductivity (S/m) highlighted as a contour in the
+        # σ(P,T) tab, e.g. 8.0 for the nominal NIST-traceable KCl standard
+        self.sigma_ref_Sm = None
 
         self.init_ui()
         self.current_std = []
@@ -322,6 +330,21 @@ class DataSelector(QMainWindow):
             self.refresh_s_vs_p_plot()
             self.plots_initialized['svp'] = True
             log.debug("Lazy-loaded σ vs P plot")
+
+        elif tab_name == "σ(P,T)" and not self.plots_initialized['svpt']:
+            self.refresh_s_vs_pt_plot()
+            self.plots_initialized['svpt'] = True
+            log.debug("Lazy-loaded σ(P,T) plot")
+
+        elif tab_name == "σ(P,T) 3D" and not self.plots_initialized['svpt3d']:
+            self.refresh_s_vs_pt3d_plot()
+            self.plots_initialized['svpt3d'] = True
+            log.debug("Lazy-loaded σ(P,T) 3D surface")
+
+        elif tab_name == "σ(P) isotherms" and not self.plots_initialized['svpiso']:
+            self.refresh_s_vs_p_isotherms_plot()
+            self.plots_initialized['svpiso'] = True
+            log.debug("Lazy-loaded σ(P) isotherms plot")
 
     def _on_mccleskey_toggle(self, state):
         """
@@ -404,6 +427,30 @@ class DataSelector(QMainWindow):
         self.svp_layout.addWidget(self.svp_canvas)
         self.svp_tab.setLayout(self.svp_layout)
 
+        # Create σ(P,T) 2D map tab
+        self.svpt_tab = QWidget()
+        self.svpt_layout = QVBoxLayout()
+        self.svpt_figure = Figure()
+        self.svpt_canvas = FigureCanvas(self.svpt_figure)
+        self.svpt_layout.addWidget(self.svpt_canvas)
+        self.svpt_tab.setLayout(self.svpt_layout)
+
+        # Create σ(P,T) 3D surface tab (interactive: drag to rotate)
+        self.svpt3d_tab = QWidget()
+        self.svpt3d_layout = QVBoxLayout()
+        self.svpt3d_figure = Figure()
+        self.svpt3d_canvas = FigureCanvas(self.svpt3d_figure)
+        self.svpt3d_layout.addWidget(self.svpt3d_canvas)
+        self.svpt3d_tab.setLayout(self.svpt3d_layout)
+
+        # Create σ(P) isotherms tab
+        self.svpiso_tab = QWidget()
+        self.svpiso_layout = QVBoxLayout()
+        self.svpiso_figure = Figure()
+        self.svpiso_canvas = FigureCanvas(self.svpiso_figure)
+        self.svpiso_layout.addWidget(self.svpiso_canvas)
+        self.svpiso_tab.setLayout(self.svpiso_layout)
+
         # Create σ vs T tab
         self.svt_tab = QWidget()
         self.svt_layout = QVBoxLayout()
@@ -446,6 +493,9 @@ class DataSelector(QMainWindow):
         self.tabs.addTab(self.timeseries_tab, "Timeseries")
         self.tabs.addTab(self.plots_tab, "Bode & Nyquist")
         self.tabs.addTab(self.svp_tab, "σ vs P")
+        self.tabs.addTab(self.svpt_tab, "σ(P,T)")
+        self.tabs.addTab(self.svpt3d_tab, "σ(P,T) 3D")
+        self.tabs.addTab(self.svpiso_tab, "σ(P) isotherms")
         self.tabs.addTab(self.svt_tab, "σ vs T")
         self.tabs.addTab(self.svm_tab, "σ vs m")
 
@@ -1465,6 +1515,9 @@ class DataSelector(QMainWindow):
 
             # Update conductivity scatter plots
             self.refresh_s_vs_p_plot()
+            self.refresh_s_vs_pt_plot()
+            self.refresh_s_vs_pt3d_plot()
+            self.refresh_s_vs_p_isotherms_plot()
             self.refresh_sigma_vs_t_plot()
             self.refresh_sigma_vs_m_plot()
 
@@ -1829,6 +1882,107 @@ class DataSelector(QMainWindow):
         # auto-save curated data and plots
         # self.save_curated_outputs()
 
+    def refresh_s_vs_pt_plot(self):
+        """
+        2D map of conductivity in the P-T plane: points at (P, T) colored by σ,
+        with interpolated iso-conductivity contours when enough points span an
+        area. Separates pressure from temperature dependence, e.g. to check
+        whether an apparent σ vs P trend is really temperature drift.
+
+        Uses self.data so it reflects table edits, and the same associated_mask
+        filter as refresh_s_vs_p_plot. If self.sigma_ref_Sm is set, that
+        iso-line (e.g. the standard's nominal value) is highlighted in red.
+        """
+        if self.data is None or 'σ (S/m)' not in self.data or 'P (MPa)' not in self.data or 'T (K)' not in self.data:
+            return
+
+        try:
+            S = pd.to_numeric(self.data['σ (S/m)'], errors='coerce').to_numpy()
+            P = pd.to_numeric(self.data['P (MPa)'], errors='coerce').to_numpy()
+            T_K = pd.to_numeric(self.data['T (K)'], errors='coerce').to_numpy()
+        except Exception:
+            return
+
+        self._ensure_mask_shape()
+        mask = np.isfinite(S) & np.isfinite(P) & np.isfinite(T_K) & self.associated_mask
+
+        ax, sc = plot_conductivity_PT(self.svpt_figure, P[mask], T_K[mask], S[mask],
+                                      sigma_ref_Sm=self.sigma_ref_Sm)
+        if sc is None:
+            ax.text(0.5, 0.4, 'Use "Associate Measurements" to add points.',
+                    ha='center', va='center', transform=ax.transAxes,
+                    fontsize=10, color='gray')
+
+        self.svpt_canvas.draw()
+        self.plots_initialized['svpt'] = True
+
+    def refresh_s_vs_pt3d_plot(self):
+        """
+        3D surface of conductivity over the P-T plane (drag to rotate).
+
+        Same data selection as refresh_s_vs_pt_plot (associated_mask filter);
+        self.sigma_ref_Sm, if set, is shown as a translucent red plane.
+        """
+        if self.data is None or 'σ (S/m)' not in self.data or 'P (MPa)' not in self.data or 'T (K)' not in self.data:
+            return
+
+        try:
+            S = pd.to_numeric(self.data['σ (S/m)'], errors='coerce').to_numpy()
+            P = pd.to_numeric(self.data['P (MPa)'], errors='coerce').to_numpy()
+            T_K = pd.to_numeric(self.data['T (K)'], errors='coerce').to_numpy()
+        except Exception:
+            return
+
+        self._ensure_mask_shape()
+        mask = np.isfinite(S) & np.isfinite(P) & np.isfinite(T_K) & self.associated_mask
+
+        ax, artist = plot_conductivity_PT_surface(self.svpt3d_figure, P[mask], T_K[mask], S[mask],
+                                                  sigma_ref_Sm=self.sigma_ref_Sm)
+        if artist is None:
+            ax.text(0.5, 0.4, 'Use "Associate Measurements" to add points.',
+                    ha='center', va='center', transform=ax.transAxes,
+                    fontsize=10, color='gray')
+
+        self.svpt3d_canvas.draw()
+        self.plots_initialized['svpt3d'] = True
+
+    def refresh_s_vs_p_isotherms_plot(self):
+        """
+        Conductivity vs pressure as isotherms: one connected curve per
+        temperature bin (1 K wide), colored by temperature. The clearest view
+        of pressure dependence with temperature factored out.
+
+        Same data selection as refresh_s_vs_pt_plot (associated_mask filter);
+        sigma uncertainties from the table are drawn as error bars when
+        present. self.sigma_ref_Sm, if set, is a dashed red reference line.
+        """
+        if self.data is None or 'σ (S/m)' not in self.data or 'P (MPa)' not in self.data or 'T (K)' not in self.data:
+            return
+
+        try:
+            S = pd.to_numeric(self.data['σ (S/m)'], errors='coerce').to_numpy()
+            P = pd.to_numeric(self.data['P (MPa)'], errors='coerce').to_numpy()
+            T_K = pd.to_numeric(self.data['T (K)'], errors='coerce').to_numpy()
+            # table stores percent uncertainty; convert to S/m
+            U_pct = pd.to_numeric(self.data.get('σ± (S/m)'), errors='coerce').to_numpy()
+            U = S * U_pct / 100.0
+        except Exception:
+            return
+
+        self._ensure_mask_shape()
+        mask = np.isfinite(S) & np.isfinite(P) & np.isfinite(T_K) & self.associated_mask
+
+        ax, isotherms = plot_conductivity_isotherms(
+            self.svpiso_figure, P[mask], T_K[mask], S[mask],
+            sigma_unc_Sm=U[mask], sigma_ref_Sm=self.sigma_ref_Sm)
+        if not isotherms:
+            ax.text(0.5, 0.4, 'Use "Associate Measurements" to add points.',
+                    ha='center', va='center', transform=ax.transAxes,
+                    fontsize=10, color='gray')
+
+        self.svpiso_canvas.draw()
+        self.plots_initialized['svpiso'] = True
+
     def _ensure_mask_shape(self):
         n = len(self.data)
         if not hasattr(self, "associated_mask"):
@@ -1859,6 +2013,12 @@ class DataSelector(QMainWindow):
                 self.nyquist_figure.savefig(str(basepath) + "_Nyquist.pdf", bbox_inches="tight")
             if hasattr(self, "svp_figure") and len(self.svp_figure.axes) > 0:
                 self.svp_figure.savefig(str(basepath) + "_SvsP.pdf", bbox_inches="tight")
+            if hasattr(self, "svpt_figure") and len(self.svpt_figure.axes) > 0:
+                self.svpt_figure.savefig(str(basepath) + "_SvsPT.pdf", bbox_inches="tight")
+            if hasattr(self, "svpt3d_figure") and len(self.svpt3d_figure.axes) > 0:
+                self.svpt3d_figure.savefig(str(basepath) + "_SvsPT3D.pdf", bbox_inches="tight")
+            if hasattr(self, "svpiso_figure") and len(self.svpiso_figure.axes) > 0:
+                self.svpiso_figure.savefig(str(basepath) + "_SvsP_isotherms.pdf", bbox_inches="tight")
             QMessageBox.information(self, "Export Successful", f"Saved plots with base: {basepath}")
         except Exception as e:
             QMessageBox.critical(self, "Export Error", str(e))
@@ -2919,237 +3079,70 @@ class DataSelector(QMainWindow):
                     if comp or w_ppt is not None or S_Sm is not None or row_data.get('type') == 'standard':
                         data_by_date[date].append(row_data)
 
-        # Write to each date's config file (CSV or JSON format)
+        # Merge into each date's config (CSV and JSON written together). Only
+        # the fields the GUI table owns change; rows the GUI does not show
+        # (e.g. excluded files), groups, exclusions, notes and extra columns
+        # are kept (config_store).
         for date, file_path in save_paths.items():
             if date not in data_by_date:
                 continue
-
             try:
-                # Detect format from extension
-                is_csv = file_path.suffix.lower() == '.csv'
-                save_timestamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-
-                # Save to primary format (CSV or JSON based on input)
-                if is_csv:
-                    self._save_to_csv(file_path, data_by_date[date], date, save_timestamp)
-                    log.info(f"Saved GUI state to CSV: {file_path}")
-
-                    # Also save matching JSON for harmonization
-                    json_path = file_path.with_suffix('.json')
-                    self._save_to_json(json_path, data_by_date[date], date, save_timestamp)
-                    log.info(f"Created matching JSON: {json_path}")
-                else:
-                    self._save_to_json(file_path, data_by_date[date], date, save_timestamp)
-                    log.info(f"Saved GUI state to JSON: {file_path}")
-
-                    # Also save matching CSV for harmonization
-                    csv_path = file_path.with_suffix('.csv')
-                    self._save_to_csv(csv_path, data_by_date[date], date, save_timestamp)
-                    log.info(f"Created matching CSV: {csv_path}")
-
+                self._merge_into_config(Path(file_path), data_by_date[date])
+                log.info(f"Saved GUI state to {Path(file_path).with_suffix('.csv')} (+ .json)")
             except Exception as e:
                 log.error(f"Failed to save GUI state to {file_path}: {e}")
 
-    def _save_to_csv(self, file_path: Path, data: list, date: str, timestamp: str):
-        """Save GUI state to CSV format, maintaining chronological order."""
-        import csv as csv_module
+    def _merge_into_config(self, file_path: Path, data: list):
+        """Merge GUI rows into a config file without losing anything else."""
+        from config_store import read_rows, merge_rows, write_rows
+        from analysis_config import bath_state
 
-        # Parse P and T from filenames helper
-        def parse_p_t(filename):
-            match = re.search(r'P_(\d+)_T_(\d+)', filename)
-            if match:
-                return match.group(1), match.group(2)
-            return '', ''
+        fieldnames, rows = read_rows(file_path)
+        existing = {r.get('filename'): r for r in rows}
+        updates = {}
+        for entry in sorted(data, key=lambda x: x.get('index', 0)):
+            fields = self._gui_row_fields(entry)
+            row = existing.get(entry['filename'])
+            # A chiller-bath row (P_MPa = 0) keeps its P/T unless the GUI
+            # also shows 0 MPa; otherwise the vessel header would replace it.
+            if row is not None and bath_state(row) and fields.get('P_MPa') not in (0, 0.0):
+                fields.pop('P_MPa', None)
+                fields.pop('T_K', None)
+            updates[entry['filename']] = fields
+        merge_rows(rows, updates)
+        write_rows(file_path, rows, fieldnames)
 
-        # Read existing CSV to preserve structure and notes
-        existing_rows = []
-        existing_groups = set()
-        existing_notes = {}  # Map filename -> notes
-        if file_path.exists():
-            with open(file_path, 'r') as f:
-                reader = csv_module.DictReader(f)
-                existing_rows = list(reader)
-                for row in existing_rows:
-                    existing_groups.add(row.get('group_name', 'Group 1'))
-                    # Preserve existing notes
-                    if row.get('filename') and row.get('notes'):
-                        existing_notes[row['filename']] = row['notes']
+    @staticmethod
+    def _gui_row_fields(entry: dict) -> dict:
+        """Config fields for one GUI row, with the GUI's precision formatting:
+        4 significant figures for Z and sigma, w_molal as entered, w_ppt via
+        format_ppt. Fields the GUI has no value for are left out."""
+        def sig4(v):
+            return float(f"{float(v):.4g}")
 
-        # Write updated CSV with all GUI table columns
-        with open(file_path, 'w', newline='') as f:
-            fieldnames = ['group_name', 'filename', 'P_MPa', 'T_K', 'type', 'Z_Ohm', 'Z_unc_Ohm', 'conductivity_Sm', 'S_unc_pct', 'comp', 'w_ppt', 'w_molal', 'exclude', 'notes']
-            writer = csv_module.DictWriter(f, fieldnames=fieldnames)
-            writer.writeheader()
+        fields = {'type': entry.get('type', 'measurement')}
+        for key in ('P_MPa', 'T_K'):
+            if entry.get(key) is not None:
+                fields[key] = entry[key]
+        for key in ('Z_Ohm', 'Z_unc_Ohm', 'conductivity_Sm', 'S_unc_pct'):
+            if entry.get(key) not in (None, ''):
+                fields[key] = sig4(entry[key])
+        if entry.get('comp'):
+            fields['comp'] = entry['comp']
 
-            group_name = list(existing_groups)[0] if existing_groups else 'Group 1'
-
-            # Sort data by index to maintain chronological order
-            sorted_data = sorted(data, key=lambda x: x.get('index', 0))
-
-            # Write all rows in chronological order
-            for entry in sorted_data:
-                # Use actual P and T from GUI table, fallback to filename parsing if not available
-                if 'P_MPa' in entry and entry['P_MPa'] is not None:
-                    p_val = entry['P_MPa']
-                elif 'P_MPa' in entry and entry['P_MPa'] == 0:
-                    p_val = ''  # Display empty for zero values
-                else:
-                    p_val, _ = parse_p_t(entry['filename'])
-
-                if 'T_K' in entry and entry['T_K'] is not None:
-                    t_val = entry['T_K']
-                elif 'T_K' in entry and entry['T_K'] == 0:
-                    t_val = ''  # Display empty for zero values
-                else:
-                    _, t_val = parse_p_t(entry['filename'])
-
-                # Preserve existing notes if available
-                existing_note = existing_notes.get(entry['filename'], '')
-
-                # Apply precision formatting
-                # Z and conductivity: 4 sig figs
-                z_val = f"{float(entry['Z_Ohm']):.4g}" if entry.get('Z_Ohm') is not None and entry['Z_Ohm'] != '' else ''
-                z_unc_val = f"{float(entry['Z_unc_Ohm']):.4g}" if entry.get('Z_unc_Ohm') is not None and entry['Z_unc_Ohm'] != '' else ''
-                s_val = f"{float(entry['conductivity_Sm']):.4g}" if entry.get('conductivity_Sm') is not None and entry['conductivity_Sm'] != '' else ''
-                s_unc_val = f"{float(entry['S_unc_pct']):.4g}" if entry.get('S_unc_pct') is not None and entry['S_unc_pct'] != '' else ''
-
-                # w_molal: preserve as string, clean up formatting
-                w_molal_raw = entry.get('w_molal', '')
-                if w_molal_raw and w_molal_raw != '':
-                    w_molal_str = str(w_molal_raw)
-                    # If multi-component (contains comma), keep as-is
-                    if ',' in w_molal_str:
-                        w_molal_val = w_molal_str
-                    else:
-                        # Single component: format to remove unnecessary decimals
-                        try:
-                            # Convert to float and back to string, removing trailing zeros
-                            molal_float = float(w_molal_str)
-                            # Format with enough precision, then remove trailing zeros
-                            w_molal_val = f"{molal_float:.10g}"  # g format removes trailing zeros
-                        except:
-                            w_molal_val = w_molal_str
-                else:
-                    w_molal_val = ''
-
-                # w_ppt: min 2 decimals, max = molal precision
-                if entry.get('w_ppt') and entry['w_ppt'] != '':
-                    if w_molal_val and w_molal_val != '':
-                        w_ppt_val = format_ppt(entry['w_ppt'], w_molal_val)
-                    else:
-                        # No molal value, use default 2 decimals
-                        w_ppt_val = f"{float(entry['w_ppt']):.2f}"
-                else:
-                    w_ppt_val = ''
-
-                row = {
-                    'group_name': group_name,
-                    'filename': entry['filename'],
-                    'P_MPa': p_val,
-                    'T_K': t_val,
-                    'type': entry.get('type', 'measurement'),
-                    'Z_Ohm': z_val,
-                    'Z_unc_Ohm': z_unc_val,
-                    'conductivity_Sm': s_val,
-                    'S_unc_pct': s_unc_val,
-                    'comp': entry.get('comp', ''),
-                    'w_ppt': w_ppt_val,
-                    'w_molal': w_molal_val,
-                    'exclude': '',
-                    'notes': existing_note  # Preserve user's notes
-                }
-                writer.writerow(row)
-
-    def _save_to_json(self, file_path: Path, data: list, date: str, timestamp: str):
-        """Save GUI state to JSON format."""
-        import json
-
-        # Load existing config or create new
-        if file_path.exists():
-            with open(file_path, 'r') as f:
-                config = json.load(f)
-        else:
-            config = {
-                "description": f"Analysis configuration for {date}",
-                "date": date,
-                "calibrations": [],
-                "notes": []
-            }
-
-        # Update the default calibration group
-        if not config.get('calibrations'):
-            config['calibrations'] = []
-
-        # Find or create default group
-        if len(config['calibrations']) == 0:
-            config['calibrations'].append({
-                "name": "Default group",
-                "standards": [],
-                "measurements": []
-            })
-
-        # Sort data by index to maintain chronological order, then separate by type
-        sorted_data = sorted(data, key=lambda x: x.get('index', 0))
-
-        standards = []
-        measurements = []
-        for entry in sorted_data:
-            # Remove the index field before saving (internal use only)
-            entry_copy = {k: v for k, v in entry.items() if k not in ['index', 'type']}
-
-            # Apply precision formatting for numeric values
-            # Z and conductivity: 4 sig figs
-            if 'Z_Ohm' in entry_copy and entry_copy['Z_Ohm'] is not None and entry_copy['Z_Ohm'] != '':
-                entry_copy['Z_Ohm'] = float(f"{float(entry_copy['Z_Ohm']):.4g}")
-            if 'Z_unc_Ohm' in entry_copy and entry_copy['Z_unc_Ohm'] is not None and entry_copy['Z_unc_Ohm'] != '':
-                entry_copy['Z_unc_Ohm'] = float(f"{float(entry_copy['Z_unc_Ohm']):.4g}")
-            if 'conductivity_Sm' in entry_copy and entry_copy['conductivity_Sm'] is not None and entry_copy['conductivity_Sm'] != '':
-                entry_copy['conductivity_Sm'] = float(f"{float(entry_copy['conductivity_Sm']):.4g}")
-            if 'S_unc_pct' in entry_copy and entry_copy['S_unc_pct'] is not None and entry_copy['S_unc_pct'] != '':
-                entry_copy['S_unc_pct'] = float(f"{float(entry_copy['S_unc_pct']):.4g}")
-
-            # w_molal: clean up formatting (remove trailing zeros)
-            if 'w_molal' in entry_copy and entry_copy['w_molal'] is not None and entry_copy['w_molal'] != '':
-                w_molal_str = str(entry_copy['w_molal'])
-                # If multi-component (contains comma), keep as string
-                if ',' in w_molal_str:
-                    # Keep as string for JSON
-                    pass  # Already a string
-                else:
-                    # Single component: convert to float to normalize
-                    try:
-                        molal_float = float(w_molal_str)
-                        # Store as float with clean formatting (JSON can handle this)
-                        entry_copy['w_molal'] = float(f"{molal_float:.10g}")
-                    except:
-                        pass  # Keep as-is if conversion fails
-
-            # w_ppt: min 2 decimals, max = molal precision
-            if 'w_ppt' in entry_copy and entry_copy['w_ppt'] is not None and entry_copy['w_ppt'] != '':
-                w_molal_val = entry_copy.get('w_molal', '')
-                if w_molal_val and w_molal_val != '':
-                    entry_copy['w_ppt'] = float(format_ppt(entry_copy['w_ppt'], w_molal_val))
-                else:
-                    # No molal value, use default 2 decimals
-                    entry_copy['w_ppt'] = float(f"{float(entry_copy['w_ppt']):.2f}")
-
-            if entry.get('type') == 'standard':
-                standards.append(entry_copy)
-            else:
-                measurements.append(entry_copy)
-
-        # Update first group with current state (preserving chronological order)
-        config['calibrations'][0]['standards'] = standards
-        config['calibrations'][0]['measurements'] = measurements
-
-        # Add note about GUI save
-        if 'notes' not in config:
-            config['notes'] = []
-        config['notes'].append(f"Updated from GUI at {timestamp}")
-
-        # Write back
-        with open(file_path, 'w') as f:
-            json.dump(config, f, indent=2)
+        w_molal = entry.get('w_molal', '')
+        if w_molal not in (None, ''):
+            w_molal = str(w_molal)
+            if ',' not in w_molal:
+                try:
+                    w_molal = f"{float(w_molal):.10g}"
+                except ValueError:
+                    pass
+            fields['w_molal'] = w_molal
+        if entry.get('w_ppt') not in (None, ''):
+            fields['w_ppt'] = (format_ppt(entry['w_ppt'], fields['w_molal'])
+                               if fields.get('w_molal') else f"{float(entry['w_ppt']):.2f}")
+        return fields
 
     def show_config_status_dialog(self, all_dates, found, created, misplaced):
         """
