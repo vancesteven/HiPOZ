@@ -7,6 +7,10 @@ A zAnalysis config is a CSV and a JSON with the same name in
 workbooks, or annotate them (exclusions with reasons, notes). Running an
 analysis must change only the values the analysis computes.
 
+The CSV is the source of truth. The JSON is a mirror of the CSV, regenerated
+from it. Edit the CSV (e.g. in Excel), not the JSON. Edits made only in the
+JSON are overwritten at the next load.
+
 ## The bug (before 2026-10-20)
 
 Each writer below rebuilt the files from `AnalysisConfig.calibration_groups`
@@ -27,9 +31,10 @@ All writers go through `config_store.py`:
 - `update_config(path, {filename: {field: value}})` reads every row and
   column of the file, changes only the named fields of the named rows
   (appending rows for new files), and writes the CSV and JSON together.
-- `write_rows` writes the JSON first, then the CSV, both atomically. The CSV
-  is therefore the newer file, and the next load syncs CSV → JSON. Top-level
-  JSON keys and entry keys that only the JSON has are kept.
+- `write_rows` writes the CSV, then rewrites the JSON as its exact mirror,
+  both atomically. Top-level JSON keys other than the groups (e.g.
+  `description`) are kept.
+- `read_rows` reads the CSV sibling whenever it exists, else the JSON.
 
 Writers:
 - **Headless:** sets only `conductivity_Sm` on measured rows. The
@@ -39,22 +44,33 @@ Writers:
   unless the GUI also shows 0 MPa.
 - **`--cal-map`:** removes and adds only the rows tagged `borrowed_from:`.
 
-Load-time sync (`harmonize_config.sync_rows`):
-- **JSON → CSV is additive.** Rows and columns only the CSV has are kept,
-  and a blank JSON value does not blank a filled CSV value. A stale or
-  older-format JSON therefore cannot delete CSV data.
-- **CSV → JSON** lets the CSV win for every column it has. Rows deleted from
-  the CSV stay deleted.
+Load-time sync (`harmonize_config(auto_detect=True)`):
+- **If the CSV exists, it always wins.** The CSV is synced to the JSON
+  regardless of which file is newer. The JSON is rewritten as an exact mirror
+  of the CSV rows. Entry keys that only the JSON had are not kept.
+- **JSON → CSV at load happens only for a folder with no CSV yet.**
+- **Manual JSON → CSV harmonize into an existing CSV**
+  (`harmonize_config.sync_rows`) is additive. Rows and columns only the CSV
+  has are kept, and a blank JSON value does not blank a filled CSV value.
+- `AnalysisConfig` given a JSON path whose CSV sibling exists loads the CSV
+  and sets `config_path` to the CSV.
 
-Trade-off: clearing a value in the JSON alone does not propagate to the CSV.
-Edit the CSV to clear values.
+Trade-off: edits made only in the JSON are lost at the next load, and the
+manual JSON → CSV harmonize cannot clear a CSV value. Edit the CSV to change
+or clear values.
 
 ## Verification
 
 - `tests/test_config_store.py`: headless with CSV and JSON inputs, GUI save,
   `--cal-map` re-association, the JSON round trip, and a stale JSON newer
-  than the CSV.
+  than the CSV. Also `test_csv_is_source_of_truth_at_load`,
+  `test_explicit_json_to_csv_is_additive`, and `test_json_only_folder_still_converts`.
 - `tests/test_curate_diaz_2026.py`
+- Full suite: 116 pass, 1 known unrelated failure (`test_kcl_extraction`).
+- Real data: a deliberately corrupted JSON (one row, old `calibrations` key)
+  made newer than `data/20260923/zAnalysis20260923.csv`. A headless run loaded
+  the CSV and left it byte-identical, and rewrote the JSON as a 49-row mirror
+  with 3 excluded entries.
 - Real data: a headless run on 20260923, and on 20260925 with
   `--cal-map 20260925=20260924` starting from a stale JSON. Rows, columns,
   exclusions and notes were unchanged; the only changes were σ (within

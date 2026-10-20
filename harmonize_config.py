@@ -6,7 +6,9 @@ Usage:
     python harmonize_config.py data/20250815Mahboub2026/zAnalysis20250815Mahboub2026.csv
     python harmonize_config.py data/20250815Mahboub2026/zAnalysis20250815Mahboub2026.json
 
-Reads the specified file and creates/updates the matching format.
+Reads the specified file and creates/updates the matching format. The CSV
+is the source of truth: with auto_detect (used at load), an existing CSV is
+always synced to the JSON, never the reverse.
 """
 
 import sys
@@ -26,28 +28,22 @@ def _extras(entry):
             if k and k not in FIELDNAMES and v not in (None, '')}
 
 
-def sync_rows(new_rows: list, old_rows: list, keep_rows: bool = True) -> list:
-    """Rows of the file being synced from (new) merged onto the file being
-    replaced (old). Columns only old has are kept.
-
-    keep_rows=True (JSON -> CSV): additive. Rows only old has are kept, and a
-    blank new value does not overwrite a filled old one, so a stale or
-    older-format JSON cannot delete CSV data (rows, exclusions, notes).
-    keep_rows=False (CSV -> JSON): the CSV, the file people edit, wins
-    outright for every column it has, and rows deleted from it stay deleted.
-    """
+def sync_rows(new_rows: list, old_rows: list) -> list:
+    """JSON rows (new) merged onto an existing CSV (old), for an explicit
+    JSON -> CSV harmonize. Additive: rows and columns only the CSV has are
+    kept, and a blank JSON value does not overwrite a filled CSV value, so a
+    stale or older-format JSON cannot delete CSV data."""
     old = {r.get('filename'): r for r in old_rows}
     seen = set()
     out = []
     for r in new_rows:
         merged = dict(old.get(r.get('filename'), {}))
-        merged.update({k: v for k, v in r.items()
-                       if not keep_rows or v not in ('', None) or k not in merged})
+        merged.update({k: v for k, v in r.items() if v not in ('', None) or k not in merged})
         out.append(merged)
         seen.add(r.get('filename'))
-    kept = [r for r in old_rows if r.get('filename') not in seen] if keep_rows else []
+    kept = [r for r in old_rows if r.get('filename') not in seen]
     if kept:
-        print(f"NOTE: kept {len(kept)} row(s) missing from the source: "
+        print(f"NOTE: kept {len(kept)} CSV row(s) missing from the JSON: "
               + ', '.join(str(r.get('filename')) for r in kept[:5]))
     return out + kept
 
@@ -223,31 +219,14 @@ def harmonize_config(file_path: Path, force: bool = False, verbose: bool = True,
 
     is_csv = file_path.suffix.lower() == '.csv'
 
-    # Auto-detect: check which file is newer
+    # Auto-detect: the CSV is the source of truth whenever it exists; the
+    # JSON is a mirror. JSON -> CSV only for folders that have no CSV yet.
     if auto_detect:
-        counterpart_path = file_path.with_suffix('.json' if is_csv else '.csv')
-
-        if counterpart_path.exists():
-            file_mtime = file_path.stat().st_mtime
-            counterpart_mtime = counterpart_path.stat().st_mtime
-
-            if counterpart_mtime > file_mtime:
-                # Counterpart is newer, switch to harmonize from that one
-                if verbose:
-                    from datetime import datetime
-                    file_time = datetime.fromtimestamp(file_mtime).strftime('%Y-%m-%d %H:%M:%S')
-                    counter_time = datetime.fromtimestamp(counterpart_mtime).strftime('%Y-%m-%d %H:%M:%S')
-                    print(f"Auto-detect: {counterpart_path.name} is newer ({counter_time} vs {file_time})")
-                    print(f"Syncing from {counterpart_path.name} → {file_path.name}")
-
-                file_path = counterpart_path
-                is_csv = file_path.suffix.lower() == '.csv'
-            elif verbose:
-                from datetime import datetime
-                file_time = datetime.fromtimestamp(file_mtime).strftime('%Y-%m-%d %H:%M:%S')
-                counter_time = datetime.fromtimestamp(counterpart_mtime).strftime('%Y-%m-%d %H:%M:%S')
-                print(f"Auto-detect: {file_path.name} is newer ({file_time} vs {counter_time})")
-                print(f"Syncing from {file_path.name} → {counterpart_path.name}")
+        csv_path = file_path.with_suffix('.csv')
+        if csv_path.exists():
+            file_path, is_csv = csv_path, True
+        if verbose:
+            print(f"Auto-detect: syncing from {file_path.name}")
 
     if is_csv:
         # CSV → JSON
@@ -268,9 +247,8 @@ def harmonize_config(file_path: Path, force: bool = False, verbose: bool = True,
                 with open(json_path) as f:
                     json_data = {k: v for k, v in json.load(f).items()
                                  if k not in ('calibration_groups', 'calibrations')}
-                rows = sync_rows(rows, json_to_csv(json_path), keep_rows=False)
             except (OSError, ValueError, AttributeError) as e:
-                print(f"WARNING: could not merge existing {json_path}: {e}")
+                print(f"WARNING: could not read existing {json_path}: {e}")
         json_data['calibration_groups'] = rows_to_json(rows)['calibration_groups']
 
         # Write JSON

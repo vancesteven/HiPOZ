@@ -89,6 +89,13 @@ class AnalysisConfig:
             log.error(f"Configuration file not found: {config_path}")
             return
 
+        csv_sibling = config_file.with_suffix('.csv')
+        if config_file.suffix.lower() == '.json' and csv_sibling.exists():
+            # The CSV is the source of truth; the JSON only mirrors it
+            log.info(f"Using {csv_sibling.name} (CSV takes precedence over {config_file.name})")
+            self.config_path = str(csv_sibling)
+            config_file = csv_sibling
+
         if config_file.suffix.lower() == '.json':
             self._load_json(config_file)
         elif config_file.suffix.lower() == '.csv':

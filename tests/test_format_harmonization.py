@@ -61,8 +61,10 @@ def test_json_harmonization():
     print(f"  Format: {'CSV' if config.config_path.endswith('.csv') else 'JSON'}")
     print(f"  Groups: {len(config.calibration_groups)}")
 
-    # Verify it's JSON
-    assert config.config_path.endswith('.json'), "Config should be JSON!"
+    # The CSV is the source of truth: a JSON path loads its CSV sibling if
+    # one exists, else the JSON itself
+    expected = '.csv' if Path(json_path).with_suffix('.csv').exists() else '.json'
+    assert config.config_path.endswith(expected), f"Config should be {expected}!"
 
     # Count entries
     for i, group in enumerate(config.calibration_groups):

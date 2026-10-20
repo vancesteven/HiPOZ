@@ -460,3 +460,20 @@ or delete existing entries. Format is defined in `AGENTS.md`.
   unchanged; only sigma (<= 0.044%) and the borrowed standard row changed.
 - GUI save: implemented, unverified in the running GUI (method-level test
   only). docs/CONFIG_PRESERVATION.md (new).
+
+## 2026-10-20 — claude-code — CSV is the source of truth for configs
+- Steve: "We're not really using the json files so functionality needs to
+  prioritize the csv".
+- harmonize_config(auto_detect=True) at load now always syncs CSV -> JSON
+  when the CSV exists (was: whichever file is newer); JSON -> CSV only when
+  no CSV exists. Explicit JSON -> CSV into an existing CSV stays additive.
+  CSV -> JSON writes an exact mirror (top-level JSON keys kept).
+- AnalysisConfig given a JSON path loads its CSV sibling if present;
+  config_store reads the CSV whenever it exists.
+- tests: test_config_store.py (test_csv_is_source_of_truth_at_load,
+  test_explicit_json_to_csv_is_additive, test_json_only_folder_still_converts);
+  test_format_harmonization's JSON test now expects the CSV when a sibling
+  exists. Full suite 116 pass, 1 known failure (test_kcl_extraction).
+- Real data: a corrupted newer JSON next to data/20260923's CSV; headless
+  loaded the CSV, left it byte-identical, and rewrote the JSON as a 49-row
+  mirror (3 excluded).

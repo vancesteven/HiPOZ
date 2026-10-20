@@ -79,5 +79,6 @@ def test_harmonize_round_trip_keeps_extra_columns(tmp_path):
     out = pd.read_csv(cfg)
     assert list(out['Z_Ohm']) == [14.99, 23.6, 45.32, 47.83, 46.64]
     assert list(out['exclude'].fillna('')) == ['', '', 'x', 'x', 'x']
-    groups = AnalysisConfig(str(json_path)).calibration_groups
-    assert len(groups[0]['measurements']) == 4
+    import json
+    meas = json.load(open(json_path))['calibration_groups'][0]['measurements']
+    assert [m.get('exclude', False) for m in meas] == [False, True, True, True]

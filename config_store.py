@@ -10,7 +10,8 @@ whatever the view left out. Writers go through this module instead:
 
 reads every row and column of the config, changes only the named fields of
 the named rows (appending rows for new files), and writes the CSV and JSON
-together. Rows, groups, exclusions, notes and extra columns (e.g. Z_Ohm from
+together. The CSV is the source of truth: it is read whenever it exists, and
+the JSON is rewritten as a mirror of it. Rows, groups, exclusions, notes and extra columns (e.g. Z_Ohm from
 imported workbooks) that the caller does not name are kept as they were.
 """
 import csv
@@ -20,7 +21,7 @@ import tempfile
 from pathlib import Path
 from typing import Callable, Dict, List, Optional, Tuple
 
-from harmonize_config import FIELDNAMES, json_to_csv, rows_to_json, sync_rows
+from harmonize_config import FIELDNAMES, json_to_csv, rows_to_json
 
 GROUP_KEYS = ('calibration_groups', 'calibrations')
 
@@ -32,8 +33,11 @@ def _siblings(path) -> Tuple[Path, Path]:
 
 def read_rows(path) -> Tuple[List[str], List[dict]]:
     """All rows of a config as CSV-style dicts, plus the column order.
-    Reads `path` itself (CSV or JSON); a missing file gives no rows."""
+    Reads the CSV sibling of `path` when it exists, else the JSON; a missing
+    file gives no rows."""
     path = Path(path)
+    if path.with_suffix('.csv').exists():
+        path = path.with_suffix('.csv')   # the CSV is the source of truth
     if not path.exists():
         return list(FIELDNAMES), []
     if path.suffix.lower() == '.json':
@@ -71,25 +75,21 @@ def _atomic_write(path: Path, write: Callable):
 
 def write_rows(path, rows: List[dict], fieldnames: Optional[List[str]] = None,
                json_extra: Optional[dict] = None):
-    """Write rows to both the CSV and JSON siblings of `path`.
-
-    The JSON is written first, so the CSV is the newer file and the
-    auto-harmonize step at load syncs CSV -> JSON (lossless). Top-level JSON
-    keys other than the groups (descriptions, notes) are kept."""
+    """Write rows to the CSV sibling of `path` and mirror them to the JSON.
+    Top-level JSON keys other than the groups (descriptions, notes) are
+    kept."""
     csv_path, json_path = _siblings(path)
     fieldnames = _fieldnames(fieldnames or [], rows)
 
-    data, json_rows = {}, rows
+    data = {}
     if json_path.exists():
         try:
             with open(json_path) as f:
                 data = {k: v for k, v in json.load(f).items() if k not in GROUP_KEYS}
-            # keep entry keys only the JSON has; rows follow `rows`
-            json_rows = sync_rows(rows, json_to_csv(json_path), keep_rows=False)
         except (OSError, ValueError, AttributeError):
             data = {}
     data.update(json_extra or {})
-    data['calibration_groups'] = rows_to_json(json_rows)['calibration_groups']
+    data['calibration_groups'] = rows_to_json(rows)['calibration_groups']
     _atomic_write(json_path, lambda f: json.dump(data, f, indent=2))
 
     def write_csv(f):

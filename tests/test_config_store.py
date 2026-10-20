@@ -46,8 +46,6 @@ def test_update_config_changes_only_named_fields(tmp_path):
                             add_missing=False) == (1, 0)
     df = _assert_intact(path)
     assert df.set_index('filename').conductivity_Sm['b_20260923_3.txt'] == 4.1
-    # CSV is newer, so auto-harmonize at load syncs CSV -> JSON
-    assert os.stat(path).st_mtime_ns >= os.stat(path.with_suffix('.json')).st_mtime_ns
 
 
 def test_json_round_trip_is_lossless(tmp_path):
@@ -120,32 +118,61 @@ def test_gui_save_merges_without_erasing(tmp_path):
     assert df.P_MPa['new_20260923_4.txt'] == 100.0
 
 
-def test_stale_json_newer_than_csv_cannot_erase_csv(tmp_path):
-    """A JSON written by older code (no extra columns, a row missing, the old
-    'calibrations' key) that is newer than the CSV: the load-time sync
-    (JSON -> CSV) keeps the CSV's extra columns and rows."""
+STALE = {'calibrations': [{'name': 'Morning', 'standards': [
+    {'filename': 'std.txt', 'P_MPa': 0, 'T_K': 298.15, 'conductivity_Sm': 8.0,
+     'comp': 'KCl', 'notes': 'bottle A'}], 'measurements': [
+    {'filename': 'a_20260923_1.txt', 'P_MPa': 0, 'T_K': 272.15, 'comp': 'NaCl',
+     'w_ppt': 28.39, 'w_molal': 0.5, 'notes': 'bath -1 C'},
+    'bad_20260923_2.txt']}], 'description': 'old'}
+
+
+def _stale_json(path):
+    json_path = path.with_suffix('.json')
+    json_path.write_text(json.dumps(STALE))
+    os.utime(json_path, (os.stat(path).st_atime + 10, os.stat(path).st_mtime + 10))
+    return json_path
+
+
+def test_csv_is_source_of_truth_at_load(tmp_path):
+    """A stale JSON newer than the CSV, or a JSON path passed in: the CSV
+    wins, and the JSON is rewritten to mirror it."""
     from harmonize_config import harmonize_config
     path = _config(tmp_path)
-    stale = {'calibrations': [{'name': 'Morning', 'standards': [
-        {'filename': 'std.txt', 'P_MPa': 0, 'T_K': 298.15, 'conductivity_Sm': 8.0,
-         'comp': 'KCl', 'notes': 'bottle A'}], 'measurements': [
-        {'filename': 'a_20260923_1.txt', 'P_MPa': 0, 'T_K': 272.15, 'comp': 'NaCl',
-         'w_ppt': 28.39, 'w_molal': 0.5, 'notes': 'bath -1 C'},
-        'bad_20260923_2.txt']}], 'description': 'old'}
-    json_path = path.with_suffix('.json')
-    json_path.write_text(json.dumps(stale))
-    os.utime(json_path, (os.stat(path).st_atime + 10, os.stat(path).st_mtime + 10))
-    harmonize_config(path, force=True, verbose=False, auto_detect=True)
-    df = pd.read_csv(path).set_index('filename')
-    assert len(df) == 4 and df.Z_Ohm['bad_20260923_2.txt'] == 45.32
-    assert df.notes['b_20260923_3.txt'] == 'vessel'
-    # blank JSON fields do not blank the CSV: the exclusion survives
-    assert df.exclude['bad_20260923_2.txt'] == 'x'
-    assert df.notes['bad_20260923_2.txt'] == 'excluded: fault'
-
-    # CSV -> JSON keeps the JSON's top-level keys; rows follow the CSV
-    harmonize_config(path, force=True, verbose=False)
+    before = path.read_text()
+    json_path = _stale_json(path)
+    harmonize_config(json_path, force=True, verbose=False, auto_detect=True)
+    assert path.read_text() == before
     data = json.load(open(json_path))
     assert data['description'] == 'old'
     assert sum(len(g['standards']) + len(g['measurements'])
                for g in data['calibration_groups']) == 4
+    _assert_intact(path)
+
+    _stale_json(path)
+    ac = AnalysisConfig(str(json_path))
+    assert ac.config_path == str(path)
+    assert {g['name'] for g in ac.calibration_groups} == {'Morning', 'Evening'}
+    cs.update_config(json_path, {'b_20260923_3.txt': {'conductivity_Sm': 4.3}})
+    df = _assert_intact(path)
+    assert df.set_index('filename').conductivity_Sm['b_20260923_3.txt'] == 4.3
+
+
+def test_explicit_json_to_csv_is_additive(tmp_path):
+    """Converting a JSON into an existing CSV on request never deletes CSV
+    data: CSV-only rows and columns are kept and blanks do not overwrite."""
+    from harmonize_config import harmonize_config
+    path = _config(tmp_path)
+    harmonize_config(_stale_json(path), force=True, verbose=False)
+    df = pd.read_csv(path).set_index('filename')
+    assert len(df) == 4 and df.Z_Ohm['bad_20260923_2.txt'] == 45.32
+    assert df.exclude['bad_20260923_2.txt'] == 'x'
+    assert df.notes['b_20260923_3.txt'] == 'vessel'
+
+
+def test_json_only_folder_still_converts(tmp_path):
+    from harmonize_config import harmonize_config
+    json_path = tmp_path / 'zAnalysis20250813.json'
+    json_path.write_text(json.dumps(STALE))
+    harmonize_config(json_path, force=True, verbose=False, auto_detect=True)
+    df = pd.read_csv(json_path.with_suffix('.csv'))
+    assert list(df.filename) == ['std.txt', 'a_20260923_1.txt', 'bad_20260923_2.txt']
