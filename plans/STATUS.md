@@ -51,7 +51,11 @@ lab data merged in from origin/main. PR #3 (still open) now carries all of it.
 | GUI save path preserves config | claude-code | not implemented | 2026-11-05 GUI run turned the Aug 19 standard into a measurement, overwrote P/T with header values, rounded sigma; config restored from pre-GUI backup |
 | GUI config discovery misses folder-suffixed configs (zAnalysis<date>Cortes.csv) | claude-code | not implemented | created a stray zAnalysis20250819.csv (moved to /tmp/gui_check/) |
 | Cortes assessment: P < 10 MPa taken as 0.1 MPa (gauge value kept in P_MPa_raw) | claude-code | verified | cortes_data_processing.assess_low_pressure_as_ambient; tests/test_cortes_loader.py::test_low_pressure_readings_are_assessed_at_ambient; figures regenerated 2026-11-05 |
-| Garrity RoseData (2026-02-19) provisional fit | claude-code | implemented, unverified | cortes2026/garrity/fit_rosedata.py -> rosedata_20260219_fits.csv; compositions/units and cell-constant standard await Rose's lab notebook; not merged into Cortes |
+| Garrity RoseData (2026-02-19) provisional fit | claude-code | implemented, unverified | cortes2026/garrity/fit_rosedata.py; notebook (cortes2026/garrity/LABNOTES.md) shows M = mol/L; cell-constant standard and Default triplet still open; not merged into Cortes |
+| Lab notebooks transcribed (Diaz pp. 11-27, Garrity pp. 1-8) | claude-code | verified | cortes2026/diaz/LABNOTES.md, cortes2026/garrity/LABNOTES.md from labnotes/ photos |
+| Nov 5 2026 run complete (51 sweeps); 5 fit-jump sweeps excluded (Steve) | claude-code | verified | data/20261105/zAnalysis20261105.csv (5 exclude=x, 51 rows kept); standard_sigma_P_vs_cortes.png inspected |
+| Oct 5-9 identities | claude-code | verified | from Diaz notebook: Oct 5 80 mS KCl std 1 atm; Oct 6-9 ~5 wt% NaCl sigma(P) (cortes2026/diaz/LABNOTES.md) |
+| Garrity NaCl:MgSO4 Gamry runs (Jun 18/22/24) identified, not analysed | claude-code | not implemented | sweep times in LABNOTES.md p. 7 |
 | Contributor folders cortes2026/diaz, cortes2026/garrity | claude-code | verified | READMEs in each |
 | Exclude noisy ~20 C NaCl 0.5 m days (Aug 19 at 20 C, Aug 14 600 MPa candidates) | claude-code | not implemented | awaiting Steve's choice of days |
 | Merge origin/main Nov 5 2026 upload (data/20261105, 42 sweeps) | claude-code | verified | merge commit `98173d9`; `git merge-base --is-ancestor origin/main HEAD` passes |

@@ -8,7 +8,9 @@ Diaz runs (each fitted from the raw Gamry sweeps, CPE 10-100 kHz):
             1 -> 200 -> 76 MPa; K from the first three sweeps at ~1 MPa.
   20261014-15  KCl standard sweep, ~296 K (the one in his PNG); K from the
             first three Oct 14 sweeps at ambient, same assumption.
-Sweeps with > 5% fit uncertainty in R are kept and drawn hollow. Two kinds:
+Rows excluded in a folder's zAnalysis config are dropped (Nov 5: the five
+descent sweeps at 152-177 MPa, Steve 2026-11-05). Other sweeps with > 5% fit
+uncertainty in R are kept and drawn hollow. Two kinds:
 the fit is unsure but sigma stays on the curve (Oct 14 at 100 MPa, Oct 15
 52-100 MPa), and the fit lands off the curve (Oct 14 at 124 MPa, +6.6%; Nov 5
 at 152-177 MPa on descent, +2.3%). The raw |Z| at the phase-zero frequency
@@ -64,6 +66,13 @@ def fit_folder(folders):
                          'P_MPa': s.P_MPa, 'T_K': s.T_K,
                          'R_ohm': s.Rcalc_ohm, 'R_unc_ohm': s.Runc_ohm})
     df = pd.DataFrame(rows).sort_values('time').reset_index(drop=True)
+    # Rows marked exclude in the folder's zAnalysis config are dropped
+    excluded = set()
+    for folder in folders:
+        for cfg in glob(str(REPO / 'data' / folder / f'zAnalysis{folder}.csv')):
+            c = pd.read_csv(cfg, dtype=str, keep_default_na=False)
+            excluded |= set(c.loc[c['exclude'].str.lower().isin(['x', 'true', '1']), 'filename'])
+    df = df[~df.filename.isin(excluded)].reset_index(drop=True)
     K = SIGMA_STD * df.R_ohm.iloc[:3].mean()
     df['K_cell'] = K
     df['sigma_Sm'] = K / df.R_ohm

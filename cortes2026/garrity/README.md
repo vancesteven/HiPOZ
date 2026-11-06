@@ -1,6 +1,6 @@
 # Rose Garrity — benchtop data
 
-Updated: 2026-11-05
+Updated: 2026-11-05 (lab notebook received; see LABNOTES.md)
 
 Rose Garrity took the run in `data/RoseData/Conductivity` (2026-02-19, ~296 K,
 ambient pressure; 24 sweeps, triplets of each sample).
@@ -17,15 +17,21 @@ standard's cell constant.
 
 ## Status: provisional
 
-Waiting on Rose's lab notebook for:
+Rose's lab notebook (photos in `labnotes/`, transcribed in `LABNOTES.md`)
+answers part of what was open:
 
-1. **M = molar or molal?** Against McCleskey (2012) the two readings differ by
-   only 1–4% at 0.5–1.5, so the data cannot decide it.
-2. **Which standard sets the cell constant.** The two disagree by 3%
-   (K = 101.42 from 15 mS/cm, 98.40 from 2764 µS/cm).
-3. **What the `Default` triplet is.**
-4. **Whether the 2 M sample reads low** (8–11% below McCleskey as molal).
+1. **M is molar** (solutions made at 58.442 g/mol × M per litre). The
+   McCleskey comparison must use molality (molarity_to_molality.py; 2 M
+   factor still to add).
+2. **Cell-constant standard: still open.** Her probe reads both the 15 mS
+   and 2764 µS bottles within 1% of nominal, so neither looks bad, yet the
+   Gamry K from them differ by 3% (101.42 vs 98.40).
+3. **`Default` triplet: not in the notebook.**
+4. **2 M reads low:** still unexplained.
 
-These data are not yet merged into the Cortes compilation. Once the notebook
-answers the above, NaCl rows at compositions the Cortes series also covers
-will be added there.
+The notebook also identifies her NaCl:MgSO4 mixture runs with the Gamry
+(data/20260618, 20260622, 20260624, by sweep time) and gives probe-only
+mixture data at RT, 10 and 5 °C. Her Feb 5 probe readings seem to have had
+temperature compensation on, so they are not raw 22.6 °C values.
+
+Not yet merged into the Cortes compilation.

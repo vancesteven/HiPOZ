@@ -499,3 +499,8 @@ or delete existing entries. Format is defined in `AGENTS.md`.
 ## 2026-11-05 — claude-code — chained refit; McCleskey method doc
 - cortes2026/diaz/refit_chained.py: chained initial guess removes all 20 fit jumps in Diaz's 8 S/m KCl sigma(P) runs (sigma within 0.11% of the model-free phase-zero |Z|). Production fitter unchanged.
 - docs/MCCLESKEY_METHOD.md written (Steve approved); README's stale ion-pair limitation note replaced with the 2026-10-05 resolution and a link.
+
+## 2026-11-05 — claude-code — lab notebooks; Nov 5 completion; exclusions
+- Merged origin/main (last 9 Nov 5 sweeps, 50 -> 2 MPa). Added to config as KCl standard.
+- Steve: omit the Nov 5 outliers -> asked which; Steve chose all five fit-jump sweeps (14:25, 14:26, 14:49-14:51). exclude=x with reason; rows kept.
+- Transcribed Diaz (pp. 11-27) and Garrity (pp. 1-8) notebooks into cortes2026/{diaz,garrity}/LABNOTES.md. Settles: Oct 5-9 identities; Rose's M = mol/L; Rose's Jun 18-24 mixture runs identified by sweep time.
