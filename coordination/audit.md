@@ -489,3 +489,9 @@ or delete existing entries. Format is defined in `AGENTS.md`.
 - Merged origin/main (data/20261105, 42 sweeps, all 'Default').
 - Gamry wrote dates as 11/5/2026; parse_gamry_time accepts both styles (tests/test_gamry_time.py).
 - Steve: first 3 sweeps are the 8 S/m standard. Wrote data/20261105/zAnalysis20261105.csv; headless K = 120.54. sigma rises 8.00 -> 8.62 S/m from 1 to 200 MPa at 298 K and retraces on descent within 0.1% at 126/99/76 MPa. Descent sweeps at 177 (2 of 3) and 152 MPa have ~13% fit uncertainty in R; flagged, not excluded.
+
+## 2026-11-05 — claude-code — Diaz 8 S/m KCl sigma(P) vs Cortes; parser to main
+- Steve: Nov 5 run is Diaz, 8 S/m KCl standard throughout. Config comp set to KCl (config_store.update_config; 42 rows kept).
+- cortes2026/diaz/plot_standard_sigma_P.py: Oct 14-15 + Nov 5 standard sigma(P) beside Cortes 0.5 m NaCl (20, 35 C), absolute and normalized.
+- Unreliable sweeps kept (Steve). Phase-zero |Z| shows the excursions are circuit-fit jumps, not the sample.
+- Parser fix cherry-picked to branch gamry-date-parser off origin/main for a PR to main.
