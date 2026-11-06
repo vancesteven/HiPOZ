@@ -16,8 +16,9 @@ import json
 import shutil
 
 # Set up paths
-sys.path.insert(0, '.')
-os.chdir('/Users/svance/Library/CloudStorage/Dropbox/ElectricalProperties/hipozgenai')
+REPO = Path(__file__).resolve().parent.parent
+sys.path.insert(0, str(REPO))
+os.chdir(REPO)
 
 from analysis_config import AnalysisConfig
 

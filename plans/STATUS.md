@@ -1,6 +1,6 @@
 # Status — hipozgenai
 
-Updated: 2026-10-20
+Updated: 2026-11-05
 
 Refresh the `Updated:` line and the affected sections in any session that
 pushes commits, integrates artifacts, or changes a queue.
@@ -45,6 +45,16 @@ lab data merged in from origin/main. PR #3 (still open) now carries all of it.
 | CSV is the source of truth; JSON only mirrors it (load-time sync, AnalysisConfig, config_store) | claude-code | verified | tests/test_config_store.py::test_csv_is_source_of_truth_at_load; real-data headless 20260923 with a corrupted newer JSON left the CSV byte-identical |
 | Same, GUI save path | claude-code | implemented, unverified | tests/test_config_store.py::test_gui_save_merges_without_erasing calls save_gui_state_to_config directly; not yet exercised in the running GUI (no display/TeX here) |
 | Chiller-bath P/T (config P_MPa = 0) overrides vessel header values | claude-code | verified | tests/test_bath_state.py (4 pass); headless re-fit reports bath setpoint T and P = 0 for all 108 Sep measurements; GUI path unverified on macOS |
+| Mac run: full suite in `impedance` env (Reaktoro, PyQt6, TeX) | claude-code | verified | 2026-11-05: 135 passed, 1 failed (open KCl reference), 2 skipped (Reaktoro present); two tests chdir'd into a stale Dropbox copy, now repo-relative |
+| Speciated mixture + Aug 2025 HP figures regenerated on the Mac | claude-code | verified | regenerate_cortes_figures.sh 2026-11-05 (Reaktoro); cortes2026/prepost_comparison/prepost_summary.txt; NaCl_0.5M_vs_pressure and nacl-mgso4_1-1 inspected |
+| sigma(P,T), 3D, isotherm GUI tabs | claude-code | implemented, unverified | 2026-11-05 GUI launched on Aug 19 Cortes; log shows all three tabs lazy-loaded without error; visual check by Steve not yet recorded |
+| GUI save path preserves config | claude-code | not implemented | 2026-11-05 GUI run turned the Aug 19 standard into a measurement, overwrote P/T with header values, rounded sigma; config restored from pre-GUI backup |
+| GUI config discovery misses folder-suffixed configs (zAnalysis<date>Cortes.csv) | claude-code | not implemented | created a stray zAnalysis20250819.csv (moved to /tmp/gui_check/) |
+| Cortes assessment: P < 10 MPa taken as 0.1 MPa (gauge value kept in P_MPa_raw) | claude-code | verified | cortes_data_processing.assess_low_pressure_as_ambient; tests/test_cortes_loader.py::test_low_pressure_readings_are_assessed_at_ambient; figures regenerated 2026-11-05 |
+| Garrity RoseData (2026-02-19) provisional fit | claude-code | implemented, unverified | cortes2026/garrity/fit_rosedata.py -> rosedata_20260219_fits.csv; compositions/units and cell-constant standard await Rose's lab notebook; not merged into Cortes |
+| Contributor folders cortes2026/diaz, cortes2026/garrity | claude-code | verified | READMEs in each |
+| Exclude noisy ~20 C NaCl 0.5 m days (Aug 19 at 20 C, Aug 14 600 MPa candidates) | claude-code | not implemented | awaiting Steve's choice of days |
+| McCleskey method write-up (README limitation note is stale vs speciation.py 2026-10-05 resolution) | claude-code | not implemented | awaiting go-ahead |
 | Stale pre-fix eis_plots not rebuilt by current script (4 PDFs) | claude-code | not implemented | see open-questions 2026-10-08 |
 
 Status must be one of `verified` / `implemented, unverified` / `not implemented`.

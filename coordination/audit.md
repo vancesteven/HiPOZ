@@ -477,3 +477,10 @@ or delete existing entries. Format is defined in `AGENTS.md`.
 - Real data: a corrupted newer JSON next to data/20260923's CSV; headless
   loaded the CSV, left it byte-identical, and rewrote the JSON as a 49-row
   mirror (3 excluded).
+
+## 2026-11-05 — claude-code — Mac session: suite, figures, GUI check, ambient P, Garrity
+- Full suite in `impedance` env: 135 passed, 1 failed (open KCl question), 2 skipped. Fixed two tests that chdir'd into the Dropbox copy.
+- Regenerated Cortes figures with Reaktoro (twice; second after the ambient-P change).
+- GUI on Aug 19 Cortes: tabs load; save-on-close lost the standard type, overwrote P/T, rounded sigma. Restored the config byte-identical from the pre-GUI backup; moved the stray zAnalysis20250819.csv to /tmp/gui_check/.
+- Steve: assess P < 10 MPa as 0.1 MPa. Implemented in cortes_data_processing.load_cortes_data (raw kept in P_MPa_raw); test added.
+- Created cortes2026/diaz/ and cortes2026/garrity/; provisional RoseData fit (K = 101.42 from 15 mS, 98.40 from 2764 uS). Merge into Cortes waits for Rose's lab notebook.
