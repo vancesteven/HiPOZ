@@ -504,3 +504,4 @@ or delete existing entries. Format is defined in `AGENTS.md`.
 - Merged origin/main (last 9 Nov 5 sweeps, 50 -> 2 MPa). Added to config as KCl standard.
 - Steve: omit the Nov 5 outliers -> asked which; Steve chose all five fit-jump sweeps (14:25, 14:26, 14:49-14:51). exclude=x with reason; rows kept.
 - Transcribed Diaz (pp. 11-27) and Garrity (pp. 1-8) notebooks into cortes2026/{diaz,garrity}/LABNOTES.md. Settles: Oct 5-9 identities; Rose's M = mol/L; Rose's Jun 18-24 mixture runs identified by sweep time.
+- Steve: Oct 14-15 has similar outliers. Only off-trend group is the 124 MPa triplet (13:37-13:39, +6.6%); excluded with reason. Wrote zAnalysis configs for 20261014/20261015 (KCl).

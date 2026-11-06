@@ -59,3 +59,19 @@ decision.
 
 Note also that the Oct 15 return to 2 MPa reads 0.9% below the Oct 14
 start, while Nov 5 retraces within 0.3% at 76–126 MPa.
+
+### Exclusions (Steve, 2026-11-05)
+
+Excluded in the zAnalysis configs (rows kept, `exclude = x`, reason in notes):
+
+| Run | Sweeps | Production σ vs curve |
+|---|---|---|
+| Nov 5 | 14:25, 14:26 (177 MPa); 14:49–14:51 (152 MPa) | +2.3% |
+| Oct 14 | 13:37–13:39 (124 MPa) | +6.6% |
+
+These are the only off-trend points in either run. In both cases the raw
+spectrum stays on the curve (phase-zero |Z|), and a chained-guess refit
+removes the jump. So the "spontaneous" excursions come from the fit, not
+the system. The 12 other Oct 14–15 sweeps with ~5% fit uncertainty sit on
+the curve and are kept. `data/20261014` and `20261015` now have configs
+(KCl; K from the first three Oct 14 sweeps, which also calibrate Oct 15).

@@ -54,6 +54,7 @@ lab data merged in from origin/main. PR #3 (still open) now carries all of it.
 | Garrity RoseData (2026-02-19) provisional fit | claude-code | implemented, unverified | cortes2026/garrity/fit_rosedata.py; notebook (cortes2026/garrity/LABNOTES.md) shows M = mol/L; cell-constant standard and Default triplet still open; not merged into Cortes |
 | Lab notebooks transcribed (Diaz pp. 11-27, Garrity pp. 1-8) | claude-code | verified | cortes2026/diaz/LABNOTES.md, cortes2026/garrity/LABNOTES.md from labnotes/ photos |
 | Nov 5 2026 run complete (51 sweeps); 5 fit-jump sweeps excluded (Steve) | claude-code | verified | data/20261105/zAnalysis20261105.csv (5 exclude=x, 51 rows kept); standard_sigma_P_vs_cortes.png inspected |
+| Oct 14 124 MPa fit-jump triplet excluded (Steve); Oct 14/15 configs written | claude-code | verified | data/20261014/zAnalysis20261014.csv (3 exclude=x, 36 rows), 20261015 (15 rows); standard_sigma_P_vs_cortes.png inspected |
 | Oct 5-9 identities | claude-code | verified | from Diaz notebook: Oct 5 80 mS KCl std 1 atm; Oct 6-9 ~5 wt% NaCl sigma(P) (cortes2026/diaz/LABNOTES.md) |
 | Garrity NaCl:MgSO4 Gamry runs (Jun 18/22/24) identified, not analysed | claude-code | not implemented | sweep times in LABNOTES.md p. 7 |
 | Contributor folders cortes2026/diaz, cortes2026/garrity | claude-code | verified | READMEs in each |
