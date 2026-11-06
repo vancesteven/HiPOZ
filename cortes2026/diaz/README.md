@@ -43,8 +43,19 @@ phase-zero frequency (no circuit model) puts every one of these sweeps on
 the smooth curve within 0.15%, and the raw |Z| and phase at 1 MHz–100 Hz
 change smoothly from the neighbouring good sweeps. So the jumps are the
 CPE fit converging to a different minimum, not a change in the solution
-or the cell. Next: refit with the previous sweep's parameters as the
-initial guess, or with basin hopping, and confirm the excursions vanish.
+or the cell.
+
+**Confirmed by refit (2026-11-05, `refit_chained.py`).** Starting each
+sweep's fit from the previous sweep's fitted parameters removes every
+excursion: all 20 flagged sweeps drop below 5% R uncertainty, and the
+chained σ matches the phase-zero σ within 0.11% (Oct 14–15) and 0.06%
+(Nov 5) for every sweep, against 6.7% and 2.3% for the production fit.
+The residual is the same or lower (median 0.293 vs 0.295 Ω), so the
+production fit had stopped in a worse local minimum. Neither the
+data nor the cell changed. Figure: `refit_chained.pdf`; values:
+`refit_chained.csv`. The production fitter (`Solution.fit_circuit`) still
+starts every sweep from the same fixed guess; changing it is a separate
+decision.
 
 Note also that the Oct 15 return to 2 MPa reads 0.9% below the Oct 14
 start, while Nov 5 retraces within 0.3% at 76–126 MPa.

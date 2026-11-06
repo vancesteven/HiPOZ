@@ -54,12 +54,13 @@ lab data merged in from origin/main. PR #3 (still open) now carries all of it.
 | Garrity RoseData (2026-02-19) provisional fit | claude-code | implemented, unverified | cortes2026/garrity/fit_rosedata.py -> rosedata_20260219_fits.csv; compositions/units and cell-constant standard await Rose's lab notebook; not merged into Cortes |
 | Contributor folders cortes2026/diaz, cortes2026/garrity | claude-code | verified | READMEs in each |
 | Exclude noisy ~20 C NaCl 0.5 m days (Aug 19 at 20 C, Aug 14 600 MPa candidates) | claude-code | not implemented | awaiting Steve's choice of days |
-| McCleskey method write-up (README limitation note is stale vs speciation.py 2026-10-05 resolution) | claude-code | not implemented | awaiting go-ahead |
 | Merge origin/main Nov 5 2026 upload (data/20261105, 42 sweeps) | claude-code | verified | merge commit `98173d9`; `git merge-base --is-ancestor origin/main HEAD` passes |
 | Gamry header dates in US style (11/5/2026) parse | claude-code | verified | gamryTools.parse_gamry_time; tests/test_gamry_time.py (3 pass); headless 20261105 processed 42 of 42 files |
 | Nov 5 2026 8 S/m KCl standard sigma(P) (Diaz) fitted | claude-code | verified | data/20261105/zAnalysis20261105.csv (comp KCl, all rows); K = 120.54; unreliable sweeps kept per Steve |
 | Diaz 8 S/m KCl sigma(P) (Oct 14-15, Nov 5) plotted alongside Cortes NaCl | claude-code | verified | cortes2026/diaz/standard_sigma_P_vs_cortes.png inspected; plot_standard_sigma_P.py |
-| Diagnose unreliable sweeps (fit jumps at Oct 14 124 MPa, Nov 5 152-177 MPa) | claude-code | implemented, unverified | phase-zero |Z| puts all on the curve within 0.15% (cortes2026/diaz/README.md); refit with chained initial guess not yet run |
+| Diagnose unreliable sweeps (fit jumps at Oct 14 124 MPa, Nov 5 152-177 MPa) | claude-code | verified | cortes2026/diaz/refit_chained.py: chained initial guess removes all 20 jumps; sigma within 0.11% of phase-zero |Z|; refit_chained.png inspected |
+| Production fitter: chained or multi-start initial guess | claude-code | not implemented | awaiting Steve's decision; fixed guess lands in a worse local minimum on ~20% of Oct 14-15 sweeps |
+| McCleskey method write-up | claude-code | verified | docs/MCCLESKEY_METHOD.md; quoted lambda0(25 C) and ion-pair shares recomputed from code 2026-11-05; README limitation note replaced |
 | Flexible Gamry date parser on main | claude-code | implemented, unverified | branch gamry-date-parser off origin/main (tests/test_gamry_time.py 3 pass there); PR awaiting merge |
 | Stale pre-fix eis_plots not rebuilt by current script (4 PDFs) | claude-code | not implemented | see open-questions 2026-10-08 |
 

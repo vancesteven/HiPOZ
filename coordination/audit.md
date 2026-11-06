@@ -495,3 +495,7 @@ or delete existing entries. Format is defined in `AGENTS.md`.
 - cortes2026/diaz/plot_standard_sigma_P.py: Oct 14-15 + Nov 5 standard sigma(P) beside Cortes 0.5 m NaCl (20, 35 C), absolute and normalized.
 - Unreliable sweeps kept (Steve). Phase-zero |Z| shows the excursions are circuit-fit jumps, not the sample.
 - Parser fix cherry-picked to branch gamry-date-parser off origin/main for a PR to main.
+
+## 2026-11-05 — claude-code — chained refit; McCleskey method doc
+- cortes2026/diaz/refit_chained.py: chained initial guess removes all 20 fit jumps in Diaz's 8 S/m KCl sigma(P) runs (sigma within 0.11% of the model-free phase-zero |Z|). Production fitter unchanged.
+- docs/MCCLESKEY_METHOD.md written (Steve approved); README's stale ion-pair limitation note replaced with the 2026-10-05 resolution and a link.
