@@ -55,6 +55,9 @@ lab data merged in from origin/main. PR #3 (still open) now carries all of it.
 | Contributor folders cortes2026/diaz, cortes2026/garrity | claude-code | verified | READMEs in each |
 | Exclude noisy ~20 C NaCl 0.5 m days (Aug 19 at 20 C, Aug 14 600 MPa candidates) | claude-code | not implemented | awaiting Steve's choice of days |
 | McCleskey method write-up (README limitation note is stale vs speciation.py 2026-10-05 resolution) | claude-code | not implemented | awaiting go-ahead |
+| Merge origin/main Nov 5 2026 upload (data/20261105, 42 sweeps) | claude-code | verified | merge commit `98173d9`; `git merge-base --is-ancestor origin/main HEAD` passes |
+| Gamry header dates in US style (11/5/2026) parse | claude-code | verified | gamryTools.parse_gamry_time; tests/test_gamry_time.py (3 pass); headless 20261105 processed 42 of 42 files |
+| Nov 5 2026 8 S/m standard sigma(P) fitted | claude-code | verified | data/20261105/hipoz_20261105_161640_results.csv (local, gitignored); K = 120.54 from first 3 sweeps (Steve: 8 S/m standard); 5 descent sweeps at 152-177 MPa have ~13% R uncertainty, not yet excluded |
 | Stale pre-fix eis_plots not rebuilt by current script (4 PDFs) | claude-code | not implemented | see open-questions 2026-10-08 |
 
 Status must be one of `verified` / `implemented, unverified` / `not implemented`.

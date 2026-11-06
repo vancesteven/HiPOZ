@@ -484,3 +484,8 @@ or delete existing entries. Format is defined in `AGENTS.md`.
 - GUI on Aug 19 Cortes: tabs load; save-on-close lost the standard type, overwrote P/T, rounded sigma. Restored the config byte-identical from the pre-GUI backup; moved the stray zAnalysis20250819.csv to /tmp/gui_check/.
 - Steve: assess P < 10 MPa as 0.1 MPa. Implemented in cortes_data_processing.load_cortes_data (raw kept in P_MPa_raw); test added.
 - Created cortes2026/diaz/ and cortes2026/garrity/; provisional RoseData fit (K = 101.42 from 15 mS, 98.40 from 2764 uS). Merge into Cortes waits for Rose's lab notebook.
+
+## 2026-11-05 — claude-code — Nov 5 upload: merge, date-format fix, fit
+- Merged origin/main (data/20261105, 42 sweeps, all 'Default').
+- Gamry wrote dates as 11/5/2026; parse_gamry_time accepts both styles (tests/test_gamry_time.py).
+- Steve: first 3 sweeps are the 8 S/m standard. Wrote data/20261105/zAnalysis20261105.csv; headless K = 120.54. sigma rises 8.00 -> 8.62 S/m from 1 to 200 MPa at 298 K and retraces on descent within 0.1% at 126/99/76 MPa. Descent sweeps at 177 (2 of 3) and 152 MPa have ~13% fit uncertainty in R; flagged, not excluded.

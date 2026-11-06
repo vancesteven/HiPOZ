@@ -27,7 +27,20 @@ log = logging.getLogger('HiPOZ')
 
 # gamryDTstr = r'%m/%d/%Y-%I:%M %p' % for older files that are probably no good
 gamryDTstr = r'%I:%M:%S.%f %p %Y-%m-%d'
+# Some Gamry installs write the date US-style (11/5/2026), e.g. data/20261105
+gamryDTstrs = (gamryDTstr, r'%I:%M:%S.%f %p %m/%d/%Y')
 PanDTstr = r'%m/%d/%Y %I:%M:%S %p'
+
+
+def parse_gamry_time(line):
+    """Measurement time from a Gamry header line, in any of gamryDTstrs."""
+    text = line.strip()
+    for fmt in gamryDTstrs:
+        try:
+            return dtime.strptime(text, fmt)
+        except ValueError:
+            pass
+    raise ValueError(f"time data {text!r} matches none of {gamryDTstrs}")
 PSItoMPa = 6.89476e-3
 soluteOptions = ['DIwater', 'KCl', 'NaCl', 'MgSO4']  # Solutes available in PlanetProfile's Constants
 wKCl_ppt = {23:    0.0116,
@@ -229,7 +242,7 @@ class Solution:
                 self.nfSteps = np.size(self.f_Hz)  # Number of f steps
             else:
                 f.readline()  # Skip intro line
-                self.time = dtime.strptime(f.readline()[:-1], gamryDTstr)  # Measurement time
+                self.time = parse_gamry_time(f.readline())  # Measurement time
                 self.T_K = read_float(f.readline())  # Temp
                 self.P_MPa = read_float(f.readline())  # Pressure
                 self.descrip = f.readline()  # Text description
