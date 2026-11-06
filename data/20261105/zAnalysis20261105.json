@@ -1,0 +1,941 @@
+{
+  "calibration_groups": [
+    {
+      "name": "Group 1",
+      "standards": [],
+      "measurements": [
+        {
+          "filename": "Default_20261105_113548_P_1_T_298.txt",
+          "P_MPa": 1,
+          "T_K": 298,
+          "notes": "Add comp (e.g., NaCl) and w_ppt (e.g., 1000)"
+        },
+        {
+          "filename": "Default_20261105_113642_P_1_T_298.txt",
+          "P_MPa": 1,
+          "T_K": 298,
+          "notes": "Add comp (e.g., NaCl) and w_ppt (e.g., 1000)"
+        },
+        {
+          "filename": "Default_20261105_113735_P_1_T_298.txt",
+          "P_MPa": 1,
+          "T_K": 298,
+          "notes": "Add comp (e.g., NaCl) and w_ppt (e.g., 1000)"
+        },
+        {
+          "filename": "Default_20261105_120001_P_25_T_298.txt",
+          "P_MPa": 25,
+          "T_K": 298,
+          "notes": "Add comp (e.g., NaCl) and w_ppt (e.g., 1000)"
+        },
+        {
+          "filename": "Default_20261105_120055_P_25_T_298.txt",
+          "P_MPa": 25,
+          "T_K": 298,
+          "notes": "Add comp (e.g., NaCl) and w_ppt (e.g., 1000)"
+        },
+        {
+          "filename": "Default_20261105_120148_P_25_T_298.txt",
+          "P_MPa": 25,
+          "T_K": 298,
+          "notes": "Add comp (e.g., NaCl) and w_ppt (e.g., 1000)"
+        },
+        {
+          "filename": "Default_20261105_122339_P_50_T_298.txt",
+          "P_MPa": 50,
+          "T_K": 298,
+          "notes": "Add comp (e.g., NaCl) and w_ppt (e.g., 1000)"
+        },
+        {
+          "filename": "Default_20261105_122433_P_50_T_298.txt",
+          "P_MPa": 50,
+          "T_K": 298,
+          "notes": "Add comp (e.g., NaCl) and w_ppt (e.g., 1000)"
+        },
+        {
+          "filename": "Default_20261105_122526_P_50_T_298.txt",
+          "P_MPa": 50,
+          "T_K": 298,
+          "notes": "Add comp (e.g., NaCl) and w_ppt (e.g., 1000)"
+        },
+        {
+          "filename": "Default_20261105_124752_P_73_T_298.txt",
+          "P_MPa": 73,
+          "T_K": 298,
+          "notes": "Add comp (e.g., NaCl) and w_ppt (e.g., 1000)"
+        },
+        {
+          "filename": "Default_20261105_124846_P_73_T_298.txt",
+          "P_MPa": 73,
+          "T_K": 298,
+          "notes": "Add comp (e.g., NaCl) and w_ppt (e.g., 1000)"
+        },
+        {
+          "filename": "Default_20261105_124939_P_73_T_298.txt",
+          "P_MPa": 73,
+          "T_K": 298,
+          "notes": "Add comp (e.g., NaCl) and w_ppt (e.g., 1000)"
+        },
+        {
+          "filename": "Default_20261105_131426_P_101_T_298.txt",
+          "P_MPa": 101,
+          "T_K": 298,
+          "notes": "Add comp (e.g., NaCl) and w_ppt (e.g., 1000)"
+        },
+        {
+          "filename": "Default_20261105_131520_P_101_T_298.txt",
+          "P_MPa": 101,
+          "T_K": 298,
+          "notes": "Add comp (e.g., NaCl) and w_ppt (e.g., 1000)"
+        },
+        {
+          "filename": "Default_20261105_131613_P_101_T_298.txt",
+          "P_MPa": 101,
+          "T_K": 298,
+          "notes": "Add comp (e.g., NaCl) and w_ppt (e.g., 1000)"
+        },
+        {
+          "filename": "Default_20261105_132924_P_126_T_298.txt",
+          "P_MPa": 126,
+          "T_K": 298,
+          "notes": "Add comp (e.g., NaCl) and w_ppt (e.g., 1000)"
+        },
+        {
+          "filename": "Default_20261105_133018_P_126_T_298.txt",
+          "P_MPa": 126,
+          "T_K": 298,
+          "notes": "Add comp (e.g., NaCl) and w_ppt (e.g., 1000)"
+        },
+        {
+          "filename": "Default_20261105_133112_P_126_T_298.txt",
+          "P_MPa": 126,
+          "T_K": 298,
+          "notes": "Add comp (e.g., NaCl) and w_ppt (e.g., 1000)"
+        },
+        {
+          "filename": "Default_20261105_134317_P_150_T_298.txt",
+          "P_MPa": 150,
+          "T_K": 298,
+          "notes": "Add comp (e.g., NaCl) and w_ppt (e.g., 1000)"
+        },
+        {
+          "filename": "Default_20261105_134412_P_150_T_298.txt",
+          "P_MPa": 150,
+          "T_K": 298,
+          "notes": "Add comp (e.g., NaCl) and w_ppt (e.g., 1000)"
+        },
+        {
+          "filename": "Default_20261105_134505_P_150_T_298.txt",
+          "P_MPa": 150,
+          "T_K": 298,
+          "notes": "Add comp (e.g., NaCl) and w_ppt (e.g., 1000)"
+        },
+        {
+          "filename": "Default_20261105_135710_P_176_T_298.txt",
+          "P_MPa": 176,
+          "T_K": 298,
+          "notes": "Add comp (e.g., NaCl) and w_ppt (e.g., 1000)"
+        },
+        {
+          "filename": "Default_20261105_135804_P_175_T_298.txt",
+          "P_MPa": 175,
+          "T_K": 298,
+          "notes": "Add comp (e.g., NaCl) and w_ppt (e.g., 1000)"
+        },
+        {
+          "filename": "Default_20261105_135858_P_175_T_298.txt",
+          "P_MPa": 175,
+          "T_K": 298,
+          "notes": "Add comp (e.g., NaCl) and w_ppt (e.g., 1000)"
+        },
+        {
+          "filename": "Default_20261105_141100_P_200_T_298.txt",
+          "P_MPa": 200,
+          "T_K": 298,
+          "notes": "Add comp (e.g., NaCl) and w_ppt (e.g., 1000)"
+        },
+        {
+          "filename": "Default_20261105_141154_P_200_T_298.txt",
+          "P_MPa": 200,
+          "T_K": 298,
+          "notes": "Add comp (e.g., NaCl) and w_ppt (e.g., 1000)"
+        },
+        {
+          "filename": "Default_20261105_141248_P_200_T_298.txt",
+          "P_MPa": 200,
+          "T_K": 298,
+          "notes": "Add comp (e.g., NaCl) and w_ppt (e.g., 1000)"
+        },
+        {
+          "filename": "Default_20261105_142414_P_177_T_298.txt",
+          "P_MPa": 177,
+          "T_K": 298,
+          "notes": "Add comp (e.g., NaCl) and w_ppt (e.g., 1000)"
+        },
+        {
+          "filename": "Default_20261105_142508_P_177_T_298.txt",
+          "P_MPa": 177,
+          "T_K": 298,
+          "notes": "Add comp (e.g., NaCl) and w_ppt (e.g., 1000)"
+        },
+        {
+          "filename": "Default_20261105_142602_P_177_T_298.txt",
+          "P_MPa": 177,
+          "T_K": 298,
+          "notes": "Add comp (e.g., NaCl) and w_ppt (e.g., 1000)"
+        },
+        {
+          "filename": "Default_20261105_144918_P_153_T_298.txt",
+          "P_MPa": 153,
+          "T_K": 298,
+          "notes": "Add comp (e.g., NaCl) and w_ppt (e.g., 1000)"
+        },
+        {
+          "filename": "Default_20261105_145012_P_153_T_298.txt",
+          "P_MPa": 153,
+          "T_K": 298,
+          "notes": "Add comp (e.g., NaCl) and w_ppt (e.g., 1000)"
+        },
+        {
+          "filename": "Default_20261105_145105_P_152_T_298.txt",
+          "P_MPa": 152,
+          "T_K": 298,
+          "notes": "Add comp (e.g., NaCl) and w_ppt (e.g., 1000)"
+        },
+        {
+          "filename": "Default_20261105_150351_P_126_T_298.txt",
+          "P_MPa": 126,
+          "T_K": 298,
+          "notes": "Add comp (e.g., NaCl) and w_ppt (e.g., 1000)"
+        },
+        {
+          "filename": "Default_20261105_150445_P_126_T_298.txt",
+          "P_MPa": 126,
+          "T_K": 298,
+          "notes": "Add comp (e.g., NaCl) and w_ppt (e.g., 1000)"
+        },
+        {
+          "filename": "Default_20261105_150539_P_126_T_298.txt",
+          "P_MPa": 126,
+          "T_K": 298,
+          "notes": "Add comp (e.g., NaCl) and w_ppt (e.g., 1000)"
+        },
+        {
+          "filename": "Default_20261105_151726_P_99_T_298.txt",
+          "P_MPa": 99,
+          "T_K": 298,
+          "notes": "Add comp (e.g., NaCl) and w_ppt (e.g., 1000)"
+        },
+        {
+          "filename": "Default_20261105_151820_P_99_T_298.txt",
+          "P_MPa": 99,
+          "T_K": 298,
+          "notes": "Add comp (e.g., NaCl) and w_ppt (e.g., 1000)"
+        },
+        {
+          "filename": "Default_20261105_151913_P_100_T_298.txt",
+          "P_MPa": 100,
+          "T_K": 298,
+          "notes": "Add comp (e.g., NaCl) and w_ppt (e.g., 1000)"
+        },
+        {
+          "filename": "Default_20261105_153949_P_76_T_298.txt",
+          "P_MPa": 76,
+          "T_K": 298,
+          "notes": "Add comp (e.g., NaCl) and w_ppt (e.g., 1000)"
+        },
+        {
+          "filename": "Default_20261105_154043_P_76_T_298.txt",
+          "P_MPa": 76,
+          "T_K": 298,
+          "notes": "Add comp (e.g., NaCl) and w_ppt (e.g., 1000)"
+        },
+        {
+          "filename": "Default_20261105_154137_P_77_T_298.txt",
+          "P_MPa": 77,
+          "T_K": 298,
+          "notes": "Add comp (e.g., NaCl) and w_ppt (e.g., 1000)"
+        },
+        {
+          "filename": "Default_20261105_155343_P_50_T_298.txt",
+          "P_MPa": 50,
+          "T_K": 298,
+          "notes": "Add comp (e.g., NaCl) and w_ppt (e.g., 1000)"
+        },
+        {
+          "filename": "Default_20261105_155437_P_50_T_298.txt",
+          "P_MPa": 50,
+          "T_K": 298,
+          "notes": "Add comp (e.g., NaCl) and w_ppt (e.g., 1000)"
+        },
+        {
+          "filename": "Default_20261105_155531_P_50_T_298.txt",
+          "P_MPa": 50,
+          "T_K": 298,
+          "notes": "Add comp (e.g., NaCl) and w_ppt (e.g., 1000)"
+        },
+        {
+          "filename": "Default_20261105_161112_P_23_T_298.txt",
+          "P_MPa": 23,
+          "T_K": 298,
+          "notes": "Add comp (e.g., NaCl) and w_ppt (e.g., 1000)"
+        },
+        {
+          "filename": "Default_20261105_161208_P_23_T_298.txt",
+          "P_MPa": 23,
+          "T_K": 298,
+          "notes": "Add comp (e.g., NaCl) and w_ppt (e.g., 1000)"
+        },
+        {
+          "filename": "Default_20261105_161301_P_23_T_298.txt",
+          "P_MPa": 23,
+          "T_K": 298,
+          "notes": "Add comp (e.g., NaCl) and w_ppt (e.g., 1000)"
+        },
+        {
+          "filename": "Default_20261105_162831_P_3_T_298.txt",
+          "P_MPa": 3,
+          "T_K": 298,
+          "notes": "Add comp (e.g., NaCl) and w_ppt (e.g., 1000)"
+        },
+        {
+          "filename": "Default_20261105_162924_P_2_T_298.txt",
+          "P_MPa": 2,
+          "T_K": 298,
+          "notes": "Add comp (e.g., NaCl) and w_ppt (e.g., 1000)"
+        },
+        {
+          "filename": "Default_20261105_163018_P_2_T_298.txt",
+          "P_MPa": 2,
+          "T_K": 298,
+          "notes": "Add comp (e.g., NaCl) and w_ppt (e.g., 1000)"
+        }
+      ]
+    }
+  ],
+  "calibrations": [
+    {
+      "name": "Default group",
+      "standards": [
+        {
+          "filename": "Default_20261105_113548_P_1_T_298.txt",
+          "P_MPa": 0.0,
+          "T_K": 298.0,
+          "Z_Ohm": 15.07,
+          "Z_unc_Ohm": 0.7463,
+          "conductivity_Sm": 8.0
+        }
+      ],
+      "measurements": [
+        {
+          "filename": "Default_20261105_113642_P_1_T_298.txt",
+          "comp": "KCl",
+          "w_ppt": 52.168,
+          "w_molal": 0.738286917,
+          "P_MPa": 0.0,
+          "T_K": 298.0,
+          "Z_Ohm": 15.07,
+          "Z_unc_Ohm": 0.7466,
+          "S_unc_pct": 0.5605,
+          "conductivity_Sm": 8.0
+        },
+        {
+          "filename": "Default_20261105_113735_P_1_T_298.txt",
+          "comp": "KCl",
+          "w_ppt": 52.168,
+          "w_molal": 0.738286917,
+          "P_MPa": 0.0,
+          "T_K": 298.01,
+          "Z_Ohm": 15.07,
+          "Z_unc_Ohm": 0.7474,
+          "S_unc_pct": 0.5611,
+          "conductivity_Sm": 8.0
+        },
+        {
+          "filename": "Default_20261105_120001_P_25_T_298.txt",
+          "comp": "KCl",
+          "w_ppt": 52.168,
+          "w_molal": 0.738286917,
+          "P_MPa": 24.0,
+          "T_K": 298.04,
+          "Z_Ohm": 14.81,
+          "Z_unc_Ohm": 0.7595,
+          "S_unc_pct": 0.5904,
+          "conductivity_Sm": 8.14
+        },
+        {
+          "filename": "Default_20261105_120055_P_25_T_298.txt",
+          "comp": "KCl",
+          "w_ppt": 52.168,
+          "w_molal": 0.738286917,
+          "P_MPa": 25.0,
+          "T_K": 298.04,
+          "Z_Ohm": 14.81,
+          "Z_unc_Ohm": 0.7617,
+          "S_unc_pct": 0.5921,
+          "conductivity_Sm": 8.14
+        },
+        {
+          "filename": "Default_20261105_120148_P_25_T_298.txt",
+          "comp": "KCl",
+          "w_ppt": 52.168,
+          "w_molal": 0.738286917,
+          "P_MPa": 25.0,
+          "T_K": 298.04,
+          "Z_Ohm": 14.81,
+          "Z_unc_Ohm": 0.7618,
+          "S_unc_pct": 0.5922,
+          "conductivity_Sm": 8.14
+        },
+        {
+          "filename": "Default_20261105_122339_P_50_T_298.txt",
+          "comp": "KCl",
+          "w_ppt": 52.168,
+          "w_molal": 0.738286917,
+          "P_MPa": 49.0,
+          "T_K": 298.04,
+          "Z_Ohm": 14.6,
+          "Z_unc_Ohm": 0.7738,
+          "S_unc_pct": 0.6189,
+          "conductivity_Sm": 8.258
+        },
+        {
+          "filename": "Default_20261105_122433_P_50_T_298.txt",
+          "comp": "KCl",
+          "w_ppt": 52.168,
+          "w_molal": 0.738286917,
+          "P_MPa": 49.0,
+          "T_K": 298.04,
+          "Z_Ohm": 14.6,
+          "Z_unc_Ohm": 0.7727,
+          "S_unc_pct": 0.618,
+          "conductivity_Sm": 8.258
+        },
+        {
+          "filename": "Default_20261105_122526_P_50_T_298.txt",
+          "comp": "KCl",
+          "w_ppt": 52.168,
+          "w_molal": 0.738286917,
+          "P_MPa": 49.0,
+          "T_K": 298.04,
+          "Z_Ohm": 14.6,
+          "Z_unc_Ohm": 0.7726,
+          "S_unc_pct": 0.618,
+          "conductivity_Sm": 8.258
+        },
+        {
+          "filename": "Default_20261105_124752_P_73_T_298.txt",
+          "comp": "KCl",
+          "w_ppt": 52.168,
+          "w_molal": 0.738286917,
+          "P_MPa": 73.0,
+          "T_K": 298.03,
+          "Z_Ohm": 14.44,
+          "Z_unc_Ohm": 0.7813,
+          "S_unc_pct": 0.6389,
+          "conductivity_Sm": 8.349
+        },
+        {
+          "filename": "Default_20261105_124846_P_73_T_298.txt",
+          "comp": "KCl",
+          "w_ppt": 52.168,
+          "w_molal": 0.738286917,
+          "P_MPa": 73.0,
+          "T_K": 298.03,
+          "Z_Ohm": 14.45,
+          "Z_unc_Ohm": 0.7839,
+          "S_unc_pct": 0.6401,
+          "conductivity_Sm": 8.343
+        },
+        {
+          "filename": "Default_20261105_124939_P_73_T_298.txt",
+          "comp": "KCl",
+          "w_ppt": 52.168,
+          "w_molal": 0.738286917,
+          "P_MPa": 73.0,
+          "T_K": 298.03,
+          "Z_Ohm": 14.45,
+          "Z_unc_Ohm": 0.7809,
+          "S_unc_pct": 0.6376,
+          "conductivity_Sm": 8.343
+        },
+        {
+          "filename": "Default_20261105_131426_P_101_T_298.txt",
+          "comp": "KCl",
+          "w_ppt": 52.168,
+          "w_molal": 0.738286917,
+          "P_MPa": 101.0,
+          "T_K": 298.03,
+          "Z_Ohm": 14.29,
+          "Z_unc_Ohm": 0.7923,
+          "S_unc_pct": 0.6615,
+          "conductivity_Sm": 8.437
+        },
+        {
+          "filename": "Default_20261105_131520_P_101_T_298.txt",
+          "comp": "KCl",
+          "w_ppt": 52.168,
+          "w_molal": 0.738286917,
+          "P_MPa": 101.0,
+          "T_K": 298.03,
+          "Z_Ohm": 14.29,
+          "Z_unc_Ohm": 0.7921,
+          "S_unc_pct": 0.6614,
+          "conductivity_Sm": 8.437
+        },
+        {
+          "filename": "Default_20261105_131613_P_101_T_298.txt",
+          "comp": "KCl",
+          "w_ppt": 52.168,
+          "w_molal": 0.738286917,
+          "P_MPa": 101.0,
+          "T_K": 298.03,
+          "Z_Ohm": 14.29,
+          "Z_unc_Ohm": 0.7907,
+          "S_unc_pct": 0.6602,
+          "conductivity_Sm": 8.437
+        },
+        {
+          "filename": "Default_20261105_132924_P_126_T_298.txt",
+          "comp": "KCl",
+          "w_ppt": 52.168,
+          "w_molal": 0.738286917,
+          "P_MPa": 126.0,
+          "T_K": 298.01,
+          "Z_Ohm": 14.17,
+          "Z_unc_Ohm": 0.8013,
+          "S_unc_pct": 0.6804,
+          "conductivity_Sm": 8.508
+        },
+        {
+          "filename": "Default_20261105_133018_P_126_T_298.txt",
+          "comp": "KCl",
+          "w_ppt": 52.168,
+          "w_molal": 0.738286917,
+          "P_MPa": 125.0,
+          "T_K": 298.01,
+          "Z_Ohm": 14.17,
+          "Z_unc_Ohm": 0.7998,
+          "S_unc_pct": 0.6791,
+          "conductivity_Sm": 8.508
+        },
+        {
+          "filename": "Default_20261105_133112_P_126_T_298.txt",
+          "comp": "KCl",
+          "w_ppt": 52.168,
+          "w_molal": 0.738286917,
+          "P_MPa": 125.0,
+          "T_K": 298.01,
+          "Z_Ohm": 14.17,
+          "Z_unc_Ohm": 0.8,
+          "S_unc_pct": 0.6793,
+          "conductivity_Sm": 8.508
+        },
+        {
+          "filename": "Default_20261105_134317_P_150_T_298.txt",
+          "comp": "KCl",
+          "w_ppt": 52.168,
+          "w_molal": 0.738286917,
+          "P_MPa": 150.0,
+          "T_K": 298.02,
+          "Z_Ohm": 14.08,
+          "Z_unc_Ohm": 0.8079,
+          "S_unc_pct": 0.6948,
+          "conductivity_Sm": 8.562
+        },
+        {
+          "filename": "Default_20261105_134412_P_150_T_298.txt",
+          "comp": "KCl",
+          "w_ppt": 52.168,
+          "w_molal": 0.738286917,
+          "P_MPa": 150.0,
+          "T_K": 298.03,
+          "Z_Ohm": 14.08,
+          "Z_unc_Ohm": 0.8067,
+          "S_unc_pct": 0.6938,
+          "conductivity_Sm": 8.562
+        },
+        {
+          "filename": "Default_20261105_134505_P_150_T_298.txt",
+          "comp": "KCl",
+          "w_ppt": 52.168,
+          "w_molal": 0.738286917,
+          "P_MPa": 149.0,
+          "T_K": 298.03,
+          "Z_Ohm": 14.09,
+          "Z_unc_Ohm": 0.8046,
+          "S_unc_pct": 0.691,
+          "conductivity_Sm": 8.556
+        },
+        {
+          "filename": "Default_20261105_135710_P_176_T_298.txt",
+          "comp": "KCl",
+          "w_ppt": 52.168,
+          "w_molal": 0.738286917,
+          "P_MPa": 175.0,
+          "T_K": 298.01,
+          "Z_Ohm": 14.02,
+          "Z_unc_Ohm": 0.8099,
+          "S_unc_pct": 0.7025,
+          "conductivity_Sm": 8.599
+        },
+        {
+          "filename": "Default_20261105_135804_P_175_T_298.txt",
+          "comp": "KCl",
+          "w_ppt": 52.168,
+          "w_molal": 0.738286917,
+          "P_MPa": 175.0,
+          "T_K": 298.01,
+          "Z_Ohm": 14.02,
+          "Z_unc_Ohm": 0.8117,
+          "S_unc_pct": 0.7041,
+          "conductivity_Sm": 8.599
+        },
+        {
+          "filename": "Default_20261105_135858_P_175_T_298.txt",
+          "comp": "KCl",
+          "w_ppt": 52.168,
+          "w_molal": 0.738286917,
+          "P_MPa": 175.0,
+          "T_K": 298.02,
+          "Z_Ohm": 14.02,
+          "Z_unc_Ohm": 0.8123,
+          "S_unc_pct": 0.7046,
+          "conductivity_Sm": 8.599
+        },
+        {
+          "filename": "Default_20261105_141100_P_200_T_298.txt",
+          "comp": "KCl",
+          "w_ppt": 52.168,
+          "w_molal": 0.738286917,
+          "P_MPa": 200.0,
+          "T_K": 298.01,
+          "Z_Ohm": 13.98,
+          "Z_unc_Ohm": 0.5972,
+          "S_unc_pct": 0.521,
+          "conductivity_Sm": 8.624
+        },
+        {
+          "filename": "Default_20261105_141154_P_200_T_298.txt",
+          "comp": "KCl",
+          "w_ppt": 52.168,
+          "w_molal": 0.738286917,
+          "P_MPa": 199.0,
+          "T_K": 298.01,
+          "Z_Ohm": 13.98,
+          "Z_unc_Ohm": 0.5958,
+          "S_unc_pct": 0.5198,
+          "conductivity_Sm": 8.624
+        },
+        {
+          "filename": "Default_20261105_141248_P_200_T_298.txt",
+          "comp": "KCl",
+          "w_ppt": 52.168,
+          "w_molal": 0.738286917,
+          "P_MPa": 199.0,
+          "T_K": 298.01,
+          "Z_Ohm": 13.98,
+          "Z_unc_Ohm": 0.5909,
+          "S_unc_pct": 0.5155,
+          "conductivity_Sm": 8.624
+        },
+        {
+          "filename": "Default_20261105_142414_P_177_T_298.txt",
+          "comp": "KCl",
+          "w_ppt": 52.168,
+          "w_molal": 0.738286917,
+          "P_MPa": 176.0,
+          "T_K": 298.0,
+          "Z_Ohm": 14.05,
+          "Z_unc_Ohm": 0.5888,
+          "S_unc_pct": 0.5085,
+          "conductivity_Sm": 8.581
+        },
+        {
+          "filename": "Default_20261105_142508_P_177_T_298.txt",
+          "comp": "KCl",
+          "w_ppt": 52.168,
+          "w_molal": 0.738286917,
+          "P_MPa": 176.0,
+          "T_K": 298.0,
+          "Z_Ohm": 13.74,
+          "Z_unc_Ohm": 12.77,
+          "S_unc_pct": 11.53,
+          "conductivity_Sm": 8.774
+        },
+        {
+          "filename": "Default_20261105_142602_P_177_T_298.txt",
+          "comp": "KCl",
+          "w_ppt": 52.168,
+          "w_molal": 0.738286917,
+          "P_MPa": 177.0,
+          "T_K": 298.0,
+          "Z_Ohm": 13.73,
+          "Z_unc_Ohm": 12.88,
+          "S_unc_pct": 11.65,
+          "conductivity_Sm": 8.781
+        },
+        {
+          "filename": "Default_20261105_144918_P_153_T_298.txt",
+          "comp": "KCl",
+          "w_ppt": 52.168,
+          "w_molal": 0.738286917,
+          "P_MPa": 152.0,
+          "T_K": 298.0,
+          "Z_Ohm": 13.76,
+          "Z_unc_Ohm": 13.57,
+          "S_unc_pct": 12.22,
+          "conductivity_Sm": 8.762
+        },
+        {
+          "filename": "Default_20261105_145012_P_153_T_298.txt",
+          "comp": "KCl",
+          "w_ppt": 52.168,
+          "w_molal": 0.738286917,
+          "P_MPa": 152.0,
+          "T_K": 298.0,
+          "Z_Ohm": 13.76,
+          "Z_unc_Ohm": 13.46,
+          "S_unc_pct": 12.12,
+          "conductivity_Sm": 8.762
+        },
+        {
+          "filename": "Default_20261105_145105_P_152_T_298.txt",
+          "comp": "KCl",
+          "w_ppt": 52.168,
+          "w_molal": 0.738286917,
+          "P_MPa": 152.0,
+          "T_K": 298.0,
+          "Z_Ohm": 13.76,
+          "Z_unc_Ohm": 13.6,
+          "S_unc_pct": 12.25,
+          "conductivity_Sm": 8.762
+        },
+        {
+          "filename": "Default_20261105_150351_P_126_T_298.txt",
+          "comp": "KCl",
+          "w_ppt": 52.168,
+          "w_molal": 0.738286917,
+          "P_MPa": 126.0,
+          "T_K": 298.0,
+          "Z_Ohm": 14.18,
+          "Z_unc_Ohm": 0.7999,
+          "S_unc_pct": 0.6783,
+          "conductivity_Sm": 8.502
+        },
+        {
+          "filename": "Default_20261105_150445_P_126_T_298.txt",
+          "comp": "KCl",
+          "w_ppt": 52.168,
+          "w_molal": 0.738286917,
+          "P_MPa": 126.0,
+          "T_K": 298.0,
+          "Z_Ohm": 14.18,
+          "Z_unc_Ohm": 0.7977,
+          "S_unc_pct": 0.6764,
+          "conductivity_Sm": 8.502
+        },
+        {
+          "filename": "Default_20261105_150539_P_126_T_298.txt",
+          "comp": "KCl",
+          "w_ppt": 52.168,
+          "w_molal": 0.738286917,
+          "P_MPa": 126.0,
+          "T_K": 298.0,
+          "Z_Ohm": 14.18,
+          "Z_unc_Ohm": 0.797,
+          "S_unc_pct": 0.6758,
+          "conductivity_Sm": 8.502
+        },
+        {
+          "filename": "Default_20261105_151726_P_99_T_298.txt",
+          "comp": "KCl",
+          "w_ppt": 52.168,
+          "w_molal": 0.738286917,
+          "P_MPa": 98.0,
+          "T_K": 298.0,
+          "Z_Ohm": 14.3,
+          "Z_unc_Ohm": 0.7922,
+          "S_unc_pct": 0.6605,
+          "conductivity_Sm": 8.431
+        },
+        {
+          "filename": "Default_20261105_151820_P_99_T_298.txt",
+          "comp": "KCl",
+          "w_ppt": 52.168,
+          "w_molal": 0.738286917,
+          "P_MPa": 98.0,
+          "T_K": 297.99,
+          "Z_Ohm": 14.3,
+          "Z_unc_Ohm": 0.7899,
+          "S_unc_pct": 0.6586,
+          "conductivity_Sm": 8.431
+        },
+        {
+          "filename": "Default_20261105_151913_P_100_T_298.txt",
+          "comp": "KCl",
+          "w_ppt": 52.168,
+          "w_molal": 0.738286917,
+          "P_MPa": 99.0,
+          "T_K": 297.99,
+          "Z_Ohm": 14.29,
+          "Z_unc_Ohm": 0.7903,
+          "S_unc_pct": 0.6599,
+          "conductivity_Sm": 8.437
+        },
+        {
+          "filename": "Default_20261105_153949_P_76_T_298.txt",
+          "comp": "KCl",
+          "w_ppt": 52.168,
+          "w_molal": 0.738286917,
+          "P_MPa": 76.0,
+          "T_K": 298.0,
+          "Z_Ohm": 14.4,
+          "Z_unc_Ohm": 0.7868,
+          "S_unc_pct": 0.6469,
+          "conductivity_Sm": 8.372
+        },
+        {
+          "filename": "Default_20261105_154043_P_76_T_298.txt",
+          "comp": "KCl",
+          "w_ppt": 52.168,
+          "w_molal": 0.738286917,
+          "P_MPa": 75.0,
+          "T_K": 297.99,
+          "Z_Ohm": 14.4,
+          "Z_unc_Ohm": 0.7831,
+          "S_unc_pct": 0.6439,
+          "conductivity_Sm": 8.372
+        },
+        {
+          "filename": "Default_20261105_154137_P_77_T_298.txt",
+          "comp": "KCl",
+          "w_ppt": 52.168,
+          "w_molal": 0.738286917,
+          "P_MPa": 76.0,
+          "T_K": 298.0,
+          "Z_Ohm": 14.4,
+          "Z_unc_Ohm": 0.7846,
+          "S_unc_pct": 0.6451,
+          "conductivity_Sm": 8.372
+        },
+        {
+          "filename": "Default_20261105_155343_P_50_T_298.txt",
+          "comp": "KCl",
+          "w_ppt": 52.168,
+          "w_molal": 0.738286917,
+          "P_MPa": 49.0,
+          "T_K": 297.99,
+          "Z_Ohm": 14.6,
+          "Z_unc_Ohm": 0.7731,
+          "S_unc_pct": 0.6184,
+          "conductivity_Sm": 8.258
+        },
+        {
+          "filename": "Default_20261105_155437_P_50_T_298.txt",
+          "comp": "KCl",
+          "w_ppt": 52.168,
+          "w_molal": 0.738286917,
+          "P_MPa": 49.0,
+          "T_K": 297.99,
+          "Z_Ohm": 14.59,
+          "Z_unc_Ohm": 0.7729,
+          "S_unc_pct": 0.6191,
+          "conductivity_Sm": 8.263
+        },
+        {
+          "filename": "Default_20261105_155531_P_50_T_298.txt",
+          "comp": "KCl",
+          "w_ppt": 52.168,
+          "w_molal": 0.738286917,
+          "P_MPa": 49.0,
+          "T_K": 297.99,
+          "Z_Ohm": 14.59,
+          "Z_unc_Ohm": 0.7719,
+          "S_unc_pct": 0.6183,
+          "conductivity_Sm": 8.263
+        },
+        {
+          "filename": "Default_20261105_161112_P_23_T_298.txt",
+          "comp": "KCl",
+          "w_ppt": 52.168,
+          "w_molal": 0.738286917,
+          "P_MPa": 23.0,
+          "T_K": 297.99,
+          "Z_Ohm": 14.81,
+          "Z_unc_Ohm": 0.7599,
+          "S_unc_pct": 0.5907,
+          "conductivity_Sm": 8.14
+        },
+        {
+          "filename": "Default_20261105_161208_P_23_T_298.txt",
+          "comp": "KCl",
+          "w_ppt": 52.168,
+          "w_molal": 0.738286917,
+          "P_MPa": 23.0,
+          "T_K": 297.99,
+          "Z_Ohm": 14.81,
+          "Z_unc_Ohm": 0.759,
+          "S_unc_pct": 0.59,
+          "conductivity_Sm": 8.14
+        },
+        {
+          "filename": "Default_20261105_161301_P_23_T_298.txt",
+          "comp": "KCl",
+          "w_ppt": 52.168,
+          "w_molal": 0.738286917,
+          "P_MPa": 22.0,
+          "T_K": 297.99,
+          "Z_Ohm": 14.81,
+          "Z_unc_Ohm": 0.7597,
+          "S_unc_pct": 0.5905,
+          "conductivity_Sm": 8.14
+        },
+        {
+          "filename": "Default_20261105_162831_P_3_T_298.txt",
+          "comp": "KCl",
+          "w_ppt": 52.168,
+          "w_molal": 0.738286917,
+          "P_MPa": 2.0,
+          "T_K": 297.99,
+          "Z_Ohm": 15.02,
+          "Z_unc_Ohm": 0.7466,
+          "S_unc_pct": 0.5642,
+          "conductivity_Sm": 8.027
+        },
+        {
+          "filename": "Default_20261105_162924_P_2_T_298.txt",
+          "comp": "KCl",
+          "w_ppt": 52.168,
+          "w_molal": 0.738286917,
+          "P_MPa": 1.0,
+          "T_K": 297.99,
+          "Z_Ohm": 15.02,
+          "Z_unc_Ohm": 0.7472,
+          "S_unc_pct": 0.5647,
+          "conductivity_Sm": 8.027
+        },
+        {
+          "filename": "Default_20261105_163018_P_2_T_298.txt",
+          "comp": "KCl",
+          "w_ppt": 52.168,
+          "w_molal": 0.738286917,
+          "P_MPa": 1.0,
+          "T_K": 297.99,
+          "Z_Ohm": 15.02,
+          "Z_unc_Ohm": 0.7455,
+          "S_unc_pct": 0.5634,
+          "conductivity_Sm": 8.027
+        }
+      ]
+    }
+  ],
+  "notes": [
+    "Updated from GUI at 2026-11-06 14:23:44",
+    "Updated from GUI at 2026-11-06 14:23:58",
+    "Updated from GUI at 2026-11-06 14:24:07",
+    "Updated from GUI at 2026-11-06 14:24:09",
+    "Updated from GUI at 2026-11-06 14:25:08",
+    "Updated from GUI at 2026-11-06 14:25:40"
+  ]
+}
