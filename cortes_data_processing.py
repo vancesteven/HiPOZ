@@ -16,6 +16,13 @@ import os
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from study_plots import compute_mccleskey_model, ION_SPECS
 
+# Readings below this pressure are assessed as ambient (P = 0.1 MPa): the
+# vessel gauge reads a few MPa of offset and drift near zero, which is not a
+# real pressure difference (Steve, 2026-11-05). The gauge value is kept in
+# P_MPa_raw.
+AMBIENT_P_CUTOFF_MPA = 10.0
+AMBIENT_P_MPA = 0.1
+
 
 def load_cortes_data(data_dirs):
     """
@@ -37,17 +44,23 @@ def load_cortes_data(data_dirs):
         dir_name = Path(data_dir).name
         date_only = dir_name[:8] if len(dir_name) >= 8 else dir_name
 
-        csv_file = Path('data') / data_dir / f'zAnalysis{date_only}.csv'
-
-        if not csv_file.exists():
-            print(f"Warning: {csv_file} not found")
+        # Configs are named after the date (zAnalysis20250818.csv) or, for
+        # folders set up with --cal-map, the full folder name
+        # (zAnalysis20250819Cortes.csv)
+        candidates = [Path('data') / data_dir / f'zAnalysis{name}.csv'
+                      for name in (date_only, dir_name)]
+        csv_file = next((c for c in candidates if c.exists()), None)
+        if csv_file is None:
+            print(f"Warning: {candidates[0]} not found")
             continue
 
         df = pd.read_csv(csv_file)
 
-        # Filter to measurements with conductivity
+        # Filter to measurements with conductivity, dropping excluded rows
+        excluded = (df['exclude'].astype(str).str.lower() == 'true'
+                    if 'exclude' in df.columns else False)
         df_meas = df[(df['type'] == 'measurement') &
-                     (df['conductivity_Sm'].notna())].copy()
+                     (df['conductivity_Sm'].notna()) & ~excluded].copy()
 
         if len(df_meas) > 0:
             all_data.append(df_meas)
@@ -57,7 +70,16 @@ def load_cortes_data(data_dirs):
         return None
 
     combined = pd.concat(all_data, ignore_index=True)
-    return combined
+    return assess_low_pressure_as_ambient(combined)
+
+
+def assess_low_pressure_as_ambient(data):
+    """Set P_MPa < AMBIENT_P_CUTOFF_MPA to AMBIENT_P_MPA; keep gauge P in P_MPa_raw."""
+    data = data.copy()
+    P = pd.to_numeric(data['P_MPa'], errors='coerce')
+    data['P_MPa_raw'] = P
+    data['P_MPa'] = P.where(~(P < AMBIENT_P_CUTOFF_MPA), AMBIENT_P_MPA)
+    return data
 
 
 def average_replicates(data, p_tolerance=2.0, t_tolerance=0.5):

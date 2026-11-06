@@ -15,8 +15,9 @@ import shutil
 import tempfile
 
 # Set up paths
-sys.path.insert(0, '.')
-os.chdir('/Users/svance/Library/CloudStorage/Dropbox/ElectricalProperties/hipozgenai')
+REPO = Path(__file__).resolve().parent.parent
+sys.path.insert(0, str(REPO))
+os.chdir(REPO)
 
 from headless_analysis import _update_config_with_conductivities
 from analysis_config import AnalysisConfig

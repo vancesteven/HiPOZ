@@ -302,8 +302,10 @@ come from a WATEQ4F speciation calculation. Neutral complexes such as
 `MgSO4(aq)` are absent from the sum because they carry no current. That omission
 *is* the speciation correction.
 
-By default `compute_mccleskey_model()` uses total (analytical) molality, i.e. it
-assumes full dissociation. Pass `speciation=True` to run the speciation step:
+Called directly, `compute_mccleskey_model()` uses total (analytical) molality,
+i.e. it assumes full dissociation; pass `speciation=True` to run the speciation
+step. The Cortes pipeline instead resolves `speciation='auto'`, which turns it on
+whenever Reaktoro is installed:
 
 ```python
 from study_plots import compute_mccleskey_model
@@ -342,15 +344,16 @@ python validate_speciation.py --dataset both   # plus Cortes
 python validate_speciation.py --no-speciation  # no Reaktoro needed
 ```
 
-> **Known limitation.** The `lambda_0` values in the parameter table for the
-> charged complexes `NaSO4-` (357), `KSO4-` (234) and `NaCO3-` (188) are
-> implausibly large next to `Cl-` (77 S cm2/mol). Since speciation is what first
-> activates these species, they dominate wherever they form — `NaCO3-` alone
-> supplies 51% of speciated Na2CO3 conductivity — and push sigma *upward*, which
-> is backwards for an association correction. An equivalent-vs-molal convention
-> error was ruled out. **Only `MgSO4`, `NaCl`, `KCl` and `NH4Cl` speciation
-> should be trusted** (see `speciation.VERIFIED_COMPOUNDS`) until these are
-> checked against MC12's published table. `validate_speciation.py` flags this.
+> **Ion-pair parameters (resolved 2026-10-05).** The large `lambda_0` values
+> of the charged complexes `NaSO4-`, `KSO4-` and `NaCO3-` (about 357, 234 and
+> 188 S cm2/mol at 25 C, against 77 for `Cl-`) match the published USGS
+> McCleskey et al. (2012) table. They are effective parameters fitted together
+> with WATEQ4F speciation, so they are meaningful only with WATEQ4F free
+> molalities, which is how `speciation.py` uses them.
+
+**Full method** (ionic strength, mixtures, speciation, molarity -> molality,
+pressure filter, validity limit, Delta definition, current agreement):
+[`docs/MCCLESKEY_METHOD.md`](docs/MCCLESKEY_METHOD.md).
 
 For carbonate systems the input specification fixes the pH, which then dominates
 speciation (0.3 mol/kg Na2CO3: pH 11.4 supplying Na+/CO3-2 versus pH 7.7
