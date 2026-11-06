@@ -505,3 +505,10 @@ or delete existing entries. Format is defined in `AGENTS.md`.
 - Steve: omit the Nov 5 outliers -> asked which; Steve chose all five fit-jump sweeps (14:25, 14:26, 14:49-14:51). exclude=x with reason; rows kept.
 - Transcribed Diaz (pp. 11-27) and Garrity (pp. 1-8) notebooks into cortes2026/{diaz,garrity}/LABNOTES.md. Settles: Oct 5-9 identities; Rose's M = mol/L; Rose's Jun 18-24 mixture runs identified by sweep time.
 - Steve: Oct 14-15 has similar outliers. Only off-trend group is the 124 MPa triplet (13:37-13:39, +6.6%); excluded with reason. Wrote zAnalysis configs for 20261014/20261015 (KCl).
+
+## 2026-11-06 — claude-code — main after Diaz's Windows run
+- origin/main: PR #4 (date parser) merged; Diaz pushed data/20261106 (24 sweeps) and zAnalysis configs for 20261105/06 (.gitignore now un-ignores zAnalysis*.csv/json).
+- Clean origin/main on this Mac: test files pass one at a time (gamry_time 3, speciation 12, writeback 4, harmonization 4, error_handling 4); full run fails collection because two tests chdir into the Dropbox copy (fixed on hipozgenai); test_gui_reorganization aborts (PyQt5 import).
+- Clean origin/main headless on 20261106: config has no standard rows, so it fell back to the GUI and its save reduced the config to a header line (scratch worktree only; nothing pushed). This is the erase bug fixed on hipozgenai.
+- Merged main into hipozgenai (84412b3); main's Nov 5 config replaced the local one, so the five exclusions and notes were re-applied with config_store (rows and fitted values from main kept).
+- Nov 6: Mac refit of all 24 sweeps matches Windows R within 0.03%; Windows sigma used K = 120.54 (Nov 5 standard).
