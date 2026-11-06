@@ -1,22 +1,25 @@
 group_name,filename,P_MPa,T_K,type,Z_Ohm,Z_unc_Ohm,conductivity_Sm,S_unc_pct,comp,w_ppt,w_molal,exclude,notes
-Group 1,Default_20261106_124105_P_1_T_294.txt,0.0,293.58,measurement,16.41,0.6794,7.347,0.4302,KCl,52.168000000,0.738286917,,
-Group 1,Default_20261106_124159_P_1_T_294.txt,0.0,293.58,measurement,16.41,0.681,7.347,0.4312,KCl,52.168000000,0.738286917,,
-Group 1,Default_20261106_124252_P_2_T_294.txt,1.0,293.58,measurement,16.41,0.6786,7.347,0.4297,KCl,52.168000000,0.738286917,,
-Group 1,Default_20261106_125511_P_24_T_294.txt,23.0,293.58,measurement,16.1,0.6915,7.488,0.4548,KCl,52.168000000,0.738286917,,
-Group 1,Default_20261106_125604_P_25_T_294.txt,24.0,293.58,measurement,16.1,0.693,7.488,0.4558,KCl,52.168000000,0.738286917,,
-Group 1,Default_20261106_125657_P_24_T_294.txt,23.0,293.58,measurement,16.1,0.6944,7.488,0.4567,KCl,52.168000000,0.738286917,,
-Group 1,Default_20261106_130902_P_51_T_294.txt,51.0,293.56,measurement,15.81,0.7081,7.626,0.483,KCl,52.168000000,0.738286917,,
-Group 1,Default_20261106_130956_P_51_T_294.txt,50.0,293.56,measurement,15.82,0.7068,7.621,0.4815,KCl,52.168000000,0.738286917,,
-Group 1,Default_20261106_131049_P_51_T_294.txt,50.0,293.56,measurement,15.82,0.7079,7.621,0.4823,KCl,52.168000000,0.738286917,,
-Group 1,Default_20261106_132232_P_75_T_294.txt,74.0,293.57,measurement,15.62,0.7152,7.718,0.4998,KCl,52.168000000,0.738286917,,
-Group 1,Default_20261106_132326_P_75_T_294.txt,74.0,293.57,measurement,15.63,0.7136,7.713,0.498,KCl,52.168000000,0.738286917,,
-Group 1,Default_20261106_132420_P_74_T_294.txt,73.0,293.57,measurement,15.63,0.7156,7.713,0.4994,KCl,52.168000000,0.738286917,,
-Group 1,Default_20261106_133700_P_101_T_294.txt,100.0,293.57,measurement,15.45,0.7256,7.803,0.5183,KCl,52.168000000,0.738286917,,
-Group 1,Default_20261106_133754_P_101_T_294.txt,100.0,293.56,measurement,15.46,0.7279,7.798,0.5192,KCl,52.168000000,0.738286917,,
-Group 1,Default_20261106_133848_P_100_T_294.txt,99.0,293.56,measurement,15.46,0.7241,7.798,0.5165,KCl,52.168000000,0.738286917,,
-Group 1,Default_20261106_135127_P_126_T_294.txt,125.0,293.56,measurement,15.33,0.731,7.864,0.5303,KCl,52.168000000,0.738286917,,
-Group 1,Default_20261106_135226_P_126_T_294.txt,126.0,293.56,measurement,15.33,0.7328,7.864,0.5316,KCl,52.168000000,0.738286917,,
-Group 1,Default_20261106_135328_P_125_T_294.txt,124.0,293.56,measurement,15.34,0.7326,7.859,0.5308,KCl,52.168000000,0.738286917,,
-Group 1,Default_20261106_141230_P_150_T_294.txt,150.0,293.56,measurement,15.24,0.7391,7.911,0.5426,KCl,52.168000000,0.738286917,,
-Group 1,Default_20261106_141325_P_150_T_294.txt,149.0,293.57,measurement,15.24,0.7363,7.911,0.5405,KCl,52.168000000,0.738286917,,
-Group 1,Default_20261106_141422_P_150_T_294.txt,150.0,293.57,measurement,15.24,0.7369,7.911,0.5409,KCl,52.168000000,0.738286917,,
+Group 1,Default_20261106_124105_P_1_T_294.txt,0.0,293.58,measurement,16.41,0.6794,7.347,0.4302,KCl,52.168,0.699772,,"KCl 80 mS/cm standard, Environmental Express 00653-32; 52.168 g/kg water."
+Group 1,Default_20261106_124159_P_1_T_294.txt,0.0,293.58,measurement,16.41,0.681,7.347,0.4312,KCl,52.168,0.699772,,"KCl 80 mS/cm standard, Environmental Express 00653-32; 52.168 g/kg water."
+Group 1,Default_20261106_124252_P_2_T_294.txt,1.0,293.58,measurement,16.41,0.6786,7.347,0.4297,KCl,52.168,0.699772,,"KCl 80 mS/cm standard, Environmental Express 00653-32; 52.168 g/kg water."
+Group 1,Default_20261106_125511_P_24_T_294.txt,23.0,293.58,measurement,16.1,0.6915,7.488,0.4548,KCl,52.168,0.699772,,"KCl 80 mS/cm standard, Environmental Express 00653-32; 52.168 g/kg water."
+Group 1,Default_20261106_125604_P_25_T_294.txt,24.0,293.58,measurement,16.1,0.693,7.488,0.4558,KCl,52.168,0.699772,,"KCl 80 mS/cm standard, Environmental Express 00653-32; 52.168 g/kg water."
+Group 1,Default_20261106_125657_P_24_T_294.txt,23.0,293.58,measurement,16.1,0.6944,7.488,0.4567,KCl,52.168,0.699772,,"KCl 80 mS/cm standard, Environmental Express 00653-32; 52.168 g/kg water."
+Group 1,Default_20261106_130902_P_51_T_294.txt,51.0,293.56,measurement,15.81,0.7081,7.626,0.483,KCl,52.168,0.699772,,"KCl 80 mS/cm standard, Environmental Express 00653-32; 52.168 g/kg water."
+Group 1,Default_20261106_130956_P_51_T_294.txt,50.0,293.56,measurement,15.82,0.7068,7.621,0.4815,KCl,52.168,0.699772,,"KCl 80 mS/cm standard, Environmental Express 00653-32; 52.168 g/kg water."
+Group 1,Default_20261106_131049_P_51_T_294.txt,50.0,293.56,measurement,15.82,0.7079,7.621,0.4823,KCl,52.168,0.699772,,"KCl 80 mS/cm standard, Environmental Express 00653-32; 52.168 g/kg water."
+Group 1,Default_20261106_132232_P_75_T_294.txt,74.0,293.57,measurement,15.62,0.7152,7.718,0.4998,KCl,52.168,0.699772,,"KCl 80 mS/cm standard, Environmental Express 00653-32; 52.168 g/kg water."
+Group 1,Default_20261106_132326_P_75_T_294.txt,74.0,293.57,measurement,15.63,0.7136,7.713,0.498,KCl,52.168,0.699772,,"KCl 80 mS/cm standard, Environmental Express 00653-32; 52.168 g/kg water."
+Group 1,Default_20261106_132420_P_74_T_294.txt,73.0,293.57,measurement,15.63,0.7156,7.713,0.4994,KCl,52.168,0.699772,,"KCl 80 mS/cm standard, Environmental Express 00653-32; 52.168 g/kg water."
+Group 1,Default_20261106_133700_P_101_T_294.txt,100.0,293.57,measurement,15.45,0.7256,7.803,0.5183,KCl,52.168,0.699772,,"KCl 80 mS/cm standard, Environmental Express 00653-32; 52.168 g/kg water."
+Group 1,Default_20261106_133754_P_101_T_294.txt,100.0,293.56,measurement,15.46,0.7279,7.798,0.5192,KCl,52.168,0.699772,,"KCl 80 mS/cm standard, Environmental Express 00653-32; 52.168 g/kg water."
+Group 1,Default_20261106_133848_P_100_T_294.txt,99.0,293.56,measurement,15.46,0.7241,7.798,0.5165,KCl,52.168,0.699772,,"KCl 80 mS/cm standard, Environmental Express 00653-32; 52.168 g/kg water."
+Group 1,Default_20261106_135127_P_126_T_294.txt,125.0,293.56,measurement,15.33,0.731,7.864,0.5303,KCl,52.168,0.699772,,"KCl 80 mS/cm standard, Environmental Express 00653-32; 52.168 g/kg water."
+Group 1,Default_20261106_135226_P_126_T_294.txt,126.0,293.56,measurement,15.33,0.7328,7.864,0.5316,KCl,52.168,0.699772,,"KCl 80 mS/cm standard, Environmental Express 00653-32; 52.168 g/kg water."
+Group 1,Default_20261106_135328_P_125_T_294.txt,124.0,293.56,measurement,15.34,0.7326,7.859,0.5308,KCl,52.168,0.699772,,"KCl 80 mS/cm standard, Environmental Express 00653-32; 52.168 g/kg water."
+Group 1,Default_20261106_141230_P_150_T_294.txt,150.0,293.56,measurement,15.24,0.7391,7.911,0.5426,KCl,52.168,0.699772,,"KCl 80 mS/cm standard, Environmental Express 00653-32; 52.168 g/kg water."
+Group 1,Default_20261106_141325_P_150_T_294.txt,149.0,293.57,measurement,15.24,0.7363,7.911,0.5405,KCl,52.168,0.699772,,"KCl 80 mS/cm standard, Environmental Express 00653-32; 52.168 g/kg water."
+Group 1,Default_20261106_141422_P_150_T_294.txt,150.0,293.57,measurement,15.24,0.7369,7.911,0.5409,KCl,52.168,0.699772,,"KCl 80 mS/cm standard, Environmental Express 00653-32; 52.168 g/kg water."
+Group 1,Default_20261106_142756_P_177_T_294.txt,,,measurement,,,,,KCl,52.168,0.699772,,"KCl 80 mS/cm standard, Environmental Express 00653-32; 52.168 g/kg water. Added on Mac (missing from Windows config)."
+Group 1,Default_20261106_142852_P_176_T_294.txt,,,measurement,,,,,KCl,52.168,0.699772,,"KCl 80 mS/cm standard, Environmental Express 00653-32; 52.168 g/kg water. Added on Mac (missing from Windows config)."
+Group 1,Default_20261106_142949_P_175_T_294.txt,,,measurement,,,,,KCl,52.168,0.699772,,"KCl 80 mS/cm standard, Environmental Express 00653-32; 52.168 g/kg water. Added on Mac (missing from Windows config)."

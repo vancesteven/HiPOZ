@@ -50,6 +50,15 @@ wKCl_ppt = {23:    0.0116,
             2764:  1.382,
             15000: 8.759,
             80000: 52.168}  # Concentration of KCl standards as reported on the bottles
+# The bottle values are g KCl per kg WATER (Steve, 2026-11-06; 80 mS/cm bottle:
+# Environmental Express 00653-32). On that basis 52.168 ppt is 0.6998 mol/kg,
+# which McCleskey (2012) puts at 7.998 S/m at 25 C against the 8.000 S/m
+# label; read per kg of solution it would be 0.7383 mol/kg (+5.1%).
+
+
+def kcl_std_molal(w_ppt):
+    """Molality (mol/kg water) of a KCl standard from its bottle ppt value."""
+    return w_ppt / Constants.m_gmol['KCl']
 pptUnits = ['ppt', 'gkg', 'g/kg']  # Available options for indicating pptm units
 molalUnits = ['molal', 'molkg', 'mol/kg','mol_kg']  # Available options for indicating molal units
 SiemensUnits = ['us_cm','ms_cm']
@@ -111,7 +120,7 @@ def get_w_from_descrip(descrip, lbl_uScm=None):
     if lbl_uScm is not None and not np.isnan(lbl_uScm):
         comp = 'KCl'
         w_ppt = wKCl_ppt[lbl_uScm]
-        w_molal = Ppt2molal(w_ppt, Constants.m_gmol[comp])
+        w_molal = kcl_std_molal(w_ppt)
     elif any(soluteCompare):
         if 'DIwater' in descrip:
             comp = 'PureH2O'
@@ -162,7 +171,7 @@ def get_w_from_descrip(descrip, lbl_uScm=None):
                     w_ppt = wKCl_ppt[w]
                 except KeyError:
                     print(f"No matching key for w={w} found in wKCl_ppt")
-                w_molal = Ppt2molal(w_ppt, Constants.m_gmol[comp])
+                w_molal = kcl_std_molal(w_ppt)
             else:
                 # w_molal = w + 0
                 # w_ppt = Molal2ppt(w_molal, Constants.m_gmol[comp])

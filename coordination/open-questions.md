@@ -208,3 +208,8 @@ Against McCleskey (2012) at 25 C:
 The water basis matches the label; the solution basis does not. For the other bottles the basis barely matters (<1%).
 Question: is 52.168 g/kg water? If so, standard molalities from wKCl_ppt are 5.5% high for the 80 mS bottle.
 Interim: w_ppt = 52.168 written to the 20261014/15 and 20261105 configs; w_molal left blank.
+
+### 2026-11-06 resolution (Steve)
+Molal: 52.168 ppt is g KCl per kg water, 0.6998 mol/kg. Bottle: Environmental Express 00653-32.
+Implemented: gamryTools.kcl_std_molal (all bottle labels now use it); tests/test_kcl_std_molality.py; w_molal = 0.699772 in the 20261014/15, 20261105, 20261106 configs.
+(The supplier site refused automated fetches, so the basis rests on Steve's call plus the MC12 label match, not on the datasheet.)

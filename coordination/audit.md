@@ -512,3 +512,4 @@ or delete existing entries. Format is defined in `AGENTS.md`.
 - Clean origin/main headless on 20261106: config has no standard rows, so it fell back to the GUI and its save reduced the config to a header line (scratch worktree only; nothing pushed). This is the erase bug fixed on hipozgenai.
 - Merged main into hipozgenai (84412b3); main's Nov 5 config replaced the local one, so the five exclusions and notes were re-applied with config_store (rows and fitted values from main kept).
 - Nov 6: Mac refit of all 24 sweeps matches Windows R within 0.03%; Windows sigma used K = 120.54 (Nov 5 standard).
+- 2026-11-06: Steve: KCl standard ppt is per kg water (molal); bottle Environmental Express 00653-32. gamryTools.kcl_std_molal + test; configs updated; last 3 Nov 6 sweeps added; Oct 14/15 configs committed (main now tracks zAnalysis).
