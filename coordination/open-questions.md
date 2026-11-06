@@ -199,3 +199,12 @@ Questions:
   trials disagree by up to ~11% at 20 C (Trials 1 and 3 below 'Lit', Trial 2
   above), and Trial 2 reads 0.9-3.6% higher after the Gamry recalibration
   against a pre-recalibration standard. Cause unknown; see the doc.
+
+### 2026-11-05 — basis of the 52.168 ppt KCl standard (claude-code)
+Steve: the 8 S/m (80 mS/cm) KCl standard is 52.168 ppt (also gamryTools.wKCl_ppt[80000]).
+Against McCleskey (2012) at 25 C:
+- g per kg **water** -> 0.6998 mol/kg -> MC12 7.998 S/m (label 8.000, -0.0%)
+- g per kg **solution** (PlanetProfile Ppt2molal, used by gamryTools today) -> 0.7383 mol/kg -> 8.406 S/m (+5.1%)
+The water basis matches the label; the solution basis does not. For the other bottles the basis barely matters (<1%).
+Question: is 52.168 g/kg water? If so, standard molalities from wKCl_ppt are 5.5% high for the 80 mS bottle.
+Interim: w_ppt = 52.168 written to the 20261014/15 and 20261105 configs; w_molal left blank.
