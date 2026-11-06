@@ -13,6 +13,10 @@ data/*/zAnalysis*.json.backup
 data/*/*.csv
 data/*/*.json
 data/*/hipoz_*.csv
+data/20260928/
+data/20261001/
+!data/*/zAnalysis*.csv
+!data/*/zAnalysis*.json
 hipoz_exports/
 archive/
 
