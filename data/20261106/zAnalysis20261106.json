@@ -605,6 +605,42 @@
           "Z_unc_Ohm": 0.7265,
           "S_unc_pct": 0.5176,
           "conductivity_Sm": 7.793
+        },
+        {
+          "filename": "Default_20261106_160217_P_76_T_294.txt",
+          "comp": "KCl",
+          "w_ppt": 52.168,
+          "w_molal": 0.738286917,
+          "P_MPa": 76.0,
+          "T_K": 293.59,
+          "Z_Ohm": 15.64,
+          "Z_unc_Ohm": 0.7176,
+          "S_unc_pct": 0.5002,
+          "conductivity_Sm": 7.708
+        },
+        {
+          "filename": "Default_20261106_160311_P_75_T_294.txt",
+          "comp": "KCl",
+          "w_ppt": 52.168,
+          "w_molal": 0.738286917,
+          "P_MPa": 74.0,
+          "T_K": 293.59,
+          "Z_Ohm": 15.64,
+          "Z_unc_Ohm": 0.721,
+          "S_unc_pct": 0.5026,
+          "conductivity_Sm": 7.708
+        },
+        {
+          "filename": "Default_20261106_160404_P_75_T_294.txt",
+          "comp": "KCl",
+          "w_ppt": 52.168,
+          "w_molal": 0.738286917,
+          "P_MPa": 74.0,
+          "T_K": 293.59,
+          "Z_Ohm": 15.63,
+          "Z_unc_Ohm": 0.7177,
+          "S_unc_pct": 0.5009,
+          "conductivity_Sm": 7.713
         }
       ]
     }
@@ -645,6 +681,12 @@
     "Updated from GUI at 2026-11-06 15:48:41",
     "Updated from GUI at 2026-11-06 15:48:59",
     "Updated from GUI at 2026-11-06 15:49:03",
-    "Updated from GUI at 2026-11-06 15:49:18"
+    "Updated from GUI at 2026-11-06 15:49:18",
+    "Updated from GUI at 2026-11-06 16:05:59",
+    "Updated from GUI at 2026-11-06 16:06:03",
+    "Updated from GUI at 2026-11-06 16:06:06",
+    "Updated from GUI at 2026-11-06 16:06:09",
+    "Updated from GUI at 2026-11-06 16:06:24",
+    "Updated from GUI at 2026-11-06 16:06:28"
   ]
 }
