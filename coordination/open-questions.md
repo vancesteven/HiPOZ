@@ -127,6 +127,7 @@ concentration, and which files are standards, before they can be curated.
    cortes2026/plot_nacl_sigma_P.py lists the 12 excluded steps (EXCLUDED,
    with reasons). Still to confirm: the two ~20 C 600 MPa points (Aug 13
    16:05, Aug 19 16:35; both 4.47 S/m, kept) sit 5% below Aug 18 at 597 MPa.
+   **Steve 2026-11-07: keep them.**
 2. Aug 18 'Interesting Test' (3 files) and 'do not take first reading/value'
    (2 files) are in the curated set as ordinary measurements. Exclude?
 3. Aug 19-20 use the Aug 18 cell constant (--cal-map). Aug 21 has standards

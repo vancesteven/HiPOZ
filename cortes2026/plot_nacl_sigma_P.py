@@ -33,6 +33,7 @@ import cortes_data_processing as cdp  # noqa: E402
 
 OUT = os.path.join(HERE, 'nacl_sigma_P')
 MAX_GAP_MPA = 150
+NO_GAP_CONNECTOR = {('20250813', 20)}  # Steve, 2026-11-07
 DIRS = {'20250813Cortes': '20250813', '20250814Cortes': '20250814',
         '20250818Cortes': '20250818', '20250819Cortes': '20250819',
         '20250820Cortes': '20250820'}
@@ -105,7 +106,6 @@ def _style():
         'text.usetex': True, 'font.family': 'serif', 'font.size': 11,
         'axes.edgecolor': '#52514e', 'axes.labelcolor': '#0b0b0b',
         'xtick.color': '#52514e', 'ytick.color': '#52514e',
-        'axes.spines.top': False, 'axes.spines.right': False,
     })
 
 
@@ -121,8 +121,10 @@ def plot(st, path, show_excluded=False):
         # Solid between neighbouring steps; dotted across unmeasured spans
         P, S = r.P_MPa.to_numpy(), r.sigma_Sm.to_numpy()
         for i in range(len(P) - 1):
-            ls = ':' if P[i + 1] - P[i] > MAX_GAP_MPA else '-'
-            ax.plot(P[i:i + 2], S[i:i + 2], ls, color=col, lw=1.5, zorder=2)
+            if P[i + 1] - P[i] <= MAX_GAP_MPA:
+                ax.plot(P[i:i + 2], S[i:i + 2], '-', color=col, lw=1.5, zorder=2)
+            elif run not in NO_GAP_CONNECTOR:
+                ax.plot(P[i:i + 2], S[i:i + 2], ':', color=col, lw=1.5, zorder=2)
         ax.errorbar(r.P_MPa, r.sigma_Sm, yerr=yerr, fmt=mk, color=col, ms=6.5,
                     mec='#fcfcfb', mew=1.2, elinewidth=1, capsize=0, zorder=3,
                     label=label + r' $^\circ$C')
