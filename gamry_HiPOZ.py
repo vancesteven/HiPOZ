@@ -5,6 +5,7 @@ import logging
 from datetime import datetime as dtime
 import argparse
 from pathlib import Path
+import subprocess
 
 from gamryTools import Solution, CalStdFit, TimeSeries
 from gamryPlots import plot_y, plot_z, plot_zvsf, plot_phasevsf, plot_zfit, plot_timeseries
@@ -173,7 +174,7 @@ Examples:
         '--harmonize',
         type=str,
         metavar='FILE',
-        help='Harmonize CSV↔JSON config file (creates matching format) and exit'
+        help='Harmonize CSV and JSON config files (creates matching format) and exit'
     )
 
     return parser.parse_args()
@@ -305,11 +306,18 @@ def main():
         from harmonize_config import harmonize_config
         result = harmonize_config(Path(args.harmonize), force=True, verbose=True, auto_detect=True)
         if result:
-            log.info(f"✓ Config files harmonized successfully")
+            log.info("Config files harmonized successfully")
             sys.exit(0)
         else:
             log.error("Failed to harmonize config files")
             sys.exit(1)
+
+    data_watcher = subprocess.Popen(
+        [sys.executable, str(Path(__file__).resolve().with_name("stage_data_changes.py"))],
+        cwd=Path(__file__).resolve().parent,
+        stdout=subprocess.DEVNULL,
+        stderr=subprocess.DEVNULL,
+    )
 
     # Ensure QApplication is initialized early (needed for dialogs)
     app = QApplication(sys.argv)
@@ -559,6 +567,8 @@ def main():
 
     # Start the event loop
     return_code = app.exec()
+    data_watcher.terminate()
+    data_watcher.wait(timeout=5)
     log.info(f"Event loop exited with code: {return_code}")
     sys.exit(return_code)
 

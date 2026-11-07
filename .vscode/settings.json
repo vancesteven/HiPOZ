@@ -1,0 +1,5 @@
+{
+    "git.useEditorAsCommitInput": false,
+    "git.inputValidation": "error",
+    "git.inputValidationLength": 72
+}
