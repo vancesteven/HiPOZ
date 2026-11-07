@@ -4,6 +4,9 @@ import time
 from pathlib import Path
 
 
+EXCLUDED_DATA_FOLDERS = {"20260928", "20261001"}
+
+
 def stage_data_changes(repo_root: Path) -> bool:
     data_result = subprocess.run(
         ["git", "add", "-A", "--", "data"],
@@ -17,6 +20,9 @@ def stage_data_changes(repo_root: Path) -> bool:
     if data_dir.is_dir():
         for folder in data_dir.rglob("*"):
             if folder.is_dir() and "conductivity" in folder.name.casefold():
+                relative_folder = folder.relative_to(data_dir)
+                if relative_folder.parts and relative_folder.parts[0] in EXCLUDED_DATA_FOLDERS:
+                    continue
                 conductivity_folders.append(str(folder.relative_to(repo_root)))
 
     conductivity_result = subprocess.run(
