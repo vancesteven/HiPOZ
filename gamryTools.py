@@ -59,6 +59,34 @@ wKCl_ppt = {23:    0.0116,
 def kcl_std_molal(w_ppt):
     """Molality (mol/kg water) of a KCl standard from its bottle ppt value."""
     return w_ppt / Constants.m_gmol['KCl']
+
+
+def _kcl_bottle_ppt(w_ppt):
+    """The bottle ppt value matching w_ppt, or None if it is not a bottle value."""
+    for bottle_ppt in wKCl_ppt.values():
+        if np.isclose(w_ppt, bottle_ppt, rtol=1e-4, atol=0):
+            return bottle_ppt
+    return None
+
+
+def ppt_to_molal(comp, w_ppt, m_gmol=None):
+    """Molality from ppt. KCl bottle values are g/kg water; all else g/kg solution."""
+    if m_gmol is None:
+        m_gmol = Constants.m_gmol[comp]
+    if comp == 'KCl' and np.ndim(w_ppt) == 0 and _kcl_bottle_ppt(w_ppt) is not None:
+        return w_ppt / m_gmol
+    return Ppt2molal(w_ppt, m_gmol)
+
+
+def molal_to_ppt(comp, w_molal, m_gmol=None):
+    """Inverse of ppt_to_molal: KCl standard molalities map back to their bottle ppt."""
+    if m_gmol is None:
+        m_gmol = Constants.m_gmol[comp]
+    if comp == 'KCl' and np.ndim(w_molal) == 0:
+        bottle_ppt = _kcl_bottle_ppt(w_molal * m_gmol)
+        if bottle_ppt is not None:
+            return bottle_ppt
+    return Molal2ppt(w_molal, m_gmol)
 pptUnits = ['ppt', 'gkg', 'g/kg']  # Available options for indicating pptm units
 molalUnits = ['molal', 'molkg', 'mol/kg','mol_kg']  # Available options for indicating molal units
 SiemensUnits = ['us_cm','ms_cm']
@@ -160,7 +188,7 @@ def get_w_from_descrip(descrip, lbl_uScm=None):
                 raise ValueError('Concentration and units must appear at the beginning of descrip.')
             if unit in pptUnits:
                 w_ppt = w + 0
-                w_molal = Ppt2molal(w_ppt, Constants.m_gmol[comp])
+                w_molal = ppt_to_molal(comp, w_ppt)
             elif unit in Saturated:
                 w_molal = 1000
                 w_ppt = 1000
@@ -521,10 +549,10 @@ class Solution:
 
         # Set either missing w field
         if self.w_molal is None:
-            self.w_molal = Ppt2molal(self.w_ppt, Constants.m_gmol[self.comp])
+            self.w_molal = ppt_to_molal(self.comp, self.w_ppt)
             log.debug('Added w_molal to Solution.')
         elif self.w_ppt is None:
-            self.w_ppt = Molal2ppt(self.w_molal, Constants.m_gmol[self.comp])
+            self.w_ppt = molal_to_ppt(self.comp, self.w_molal)
             log.debug('Added w_ppt to Solution.')
 
         rhoH2O_kgm3 = seafreeze(np.array(tuple((Constants.P0, TH2O_C+Constants.T0))), 'water1').rho[0,0]
