@@ -1,6 +1,6 @@
 # Status — hipozgenai
 
-Updated: 2026-11-05
+Updated: 2026-11-07
 
 Refresh the `Updated:` line and the affected sections in any session that
 pushes commits, integrates artifacts, or changes a queue.
@@ -59,6 +59,9 @@ lab data merged in from origin/main. PR #3 (still open) now carries all of it.
 | Nov 6 2026 8 S/m KCl sigma(P), 294 K (Windows HiPOZ) | claude-code | verified | Mac refit of 24 sweeps matches Windows R within 0.03%; Windows used K = 120.54 (Nov 5); last 3 sweeps (175 MPa) added to config on Mac |
 | main: GUI save erases config when headless falls back to GUI | claude-code | not implemented on main | reproduced on clean origin/main with 20261106 (config reduced to header); fixed on hipozgenai (config_store), PR #3 unmerged |
 | KCl standard ppt basis = per kg water (Steve); 80 mS bottle Environmental Express 00653-32 | claude-code | verified | gamryTools.kcl_std_molal; tests/test_kcl_std_molality.py (3 pass); configs 20261014/15, 20261105/06 w_molal 0.699772 |
+| KCl bottle ppt on water basis in GUI and Solution.CalcConc (ppt_to_molal/molal_to_ppt) | claude-code | verified | tests/test_kcl_std_molality.py (6 pass, incl. DataSelector.convert_loaded_concentrations); typing ppt in the live GUI not checked by hand |
+| KCl fix to main | claude-code | implemented, unverified | branch `kcl-water-basis` (115c8f2) off origin/main: code + Nov 5/6 w_molal; 5 KCl tests pass there; needs push + PR |
+| Merge origin/main Nov 6 decompression sweeps (18, 200->75 MPa) | claude-code | verified | merge commit 20e7c05; Nov 6 config 42 rows, all w_molal 0.699772; stage_data_changes.py arrives with it (auto `git add` of data/ while GUI runs) |
 | Oct 5-9 identities | claude-code | verified | from Diaz notebook: Oct 5 80 mS KCl std 1 atm; Oct 6-9 ~5 wt% NaCl sigma(P) (cortes2026/diaz/LABNOTES.md) |
 | Garrity NaCl:MgSO4 Gamry runs (Jun 18/22/24) identified, not analysed | claude-code | not implemented | sweep times in LABNOTES.md p. 7 |
 | Contributor folders cortes2026/diaz, cortes2026/garrity | claude-code | verified | READMEs in each |
