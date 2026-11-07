@@ -52,7 +52,7 @@ Columns:
 ## TODO
 
 1. **Data cleaning**: Convert `../JesusData2025.csv` from spreadsheet format to standardized CSV format
-2. **Concentration units**: Determine if concentrations are molal or molar, convert as needed
+2. **Concentration units**: Molal as prepared (Steve, 2026-11-07); 'M/L' labels are mol/kg
 3. **Compound naming**: Standardize compound names and mixture notation
 4. **Gamry data processing**: Wait for user instructions on organizing high-pressure data
 5. **Analysis pipeline**: Update `cortes2026_plots.py` to work with cleaned data

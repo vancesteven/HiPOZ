@@ -105,8 +105,8 @@ def test_temperature_plot_stars_curves_beyond_limit(benchtop, tmp_path):
         mccleskey_limit=cm.get_mccleskey_limit('NaCl'))
     texts = [t.get_text() for t in fig.axes[0].texts]
     starred = [t for t in texts if t.endswith('*')]
-    # NaCl data: 0.5054 inside, 0.7616 / 1.02 / 1.546 beyond 0.7
-    assert sorted(starred) == ['0.7616*', '1.0200*', '1.5460*']
+    # NaCl data (molal as prepared): 0.5 inside, 0.75 / 1.0 / 1.5 beyond 0.7
+    assert sorted(starred) == ['0.7500*', '1.0000*', '1.5000*']
     assert any('beyond MC12 range' in t for t in texts)
 
 

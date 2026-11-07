@@ -6,10 +6,11 @@ Rose ended her internship 7/31/26 (p. 8).
 
 ## p. 1 — NaCl replication, room T, 2/5/26
 
-T 22.4–22.8 °C. **Solutions made by molarity**: NaCl 58.442 g/mol ×
+T 22.4–22.8 °C. Recipe as written: NaCl 58.442 g/mol ×
 0.5, 0.75, 1, 1.5, 2 M = 29.221, 43.832, 58.442, 87.664, 116.884 g/L
-(0.2926, 0.4385, 0.5845, 0.8770, 1.1688 g per 10 mL). So "M" in her Gamry
-labels is **mol/L**.
+(0.2926, 0.4385, 0.5845, 0.8770, 1.1688 g per 10 mL). Steve (2026-11-07):
+the lab prepares only molal solutions, so "M" here and in her Gamry labels
+is **mol/kg** (the per-volume wording is notation, not the recipe basis).
 
 Conductivity probe (mS/cm), three trials:
 
@@ -83,9 +84,8 @@ These times match the sweep timestamps in data/20260618, 20260622 and
 
 ## What this settles for data/20260219
 
-1. **M is molar.** Concentrations need converting to molality before any
-   McCleskey comparison or merge (cortes2026/molarity_to_molality.py
-   already has the NaCl 0.5–1.5 M factors; 2 M needs adding).
+1. **M is molal** (Steve, 2026-11-07). Labels are used as mol/kg; no
+   conversion.
 2. **The probe on 2/5 likely had temperature compensation on** (p. 4 says
    she later found it). Her 2/5 probe values at 22.6 °C sit within −3.4 to
    +2.3% of McCleskey at **25 °C**, against +1.3 to +7.3% at 22.6 °C.

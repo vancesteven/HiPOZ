@@ -9,9 +9,8 @@ circuit and frequency band as gamry_HiPOZ.py; the cell constant is
 K = sigma_std(T) * R from each standard (bottle-label table, CalStdFit), and
 sigma = K / R.
 
-PROVISIONAL. Her lab notebook (LABNOTES.md) shows 'M' is mol/L, so
-w_molal_nominal here is the molarity and must be converted before comparing
-with McCleskey; the 'Default' triplet is unidentified; which standard sets K
+PROVISIONAL. 'M' in her labels is mol/kg (Steve, 2026-11-07: the lab
+prepares only molal solutions), so w_molal_nominal is the molality; the 'Default' triplet is unidentified; which standard sets K
 is not decided, so both are reported. Not merged into the Cortes data yet.
 
 P is assessed as 0.1 MPa (gauge reads < 10 MPa; see

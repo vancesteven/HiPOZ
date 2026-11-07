@@ -115,11 +115,10 @@ prints a note. To reproduce the paper figures, Reaktoro must be installed
 
 ## 4. Inputs from the measurements
 
-- **Concentration in mol/kg H2O.** Benchtop solutions were made up in mol/L.
-  `cortes2026/molarity_to_molality.py` converts them using solution
-  densities from PHREEQC 3.8.6 + `pitzer.dat` at 20 °C (factors in
-  `MOLALITY_TABLE`; the original mol/L is kept in `concentration_molar`).
-  The conversion raises the concentrations by 1–5%.
+- **Concentration in mol/kg H2O.** The lab prepares only molal solutions, so
+  labels such as "0.5 M/L" are mol/kg and are used as recorded (Steve,
+  2026-11-07). A 2026-10-17 molarity -> molality conversion (+1–7%) was
+  withdrawn on that basis.
 - **Temperature.** The measured T of each point. Chiller-bath rows at 0 MPa
   use the bath setpoint (`analysis_config.bath_state`).
 - **Pressure.** MC12 is a 1-bar model. It is compared only with

@@ -351,7 +351,7 @@ python validate_speciation.py --no-speciation  # no Reaktoro needed
 > with WATEQ4F speciation, so they are meaningful only with WATEQ4F free
 > molalities, which is how `speciation.py` uses them.
 
-**Full method** (ionic strength, mixtures, speciation, molarity -> molality,
+**Full method** (ionic strength, mixtures, speciation, concentration units,
 pressure filter, validity limit, Delta definition, current agreement):
 [`docs/MCCLESKEY_METHOD.md`](docs/MCCLESKEY_METHOD.md).
 

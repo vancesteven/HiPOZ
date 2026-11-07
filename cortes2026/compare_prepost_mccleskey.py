@@ -6,12 +6,12 @@ et al. (2026) benchtop conductivities.
 Three model variants are scored against every benchtop point with a model:
 
   A  pre-fix      per-ion ionic strength (the old elecCondMcCleskey2012 bug),
-                  mol/L used as mol/kg, mixture specs normalized to sum 1,
+                  mixture specs normalized to sum 1,
                   no speciation -- what the archived figures show
-  B  2026-10-08   total ionic strength, mol/L used as mol/kg, old mixture
+  B  2026-10-08   total ionic strength, old mixture
                   specs, WATEQ4F speciation for single salts only
-  C  post-fix     total ionic strength, true molality (molarity_to_molality),
-                  mixture specs per first component, WATEQ4F speciation for
+  C  post-fix     total ionic strength, mixture specs per first component,
+                  WATEQ4F speciation for
                   single salts AND mixtures
 
 plus an independent arbiter: the model vs the IUPAC/OIML Demal KCl primary
@@ -49,7 +49,6 @@ sys.path.insert(0, HERE)
 
 from sigmaElectricMcCleskey2012 import elecCondMcCleskey2012  # noqa: E402
 from cortes_mccleskey import get_mixture_ion_spec  # noqa: E402
-import molarity_to_molality as m2m  # noqa: E402
 
 SINGLE = {'NaCl': {'Na_p1': 1, 'Cl_m1': 1}, 'KCl': {'K_p1': 1, 'Cl_m1': 1},
           'Na2SO4': {'Na_p1': 2, 'SO4_m2': 1}}
@@ -129,33 +128,29 @@ def sigma(ions, T_C, per_ion=False):
         T_C, {k: {'mols': np.array([v])} for k, v in ions.items()})['sigma_Sm'][0][0]
 
 
-def model(variant, compound, molar, T_C, backend):
+def model(variant, compound, molal, T_C, backend):
     if variant == 'A':
         spec = SINGLE.get(compound) or old_mix_spec(compound)
-        return sigma({k: v * molar for k, v in spec.items()}, T_C, per_ion=True)
+        return sigma({k: v * molal for k, v in spec.items()}, T_C, per_ion=True)
     if variant == 'B':
         if compound in SINGLE:
-            ions = backend.free({k: v * molar for k, v in SINGLE[compound].items()}, T_C)
+            ions = backend.free({k: v * molal for k, v in SINGLE[compound].items()}, T_C)
         else:
-            ions = {k: v * molar for k, v in old_mix_spec(compound).items()}
+            ions = {k: v * molal for k, v in old_mix_spec(compound).items()}
         return sigma(ions, T_C)
-    molal = m2m.MOLALITY_TABLE[(compound, round(molar, 4))]
     spec = SINGLE.get(compound) or get_mixture_ion_spec(compound)
     return sigma(backend.free({k: v * molal for k, v in spec.items()}, T_C), T_C)
 
 
 def score(df, backend):
-    molar_col = 'concentration_molar' if 'concentration_molar' in df else 'concentration_molal'
     pts = (df[df.compound.isin(COMPOUNDS)]
-           .groupby(['compound', molar_col, 'temperature_C']).conductivity_Sm.mean()
-           .reset_index().rename(columns={molar_col: 'molar', 'temperature_C': 'T_C'}))
+           .groupby(['compound', 'concentration_molal', 'temperature_C']).conductivity_Sm.mean()
+           .reset_index().rename(columns={'concentration_molal': 'molal', 'temperature_C': 'T_C'}))
     rows = []
     for _, r in pts.iterrows():
-        rec = dict(compound=r.compound, molar=r.molar,
-                   molal=m2m.MOLALITY_TABLE[(r.compound, round(r.molar, 4))],
-                   T_C=r.T_C, meas=r.conductivity_Sm)
+        rec = dict(compound=r.compound, molal=r.molal, T_C=r.T_C, meas=r.conductivity_Sm)
         for v in 'ABC':
-            rec[v] = model(v, r.compound, r.molar, r.T_C, backend)
+            rec[v] = model(v, r.compound, r.molal, r.T_C, backend)
             # Same convention as the paper figures' Delta panel:
             # positive = data above model
             rec[f'pct_{v}'] = 100 * (rec['meas'] - rec[v]) / rec[v]
@@ -180,13 +175,13 @@ def plot_comparison(res, out_dir):
     for ax, c in zip(axes.ravel(), COMPOUNDS):
         s = res[res.compound == c]
         for T in sorted(s.T_C.unique()):
-            st = s[s.T_C == T].sort_values('molar')
+            st = s[s.T_C == T].sort_values('molal')
             col = colors.get(int(T), 'k')
             ax.plot(st.molal, st.meas, 'o', color=col, ms=7)
-            ax.plot(st.molar, st.A, ':', color=col, lw=1.5, marker='x', ms=6)
+            ax.plot(st.molal, st.A, ':', color=col, lw=1.5, marker='x', ms=6)
             ax.plot(st.molal, st.C, '-', color=col, lw=2, marker='s', ms=6, mfc='none')
         ax.set_title(c.replace('_', ' '))
-        ax.set_xlabel('concentration (data, C: mol/kg; A: as-labeled mol/L)')
+        ax.set_xlabel('concentration (mol/kg)')
         ax.set_ylabel(r'$\sigma$ (S/m)')
         ax.grid(True, ls=':', alpha=0.6)
     axes[0, 0].plot([], [], 'ko', label='benchtop data')
@@ -197,7 +192,7 @@ def plot_comparison(res, out_dir):
         axes[0, 1].plot([], [], 'o', color=col, label=f'{T} C')
     axes[0, 1].legend(fontsize=8, title='T')
     fig.suptitle('McCleskey model vs Cortes benchtop data: pre-fix (A) vs post-fix (C)\n'
-                 'post-fix = total ionic strength + true molality + corrected mixture '
+                 'post-fix = total ionic strength + corrected mixture '
                  'composition + WATEQ4F speciation', fontsize=11)
     fig.tight_layout()
     for xtn in ('pdf', 'png'):

@@ -20,9 +20,8 @@ standard's cell constant.
 Rose's lab notebook (photos in `labnotes/`, transcribed in `LABNOTES.md`)
 answers part of what was open:
 
-1. **M is molar** (solutions made at 58.442 g/mol × M per litre). The
-   McCleskey comparison must use molality (molarity_to_molality.py; 2 M
-   factor still to add).
+1. **M is molal** (Steve, 2026-11-07: the lab prepares only molal
+   solutions). Labels are mol/kg; no conversion.
 2. **Cell-constant standard: still open.** Her probe reads both the 15 mS
    and 2764 µS bottles within 1% of nominal, so neither looks bad, yet the
    Gamry K from them differ by 3% (101.42 vs 98.40).
