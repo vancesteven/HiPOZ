@@ -14,6 +14,10 @@ Clean sigma(P) for the Gamry high-pressure cell, all on one axis.
 - Pan et al. (2021) NaCl model (pan2021_nacl.py) at 0.5 and 0.9 mol/kg on
   the measured isotherms: solid inside the experimental envelope
   (212-1713 MPa, 233-295 K), dashed where extrapolated.
+- Adams & Hall (1931) 2.8650 wt% (0.5047 mol/kg) NaCl at 25.00 C, Table I
+  (cortes2026/literature/adams_hall_1931_nacl_2p865.csv). They report only
+  R/R0, so sigma = sigma0 R0/R with sigma0 from McCleskey et al. (2012) at
+  25 C and that molality (the anchor is a model value, said in the legend).
 Left out: the Aug 18 - Sep 10 2026 KCl runs, stepped too fast for the trend
 with pressure (Steve, 2026-11-08); Oct 6 NaCl (5-10 min steps, up/down
 mismatch in Diaz's notebook).
@@ -58,6 +62,9 @@ MAX_GAP_MPA = 150
 # step is Aug 13's, so the segment is Aug 13's.
 ALWAYS_CONNECT = {('20250813', 20)}
 SIGMA_STD = 8.0
+ADAMS_CSV = os.path.join(HERE, 'literature', 'adams_hall_1931_nacl_2p865.csv')
+ADAMS_MOLAL = 0.02865 / (1 - 0.02865) / 0.05844
+ADAMS_T_C = 25.0
 DIRS = {'20250813Cortes': '20250813', '20250814Cortes': '20250814',
         '20250818Cortes': '20250818', '20250819Cortes': '20250819',
         '20250820Cortes': '20250820'}
@@ -240,6 +247,7 @@ def plot(st, path, show_excluded=False, recent=None):
     ax.set_axisbelow(True)
     if recent is not None:
         _plot_recent(ax, recent)
+        _plot_adams(ax)
     ax.set_title(r'Gamry high-pressure cell: NaCl (Cortes 2025, Diaz 2026) and the 8 S/m KCl standard',
                  fontsize=11)
     ax.legend(fontsize=7.8, frameon=False, loc='upper left', bbox_to_anchor=(1.01, 1.0))
@@ -264,6 +272,30 @@ def _plot_recent(ax, rec):
                         label=None if desc else f'{label}, {r.T_C.mean():.1f} $^\\circ$C')
     ax.plot([], [], 's', color='#52514e', mfc='#fcfcfb', ms=6,
             label='hollow: decompression (2026)')
+
+
+def load_adams_hall():
+    """Adams & Hall (1931) 2.865 wt% NaCl, sigma anchored to MC12 at 1 bar."""
+    from study_plots import compute_mccleskey_model
+    a = pd.read_csv(ADAMS_CSV, comment='#')
+    sigma0 = compute_mccleskey_model([ADAMS_MOLAL], [ADAMS_T_C + 273.15], compound='NaCl')[0][0]
+    a['P_MPa'] = a.P_bar / 10
+    a['sigma_Sm'] = sigma0 / a.R_over_R0
+    a['descent'] = a.P_bar.cummax() > a.P_bar
+    return a, sigma0
+
+
+def _plot_adams(ax):
+    a, sigma0 = load_adams_hall()
+    col = temp_color(ADAMS_T_C)
+    up = a[~a.descent].sort_values('P_MPa')
+    ax.plot(up.P_MPa, up.sigma_Sm, '-', color=col, lw=1.2, zorder=2)
+    for desc in (False, True):
+        q = a[a.descent == desc]
+        ax.plot(q.P_MPa, q.sigma_Sm, 'X', color=col, ms=7.5,
+                mfc='#fcfcfb' if desc else col, mec=col if desc else '#fcfcfb', mew=1.2,
+                zorder=3, label=None if desc else
+                fr'NaCl 0.505 m, Adams \& Hall 1931, 25.0 $^\circ$C ($\sigma_0$ = MC12, {sigma0:.2f} S/m)')
 
 
 def _plot_pan(ax, st, rec):

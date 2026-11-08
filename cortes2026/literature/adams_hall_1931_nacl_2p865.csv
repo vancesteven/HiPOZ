@@ -1,0 +1,20 @@
+# Adams, L. H. and Hall, R. E. (1931), The effect of pressure on the electrical
+# conductivity of solutions of sodium chloride and of other electrolytes,
+# J. Phys. Chem. 35, Table I (continued), p. 2152: "NaCl, 2.8650%; temp., 25.00"".
+# Transcribed from the page image (papers/adams1931effect.pdf, PDF page 8),
+# 2026-11-08; independent transcription pending in ../ThermoLit.
+# wt% is per mass of solution: 0.5047 mol/kg (M_NaCl 58.44 g/mol).
+# Rows in measurement order: increasing pressure, then decreasing.
+P_bar,R_ohm,R_over_R0
+1,122.103,1.00000
+503,118.356,0.96933
+1089,115.773,0.94814
+1588,114.741,0.93968
+1930,114.494,0.93765
+2174,114.506,0.93782
+2624,114.897,0.94100
+3451,116.660,0.95540
+4189,119.152,0.97582
+3090,115.704,0.94754
+2102,114.446,0.93733
+1,122.080,0.99981
