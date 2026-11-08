@@ -1,15 +1,21 @@
 #!/usr/bin/env python3
 """
-Clean sigma(P) for the Gamry high-pressure cell.
+Clean sigma(P) for the Gamry high-pressure cell, all on one axis.
 
-Left: isotherms of the Aug 2025 Cortes 0.5 mol/kg NaCl runs.
-Right: the 2026 runs with the correct trend, each as sigma(P) / sigma at
-ambient pressure of the same run: 0.9 mol/kg (5 wt%) NaCl on Oct 7-8
-(30-min steps) and Oct 9 (10-min steps), and the 8 S/m KCl standard on
-Oct 14-15, Nov 5 and Nov 6. Normalizing within a run cancels the cell
-constant, which is unresolved for Oct 7-9 (open question 2026-10-19).
-Left out (Steve, 2026-11-08): the Aug 18 - Sep 10 2026 KCl runs, stepped too
-fast for the trend with pressure; also Oct 6 NaCl (5-10 min steps, up/down
+- Aug 2025 Cortes 0.5 mol/kg NaCl isotherms (circles, triangles, squares by
+  day; colour by temperature).
+- 2026 Diaz runs with the correct trend (Steve, 2026-11-08): 0.9 mol/kg
+  (5 wt%) NaCl Oct 7-8 (30-min steps) and Oct 9 (10-min steps); the 8 S/m
+  KCl standard Oct 14-15, Nov 5 and Nov 6 (squares). sigma = K / R with the
+  ambient-pressure 8 S/m standard of the nearest standard run setting K:
+  Oct 14 for the Oct NaCl runs (an estimate: measured five days later, after
+  the leak repair; open question 2026-10-19), each run's own first triplet
+  for the standard runs.
+- Pan et al. (2021) NaCl model (pan2021_nacl.py) at 0.5 and 0.9 mol/kg on
+  the measured isotherms: solid inside the experimental envelope
+  (212-1713 MPa, 233-295 K), dashed where extrapolated.
+Left out: the Aug 18 - Sep 10 2026 KCl runs, stepped too fast for the trend
+with pressure (Steve, 2026-11-08); Oct 6 NaCl (5-10 min steps, up/down
 mismatch in Diaz's notebook).
 
 Sweeps are grouped into pressure steps (consecutive sweeps < 4 min apart at
@@ -41,12 +47,17 @@ REPO = os.path.dirname(HERE)
 sys.path.insert(0, REPO)
 os.chdir(REPO)
 import cortes_data_processing as cdp  # noqa: E402
+import pan2021_nacl as pan  # noqa: E402
 from gamryTools import Solution  # noqa: E402
 
 OUT = os.path.join(HERE, 'nacl_sigma_P')
 MAX_GAP_MPA = 150
-# Isotherms joined across a wider gap (Steve, 2026-11-08)
-ALWAYS_CONNECT = {('20250820', 20)}
+# Isotherms whose top step joins the next lower pressure across a wider gap
+# (Steve, 2026-11-08): the ~606 MPa, 20 C point to the ~400 MPa step. Aug 13
+# 16:05 and Aug 19 16:35 both read 4.47 S/m there and overlap; the ~400 MPa
+# step is Aug 13's, so the segment is Aug 13's.
+ALWAYS_CONNECT = {('20250813', 20)}
+SIGMA_STD = 8.0
 DIRS = {'20250813Cortes': '20250813', '20250814Cortes': '20250814',
         '20250818Cortes': '20250818', '20250819Cortes': '20250819',
         '20250820Cortes': '20250820'}
@@ -73,21 +84,29 @@ EXCLUDED = {
 RUNS = {
     ('20250819', 0): ('#184f95', 'o'),
     ('20250819', 10): ('#5598e7', 'o'),
-    ('20250818', 20): ('#1baf7a', 's'),
+    ('20250818', 20): ('#1baf7a', 'p'),
     ('20250820', 20): ('#1baf7a', '^'),
     ('20250813', 20): ('#1baf7a', 'o'),
     ('20250820', 35): ('#a8322f', 'o'),
 }
 
-# 2026 runs: label, folders (fitted from the raw sweeps), colour. Colours
-# validated as their own palette (dataviz validate_palette, light surface).
+# 2026 runs: label, folders (fitted from the raw sweeps), solute, marker,
+# K source. Colour comes from temperature (TEMP_COLORS), as for Aug 2025.
 RUNS_2026 = [
-    ('NaCl 0.9 m, Oct 7-8, 23 C, 30-min steps', ['20261007', '20261008'], '#2a78d6'),
-    ('NaCl 0.9 m, Oct 9, 23 C, 10-min steps', ['20261009'], '#eb6834'),
-    ('KCl 8 S/m std, Oct 14-15, 23 C', ['20261014', '20261015'], '#1baf7a'),
-    ('KCl 8 S/m std, Nov 5, 25 C', ['20261105'], '#eda100'),
-    ('KCl 8 S/m std, Nov 6, 20 C', ['20261106'], '#e87ba4'),
+    ('NaCl 0.9 m, Oct 7-8, 30-min steps', ['20261007', '20261008'], 'NaCl', 'D', 'oct14'),
+    ('NaCl 0.9 m, Oct 9, 10-min steps', ['20261009'], 'NaCl', 'v', 'oct14'),
+    ('KCl 8 S/m std, Oct 14-15', ['20261014', '20261015'], 'KCl', 's', 'self'),
+    ('KCl 8 S/m std, Nov 5', ['20261105'], 'KCl', 's', 'self'),
+    ('KCl 8 S/m std, Nov 6', ['20261106'], 'KCl', 's', 'self'),
 ]
+# Temperature -> colour, validated together (dataviz validate_palette,
+# --pairs all, light surface): 1, 10, 19-20, 23, 25, 35 C
+TEMP_COLORS = [(5, '#184f95'), (15, '#5598e7'), (21.5, '#1baf7a'),
+               (24, '#eda100'), (27, '#e87ba4'), (99, '#a8322f')]
+
+
+def temp_color(T_C):
+    return next(c for t, c in TEMP_COLORS if T_C < t)
 F_RANGE_HZ = 1e3 * np.array([10, 100])
 
 
@@ -139,9 +158,9 @@ def _excluded_files(folder):
 
 
 def load_2026():
-    """Step means of R for each 2026 run, as sigma/sigma_ambient = R_amb/R."""
+    """Step means of sigma = K / R for each 2026 run."""
     rows = []
-    for label, folders, _ in RUNS_2026:
+    for label, folders, comp, _, _ in RUNS_2026:
         sw = []
         for folder in folders:
             skip = _excluded_files(folder)
@@ -159,14 +178,23 @@ def load_2026():
         st = sw.groupby('step').agg(time=('time', 'first'), P_MPa=('P_MPa', 'mean'),
                                     T_K=('T_K', 'mean'), R=('R', 'mean'),
                                     R_min=('R', 'min'), R_max=('R', 'max'), n=('R', 'size'))
-        R_amb = st.R.iloc[0]  # every run starts at ambient pressure
-        st['ratio'] = R_amb / st.R
-        st['ratio_lo'] = R_amb / st.R_max
-        st['ratio_hi'] = R_amb / st.R_min
+        st['R_amb_first'] = sw.R.iloc[:3].mean()  # every run starts at ambient
         st['descent'] = st.P_MPa.cummax() > st.P_MPa + 5
-        st['run'] = label
+        st['run'], st['comp'] = label, comp
         rows.append(st)
-    return pd.concat(rows, ignore_index=True)
+    rec = pd.concat(rows, ignore_index=True)
+    K = {lbl: SIGMA_STD * rec.loc[rec.run == lbl, 'R_amb_first'].iloc[0]
+         for lbl, _, comp, _, _ in RUNS_2026 if comp == 'KCl'}
+    K['oct14'] = K['KCl 8 S/m std, Oct 14-15']
+    for lbl, _, _, _, ksrc in RUNS_2026:
+        k = K[lbl if ksrc == 'self' else ksrc]
+        m = rec.run == lbl
+        rec.loc[m, 'K_cell'] = k
+        rec.loc[m, 'sigma_Sm'] = k / rec.loc[m, 'R']
+        rec.loc[m, 'sigma_lo'] = k / rec.loc[m, 'R_max']
+        rec.loc[m, 'sigma_hi'] = k / rec.loc[m, 'R_min']
+    rec['T_C'] = rec.T_K - 273.15
+    return rec
 
 
 def _style():
@@ -178,11 +206,9 @@ def _style():
 
 
 def plot(st, path, show_excluded=False, recent=None):
-    if recent is None:
-        fig, ax = plt.subplots(figsize=(8.6, 5.2))
-    else:
-        fig, (ax, ax2) = plt.subplots(1, 2, figsize=(14, 5.4),
-                                      gridspec_kw={'width_ratios': [1.25, 1]})
+    fig, ax = plt.subplots(figsize=(10.5, 6.4))
+    if recent is not None:
+        _plot_pan(ax, st, recent)
     keep = st[st.excluded == '']
     for run, (col, mk) in RUNS.items():
         r = keep[keep.run.map(lambda x: x == run)].sort_values('P_MPa')
@@ -193,11 +219,12 @@ def plot(st, path, show_excluded=False, recent=None):
         # Connect neighbouring steps only; leave unmeasured spans open
         P, S = r.P_MPa.to_numpy(), r.sigma_Sm.to_numpy()
         for i in range(len(P) - 1):
-            if P[i + 1] - P[i] <= MAX_GAP_MPA or run in ALWAYS_CONNECT:
+            # ALWAYS_CONNECT bridges only the gap up to its highest pressure
+            if P[i + 1] - P[i] <= MAX_GAP_MPA or (run in ALWAYS_CONNECT and i == len(P) - 2):
                 ax.plot(P[i:i + 2], S[i:i + 2], '-', color=col, lw=1.5, zorder=2)
         ax.errorbar(r.P_MPa, r.sigma_Sm, yerr=yerr, fmt=mk, color=col, ms=6.5,
                     mec='#fcfcfb', mew=1.2, elinewidth=1, capsize=0, zorder=3,
-                    label=label + r' $^\circ$C')
+                    label=r'NaCl 0.5 m, ' + label + r' $^\circ$C')
     if show_excluded:
         ex = st[st.excluded != '']
         ax.plot(ex.P_MPa, ex.sigma_Sm, 'x', color='#0b0b0b', ms=7, mew=1.5,
@@ -211,15 +238,11 @@ def plot(st, path, show_excluded=False, recent=None):
     ax.set_xlim(-15, 720)
     ax.grid(True, color='#e4e3df', lw=0.6)
     ax.set_axisbelow(True)
-    ax.set_title(r'0.5 mol/kg NaCl, Gamry high-pressure cell (Cortes, Aug 2025)',
+    if recent is not None:
+        _plot_recent(ax, recent)
+    ax.set_title(r'Gamry high-pressure cell: NaCl (Cortes 2025, Diaz 2026) and the 8 S/m KCl standard',
                  fontsize=11)
-    if recent is None:
-        ax.legend(title=r'run, $T$', fontsize=8.5, title_fontsize=9, frameon=False,
-                  loc='upper left', bbox_to_anchor=(1.01, 1.0))
-    else:
-        ax.legend(title=r'run, $T$', fontsize=8, title_fontsize=8.5, frameon=False,
-                  loc='lower center', ncol=3)
-        _plot_recent(ax2, recent)
+    ax.legend(fontsize=7.8, frameon=False, loc='upper left', bbox_to_anchor=(1.01, 1.0))
     fig.tight_layout()
     fig.savefig(path, dpi=200)
     if path.endswith('.png') and not show_excluded:
@@ -228,24 +251,46 @@ def plot(st, path, show_excluded=False, recent=None):
 
 
 def _plot_recent(ax, rec):
-    for label, _, col in RUNS_2026:
+    for label, _, comp, mk, _ in RUNS_2026:
         r = rec[rec.run == label]
-        ax.plot(r.P_MPa, r.ratio, '-', color=col, lw=1.5, zorder=2)
-        for desc, mfc in ((False, col), (True, '#fcfcfb')):
+        col = temp_color(r.T_C.mean())
+        ax.plot(r.P_MPa, r.sigma_Sm, '-', color=col, lw=1.2, zorder=2)
+        for desc in (False, True):
             q = r[r.descent == desc]
-            ax.errorbar(q.P_MPa, q.ratio, yerr=[q.ratio - q.ratio_lo, q.ratio_hi - q.ratio],
-                        fmt='o', color=col, mfc=mfc, mec=col if desc else '#fcfcfb',
-                        ms=6, mew=1.2, elinewidth=1, capsize=0, zorder=3,
-                        label=None if desc else label)
-    ax.plot([], [], 'o', color='#52514e', mfc='#fcfcfb', ms=6, label='hollow: decompression')
-    ax.axhline(1, color='#9a9a9a', lw=0.8, zorder=1)
-    ax.set_xlabel('Pressure (MPa)')
-    ax.set_ylabel(r'$\sigma(P)\,/\,\sigma(P_\mathrm{amb})$, same run')
-    ax.set_xlim(-8, 215)
-    ax.grid(True, color='#e4e3df', lw=0.6)
-    ax.set_axisbelow(True)
-    ax.set_title('2026 runs (Diaz), normalized to ambient', fontsize=11)
-    ax.legend(fontsize=8, frameon=False, loc='upper left')
+            ax.errorbar(q.P_MPa, q.sigma_Sm, yerr=[q.sigma_Sm - q.sigma_lo, q.sigma_hi - q.sigma_Sm],
+                        fmt=mk, color=col, mfc='#fcfcfb' if desc else col,
+                        mec=col if desc else '#fcfcfb', ms=6, mew=1.2, elinewidth=1,
+                        capsize=0, zorder=3,
+                        label=None if desc else f'{label}, {r.T_C.mean():.1f} $^\\circ$C')
+    ax.plot([], [], 's', color='#52514e', mfc='#fcfcfb', ms=6,
+            label='hollow: decompression (2026)')
+
+
+def _plot_pan(ax, st, rec):
+    """Pan et al. (2021) on each measured NaCl isotherm."""
+    P = np.linspace(0.1, 700, 300)
+    iso = [(0.5, T, temp_color(T)) for T in
+           st[st.excluded == ''].groupby('run').T_C.mean()
+           if not 18 < T < 19.5]  # one curve for the three ~20 C days
+    iso += [(0.9, r.T_C.mean(), temp_color(r.T_C.mean()))
+            for _, r in rec[rec.comp == 'NaCl'].groupby('run')]
+    seen = set()
+    for m, T, col in iso:
+        key = (m, round(T))
+        if key in seen:
+            continue
+        seen.add(key)
+        T_K = T + 273.15
+        Pm = P if m == 0.5 else P[P <= 215]
+        sig = pan.sigma_vs_P(m, T_K, Pm)
+        inside = pan.in_envelope(Pm, T_K)
+        ax.plot(Pm, sig, '--', color=col, lw=1, alpha=0.75, zorder=1)
+        ax.plot(np.where(inside, Pm, np.nan), np.where(inside, sig, np.nan), '-',
+                color=col, lw=2.6, alpha=0.35, zorder=1)
+    ax.plot([], [], '--', color='#52514e', lw=1,
+            label='Pan et al. (2021), extrapolated')
+    ax.plot([], [], '-', color='#52514e', lw=2.6, alpha=0.35,
+            label='Pan et al. (2021), in envelope')
 
 
 def main():
