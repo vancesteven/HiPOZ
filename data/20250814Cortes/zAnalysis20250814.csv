@@ -1,0 +1,28 @@
+group_name,filename,P_MPa,T_K,type,Z_Ohm,Z_unc_Ohm,conductivity_Sm,S_unc_pct,comp,w_ppt,w_molal,exclude,notes
+Group 1,101348_JAC_NaCl_P5M_600MPa_20C_Overnighttest(2).txt,600.0,292.11,measurement,20.84,0.07878,3.833,0.02049,NaCl,28.39,0.5,,
+Group 1,101451_JAC_NaCl_P5M_600MPa_20C_Overnighttest(1).txt,600.0,292.14,measurement,20.84,0.07996,3.833,0.0208,NaCl,28.39,0.5,,
+Group 1,101554_JAC_NaCl_P5M_600MPa_20C_Overnighttest.txt,599.0,292.14,measurement,20.84,0.07827,3.833,0.02036,NaCl,28.39,0.5,,
+Group 1,133427_JAC_Calibrationstndrd_80ms_cm(2).txt,0.1,292.57,standard,9.961,0.06086,8,,,,,,Add comp and w_ppt
+Group 1,133521_JAC_Calibrationstndrd_80ms_cm(1).txt,0.1,292.6,standard,9.987,0.06585,8,,,,,,Add comp and w_ppt
+Group 1,133615_JAC_Calibrationstndrd_80ms_cm.txt,0.1,292.59,standard,10.01,0.05997,8,,,,,,Add comp and w_ppt
+Group 1,134843_JAC_Calibrationstndrd_15ms_cm(2).txt,0.1,292.59,measurement,50.17,0.09523,1.592,,NaCl,,,,
+Group 1,134946_JAC_Calibrationstndrd_15ms_cm(1).txt,0.1,292.61,measurement,50.25,0.07627,1.59,,NaCl,,,,
+Group 1,135049_JAC_Calibrationstndrd_15ms_cm.txt,0.1,292.62,measurement,50.32,0.07488,1.588,,NaCl,,,,
+Group 1,150829_JAC_NaCl_P5M_20C(2).txt,0.1,292.65,measurement,17.08,0.06748,4.678,,NaCl,28.39,0.5,,
+Group 1,150931_JAC_NaCl_P5M_20C(1).txt,0.1,292.66,measurement,17.08,0.05815,4.678,,NaCl,28.39,0.5,,
+Group 1,151034_JAC_NaCl_P5M_20C.txt,0.1,292.68,measurement,17.09,0.0551,4.675,,NaCl,28.39,0.5,,
+Group 1,151732_JAC_NaCl_P75M_20C(2).txt,0.1,292.63,measurement,11.63,0.04784,6.871,,NaCl,41.99,0.75,,
+Group 1,151826_JAC_NaCl_P75M_20C(1).txt,0.1,292.64,measurement,11.62,0.05742,6.876,,NaCl,41.99,0.75,,
+Group 1,151920_JAC_NaCl_P75M_20C.txt,0.1,292.64,measurement,11.63,0.05907,6.867,,NaCl,41.99,0.75,,
+Group 1,155446_JAC_NaCl_2M_20C(2).txt,0.1,292.61,measurement,5.613,0.1148,14.23,,NaCl,104.65,2,,
+Group 1,155541_JAC_NaCl_2M_20C(1).txt,0.1,292.61,measurement,5.605,0.1195,14.25,,NaCl,104.65,2,,
+Group 1,155634_JAC_NaCl_2M_20C.txt,0.1,292.63,measurement,5.603,0.1262,14.26,,NaCl,104.65,2,,
+Group 1,162035_JAC_NaCl+MgSO4_1P5M+P2M_20C(2).txt,0.1,292.6,measurement,5.931,1.293e+06,,,"NaCl,MgSO4",247.21,"1.5,2",,
+Group 1,162129_JAC_NaCl+MgSO4_1P5M+P2M_20C(1).txt,0.1,292.62,measurement,5.934,1.469e+06,,,"NaCl,MgSO4",247.21,"1.5,2",,
+Group 1,162223_JAC_NaCl+MgSO4_1P5M+P2M_20C.txt,0.1,292.63,measurement,5.969,1.267e+06,,,"NaCl,MgSO4",247.21,"1.5,2",,
+Group 1,163415_JAC_NaCl+MgSO4_1P5M+P4M_20C(2).txt,0.1,292.59,measurement,6.855,0.08515,11.65,,"NaCl,MgSO4",119.57,"1.5,0.4",,
+Group 1,163510_JAC_NaCl+MgSO4_1P5M+P4M_20C(1).txt,0.1,292.6,measurement,6.84,0.1037,11.68,,"NaCl,MgSO4",119.57,"1.5,0.4",,
+Group 1,163604_JAC_NaCl+MgSO4_1P5M+P4M_20C.txt,0.1,292.61,measurement,6.838,0.106,11.68,,"NaCl,MgSO4",119.57,"1.5,0.4",,
+Group 1,164301_JAC_NaCl+MgSO4_1P5M+P6M_20C(2).txt,0.1,292.55,measurement,6.913,0.09454,11.56,,"NaCl,MgSO4",137.84,"1.5,0.6",,
+Group 1,164356_JAC_NaCl+MgSO4_1P5M+P6M_20C(1).txt,0.1,292.57,measurement,6.904,0.09744,11.57,,"NaCl,MgSO4",137.84,"1.5,0.6",,
+Group 1,164449_JAC_NaCl+MgSO4_1P5M+P6M_20C.txt,0.1,292.57,measurement,6.903,0.09743,11.57,,"NaCl,MgSO4",137.84,"1.5,0.6",,

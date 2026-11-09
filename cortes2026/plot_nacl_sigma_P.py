@@ -32,6 +32,7 @@ the zAnalysis configs.
 Usage:  python cortes2026/plot_nacl_sigma_P.py
 Writes: cortes2026/nacl_sigma_P/nacl_0p5m_sigma_P.{pdf,png}   clean figure
         cortes2026/nacl_sigma_P/sigma_P_2026_steps.csv         2026 step table
+        cortes2026/diaz/diaz_hp_sweep_fits.csv                 2026 per-sweep fits
         cortes2026/nacl_sigma_P/nacl_0p5m_sigma_P_excluded.png shows what was cut
         cortes2026/nacl_sigma_P/nacl_0p5m_sigma_P_steps.csv    step table
 """
@@ -115,6 +116,12 @@ TEMP_COLORS = [(5, '#184f95'), (15, '#5598e7'), (21.5, '#1baf7a'),
 def temp_color(T_C):
     return next(c for t, c in TEMP_COLORS if T_C < t)
 F_RANGE_HZ = 1e3 * np.array([10, 100])
+# Fitted for the supplement tables only, not plotted: label, folders, solute,
+# K source, reason
+EXTRA_2026 = [
+    ('NaCl 0.9 m, Oct 6, 5-10-min steps', ['20261006'], 'NaCl', 'oct14',
+     'left out: 5-10 min steps, up/down mismatch (Diaz notebook p. 22-23)'),
+]
 
 
 def load_sweeps():
@@ -164,22 +171,30 @@ def _excluded_files(folder):
     return out
 
 
+def fit_sweeps(folders):
+    """CPE fit of every sweep in the folders; config exclusions flagged."""
+    sw = []
+    for folder in folders:
+        skip = _excluded_files(folder)
+        for f in sorted(glob(os.path.join(REPO, 'data', folder, 'Conductivity*', '*.txt'))):
+            s = Solution(cmap_name='viridis')
+            s.load_file(f)
+            s.fit_circuit(circ_type='CPE', initial_guess=None, print_circuit=False,
+                          basin_hopping=False, multiproc=False, f_range_hz=F_RANGE_HZ)
+            sw.append(dict(time=s.time, filename=os.path.basename(f), folder=folder,
+                           P_MPa=s.P_MPa, T_K=s.T_K, R=s.Rcalc_ohm, R_unc=s.Runc_ohm,
+                           excluded='excluded in zAnalysis config'
+                           if os.path.basename(f) in skip else ''))
+    return pd.DataFrame(sw).sort_values('time').reset_index(drop=True)
+
+
 def load_2026():
     """Step means of sigma = K / R for each 2026 run."""
-    rows = []
+    rows, sweeps = [], []
     for label, folders, comp, _, _ in RUNS_2026:
-        sw = []
-        for folder in folders:
-            skip = _excluded_files(folder)
-            for f in sorted(glob(os.path.join(REPO, 'data', folder, 'Conductivity*', '*.txt'))):
-                if os.path.basename(f) in skip:
-                    continue
-                s = Solution(cmap_name='viridis')
-                s.load_file(f)
-                s.fit_circuit(circ_type='CPE', initial_guess=None, print_circuit=False,
-                              basin_hopping=False, multiproc=False, f_range_hz=F_RANGE_HZ)
-                sw.append(dict(time=s.time, P_MPa=s.P_MPa, T_K=s.T_K, R=s.Rcalc_ohm))
-        sw = pd.DataFrame(sw).sort_values('time').reset_index(drop=True)
+        sw_all_run = fit_sweeps(folders)
+        sweeps.append(sw_all_run.assign(run=label, comp=comp))
+        sw = sw_all_run[sw_all_run.excluded == ''].reset_index(drop=True)
         new = (sw.time.diff().dt.total_seconds() > 240) | (sw.P_MPa.diff().abs() > 10)
         sw['step'] = new.cumsum()
         st = sw.groupby('step').agg(time=('time', 'first'), P_MPa=('P_MPa', 'mean'),
@@ -189,18 +204,31 @@ def load_2026():
         st['descent'] = st.P_MPa.cummax() > st.P_MPa + 5
         st['run'], st['comp'] = label, comp
         rows.append(st)
+    for label, folders, comp, _, reason in EXTRA_2026:
+        sweeps.append(fit_sweeps(folders).assign(run=label, comp=comp, excluded=reason))
     rec = pd.concat(rows, ignore_index=True)
+    sw_all = pd.concat(sweeps, ignore_index=True)
     K = {lbl: SIGMA_STD * rec.loc[rec.run == lbl, 'R_amb_first'].iloc[0]
          for lbl, _, comp, _, _ in RUNS_2026 if comp == 'KCl'}
     K['oct14'] = K['KCl 8 S/m std, Oct 14-15']
-    for lbl, _, _, _, ksrc in RUNS_2026:
+    for lbl, _, _, _, ksrc in RUNS_2026 + [(e[0], None, None, None, e[3]) for e in EXTRA_2026]:
+        if lbl not in set(rec.run):
+            ms = sw_all.run == lbl
+            sw_all.loc[ms, 'K_cell'] = K[ksrc]
+            sw_all.loc[ms, 'sigma_Sm'] = K[ksrc] / sw_all.loc[ms, 'R']
+            continue
         k = K[lbl if ksrc == 'self' else ksrc]
         m = rec.run == lbl
         rec.loc[m, 'K_cell'] = k
         rec.loc[m, 'sigma_Sm'] = k / rec.loc[m, 'R']
         rec.loc[m, 'sigma_lo'] = k / rec.loc[m, 'R_max']
         rec.loc[m, 'sigma_hi'] = k / rec.loc[m, 'R_min']
+        ms = sw_all.run == lbl
+        sw_all.loc[ms, 'K_cell'] = k
+        sw_all.loc[ms, 'sigma_Sm'] = k / sw_all.loc[ms, 'R']
     rec['T_C'] = rec.T_K - 273.15
+    sw_all.to_csv(os.path.join(HERE, 'diaz', 'diaz_hp_sweep_fits.csv'), index=False,
+                  float_format='%.6g')
     return rec
 
 

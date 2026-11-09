@@ -1,0 +1,145 @@
+# Rose Garrity lab notebook, probe (benchtop conductivity meter) readings, as written.
+# Transcribed from labnotes/IMG_0195 (p.1), IMG_0197 (p.3), IMG_0199 (p.5), IMG_0200 (p.6), 2026-11-08.
+# Concentrations as labelled ("M"); the lab prepares molal solutions (Steve, 2026-11-07), so mol/kg.
+# Mixtures: NaCl:MgSO4 in mol/kg; g_MgSO4_per_10mL is the parenthesis on p.3. Readings in reading_units, unconverted.
+# T_C: per-reading thermometer value where written (pp.5-6); T_C_written: the page's T entry for the row (pp.1,3).
+# p.1 and p.3 readings likely had probe temperature compensation on (fix found ~3/8/26, p.4).
+page,date,solute,concentration,g_MgSO4_per_10mL,T_C,reading,value,reading_units,T_C_written,bath,notes
+1,2026-02-05,KCl standard,84 uS/cm,,,1,85.85,uS/cm,22.4-22.8,,standard; each cell also has an earlier, struck-through value (not transcribed)
+1,2026-02-05,KCl standard,84 uS/cm,,,2,84.88,uS/cm,22.4-22.8,,standard; each cell also has an earlier, struck-through value (not transcribed)
+1,2026-02-05,KCl standard,84 uS/cm,,,3,85.34,uS/cm,22.4-22.8,,standard; each cell also has an earlier, struck-through value (not transcribed)
+1,2026-02-05,KCl standard,2070 uS/cm,,,1,2102,uS/cm,22.4-22.8,,standard
+1,2026-02-05,KCl standard,2070 uS/cm,,,2,2090,uS/cm,22.4-22.8,,standard
+1,2026-02-05,KCl standard,2070 uS/cm,,,3,2094,uS/cm,22.4-22.8,,standard
+1,2026-02-05,KCl standard,2764 uS/cm,,,1,2770,uS/cm,22.4-22.8,,standard
+1,2026-02-05,KCl standard,2764 uS/cm,,,2,2771,uS/cm,22.4-22.8,,standard
+1,2026-02-05,KCl standard,2764 uS/cm,,,3,2705,uS/cm,22.4-22.8,,standard
+1,2026-02-05,KCl standard,15 mS/cm,,,1,14.95,mS/cm,22.4-22.8,,standard
+1,2026-02-05,KCl standard,15 mS/cm,,,2,14.86,mS/cm,22.4-22.8,,standard
+1,2026-02-05,KCl standard,15 mS/cm,,,3,14.77,mS/cm,22.4-22.8,,standard
+1,2026-02-05,KCl standard,80 mS/cm,,,1,79.72,mS/cm,22.4-22.8,,standard
+1,2026-02-05,KCl standard,80 mS/cm,,,2,79.06,mS/cm,22.4-22.8,,standard
+1,2026-02-05,KCl standard,80 mS/cm,,,3,77.67,mS/cm,22.4-22.8,,standard
+1,2026-02-05,NaCl,0.5,,,1,47.02,mS/cm,22.4-22.8,,
+1,2026-02-05,NaCl,0.5,,,2,46.92,mS/cm,22.4-22.8,,
+1,2026-02-05,NaCl,0.5,,,3,46.75,mS/cm,22.4-22.8,,
+1,2026-02-05,NaCl,0.75,,,1,65.37,mS/cm,22.4-22.8,,
+1,2026-02-05,NaCl,0.75,,,2,65.42,mS/cm,22.4-22.8,,
+1,2026-02-05,NaCl,0.75,,,3,65.3,mS/cm,22.4-22.8,,
+1,2026-02-05,NaCl,1.0,,,1,86.47,mS/cm,22.4-22.8,,
+1,2026-02-05,NaCl,1.0,,,2,86.33,mS/cm,22.4-22.8,,
+1,2026-02-05,NaCl,1.0,,,3,86.28,mS/cm,22.4-22.8,,
+1,2026-02-05,NaCl,1.5,,,1,121.9,mS/cm,22.4-22.8,,
+1,2026-02-05,NaCl,1.5,,,2,121.9,mS/cm,22.4-22.8,,
+1,2026-02-05,NaCl,1.5,,,3,121.6,mS/cm,22.4-22.8,,
+1,2026-02-05,NaCl,2.0,,,1,145.5,mS/cm,22.4-22.8,,
+1,2026-02-05,NaCl,2.0,,,2,145.5,mS/cm,22.4-22.8,,
+1,2026-02-05,NaCl,2.0,,,3,145.3,mS/cm,22.4-22.8,,
+3,2026-02-26,NaCl:MgSO4,1.5:0.0,,,1,120.5,mS/cm,"22.4, 22.7",RT,
+3,2026-02-26,NaCl:MgSO4,1.5:0.0,,,2,119.3,mS/cm,"22.4, 22.7",RT,
+3,2026-02-26,NaCl:MgSO4,1.5:0.0,,,3,118.1,mS/cm,"22.4, 22.7",RT,
+3,2026-02-26,NaCl:MgSO4,1.5:0.2,0.24074,,1,128.6,mS/cm,,RT,
+3,2026-02-26,NaCl:MgSO4,1.5:0.2,0.24074,,2,126.7,mS/cm,,RT,
+3,2026-02-26,NaCl:MgSO4,1.5:0.2,0.24074,,3,125.9,mS/cm,,RT,
+3,2026-02-26,NaCl:MgSO4,1.5:0.3,0.36111,,1,137.0,mS/cm,,RT,
+3,2026-02-26,NaCl:MgSO4,1.5:0.3,0.36111,,2,136.5,mS/cm,,RT,
+3,2026-02-26,NaCl:MgSO4,1.5:0.3,0.36111,,3,135.1,mS/cm,,RT,
+3,2026-02-26,NaCl:MgSO4,1.5:0.4,0.48148,,1,130.6,mS/cm,"26.4, 26.8",RT,
+3,2026-02-26,NaCl:MgSO4,1.5:0.4,0.48148,,2,128.1,mS/cm,"26.4, 26.8",RT,
+3,2026-02-26,NaCl:MgSO4,1.5:0.4,0.48148,,3,128.6,mS/cm,"26.4, 26.8",RT,
+3,2026-02-26,NaCl:MgSO4,1.5:0.5,0.60185,,1,136.7,mS/cm,"27.8, 27.3, 26.7",RT,
+3,2026-02-26,NaCl:MgSO4,1.5:0.5,0.60185,,2,134.4,mS/cm,"27.8, 27.3, 26.7",RT,
+3,2026-02-26,NaCl:MgSO4,1.5:0.5,0.60185,,3,132.7,mS/cm,"27.8, 27.3, 26.7",RT,
+3,2026-02-26,NaCl:MgSO4,1.5:0.6,0.72222,,1,137.2,mS/cm,"27.8, 27.6, 27.0",RT,
+3,2026-02-26,NaCl:MgSO4,1.5:0.6,0.72222,,2,134.7,mS/cm,"27.8, 27.6, 27.0",RT,
+3,2026-02-26,NaCl:MgSO4,1.5:0.6,0.72222,,3,132.7,mS/cm,"27.8, 27.6, 27.0",RT,
+3,2026-02-26,NaCl:MgSO4,1.5:0.7,0.84259,,1,135.9,mS/cm,"27.5, 26.9, 26.5",RT,
+3,2026-02-26,NaCl:MgSO4,1.5:0.7,0.84259,,2,134.0,mS/cm,"27.5, 26.9, 26.5",RT,
+3,2026-02-26,NaCl:MgSO4,1.5:0.7,0.84259,,3,132.0,mS/cm,"27.5, 26.9, 26.5",RT,
+3,2026-02-26,NaCl:MgSO4,1.5:0.8,0.96296,,1,130.4,mS/cm,"27.2, 27.0, 26.9",RT,
+3,2026-02-26,NaCl:MgSO4,1.5:0.8,0.96296,,2,129.4,mS/cm,"27.2, 27.0, 26.9",RT,
+3,2026-02-26,NaCl:MgSO4,1.5:0.8,0.96296,,3,128.7,mS/cm,"27.2, 27.0, 26.9",RT,
+3,2026-02-26,NaCl:MgSO4,1.5:0.9,1.08333,,1,135.9,mS/cm,"28.2, 28.3, 28.1",RT,
+3,2026-02-26,NaCl:MgSO4,1.5:0.9,1.08333,,2,135.0,mS/cm,"28.2, 28.3, 28.1",RT,
+3,2026-02-26,NaCl:MgSO4,1.5:0.9,1.08333,,3,133.7,mS/cm,"28.2, 28.3, 28.1",RT,
+3,2026-02-26,NaCl:MgSO4,1.5:1.0,1.2037,,1,134.5,mS/cm,"27.9, 28.2, 27.9",RT,
+3,2026-02-26,NaCl:MgSO4,1.5:1.0,1.2037,,2,133.2,mS/cm,"27.9, 28.2, 27.9",RT,
+3,2026-02-26,NaCl:MgSO4,1.5:1.0,1.2037,,3,131.6,mS/cm,"27.9, 28.2, 27.9",RT,
+3,2026-02-26,NaCl:MgSO4,1:2,,,1,97.25,mS/cm,"28.2, 28.6, 29.0",RT,
+3,2026-02-26,NaCl:MgSO4,1:2,,,2,96.63,mS/cm,"28.2, 28.6, 29.0",RT,
+3,2026-02-26,NaCl:MgSO4,1:2,,,3,94.83,mS/cm,"28.2, 28.6, 29.0",RT,
+3,2026-02-26,NaCl:MgSO4,2:1,,,1,147.6,mS/cm,"28.0, 27.5, 27.1",RT,
+3,2026-02-26,NaCl:MgSO4,2:1,,,2,144.8,mS/cm,"28.0, 27.5, 27.1",RT,
+3,2026-02-26,NaCl:MgSO4,2:1,,,3,143.5,mS/cm,"28.0, 27.5, 27.1",RT,
+5,2026-03-17,NaCl:MgSO4,1.5:0.0,,10.1,1,88.82,mS/cm,,10 C,cell factor 0.485 after recalibration
+5,2026-03-17,NaCl:MgSO4,1.5:0.0,,9.8,2,88.8,mS/cm,,10 C,cell factor 0.485 after recalibration
+5,2026-03-17,NaCl:MgSO4,1.5:0.0,,10.0,3,89.34,mS/cm,,10 C,cell factor 0.485 after recalibration
+5,2026-03-17,NaCl:MgSO4,1.5:0.2,,10.2,1,91.95,mS/cm,,10 C,cell factor 0.485 after recalibration
+5,2026-03-17,NaCl:MgSO4,1.5:0.2,,9.7,2,91.29,mS/cm,,10 C,cell factor 0.485 after recalibration
+5,2026-03-17,NaCl:MgSO4,1.5:0.2,,9.9,3,91.28,mS/cm,,10 C,cell factor 0.485 after recalibration
+5,2026-03-17,NaCl:MgSO4,1.5:0.3,,10.2,1,97.36,mS/cm,,10 C,cell factor 0.485 after recalibration
+5,2026-03-17,NaCl:MgSO4,1.5:0.3,,10.0,2,97.08,mS/cm,,10 C,cell factor 0.485 after recalibration
+5,2026-03-17,NaCl:MgSO4,1.5:0.3,,9.9,3,96.88,mS/cm,,10 C,cell factor 0.485 after recalibration
+5,2026-03-17,NaCl:MgSO4,1.5:0.4,,10.2,1,92.99,mS/cm,,10 C,cell factor 0.485 after recalibration
+5,2026-03-17,NaCl:MgSO4,1.5:0.4,,10.0,2,92.73,mS/cm,,10 C,cell factor 0.485 after recalibration
+5,2026-03-17,NaCl:MgSO4,1.5:0.4,,9.9,3,92.47,mS/cm,,10 C,cell factor 0.485 after recalibration
+5,2026-03-17,NaCl:MgSO4,1.5:0.5,,10.2,1,95.58,mS/cm,,10 C,cell factor 0.485 after recalibration
+5,2026-03-17,NaCl:MgSO4,1.5:0.5,,9.9,2,95.25,mS/cm,,10 C,cell factor 0.485 after recalibration
+5,2026-03-17,NaCl:MgSO4,1.5:0.5,,9.8,3,95.02,mS/cm,,10 C,cell factor 0.485 after recalibration
+5,2026-03-17,NaCl:MgSO4,1.5:0.6,,10.1,1,94.95,mS/cm,,10 C,cell factor 0.485 after recalibration
+5,2026-03-17,NaCl:MgSO4,1.5:0.6,,10.0,2,94.69,mS/cm,,10 C,cell factor 0.485 after recalibration
+5,2026-03-17,NaCl:MgSO4,1.5:0.6,,9.8,3,94.47,mS/cm,,10 C,cell factor 0.485 after recalibration
+5,2026-03-17,NaCl:MgSO4,1.5:0.7,,10.2,1,93.42,mS/cm,,10 C,cell factor 0.485 after recalibration
+5,2026-03-17,NaCl:MgSO4,1.5:0.7,,10.1,2,93.33,mS/cm,,10 C,cell factor 0.485 after recalibration
+5,2026-03-17,NaCl:MgSO4,1.5:0.7,,10.0,3,93.27,mS/cm,,10 C,cell factor 0.485 after recalibration
+5,2026-03-17,NaCl:MgSO4,1.5:0.8,,10.1,1,91.25,mS/cm,,10 C,cell factor 0.485 after recalibration
+5,2026-03-17,NaCl:MgSO4,1.5:0.8,,10.0,2,91.09,mS/cm,,10 C,cell factor 0.485 after recalibration
+5,2026-03-17,NaCl:MgSO4,1.5:0.8,,9.9,3,90.92,mS/cm,,10 C,cell factor 0.485 after recalibration
+5,2026-03-17,NaCl:MgSO4,1.5:0.9,,10.1,1,91.65,mS/cm,,10 C,cell factor 0.485 after recalibration
+5,2026-03-17,NaCl:MgSO4,1.5:0.9,,10.0,2,91.49,mS/cm,,10 C,cell factor 0.485 after recalibration
+5,2026-03-17,NaCl:MgSO4,1.5:0.9,,9.9,3,91.31,mS/cm,,10 C,cell factor 0.485 after recalibration
+5,2026-03-17,NaCl:MgSO4,1.5:1.0,,10.2,1,90.3,mS/cm,,10 C,cell factor 0.485 after recalibration
+5,2026-03-17,NaCl:MgSO4,1.5:1.0,,10.1,2,90.12,mS/cm,,10 C,cell factor 0.485 after recalibration
+5,2026-03-17,NaCl:MgSO4,1.5:1.0,,10.0,3,89.95,mS/cm,,10 C,cell factor 0.485 after recalibration
+5,2026-03-17,NaCl:MgSO4,1:2,,10.1,1,61.79,mS/cm,,10 C,cell factor 0.485 after recalibration
+5,2026-03-17,NaCl:MgSO4,1:2,,10.0,2,61.65,mS/cm,,10 C,cell factor 0.485 after recalibration
+5,2026-03-17,NaCl:MgSO4,1:2,,9.9,3,61.52,mS/cm,,10 C,cell factor 0.485 after recalibration
+5,2026-03-17,NaCl:MgSO4,2:1,,10.2,1,100.4,mS/cm,,10 C,cell factor 0.485 after recalibration
+5,2026-03-17,NaCl:MgSO4,2:1,,10.1,2,100.1,mS/cm,,10 C,cell factor 0.485 after recalibration
+5,2026-03-17,NaCl:MgSO4,2:1,,9.9,3,99.95,mS/cm,,10 C,cell factor 0.485 after recalibration
+6,2026-03-19,NaCl:MgSO4,1.5:0.0,,5.1,1,77.36,mS/cm,,5 C,cell factor 0.477
+6,2026-03-19,NaCl:MgSO4,1.5:0.0,,5.0,2,77.33,mS/cm,,5 C,cell factor 0.477
+6,2026-03-19,NaCl:MgSO4,1.5:0.0,,4.9,3,77.3,mS/cm,,5 C,cell factor 0.477
+6,2026-03-19,NaCl:MgSO4,1.5:0.2,,5.2,1,79.84,mS/cm,,5 C,cell factor 0.477
+6,2026-03-19,NaCl:MgSO4,1.5:0.2,,5.1,2,79.71,mS/cm,,5 C,cell factor 0.477
+6,2026-03-19,NaCl:MgSO4,1.5:0.2,,5.0,3,79.63,mS/cm,,5 C,cell factor 0.477
+6,2026-03-19,NaCl:MgSO4,1.5:0.3,,5.1,1,84.07,mS/cm,,5 C,cell factor 0.477
+6,2026-03-19,NaCl:MgSO4,1.5:0.3,,5.0,2,84.0,mS/cm,,5 C,cell factor 0.477
+6,2026-03-19,NaCl:MgSO4,1.5:0.3,,4.9,3,83.92,mS/cm,,5 C,cell factor 0.477
+6,2026-03-19,NaCl:MgSO4,1.5:0.4,,5.0,1,80.35,mS/cm,,5 C,cell factor 0.477
+6,2026-03-19,NaCl:MgSO4,1.5:0.4,,4.9,2,80.21,mS/cm,,5 C,cell factor 0.477
+6,2026-03-19,NaCl:MgSO4,1.5:0.4,,4.8,3,80.09,mS/cm,,5 C,cell factor 0.477
+6,2026-03-19,NaCl:MgSO4,1.5:0.5,,5.0,1,82.31,mS/cm,,5 C,cell factor 0.477
+6,2026-03-19,NaCl:MgSO4,1.5:0.5,,4.9,2,82.23,mS/cm,,5 C,cell factor 0.477
+6,2026-03-19,NaCl:MgSO4,1.5:0.5,,4.9,3,82.19,mS/cm,,5 C,cell factor 0.477
+6,2026-03-19,NaCl:MgSO4,1.5:0.6,,5.2,1,82.32,mS/cm,,5 C,cell factor 0.477
+6,2026-03-19,NaCl:MgSO4,1.5:0.6,,5.1,2,82.18,mS/cm,,5 C,cell factor 0.477
+6,2026-03-19,NaCl:MgSO4,1.5:0.6,,5.1,3,82.09,mS/cm,,5 C,cell factor 0.477
+6,2026-03-19,NaCl:MgSO4,1.5:0.7,,5.0,1,81.64,mS/cm,,5 C,cell factor 0.477
+6,2026-03-19,NaCl:MgSO4,1.5:0.7,,5.0,2,81.56,mS/cm,,5 C,cell factor 0.477
+6,2026-03-19,NaCl:MgSO4,1.5:0.7,,4.9,3,81.44,mS/cm,,5 C,cell factor 0.477
+6,2026-03-19,NaCl:MgSO4,1.5:0.8,,4.7,1,78.74,mS/cm,,5 C,cell factor 0.477
+6,2026-03-19,NaCl:MgSO4,1.5:0.8,,4.7,2,78.52,mS/cm,,5 C,cell factor 0.477
+6,2026-03-19,NaCl:MgSO4,1.5:0.8,,4.8,3,78.49,mS/cm,,5 C,cell factor 0.477
+6,2026-03-19,NaCl:MgSO4,1.5:0.9,,5.1,1,79.77,mS/cm,,5 C,cell factor 0.477
+6,2026-03-19,NaCl:MgSO4,1.5:0.9,,5.1,2,79.68,mS/cm,,5 C,cell factor 0.477
+6,2026-03-19,NaCl:MgSO4,1.5:0.9,,5.0,3,79.59,mS/cm,,5 C,cell factor 0.477
+6,2026-03-19,NaCl:MgSO4,1.5:1.0,,5.0,1,77.21,mS/cm,,5 C,cell factor 0.477; first reading 77.21 on the photo (earlier LABNOTES transcription had 77.71)
+6,2026-03-19,NaCl:MgSO4,1.5:1.0,,5.2,2,77.98,mS/cm,,5 C,cell factor 0.477
+6,2026-03-19,NaCl:MgSO4,1.5:1.0,,5.1,3,77.79,mS/cm,,5 C,cell factor 0.477
+6,2026-03-19,NaCl:MgSO4,1:2,,5.0,1,52.2,mS/cm,,5 C,cell factor 0.477
+6,2026-03-19,NaCl:MgSO4,1:2,,5.0,2,52.1,mS/cm,,5 C,cell factor 0.477
+6,2026-03-19,NaCl:MgSO4,1:2,,4.9,3,52.0,mS/cm,,5 C,cell factor 0.477
+6,2026-03-19,NaCl:MgSO4,2:1,,5.1,1,86.28,mS/cm,,5 C,cell factor 0.477
+6,2026-03-19,NaCl:MgSO4,2:1,,5.0,2,86.15,mS/cm,,5 C,cell factor 0.477
+6,2026-03-19,NaCl:MgSO4,2:1,,4.9,3,85.99,mS/cm,,5 C,cell factor 0.477
