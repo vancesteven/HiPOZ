@@ -1,7 +1,107 @@
-\documentclass{article}
-\usepackage[margin=1.5cm,landscape]{geometry}
-\usepackage{longtable,booktabs}
-\usepackage[T1]{fontenc}
+% \documentclass[twocolumn,11pt]{article}
+\documentclass[journal=aesccq,manuscript=suppinfo]{achemso}
+\SectionNumbersOn
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% Place any additional packages needed here.  Only include packages
+%% which are essential, to avoid problems later.
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% \usepackage[modulo]{lineno}
+\usepackage{chemformula} % Formula subscripts using \ch{}
+\usepackage{siunitx} % consistent si notation
+\usepackage[T1]{fontenc} % Use modern font encodings
+\usepackage{booktabs}
+\usepackage[version=4]{mhchem}
+\usepackage{amsmath}
+\usepackage{graphicx}
+\usepackage{caption}
+\usepackage{lipsum} % For placeholder text
+\usepackage{longtable}
+\usepackage{geometry}
+\usepackage[table]{xcolor}
+
+% prefix "S" to figure and table numbers
+\renewcommand{\thefigure}{S\arabic{figure}}
+\renewcommand{\thetable}{S\arabic{table}}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% If issues arise when submitting your manuscript, you may want to
+%% un-comment the next line.  This provides information on the
+%% version of every file you have used.
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%\listfiles
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% Place any additional macros here.  Please use \newcommand* where
+%% possible, and avoid layout-changing macros (which are not used
+%% when typesetting).
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% \newcommand*\mycommand[1]{\texttt{\emph{#1}}}
+
+% Bibliography handling
+% \usepackage[citestyle=authoryear,bibstyle=authoryear,sorting=none,maxnames=99]{biblatex}
+% % \DeclareNameAlias{author}{family-given}
+% \addbibresource{references.bib}
+
+
+% \geometry{top=1in, bottom=1in, left=1in, right=1in}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% Meta-data block
+%% ---------------
+%% Each author should be given as a separate \author command.
+%%
+%% Corresponding authors should have an e-mail given after the author
+%% name as an \email command. Phone and fax numbers can be given
+%% using \phone and \fax, respectively; this information is optional.
+%%
+%% The affiliation of authors is given after the authors; each
+%% \affiliation command applies to all preceding authors not already
+%% assigned an affiliation.
+%%
+%% The affiliation takes an option argument for the short name.  This
+%% will typically be something like "University of Somewhere".
+%%
+%% The \altaffiliation macro should be used for new address, etc.
+%% On the other hand, \alsoaffiliation is used on a per author basis
+%% when authors are associated with multiple institutions.
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% \author{Leïla Mahboub, Jessica M Weber*, Catherine Psarakis, Mohit Melwani Daswani, \and Steven D. Vance*}
+% \date{}
+\author{Leïla Mahboub}
+\affiliation{Ecole d'ingénieurs, centre de recherche et d'Innovation - Labellisée \#HRS4R - Composante de l'Université PSL}
+\author{Jessica M. Weber}
+\affiliation{Jet Propulsion Laboratory, California Institute of Technology}
+\author{Jesus Cortes}
+\affiliation{Colby College, Waterville, Maine}
+\author{Catherine Psarakis}
+\affiliation{Department of Applied Chemistry, University of California, Los Angeles}
+\author{Mohit Melwani Daswani}
+\affiliation{Jet Propulsion Laboratory, California Institute of Technology}
+\author{Steven D. Vance}
+\affiliation{Jet Propulsion Laboratory, California Institute of Technology}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% The document title should be given as usual. Some journals require
+%% a running title from the author: this should be supplied as an
+%% optional argument to \title.
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\title[Electrical Oceans]{Electrical Properties of Icy World Oceans from Laboratory Measurements}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% Some journals require a list of abbreviations or keywords to be
+%% supplied. These should be set up here, and will be printed after
+%% the title and author information, if needed.
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\abbreviations{IR,NMR,UV}
+\keywords{ocean worlds, electrical conductivity, magnetic induction}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% The manuscript does not need to include \maketitle, which is
+%% executed automatically.
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\usepackage{array}
 \begin{document}
 \input{cortes_tables.tex}
 \input{diaz_tables.tex}
