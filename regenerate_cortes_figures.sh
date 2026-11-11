@@ -38,6 +38,10 @@ python3 plot_cortes_with_mccleskey.py --show-mccleskey \
     --output-dir cortes2026/eis_plots
 
 echo ""
+echo "--- mixture families (all ratios on one plot) -> cortes2026/cortes_plots/mixture_families/ ---"
+python3 cortes2026/plot_mixture_families.py
+
+echo ""
 echo "--- 3/3: pre/post-fix comparison -> cortes2026/prepost_comparison/ ---"
 python3 cortes2026/compare_prepost_mccleskey.py
 
