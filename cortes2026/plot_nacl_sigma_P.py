@@ -240,10 +240,38 @@ def _style():
     })
 
 
+def _spread(ys, gap):
+    """Shift sorted label positions apart by at least `gap`, keeping order."""
+    order = np.argsort(ys)
+    out = np.array(ys, dtype=float)
+    for k in range(1, len(order)):
+        i, j = order[k], order[k - 1]
+        out[i] = max(out[i], out[j] + gap)
+    return out
+
+
+def label_ends(ax, items, x_text, gap):
+    """Direct labels: text at x_text, y spread apart, a thin leader to (x, y).
+
+    items: list of (x_end, y_end, text, colour)."""
+    if not items:
+        return
+    ys = _spread([it[1] for it in items], gap)
+    for (x, y, text, col, *ls), yt in zip(items, ys):
+        # Dotted grey leader from the curve end; a short swatch in the curve's
+        # colour and line style next to the text (no marker, so it can't be
+        # mistaken for a data point)
+        ax.plot([x, x_text - 16], [y, yt], ':', color='#9a9a9a', lw=0.7, zorder=1)
+        ax.plot([x_text - 15, x_text - 3], [yt, yt], ls[0] if ls else '-', color=col,
+                lw=2, zorder=5, clip_on=False)
+        ax.text(x_text, yt, text, fontsize=7.6, color='#0b0b0b', va='center', ha='left', zorder=5)
+
+
 def plot(st, path, show_excluded=False, recent=None):
-    fig, ax = plt.subplots(figsize=(10.5, 6.4))
+    fig, ax = plt.subplots(figsize=(10.5, 7.0))
+    ends, pan_ends = [], []
     if recent is not None:
-        _plot_pan(ax, st, recent)
+        pan_ends = _plot_pan(ax, st, recent)
     keep = st[st.excluded == '']
     for run, (col, mk) in RUNS.items():
         r = keep[keep.run.map(lambda x: x == run)].sort_values('P_MPa')
@@ -258,8 +286,8 @@ def plot(st, path, show_excluded=False, recent=None):
             if P[i + 1] - P[i] <= MAX_GAP_MPA or (run in ALWAYS_CONNECT and i == len(P) - 2):
                 ax.plot(P[i:i + 2], S[i:i + 2], '-', color=col, lw=1.5, zorder=2)
         ax.errorbar(r.P_MPa, r.sigma_Sm, yerr=yerr, fmt=mk, color=col, ms=6.5,
-                    mec='#fcfcfb', mew=1.2, elinewidth=1, capsize=0, zorder=3,
-                    label=r'NaCl 0.5 m, ' + label + r' $^\circ$C')
+                    mec='#fcfcfb', mew=1.2, elinewidth=1, capsize=0, zorder=3)
+        ends.append((P[-1], S[-1], r'NaCl 0.5 m, ' + label + r' $^\circ$C', col))
     if show_excluded:
         ex = st[st.excluded != '']
         ax.plot(ex.P_MPa, ex.sigma_Sm, 'x', color='#0b0b0b', ms=7, mew=1.5,
@@ -270,15 +298,28 @@ def plot(st, path, show_excluded=False, recent=None):
                         fontsize=6.5, color='#52514e')
     ax.set_xlabel('Pressure (MPa)')
     ax.set_ylabel(r'$\sigma$ (S/m)')
-    ax.set_xlim(-15, 720)
     ax.grid(True, color='#e4e3df', lw=0.6)
     ax.set_axisbelow(True)
+    recent_ends = []
     if recent is not None:
-        _plot_recent(ax, recent)
-        _plot_adams(ax)
+        ends += pan_ends
+        recent_ends = _plot_recent(ax, recent)
+        ends.append(_plot_adams(ax))
     ax.set_title(r'Gamry high-pressure cell: NaCl (Cortes 2025, Diaz 2026) and the 8 S/m KCl standard',
                  fontsize=11)
-    ax.legend(fontsize=7.8, frameon=False, loc='upper left', bbox_to_anchor=(1.01, 1.0))
+    if show_excluded:
+        ax.set_xlim(-15, 720)
+        ax.legend(fontsize=7.8, frameon=False, loc='upper left', bbox_to_anchor=(1.01, 1.0))
+    else:
+        # Curves ending above 400 MPa: labels to the right of 700 MPa. The
+        # 2026 runs (ending near 200 MPa): labels in the open space beside them.
+        far = [e for e in ends if e[0] > 400]
+        near = [e for e in ends if e[0] <= 400] + recent_ends
+        ax.set_xlim(-15, 960)
+        ax.set_xticks(np.arange(0, 701, 100))
+        label_ends(ax, far, 712, gap=0.16)
+        label_ends(ax, near, 240, gap=0.16)
+        _style_key(ax)
     fig.tight_layout()
     fig.savefig(path, dpi=200)
     if path.endswith('.png') and not show_excluded:
@@ -286,7 +327,23 @@ def plot(st, path, show_excluded=False, recent=None):
     plt.close(fig)
 
 
+def _style_key(ax):
+    """Key for line and marker styles only; curve identities are labelled in place."""
+    from matplotlib.lines import Line2D
+    g = '#52514e'
+    h = [Line2D([], [], ls='--', color=g, lw=1),
+         Line2D([], [], ls='-', color=g, lw=2.6, alpha=0.35),
+         Line2D([], [], ls='', marker='s', color=g, ms=6),
+         Line2D([], [], ls='', marker='s', color=g, mfc='#fcfcfb', ms=6),
+         Line2D([], [], ls='', marker='X', color=g, ms=7)]
+    ax.legend(h, ['Pan et al. (2021), extrapolated', 'Pan et al. (2021), in its P--T range',
+                  'KCl standard (squares)', 'hollow: decompression',
+                  r'Adams \& Hall (1931), $\sigma_0$ from MC12'],
+              fontsize=7.4, frameon=False, loc='upper right')
+
+
 def _plot_recent(ax, rec):
+    ends = []
     for label, _, comp, mk, _ in RUNS_2026:
         r = rec[rec.run == label]
         col = temp_color(r.T_C.mean())
@@ -296,10 +353,10 @@ def _plot_recent(ax, rec):
             ax.errorbar(q.P_MPa, q.sigma_Sm, yerr=[q.sigma_Sm - q.sigma_lo, q.sigma_hi - q.sigma_Sm],
                         fmt=mk, color=col, mfc='#fcfcfb' if desc else col,
                         mec=col if desc else '#fcfcfb', ms=6, mew=1.2, elinewidth=1,
-                        capsize=0, zorder=3,
-                        label=None if desc else f'{label}, {r.T_C.mean():.1f} $^\\circ$C')
-    ax.plot([], [], 's', color='#52514e', mfc='#fcfcfb', ms=6,
-            label='hollow: decompression (2026)')
+                        capsize=0, zorder=3)
+        top = r.loc[r.P_MPa.idxmax()]
+        ends.append((top.P_MPa, top.sigma_Sm, f'{label}, {r.T_C.mean():.1f} $^\\circ$C', col))
+    return ends
 
 
 def load_adams_hall():
@@ -322,8 +379,10 @@ def _plot_adams(ax):
         q = a[a.descent == desc]
         ax.plot(q.P_MPa, q.sigma_Sm, 'X', color=col, ms=7.5,
                 mfc='#fcfcfb' if desc else col, mec=col if desc else '#fcfcfb', mew=1.2,
-                zorder=3, label=None if desc else
-                fr'NaCl 0.505 m, Adams \& Hall 1931, 25.0 $^\circ$C ($\sigma_0$ = MC12, {sigma0:.2f} S/m)')
+                zorder=3)
+    top = up.iloc[-1]
+    return (top.P_MPa, top.sigma_Sm,
+            fr'NaCl 0.505 m, Adams \& Hall 1931, 25.0 $^\circ$C ($\sigma_0$ {sigma0:.2f} S/m)', col)
 
 
 def _plot_pan(ax, st, rec):
@@ -334,7 +393,7 @@ def _plot_pan(ax, st, rec):
            if not 18 < T < 19.5]  # one curve for the three ~20 C days
     iso += [(0.9, r.T_C.mean(), temp_color(r.T_C.mean()))
             for _, r in rec[rec.comp == 'NaCl'].groupby('run')]
-    seen = set()
+    seen, ends = set(), []
     for m, T, col in iso:
         key = (m, round(T))
         if key in seen:
@@ -347,10 +406,8 @@ def _plot_pan(ax, st, rec):
         ax.plot(Pm, sig, '--', color=col, lw=1, alpha=0.75, zorder=1)
         ax.plot(np.where(inside, Pm, np.nan), np.where(inside, sig, np.nan), '-',
                 color=col, lw=2.6, alpha=0.35, zorder=1)
-    ax.plot([], [], '--', color='#52514e', lw=1,
-            label='Pan et al. (2021), extrapolated')
-    ax.plot([], [], '-', color='#52514e', lw=2.6, alpha=0.35,
-            label='Pan et al. (2021), in envelope')
+        ends.append((Pm[-1], sig[-1], f'Pan et al. 2021, {m} m, {T:.1f} $^\\circ$C', col, '--'))
+    return ends
 
 
 def main():
