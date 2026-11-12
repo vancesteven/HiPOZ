@@ -10,6 +10,7 @@ standards within its stated ~1% accuracy; with per-ion I it drifts to
 """
 
 import sys
+from pathlib import Path
 sys.path.insert(0, '.')
 
 import numpy as np
@@ -88,3 +89,15 @@ def test_unknown_species_do_not_change_total_I():
     s1 = elecCondMcCleskey2012(25.0, base)['sigma_Sm'][0][0]
     s2 = elecCondMcCleskey2012(25.0, with_neutral)['sigma_Sm'][0][0]
     assert s1 == pytest.approx(s2)
+
+
+def test_table1_signs_as_printed():
+    """Table 1 entries printed negative in McCleskey et al. (2012), p. 372."""
+    import re
+    src = (Path(__file__).resolve().parent.parent / 'sigmaElectricMcCleskey2012.py').read_text()
+    row = lambda ion: re.search(r"'" + ion + r"': \{[^}]*\}", src).group(0)
+    assert "'A0': -22.18" in row('Fe_p3')
+    assert "'lam2': -0.01414" in row('H_p1') and "'A2': -0.00918" in row('H_p1')
+    assert "'lam2': -0.000326" in row('CO3_m2') and "'A2': -0.00181" in row('CO3_m2')
+    assert "'A2': -0.00503" in row('HCO3_m1')
+    assert "'lam2': -0.002439" in row('KSO4_m1') and "'A2': -0.01576" in row('KSO4_m1')
