@@ -52,14 +52,14 @@ Everything else works without it; `speciation=True` raises a clear ImportError.
 python gamry_HiPOZ.py
 ```
 
-This launches the PyQt5 GUI application that:
+This launches the PyQt6 GUI application that:
 1. Loads impedance data from `data/` subdirectories
 2. Fits equivalent circuit models to each measurement
 3. Opens an interactive data selector window for analysis and curation
 
-### Automated Calibration (New!)
+### Automated Calibration
 
-You can now automate the calibration workflow using configuration files:
+The calibration workflow can be driven by configuration files:
 
 ```bash
 # Auto-detect config in data directory
@@ -84,14 +84,18 @@ python analysis_config.py
 
 ### Key Configuration
 
-Edit the `dates` variable in `gamry_HiPOZ.py` to specify which data directories to process:
-```python
-dates = ['RoseData']  # Process data from data/RoseData/
+Choose data directories with `--dates`; with no `--dates`, the app prompts for a directory:
+```bash
+python gamry_HiPOZ.py --dates 20250815Mahboub2026            # one directory under data/
+python gamry_HiPOZ.py --dates 20250813 20250814              # several
+python gamry_HiPOZ.py --headless --dates 20250815Mahboub2026 # no GUI (needs a complete config)
 ```
+The module-level `dates = []` in `gamry_HiPOZ.py` is only the fallback default. Run
+`python gamry_HiPOZ.py --help` for the other flags (`--cal-map`, `--gui`, `--plot-*`, `--harmonize`).
 
-Circuit fitting type can be changed via:
+Circuit fitting type is set by `circ_type` in `gamry_HiPOZ.py`:
 ```python
-circType = 'CPE'  # Options: 'CPE', 'RC', 'RC-R', or custom circuit string
+circ_type = 'CPE'  # Options: 'CPE', 'RC', 'RC-R', or custom circuit string (then set initial_guess)
 ```
 
 ## Architecture
@@ -103,7 +107,7 @@ circType = 'CPE'  # Options: 'CPE', 'RC', 'RC-R', or custom circuit string
 - **`Solution`**: Represents a single impedance measurement
   - Loads data from Gamry instrument text files
   - Stores metadata (P, T, composition, frequency range)
-  - Methods: `loadFile()`, `FitCircuit()`, `Recipe()`, `CalcConc()`
+  - Methods: `load_file()`, `fit_circuit()`, `recipe()`, `calc_conc()`
   - Fits equivalent circuit models to extract resistance
 
 - **`ResistorData`**: Similar to Solution but for resistor calibration measurements
@@ -116,8 +120,8 @@ circType = 'CPE'  # Options: 'CPE', 'RC', 'RC-R', or custom circuit string
   - Methods: `organizeData()` - sorts and categorizes cal vs measurement data
   - Distinguishes KCl calibration standards from NaCl measurements
 
-- **`DataSelector`**: Interactive PyQt5 GUI for data curation (`hipoz_data_selector_gui.py`)
-  - Four-tab interface: Data Table, Timeseries, Bode & Nyquist, S vs P
+- **`DataSelector`**: Interactive PyQt6 GUI for data curation (`hipoz_data_selector_gui.py`)
+  - Tabs: Data Table, Timeseries, Bode & Nyquist, σ vs P, σ(P,T), σ(P,T) 3D, σ(P) isotherms, σ vs T, σ vs m
   - Editable table with columns: Filename, Calibration, Time, Comp, w(ppt), w(molal), T, P, Z, Z±, S, S±
   - Workflow buttons: Mark as Standard, Associate Measurements, Bulk Edit, Create Plots, Export
   - Auto-saves to config files (zAnalysis<date>.csv or .json)
@@ -131,7 +135,7 @@ circType = 'CPE'  # Options: 'CPE', 'RC', 'RC-R', or custom circuit string
    - Each file contains: timestamp, P, T, description, frequency sweep data
    - Creates Solution objects and loads impedance spectra
 
-2. **Circuit Fitting** (`Solution.FitCircuit()`):
+2. **Circuit Fitting** (`Solution.fit_circuit()`):
    - Fits equivalent circuit model (CPE: R₀ + parallel(R₁-CPE₁, C₁))
    - Uses `impedance.models.circuits.CustomCircuit`
    - Extracts DC resistance (R_calc) and uncertainty
@@ -144,7 +148,7 @@ circType = 'CPE'  # Options: 'CPE', 'RC', 'RC-R', or custom circuit string
    - **Associate Measurements**: Apply K_cell to selected rows → compute σ = K_cell / R
    - Bode & Nyquist plots for selected measurements
    - S vs P scatter plot (conductivity vs pressure) colored by temperature
-   - Auto-saves curated data to `hipoz_exports/` directory
+   - Saves curation state to the zAnalysis<date>.csv/.json config in the data directory (`save_gui_state_to_config()`)
 
 4. **Visualization** (`gamryPlots.py`):
    - Nyquist plots (Re(Z) vs -Im(Z))
@@ -178,7 +182,7 @@ data/
 **Circuit Fitting Notes:**
 - Initial guess: `[R0_initial, R1_val, CPE_Q, CPE_n, C_val]`
 - Uses L-BFGS-B bounded optimization
-- Frequency filtering: `f_range_Hz = [10e3, 100e3]` typical range
+- Frequency filtering: `f_range_hz = 1e3*np.array([10, 100])` (10-100 kHz) typical range
 - R₀ (first parameter) represents DC resistance for conductivity calculation
 
 **Concentration Parsing:**
@@ -197,7 +201,7 @@ data/
 
 ### Adding Support for New Circuit Models
 
-1. Add circuit definition to `Solution.FitCircuit()` in `gamryTools.py`
+1. Add circuit definition to `Solution.fit_circuit()` in `gamryTools.py`
 2. Define circuit string using `impedance` package syntax
 3. Provide appropriate initial guess array
 4. Optionally add circuit diagram generation using `schemdraw`
@@ -205,23 +209,25 @@ data/
 ### Processing New Data
 
 1. Place Gamry output files in `data/<date>/ConductivityData_Default/`
-2. Update `dates` list in `gamry_HiPOZ.py`
-3. Run: `python gamry_HiPOZ.py`
-4. Use GUI to mark calibration standards and associate measurements
+2. Run: `python gamry_HiPOZ.py --dates <date>` (or omit `--dates` and pick the directory)
+3. Use GUI to mark calibration standards and associate measurements
 
 ### Modifying Data Selector UI
 
-- Main window: `DataSelector.__init__()` in `DataSelector.py`
-- Tab structure: Timeseries, Bode & Nyquist, S vs P
+- Main window: `DataSelector.__init__()` in `hipoz_data_selector_gui.py`
+- Tab structure: built by the `self.tabs.addTab(...)` calls in `DataSelector.__init__()`
 - Table editing: handled by `on_table_item_changed()`
 - Button actions: `mark_as_standard()`, `associate_measurements()`, `create_plots()`
 
 ### Export and Data Persistence
 
-- Curated data saved to: `hipoz_exports/hipoz_<timestamp>_curated.csv`
+- Curation state is persisted to the zAnalysis<date> config files by
+  `save_gui_state_to_config()`; the automatic `save_curated_outputs()` calls are currently
+  commented out.
+- `save_curated_outputs()` writes `<export_dir>/hipoz_latest_curated.csv` in the default
+  "overwrite" mode (`hipoz_<YYYYmmdd_HHMMSS>` in "timestamp"/"rolling", which keeps the last N).
+  `export_dir` is the config file's directory, falling back to `hipoz_exports/`.
 - Plots exported as PNG (300 dpi) and PDF
-- Save modes: "overwrite" (default), "timestamp", "rolling" (keeps last N)
-- Modify `save_curated_outputs()` to customize export behavior
 
 ## PlanetProfile Integration
 
@@ -238,12 +244,10 @@ These use PlanetProfile's thermodynamic models (SeaFreeze, MgSO4Props) for:
 
 ## Testing Approach
 
-When modifying circuit fitting or data processing:
-1. Use a small test dataset (single date folder)
-2. Verify circuit fits converge (check log output)
-3. Confirm GUI displays data correctly
-4. Test calibration workflow: mark standard → associate → verify computed σ values
-5. Check exported CSV contains expected columns and values
+Verification requirements are in "Verification discipline" below. For circuit fitting
+or data processing changes, the useful checks are: a single-date dataset, fit
+convergence in the log, the calibration workflow (mark standard → associate →
+computed σ), and the columns of the exported CSV.
 
 ---
 
