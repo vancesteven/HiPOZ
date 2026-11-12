@@ -251,27 +251,17 @@ computed σ), and the columns of the exported CSV.
 
 ---
 
-## Agent lanes
+## Roles
 
-Claude Code is the **manager lane**: planning, scientific review and
-adjudication, integration, and pushes. Delegate implementation and
-reconnaissance passes to subagents; keep adjudication for the manager.
-
-Codex is the **delegate lane**, restricted to tasks explicitly queued in
-`plans/CODEX-QUEUE.md`. Its instructions are `AGENTS.md`. It commits locally and
-never pushes. **Scientific adjudication is never delegated to Codex.**
-
-Codex is mechanically review-only in the sandbox (`codex exec --sandbox
-read-only`). Request a review with `codex-review <repo-dir> [git-range]`; the
-wrapper writes `coordination/reviews/<timestamp>-<sha>.md` and appends its own
-audit entry.
+Claude Code does planning, scientific review and adjudication, integration, and
+pushes. Delegate implementation and reconnaissance passes to subagents; keep
+scientific adjudication in the main session.
 
 ## State files
 
-Forward-looking — what to do next, and who owns it:
+Forward-looking — what to do next:
 
 - `plans/STATUS.md` — current focus, work in flight, blockers
-- `plans/CODEX-QUEUE.md` — Codex's queue and the claim/report protocol
 
 Backward-looking — what happened, and cross-repo messages:
 
@@ -280,9 +270,9 @@ Backward-looking — what happened, and cross-repo messages:
 - `coordination/open-questions.md` — anything needing Steve's sign-off
 - `~/src/coordination/inbox/<agent>.md` — **cross-repo** messages (e.g. thrak ↔ lov3d)
 
-**Queue freshness:** any session that pushes commits, integrates artifacts, or
-changes a queue must refresh the `Updated:` lines and affected sections of
-`plans/STATUS.md` and the relevant queue file **in the same session**.
+**Status freshness:** any session that pushes commits or integrates artifacts must
+refresh the `Updated:` line and affected sections of `plans/STATUS.md` **in the
+same session**.
 
 Sibling repos are all visible under `~/src`. Never edit another repo's files
 directly — hand work across via its inbox.

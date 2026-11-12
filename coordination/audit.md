@@ -1,7 +1,8 @@
 # Audit log — hipozgenai
 
 Append-only. One entry per completed action, newest at the bottom. Never edit
-or delete existing entries. Format is defined in `AGENTS.md`.
+or delete existing entries. Each entry: a `## <date> — <agent> — <action>` heading
+with bullets, or a one-line `- <date>: ...` bullet.
 
 ## 2026-09-14 — claude-code — merge origin/main data into hipozgenai
 
@@ -527,3 +528,4 @@ or delete existing entries. Format is defined in `AGENTS.md`.
 - 2026-11-11: Supplement tables overflowed the achemso supplement page (portrait, 469.8 pt; earlier preview was landscape). Now: columns sized to \linewidth, long repeated text (flags, run names, notes) as short codes keyed below each table, filenames/paths/long numbers breakable, tables single-spaced. preview.tex now uses the mahboub2026/supplement.tex preamble: 0 errors, 0 overfull boxes, 32 pp; pages checked by eye. tests/test_supplement_tables.py decodes the codes and still checks every value against its source (7 pass). Fixed garrity_probe_readings.csv: an unquoted comma split the 84 uS note into two fields.
 - 2026-11-11: sigma(P) figure: curves labelled at their high-P ends (colour swatch + dotted leader), side legend replaced by an in-axes style key; inspected. New cortes2026/plot_mixture_families.py: one figure per mixture family (NaCl:MgSO4, Na2SO4:KCl) with all ratios and concentrations, vs T and vs first-component molality, McCleskey curves as in the per-mixture figures; outputs in cortes2026/cortes_plots/mixture_families/, all four inspected; added to regenerate_cortes_figures.sh.
 - 2026-11-12: Prompt audit follow-up. Steve's CLAUDE.md edits checked against the code: every named path, flag, method and default exists (PyQt6, --dates/--headless/--cal-map, circ_type, load_file/fit_circuit/recipe/calc_conc, save_gui_state_to_config at hipoz_data_selector_gui.py:2959, hipoz_latest_curated.csv). Untracked .claude/ cleanup: removed the dialogue examples from goal-planner and code-goal-planner descriptions, removed the second backend-dev definition (agentic-flow variant, kept at /tmp/hipoz_merge/agents_removed/) and four empty folders. Still open for Steve: Codex lane contradiction (CLAUDE.md:261 vs 264), duplicate pr-manager, stale planetprofile-genai/graphify-out (11 MB, gitignored).
+- 2026-11-12: Removed Codex guidance (Steve: not in use; may return later as a secondary reviewer): deleted AGENTS.md and plans/CODEX-QUEUE.md (empty seed queue), rewrote CLAUDE.md 'Agent lanes' as 'Roles' and dropped the queue references, replaced the audit-log header's dangling AGENTS.md format pointer with the format the entries use. Committed the mixture-family PDFs (ignored by *.pdf; only the PNGs had been pushed). Removing .claude/agents and planetprofile-genai/graphify-out was blocked by the permission check; backup of .claude/agents at /tmp/hipoz_merge/claude_agents_backup_20261112.tgz.
