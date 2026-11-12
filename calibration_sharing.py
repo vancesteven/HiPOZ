@@ -19,8 +19,6 @@ Design decisions (see project memory):
 """
 
 import os
-import csv
-import json
 import shutil
 import logging
 from glob import glob
@@ -31,11 +29,6 @@ log = logging.getLogger('HiPOZ')
 
 # Prefix stored in a standard entry's "notes" field to mark it as borrowed.
 BORROWED_TAG = 'borrowed_from:'
-
-# CSV column order shared with headless_analysis / analysis_config.
-CONFIG_FIELDNAMES = ['group_name', 'filename', 'P_MPa', 'T_K', 'type',
-                     'conductivity_Sm', 'comp', 'w_ppt', 'w_molal',
-                     'exclude', 'notes']
 
 
 def parse_cal_map(cal_map_args: Optional[List[str]]) -> Dict[str, str]:
@@ -182,54 +175,28 @@ def _remove_previous_borrowed(target_config, target: str) -> int:
     return removed
 
 
-def write_config(config_path: str, calibration_groups: List[dict]):
+def write_borrowed(config_path: str, borrowed_entries: List[dict]):
     """
-    Write calibration_groups to both CSV and JSON, keyed off the CSV path.
-
-    Args:
-        config_path: Path to the CSV config file. A sibling .json is written too.
+    Replace the borrowed standard rows in a config file (CSV + JSON) with
+    `borrowed_entries`, added to every group. All other rows, including
+    excluded ones, and all columns are kept (see config_store).
     """
-    csv_path = Path(config_path)
-    if csv_path.suffix.lower() != '.csv':
-        csv_path = csv_path.with_suffix('.csv')
-    json_path = csv_path.with_suffix('.json')
+    from config_store import read_rows, write_rows
 
-    # --- CSV ---
-    with open(csv_path, 'w', newline='') as f:
-        writer = csv.DictWriter(f, fieldnames=CONFIG_FIELDNAMES)
-        writer.writeheader()
-
-        for group in calibration_groups:
-            group_name = group.get('name', 'Group 1')
-            for kind in ('standards', 'measurements'):
-                type_label = 'standard' if kind == 'standards' else 'measurement'
-                for entry in group.get(kind, []):
-                    if isinstance(entry, dict):
-                        e = entry
-                    else:
-                        e = {'filename': str(entry)}
-                    writer.writerow({
-                        'group_name': group_name,
-                        'filename': e.get('filename', ''),
-                        'P_MPa': e.get('P_MPa', ''),
-                        'T_K': e.get('T_K', ''),
-                        'type': type_label,
-                        'conductivity_Sm': e.get('conductivity_Sm', ''),
-                        'comp': e.get('comp', ''),
-                        'w_ppt': e.get('w_ppt', ''),
-                        'w_molal': e.get('w_molal', ''),
-                        'exclude': 'x' if e.get('exclude') else '',
-                        'notes': e.get('notes', ''),
-                    })
-
-    # --- JSON ---
-    with open(json_path, 'w') as f:
-        json.dump({
-            'calibration_groups': calibration_groups,
-            'generated_by': 'HiPOZ calibration_sharing',
-        }, f, indent=2)
-
-    log.info(f"  Wrote config: {csv_path.name} (+ .json)")
+    fieldnames, rows = read_rows(config_path)
+    rows = [r for r in rows if not (str(r.get('type', '')).lower() == 'standard'
+                                    and str(r.get('notes') or '').startswith(BORROWED_TAG))]
+    groups = list(dict.fromkeys(r.get('group_name') or 'Group 1' for r in rows)) or ['Group 1']
+    out = []
+    for g in groups:
+        for e in borrowed_entries:
+            row = {k: v for k, v in e.items() if not isinstance(v, (dict, list))}
+            row.update(group_name=g, type='standard',
+                       exclude='x' if e.get('exclude') else '')
+            out.append(row)
+        out += [r for r in rows if (r.get('group_name') or 'Group 1') == g]
+    write_rows(config_path, out, fieldnames)
+    log.info(f"  Wrote config: {Path(config_path).with_suffix('.csv').name} (+ .json)")
 
 
 def borrow_calibration(target: str, source: str, target_config, source_config,
@@ -301,7 +268,7 @@ def borrow_calibration(target: str, source: str, target_config, source_config,
         for entry in borrowed_entries:
             group['standards'].append(dict(entry))
 
-    write_config(target_config_path, target_config.calibration_groups)
+    write_borrowed(target_config_path, borrowed_entries)
 
     log.info(f"  Borrowed {copied} standard(s) from '{source}' into '{target}'")
     return True
