@@ -1,6 +1,6 @@
 # Status — hipozgenai
 
-Updated: 2026-11-11
+Updated: 2026-11-12
 
 Refresh the `Updated:` line and the affected sections in any session that
 pushes commits, integrates artifacts, or changes a queue.
@@ -35,7 +35,7 @@ lab data merged in from origin/main. PR #3 (still open) now carries all of it.
 | Clean 0.5 m NaCl sigma(P) plot, unequilibrated near-room-T steps left out | claude-code | verified | cortes2026/nacl_sigma_P/nacl_0p5m_sigma_P.png inspected; exclusions in plot_nacl_sigma_P.py EXCLUDED; ~600 MPa 20 C points kept, boxed axes, 606 MPa 20 C point joined to 400 MPa; one panel with absolute sigma for 2026 NaCl (Oct 7-9, K from Oct 14 std) and KCl std (squares) and Pan et al. 2021 NaCl curves; Adams & Hall 1931 2.865 wt% NaCl at 25 C (R/R0 anchored to MC12 at 1 bar); Aug 18-Sep 10 KCl left out (Steve 2026-11-08) |
 | Pan et al. (2021) NaCl conductivity (pan2021_nacl.py, ported from planetprofile-genai bf545b5e) | claude-code | verified | tests/test_pan2021_nacl.py (3 pass; reproduces the authors' 69 regression rows) |
 | Supplement tables: Cortes, Diaz, Garrity (.tex, per-sweep verbatim + step means) | claude-code | verified | tests/test_supplement_tables.py (7 pass, every per-sweep cell equals its source string); cortes2026/supplement/preview.tex (supplement preamble, portrait) compiles with 0 overfull boxes; Steve to check data against sources |
-| Mixture-family figures (all ratios/concentrations on one plot, vs T and vs m) | claude-code | verified | cortes2026/cortes_plots/mixture_families/*.png inspected; cortes2026/plot_mixture_families.py |
+| Mixture-family figures (all ratios/concentrations on one plot, vs T and vs m, with McCleskey Delta panels) | claude-code | verified | cortes2026/cortes_plots/mixture_families/*.png inspected; cortes2026/plot_mixture_families.py |
 | Mixture ion_spec per first component (1.5-3x concentration error) | claude-code | verified | tests/test_cortes_concentrations.py; Na2SO4:KCl 1:1 RMS 34.2% -> 2.3% (prepost_summary.txt) |
 | Pre/post-fix McCleskey comparison | claude-code | verified | cortes2026/prepost_comparison/ (PHREEQC backend; rerun with Reaktoro via regenerate_cortes_figures.sh) |
 | Delta axis label states (data - model)/model | claude-code | verified | tests/test_delta_label.py; paper PDFs need regeneration on the Mac |
