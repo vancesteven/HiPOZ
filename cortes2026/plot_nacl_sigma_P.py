@@ -10,7 +10,8 @@ Clean sigma(P) for the Gamry high-pressure cell, all on one axis.
   ambient-pressure 8 S/m standard of the nearest standard run setting K:
   Oct 14 for the Oct NaCl runs (an estimate: measured five days later, after
   the leak repair; open question 2026-10-19), each run's own first triplet
-  for the standard runs.
+  for the standard runs. NaCl 0.9 m Nov 16 (circles): K from its first 1-bar
+  step against McCleskey (2011), since its connection broke after loading.
 - Pan et al. (2021) NaCl model (pan2021_nacl.py) at 0.5 and 0.9 mol/kg on
   the measured isotherms: solid inside the experimental envelope
   (212-1713 MPa, 233-295 K), dashed where extrapolated.
@@ -50,9 +51,11 @@ import matplotlib.pyplot as plt
 HERE = os.path.dirname(os.path.abspath(__file__))
 REPO = os.path.dirname(HERE)
 sys.path.insert(0, REPO)
+sys.path.insert(0, HERE)
 os.chdir(REPO)
 import cortes_data_processing as cdp  # noqa: E402
 import pan2021_nacl as pan  # noqa: E402
+import vessel_1bar_check as vbc  # noqa: E402
 from gamryTools import Solution  # noqa: E402
 
 OUT = os.path.join(HERE, 'nacl_sigma_P')
@@ -106,7 +109,13 @@ RUNS_2026 = [
     ('KCl 8 S/m std, Oct 14-15', ['20261014', '20261015'], 'KCl', 's', 'self'),
     ('KCl 8 S/m std, Nov 5', ['20261105'], 'KCl', 's', 'self'),
     ('KCl 8 S/m std, Nov 6', ['20261106'], 'KCl', 's', 'self'),
+    ('NaCl 0.9 m, Nov 16', ['20261116'], 'NaCl', 'o', 'prior'),
 ]
+# 'prior': K from the run's first 1-bar step against McCleskey (2011) NaCl at
+# the sample's composition (vessel_1bar_check.py). Nov 16: a soldered
+# potentiostat connection broke after loading, so no standard applies
+# (Steve, 2026-11-18).
+PRIOR_MOLAL = {'NaCl 0.9 m, Nov 16': 0.902}
 # Temperature -> colour, validated together (dataviz validate_palette,
 # --pairs all, light surface): 1, 10, 19-20, 23, 25, 35 C
 TEMP_COLORS = [(5, '#184f95'), (15, '#5598e7'), (21.5, '#1baf7a'),
@@ -211,13 +220,16 @@ def load_2026():
     K = {lbl: SIGMA_STD * rec.loc[rec.run == lbl, 'R_amb_first'].iloc[0]
          for lbl, _, comp, _, _ in RUNS_2026 if comp == 'KCl'}
     K['oct14'] = K['KCl 8 S/m std, Oct 14-15']
+    for lbl, m in PRIOR_MOLAL.items():
+        r = rec[rec.run == lbl]
+        K[lbl] = vbc.sigma_prior_nacl(m, r.T_K.iloc[0] - 273.15) * r.R_amb_first.iloc[0]
     for lbl, _, _, _, ksrc in RUNS_2026 + [(e[0], None, None, None, e[3]) for e in EXTRA_2026]:
         if lbl not in set(rec.run):
             ms = sw_all.run == lbl
             sw_all.loc[ms, 'K_cell'] = K[ksrc]
             sw_all.loc[ms, 'sigma_Sm'] = K[ksrc] / sw_all.loc[ms, 'R']
             continue
-        k = K[lbl if ksrc == 'self' else ksrc]
+        k = K[lbl if ksrc in ('self', 'prior') else ksrc]
         m = rec.run == lbl
         rec.loc[m, 'K_cell'] = k
         rec.loc[m, 'sigma_Sm'] = k / rec.loc[m, 'R']

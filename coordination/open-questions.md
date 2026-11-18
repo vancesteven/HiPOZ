@@ -218,3 +218,8 @@ Interim: w_ppt = 52.168 written to the 20261014/15 and 20261105 configs; w_molal
 Molal: 52.168 ppt is g KCl per kg water, 0.6998 mol/kg. Bottle: Environmental Express 00653-32.
 Implemented: gamryTools.kcl_std_molal (all bottle labels now use it); tests/test_kcl_std_molality.py; w_molal = 0.699772 in the 20261014/15, 20261105, 20261106 configs.
 (The supplier site refused automated fetches, so the basis rests on Steve's call plus the MC12 label match, not on the datasheet.)
+
+## 2026-11-18 — Nov 16 NaCl and Nov 11–12 KCl
+- Nov 16 K = 120.36 m⁻¹ from McCleskey (2011) at 1 bar. Is a post-repair KCl standard run planned to confirm it? (The Nov 5–12 KCl median is 120.62, within 0.2 %.)
+- Nov 12 KCl 76 MPa (±12 Ω fits) and 52 MPa (13.30 Ω, off trend): exclude?
+- 8 S/m bottle table vs MC12 differs by 2 % at 6 °C; which reference should set K for cold runs?

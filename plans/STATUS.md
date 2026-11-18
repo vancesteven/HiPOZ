@@ -1,6 +1,6 @@
 # Status — hipozgenai
 
-Updated: 2026-11-12
+Updated: 2026-11-18
 
 Refresh the `Updated:` line and the affected sections in any session that
 pushes commits, integrates artifacts, or changes a queue.
@@ -15,6 +15,7 @@ lab data merged in from origin/main. PR #3 (still open) now carries all of it.
 
 | Item | Owner | Status | Artifact |
 |---|---|---|---|
+| Nov 2026 vessel data: 1-bar equilibration check, Nov 16 NaCl K from McCleskey (2011) | claude-code | verified | tests/test_vessel_1bar_check.py (3 pass); cortes2026/diaz/vessel_1bar_check.png; cortes2026/nacl_sigma_P/nacl_0p5m_sigma_P.png; audit 2026-11-18 |
 | Merge origin/main lab data into hipozgenai | claude-code | verified | merge commit `eab7098`; audit entry 2026-09-14 in `coordination/audit.md` |
 | Propagate hipozgenai to main | claude-code | verified | PR #2 merged by Steve 2026-09-15; merge commit `351853f` on `origin/main` contains branch tip `fd3718d` (`git merge-base --is-ancestor` confirmed) |
 | Curate uncommitted working tree per Steve's decisions | claude-code | verified | commits `978540a` (tests/infra/docs), `e7b5f6f` (Aug 2025 Cortes + JesusCortes data), `af53f12` (mahboub2026 drafts); audit entry 2026-09-15 |
