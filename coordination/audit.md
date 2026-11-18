@@ -552,3 +552,18 @@ with bullets, or a one-line `- <date>: ...` bullet.
 - All Claude edits to the paper repos are on branch `claude-draft`, unpushed, with change logs:
   - Jesus-Conductivity: only `quarantined_AI_stuff/` is touched (CHANGES.md there). eaace58 adds current figures and tables. 4a6a8ab adds sections/mccleskey_corrections.tex (the three fixes, the before/after table, the release plan). A Sonnet agent is drafting the remaining sections there.
   - Conductivity-Model: 740a707 snapshots claude-contributions/ before the scope split. Its pressure and vessel material is to move to the Jesus paper.
+
+## 2026-11-18 — Mahboub (2026) deviations vs corrected MC12; probe offset is systematic
+- Steve: the Jesus-Conductivity paper reports deviations of the Mahboub data alongside the new data (no erratum). Absolute measurements are not corrected. The +4% probe reading is explained in the paper.
+- New mahboub2026/mahboub_mc12_deviations.py (Sonnet agent; reviewed) writes .csv (441 rows) and _summary.txt, comparing pre-fix (per-ion I, no speciation) with corrected MC12 (shared I, Reaktoro WATEQ4F).
+  - NaCl, in range, RMS: 2.6% before, 6.6% after (mean +6.1%).
+  - MgSO4, in range, mean: −33% before, +29% after.
+  - 48 three-salt mixture rows have no model.
+  - Spot-check: corrected MC12 gives 4.6495 S/m for 0.5133 m NaCl at 25 °C, equal to the CSV.
+  - Verified: tests/test_mahboub_mc12_deviations.py, 4 pass.
+- Probe offset vs McCleskey (2011) measured data (own calculation, model-independent):
+  - Mahboub NaCl: +1.7 to +3.8% (18/18 points positive).
+  - Cortes NaCl, 20 °C: +6.6 to +8.1% (replicate groups +4 to +11%).
+  - Cortes KCl: −0.4 to +2.2% at 0.5 m, +4.5 to +9.5% at 0.75–1.0 m.
+  - Conclusion: systematic in both campaigns, larger and session-dependent for Cortes.
+  - MC12 itself sits about 2.5% below McCleskey (2011) at 0.5 m NaCl, 25 °C, so deviations from MC12 combine the probe offset with model misfit.
