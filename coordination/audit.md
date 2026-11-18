@@ -545,3 +545,10 @@ with bullets, or a one-line `- <date>: ...` bullet.
 - plot_nacl_sigma_P.py (Sonnet agent, reviewed): Nov 5–12 KCl runs share K = 120.617 m⁻¹ (median of settled 1-bar steps, vessel_1bar_check); Nov 11 split at 14:00 into 6.3 °C and 29.5 °C runs; bottle-table (▶) and MC12 (◆) 1-bar values beside each Nov KCl run; PROVISIONAL_2026 excludes Default_20261112_111506/111559/111652 (configs untouched); excluded figure now shows the 2026 exclusions. Oct runs unchanged. New colour #0f9fb0 (13–17.5 °C) not palette-validated (validator not found).
 - Verified: nacl_0p5m_sigma_P.png and _excluded.png inspected; tests/test_supplement_tables.py + test_vessel_1bar_check.py 10 pass; supplement diaz_tables.tex regenerated with the new runs.
 - conductivity-jpl: `/external/` added to .gitignore (uncommitted, branch wateq4f-reaktoro-speciation). Draft article started in external/Conductivity-Model/claude-contributions/ (PLAN.md, CODE_ASSESSMENT.md, sections/).
+
+## 2026-11-18 — Paper split; Jesus-Conductivity drafting; tracking
+- Steve: the HiPOZ measurements do not go into Alicja's conductivity model. They belong to the Cortes et al. paper (vancesteven/Jesus-Conductivity, cloned at external/Jesus-Conductivity; main_leila.tex = Mahboub et al. 2026, published, the starting point). The paper explains the MC12 implementation fixes, released with it; Alicja's representation is released later.
+- hipozgenai ignores /external/ (51ddba0).
+- All Claude edits to the paper repos are on branch `claude-draft`, unpushed, with change logs:
+  - Jesus-Conductivity: only `quarantined_AI_stuff/` is touched (CHANGES.md there). eaace58 adds current figures and tables. 4a6a8ab adds sections/mccleskey_corrections.tex (the three fixes, the before/after table, the release plan). A Sonnet agent is drafting the remaining sections there.
+  - Conductivity-Model: 740a707 snapshots claude-contributions/ before the scope split. Its pressure and vessel material is to move to the Jesus paper.
