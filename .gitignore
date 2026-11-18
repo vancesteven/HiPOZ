@@ -62,3 +62,6 @@ COMMIT_MESSAGE.md
 
 # CLAUDE.md and AGENTS.md are intentionally tracked: durable project and agent
 # instructions, not transient snapshots. Do not add them above.
+
+# LaTeX paper repositories (separate git repos, e.g. Jesus-Conductivity)
+/external/
