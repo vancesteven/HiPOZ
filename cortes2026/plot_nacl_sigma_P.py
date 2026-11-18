@@ -107,18 +107,37 @@ RUNS_2026 = [
     ('NaCl 0.9 m, Oct 7-8, 30-min steps', ['20261007', '20261008'], 'NaCl', 'D', 'oct14'),
     ('NaCl 0.9 m, Oct 9, 10-min steps', ['20261009'], 'NaCl', 'v', 'oct14'),
     ('KCl 8 S/m std, Oct 14-15', ['20261014', '20261015'], 'KCl', 's', 'self'),
-    ('KCl 8 S/m std, Nov 5', ['20261105'], 'KCl', 's', 'self'),
-    ('KCl 8 S/m std, Nov 6', ['20261106'], 'KCl', 's', 'self'),
+    ('KCl 8 S/m std, Nov 5', ['20261105'], 'KCl', 's', 'nov_common'),
+    ('KCl 8 S/m std, Nov 6', ['20261106'], 'KCl', 's', 'nov_common'),
+    ('KCl 8 S/m std, Nov 9', ['20261109'], 'KCl', 's', 'nov_common'),
+    ('KCl 8 S/m std, Nov 10', ['20261110'], 'KCl', 's', 'nov_common'),
+    ('KCl 8 S/m std, Nov 11', ['20261111'], 'KCl', 's', 'nov_common'),
+    ('KCl 8 S/m std, Nov 11-12', ['20261111', '20261112'], 'KCl', 's', 'nov_common'),
     ('NaCl 0.9 m, Nov 16', ['20261116'], 'NaCl', 'o', 'prior'),
 ]
+# Folder 20261111 holds two runs, split by time: the 6.3 C morning run and the
+# 29.5 C run that starts at 15:27 and continues into Nov 12.
+RUN_WINDOWS = {
+    'KCl 8 S/m std, Nov 11': (None, datetime(2026, 11, 11, 14, 0)),
+    'KCl 8 S/m std, Nov 11-12': (datetime(2026, 11, 11, 14, 0), None),
+}
+# 'nov_common': the single K of all Nov 5-12 KCl runs, the median of the
+# settled 1-bar steps (vessel_1bar_check.kcl_check). Their 1-bar points are a
+# check against the bottle table and McCleskey (2012), not forced to either.
 # 'prior': K from the run's first 1-bar step against McCleskey (2011) NaCl at
 # the sample's composition (vessel_1bar_check.py). Nov 16: a soldered
 # potentiostat connection broke after loading, so no standard applies
 # (Steve, 2026-11-18).
+# Provisional exclusions of 2026 sweeps (filename stem -> reason); the zAnalysis
+# configs are not edited. Applied in load_2026 like config exclusions.
+_PROV = 'provisional: +/-12 ohm CPE fits (~93 %), Steve 2026-11-18'
+PROVISIONAL_2026 = {f'Default_20261112_{t}': _PROV for t in ('111506', '111559', '111652')}
 PRIOR_MOLAL = {'NaCl 0.9 m, Nov 16': 0.902}
 # Temperature -> colour, validated together (dataviz validate_palette,
-# --pairs all, light surface): 1, 10, 19-20, 23, 25, 35 C
-TEMP_COLORS = [(5, '#184f95'), (15, '#5598e7'), (21.5, '#1baf7a'),
+# --pairs all, light surface): 1, 10, 19-20, 23, 25, 35 C. The 16 C cyan and
+# the 8/13 C breaks (Nov 2026 KCl runs at 6, 11, 16 C) were NOT validated
+# (validator not found).
+TEMP_COLORS = [(8, '#184f95'), (13, '#5598e7'), (17.5, '#0f9fb0'), (21.5, '#1baf7a'),
                (24, '#eda100'), (27, '#e87ba4'), (99, '#a8322f')]
 
 
@@ -193,15 +212,30 @@ def fit_sweeps(folders):
             sw.append(dict(time=s.time, filename=os.path.basename(f), folder=folder,
                            P_MPa=s.P_MPa, T_K=s.T_K, R=s.Rcalc_ohm, R_unc=s.Runc_ohm,
                            excluded='excluded in zAnalysis config'
-                           if os.path.basename(f) in skip else ''))
+                           if os.path.basename(f) in skip else
+                           next((r for k, r in PROVISIONAL_2026.items()
+                                 if os.path.basename(f).startswith(k)), '')))
     return pd.DataFrame(sw).sort_values('time').reset_index(drop=True)
 
 
 def load_2026():
     """Step means of sigma = K / R for each 2026 run."""
-    rows, sweeps = [], []
+    rows, sweeps, ex_rows = [], [], []
     for label, folders, comp, _, _ in RUNS_2026:
         sw_all_run = fit_sweeps(folders)
+        t0, t1 = RUN_WINDOWS.get(label, (None, None))
+        if t0 is not None:
+            sw_all_run = sw_all_run[sw_all_run.time >= t0]
+        if t1 is not None:
+            sw_all_run = sw_all_run[sw_all_run.time < t1]
+        sw_all_run = sw_all_run.reset_index(drop=True)
+        exs = sw_all_run[sw_all_run.excluded != ''].reset_index(drop=True)
+        if len(exs):
+            e_new = (exs.time.diff().dt.total_seconds() > 240) | (exs.P_MPa.diff().abs() > 10)
+            exs['step'] = e_new.cumsum()
+            ex_rows.append(exs.groupby('step').agg(
+                time=('time', 'first'), P_MPa=('P_MPa', 'mean'), T_K=('T_K', 'mean'),
+                R=('R', 'mean'), reason=('excluded', 'first')).assign(run=label))
         sweeps.append(sw_all_run.assign(run=label, comp=comp))
         sw = sw_all_run[sw_all_run.excluded == ''].reset_index(drop=True)
         new = (sw.time.diff().dt.total_seconds() > 240) | (sw.P_MPa.diff().abs() > 10)
@@ -220,6 +254,7 @@ def load_2026():
     K = {lbl: SIGMA_STD * rec.loc[rec.run == lbl, 'R_amb_first'].iloc[0]
          for lbl, _, comp, _, _ in RUNS_2026 if comp == 'KCl'}
     K['oct14'] = K['KCl 8 S/m std, Oct 14-15']
+    K['nov_common'] = vbc.kcl_check(vbc.ambient_steps(vbc.load_sweeps()))[1]
     for lbl, m in PRIOR_MOLAL.items():
         r = rec[rec.run == lbl]
         K[lbl] = vbc.sigma_prior_nacl(m, r.T_K.iloc[0] - 273.15) * r.R_amb_first.iloc[0]
@@ -239,9 +274,32 @@ def load_2026():
         sw_all.loc[ms, 'K_cell'] = k
         sw_all.loc[ms, 'sigma_Sm'] = k / sw_all.loc[ms, 'R']
     rec['T_C'] = rec.T_K - 273.15
+    ex = pd.concat(ex_rows, ignore_index=True) if ex_rows else pd.DataFrame()
+    if len(ex):
+        ksrc = {lbl: k for lbl, _, _, _, k in RUNS_2026}
+        ex['K_cell'] = [K[lbl if ksrc[lbl] in ('self', 'prior') else ksrc[lbl]] for lbl in ex.run]
+        ex['sigma_Sm'] = ex.K_cell / ex.R
+        ex['T_C'] = ex.T_K - 273.15
     sw_all.to_csv(os.path.join(HERE, 'diaz', 'diaz_hp_sweep_fits.csv'), index=False,
                   float_format='%.6g')
-    return rec
+    return rec, ex
+
+
+def prior_ticks():
+    """Bottle-table and McCleskey (2012) sigma at each Nov KCl run's 1-bar steps."""
+    k, _ = vbc.kcl_check(vbc.ambient_steps(vbc.load_sweeps()))
+    out = {}
+    for label, folders, comp, _, ksrc in RUNS_2026:
+        if ksrc != 'nov_common':
+            continue
+        t0, t1 = RUN_WINDOWS.get(label, (None, None))
+        m = k.folder.isin(folders)
+        if t0 is not None:
+            m &= k.start >= t0
+        if t1 is not None:
+            m &= k.start < t1
+        out[label] = k[m]
+    return out
 
 
 def _style():
@@ -279,10 +337,20 @@ def label_ends(ax, items, x_text, gap):
         ax.text(x_text, yt, text, fontsize=7.6, color='#0b0b0b', va='center', ha='left', zorder=5)
 
 
-def plot(st, path, show_excluded=False, recent=None):
+def plot(st, path, show_excluded=False, recent=None, ex26=None):
     fig, ax = plt.subplots(figsize=(10.5, 7.0))
     ends, pan_ends = [], []
-    if recent is not None:
+    if show_excluded and recent is not None:
+        _plot_recent(ax, recent)
+        if ex26 is not None and len(ex26):
+            ax.plot(ex26.P_MPa, ex26.sigma_Sm, 'x', color='#0b0b0b', ms=7, mew=1.5, zorder=4)
+            for i, (_, r) in enumerate(ex26.sort_values('P_MPa').iterrows()):
+                dx, dy = ((8, 9), (8, 9), (-8, -16), (8, 24))[i % 4]  # staggered
+                ax.annotate(f"{r.time:%m/%d %H:%M}", (r.P_MPa, r.sigma_Sm),
+                            textcoords='offset points', xytext=(dx, dy), ha='right' if dx < 0 else 'left', va='center',
+                            fontsize=6.5, color='#52514e',
+                            arrowprops=dict(arrowstyle='-', color='#9a9a9a', lw=0.5))
+    if recent is not None and not show_excluded:
         pan_ends = _plot_pan(ax, st, recent)
     keep = st[st.excluded == '']
     for run, (col, mk) in RUNS.items():
@@ -304,30 +372,34 @@ def plot(st, path, show_excluded=False, recent=None):
         ex = st[st.excluded != '']
         ax.plot(ex.P_MPa, ex.sigma_Sm, 'x', color='#0b0b0b', ms=7, mew=1.5,
                 label='excluded', zorder=4)
-        for _, r in ex.iterrows():
+        j = -1
+        for _, r in ex.sort_values(['P_MPa', 'sigma_Sm']).iterrows():
+            j += r.P_MPa <= 12
             ax.annotate(f"{r.start:%m/%d %H:%M}", (r.P_MPa, r.sigma_Sm),
-                        textcoords='offset points', xytext=(6, -2),
-                        fontsize=6.5, color='#52514e')
+                        textcoords='offset points',
+                        xytext=(6, -2) if r.P_MPa > 12 else (18, (-44, -30, -16, -2, 12, 26)[j % 6]),
+                        fontsize=6.5, color='#52514e', va='center',
+                        arrowprops=None if r.P_MPa > 12 else dict(arrowstyle='-', color='#9a9a9a', lw=0.5))
     ax.set_xlabel('Pressure (MPa)')
     ax.set_ylabel(r'$\sigma$ (S/m)')
     ax.grid(True, color='#e4e3df', lw=0.6)
     ax.set_axisbelow(True)
     recent_ends = []
-    if recent is not None:
+    if recent is not None and not show_excluded:
         ends += pan_ends
         recent_ends = _plot_recent(ax, recent)
         ends.append(_plot_adams(ax))
     ax.set_title(r'Gamry high-pressure cell: NaCl (Cortes 2025, Diaz 2026) and the 8 S/m KCl standard',
                  fontsize=11)
     if show_excluded:
-        ax.set_xlim(-15, 720)
+        ax.set_xlim(-22, 720)
         ax.legend(fontsize=7.8, frameon=False, loc='upper left', bbox_to_anchor=(1.01, 1.0))
     else:
         # Curves ending above 400 MPa: labels to the right of 700 MPa. The
         # 2026 runs (ending near 200 MPa): labels in the open space beside them.
         far = [e for e in ends if e[0] > 400]
         near = [e for e in ends if e[0] <= 400] + recent_ends
-        ax.set_xlim(-15, 960)
+        ax.set_xlim(-22, 960)
         ax.set_xticks(np.arange(0, 701, 100))
         label_ends(ax, far, 712, gap=0.16)
         label_ends(ax, near, 240, gap=0.16)
@@ -347,15 +419,20 @@ def _style_key(ax):
          Line2D([], [], ls='-', color=g, lw=2.6, alpha=0.35),
          Line2D([], [], ls='', marker='s', color=g, ms=6),
          Line2D([], [], ls='', marker='s', color=g, mfc='#fcfcfb', ms=6),
-         Line2D([], [], ls='', marker='X', color=g, ms=7)]
+         Line2D([], [], ls='', marker='X', color=g, ms=7),
+         Line2D([], [], ls='', marker='>', color='#0b0b0b', ms=4.5),
+         Line2D([], [], ls='', marker='D', color='#8a8a86', ms=3.6)]
     ax.legend(h, ['Pan et al. (2021), extrapolated', 'Pan et al. (2021), in its P--T range',
                   'KCl standard (squares)', 'hollow: decompression',
-                  r'Adams \& Hall (1931), $\sigma_0$ from MC12'],
+                  r'Adams \& Hall (1931), $\sigma_0$ from MC12',
+                  'Nov KCl 1 bar, bottle table at run $T$',
+                  'Nov KCl 1 bar, McCleskey (2012) at run $T$'],
               fontsize=7.4, frameon=False, loc='upper right')
 
 
 def _plot_recent(ax, rec):
     ends = []
+    ticks = prior_ticks()
     for label, _, comp, mk, _ in RUNS_2026:
         r = rec[rec.run == label]
         col = temp_color(r.T_C.mean())
@@ -366,6 +443,12 @@ def _plot_recent(ax, rec):
                         fmt=mk, color=col, mfc='#fcfcfb' if desc else col,
                         mec=col if desc else '#fcfcfb', ms=6, mew=1.2, elinewidth=1,
                         capsize=0, zorder=3)
+        if label in ticks:
+            t = ticks[label]
+            ax.plot([-6] * len(t), t.sigma_prior_Sm, '>', color='#0b0b0b', ms=4.5, mew=0,
+                    zorder=4, clip_on=False)
+            ax.plot([-13] * len(t), t.sigma_MC12_Sm, 'D', color='#8a8a86', ms=3.6, mew=0,
+                    zorder=4, clip_on=False)
         top = r.loc[r.P_MPa.idxmax()]
         ends.append((top.P_MPa, top.sigma_Sm, f'{label}, {r.T_C.mean():.1f} $^\\circ$C', col))
     return ends
@@ -434,10 +517,10 @@ def main():
         raise SystemExit(f'kept steps with no run style: {sorted(unassigned)}')
     st.drop(columns='key').round(4).to_csv(os.path.join(OUT, 'nacl_0p5m_sigma_P_steps.csv'),
                                            index=False)
-    recent = load_2026()
+    recent, ex26 = load_2026()
     recent.round(5).to_csv(os.path.join(OUT, 'sigma_P_2026_steps.csv'), index=False)
     plot(st, os.path.join(OUT, 'nacl_0p5m_sigma_P.png'), recent=recent)
-    plot(st, os.path.join(OUT, 'nacl_0p5m_sigma_P_excluded.png'), show_excluded=True)
+    plot(st, os.path.join(OUT, 'nacl_0p5m_sigma_P_excluded.png'), show_excluded=True, recent=recent, ex26=ex26)
     print(f'{(st.excluded == "").sum()} steps kept, {(st.excluded != "").sum()} excluded -> {OUT}')
 
 
