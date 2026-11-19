@@ -1,0 +1,41 @@
+source,c,T_C,P_MPa,ratio
+Fisher and Fox 1979,0.02,25.0,0.10132,1.0
+Fisher and Fox 1979,0.02,25.0,25.33125,1.01974
+Fisher and Fox 1979,0.02,25.0,50.6625,1.03576
+Fisher and Fox 1979,0.02,25.0,75.99375,1.04889
+Fisher and Fox 1979,0.02,25.0,101.325,1.05904
+Fisher and Fox 1979,0.02,25.0,126.65625,1.06708
+Fisher and Fox 1979,0.02,25.0,151.9875,1.07293
+Fisher and Fox 1979,0.02,25.0,177.31875,1.07635
+Fisher and Fox 1979,0.02,25.0,202.65,1.07866
+Fisher and Fox 1979,0.002,25.0,0.10132,1.0
+Fisher and Fox 1979,0.002,25.0,25.33125,1.01896
+Fisher and Fox 1979,0.002,25.0,50.6625,1.03469
+Fisher and Fox 1979,0.002,25.0,75.99375,1.04752
+Fisher and Fox 1979,0.002,25.0,101.325,1.05742
+Fisher and Fox 1979,0.002,25.0,126.65625,1.06479
+Fisher and Fox 1979,0.002,25.0,151.9875,1.06998
+Fisher and Fox 1979,0.002,25.0,177.31875,1.07335
+Fisher and Fox 1979,0.002,25.0,202.65,1.0752
+Fisher 1962 (Table VIII),0.01,25.0,0.10132,1.0
+Fisher 1962 (Table VIII),0.01,25.0,50.6625,1.038
+Fisher 1962 (Table VIII),0.01,25.0,101.325,1.06
+Fisher 1962 (Table VIII),0.01,25.0,202.65,1.072
+Fisher 1962 (Lambda ratio x Dorsey rho_r),0.02,25.0,0.10132,1.0
+Fisher 1962 (Lambda ratio x Dorsey rho_r),0.02,25.0,50.6625,1.03835
+Fisher 1962 (Lambda ratio x Dorsey rho_r),0.02,25.0,101.325,1.06035
+Fisher 1962 (Lambda ratio x Dorsey rho_r),0.02,25.0,151.9875,1.07221
+Fisher 1962 (Lambda ratio x Dorsey rho_r),0.02,25.0,202.65,1.07365
+Adams and Hall 1931,0.0502,25.0,0.1,1.0
+Adams and Hall 1931,0.0502,25.0,25.8,1.02013
+Adams and Hall 1931,0.0502,25.0,51.7,1.03685
+Adams and Hall 1931,0.0502,25.0,76.6,1.04992
+Adams and Hall 1931,0.0502,25.0,102.3,1.06066
+Adams and Hall 1931,0.0502,25.0,128.5,1.06859
+Adams and Hall 1931,0.0502,25.0,154.2,1.07428
+Adams and Hall 1931,0.0502,25.0,184.8,1.0782
+Adams and Hall 1931,0.0502,25.0,211.5,1.07947
+Adams and Hall 1931,0.0502,25.0,270.5,1.07614
+Adams and Hall 1931,0.0502,25.0,160.5,1.07566
+Adams and Hall 1931,0.0502,25.0,55.4,1.03946
+Adams and Hall 1931,0.0502,25.0,0.1,1.00015

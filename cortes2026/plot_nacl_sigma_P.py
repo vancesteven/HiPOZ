@@ -19,6 +19,15 @@ Clean sigma(P) for the Gamry high-pressure cell, all on one axis.
   (cortes2026/literature/adams_hall_1931_nacl_2p865.csv). They report only
   R/R0, so sigma = sigma0 R0/R with sigma0 from McCleskey et al. (2012) at
   25 C and that molality (the anchor is a model value, said in the legend).
+Lower panel: kappa(P)/kappa(0.1 MPa) for KCl. Ours: R_amb_first / R of each KCl
+standard run (0.70 mol/kg). Literature (all 25 C, dilute KCl, 0.0005-0.05 mol/kg):
+Fisher & Fox (1979) Table I, 0.02 mol/L, and Fisher (1962) Tables III/VIII
+(cortes2026/literature/fisher_*_kcl_25C.csv); Adams & Hall (1931) KCl 0.373 wt%
+(ThermoLit/data/adams_hall_1931), kappa_P/kappa_0 = 1/(R/R0). Molar conductances
+convert to conductivity ratios through the solvent density: kappa = Lambda c and
+c rises with the water density, so kappa_P/kappa_1 = (Lambda_P/Lambda_1) rho_r,
+rho_r = rho_water(P, 25 C)/rho_water(1 atm) from SeaFreeze 'water1' (Fisher 1962:
+Dorsey rho_r tabulated in the CSV). Table: nacl_sigma_P/kcl_literature_ratio.csv.
 Left out: the Aug 18 - Sep 10 2026 KCl runs, stepped too fast for the trend
 with pressure (Steve, 2026-11-08); Oct 6 NaCl (5-10 min steps, up/down
 mismatch in Diaz's notebook).
@@ -69,6 +78,14 @@ SIGMA_STD = 8.0
 ADAMS_CSV = os.path.join(HERE, 'literature', 'adams_hall_1931_nacl_2p865.csv')
 ADAMS_MOLAL = 0.02865 / (1 - 0.02865) / 0.05844
 ADAMS_T_C = 25.0
+# ThermoLit is a sibling checkout (../ThermoLit); override with THERMOLIT_DIR
+THERMOLIT = os.environ.get('THERMOLIT_DIR', os.path.join(os.path.dirname(REPO), 'ThermoLit'))
+ADAMS_KCL_CSV = os.path.join(THERMOLIT, 'data', 'adams_hall_1931',
+                             'table1_kcl_0.3730wt_25.00C.csv')
+FISHER_FOX_CSV = os.path.join(HERE, 'literature', 'fisher_fox_1979_kcl_25C.csv')
+FISHER_1962_CSV = os.path.join(HERE, 'literature', 'fisher_1962_kcl_25C.csv')
+ATM_MPA = 0.101325
+LIT_T_C = 25.0
 DIRS = {'20250813Cortes': '20250813', '20250814Cortes': '20250814',
         '20250818Cortes': '20250818', '20250819Cortes': '20250819',
         '20250820Cortes': '20250820'}
@@ -338,7 +355,12 @@ def label_ends(ax, items, x_text, gap):
 
 
 def plot(st, path, show_excluded=False, recent=None, ex26=None):
-    fig, ax = plt.subplots(figsize=(10.5, 7.0))
+    two = recent is not None and not show_excluded
+    if two:
+        fig, (ax, ax2) = plt.subplots(2, 1, figsize=(10.5, 10.0), sharex=True,
+                                      gridspec_kw={'height_ratios': [1, 0.4], 'hspace': 0.08})
+    else:
+        fig, ax = plt.subplots(figsize=(10.5, 7.0))
     ends, pan_ends = [], []
     if show_excluded and recent is not None:
         _plot_recent(ax, recent)
@@ -380,7 +402,8 @@ def plot(st, path, show_excluded=False, recent=None, ex26=None):
                         xytext=(6, -2) if r.P_MPa > 12 else (18, (-44, -30, -16, -2, 12, 26)[j % 6]),
                         fontsize=6.5, color='#52514e', va='center',
                         arrowprops=None if r.P_MPa > 12 else dict(arrowstyle='-', color='#9a9a9a', lw=0.5))
-    ax.set_xlabel('Pressure (MPa)')
+    if not two:
+        ax.set_xlabel('Pressure (MPa)')
     ax.set_ylabel(r'$\sigma$ (S/m)')
     ax.grid(True, color='#e4e3df', lw=0.6)
     ax.set_axisbelow(True)
@@ -404,6 +427,8 @@ def plot(st, path, show_excluded=False, recent=None, ex26=None):
         label_ends(ax, far, 712, gap=0.16)
         label_ends(ax, near, 240, gap=0.16)
         _style_key(ax)
+    if two:
+        _plot_kcl_ratio(ax2, recent)
     fig.tight_layout()
     fig.savefig(path, dpi=200)
     if path.endswith('.png') and not show_excluded:
@@ -480,6 +505,110 @@ def _plot_adams(ax):
             fr'NaCl 0.505 m, Adams \& Hall 1931, 25.0 $^\circ$C ($\sigma_0$ {sigma0:.2f} S/m)', col)
 
 
+def rho_r_water(P_MPa, T_C=25.0):
+    """Water density relative to 1 atm at T_C, SeaFreeze 'water1'."""
+    from seafreeze.seafreeze import seafreeze
+    T = np.array([T_C + 273.15])
+    P = np.atleast_1d(np.asarray(P_MPa, dtype=float))
+    rho = seafreeze(np.array([P, T], dtype=object), 'water1').rho[:, 0]
+    rho0 = seafreeze(np.array([np.array([ATM_MPA]), T], dtype=object), 'water1').rho[0, 0]
+    return rho / rho0
+
+
+def load_fisher_fox_kcl(c0_1e4=200.0):
+    """Fisher & Fox (1979) kappa_P/kappa_1 = (Lambda_P/Lambda_1) rho_r(P), 25 C."""
+    d = pd.read_csv(FISHER_FOX_CSV, comment='#')
+    d = d[np.isclose(d.c0_1e4_molL, c0_1e4)].sort_values('P_atm')
+    P = d.P_atm.to_numpy() * ATM_MPA
+    ratio = d.Lambda_Scm2mol.to_numpy() / d.Lambda_Scm2mol.iloc[0] * rho_r_water(P)
+    return pd.DataFrame({'P_MPa': P, 'ratio': ratio})
+
+
+def load_fisher_1962_kcl():
+    """Fisher (1962): 0.01 M kappa_P/kappa_1 (Table VIII) and 0.02 M Lambda_P/Lambda_1 x Dorsey rho_r."""
+    d = pd.read_csv(FISHER_1962_CSV, comment='#')
+    one = pd.DataFrame({'P_atm': [1], 'ratio': [1.0]})
+    a = d[(d.quantity == 'Lp_rho_over_L1') & np.isclose(d.c0_molL, 0.01, atol=1e-4)]
+    a = pd.concat([one, a[['P_atm', 'value']].rename(columns={'value': 'ratio'})])
+    lam = d[(d.quantity == 'Lp_over_L1') & np.isclose(d.c0_molL, 0.02)].set_index('P_atm').value
+    rho = d[d.quantity == 'rho_r'].set_index('P_atm').value
+    b = pd.concat([one, pd.DataFrame({'P_atm': lam.index, 'ratio': (lam * rho.loc[lam.index]).values})])
+    out = []
+    for df in (a, b):
+        df = df.sort_values('P_atm')
+        out.append(pd.DataFrame({'P_MPa': df.P_atm.to_numpy() * ATM_MPA, 'ratio': df.ratio.to_numpy()}))
+    return out
+
+
+def load_adams_hall_kcl():
+    """Adams & Hall (1931) KCl 0.373 wt%, 25 C: kappa_P/kappa_0 = 1/(R/R0)."""
+    a = pd.read_csv(ADAMS_KCL_CSV, comment='#')
+    a['P_MPa'] = a.P_bar / 10
+    a['ratio'] = 1 / a.R_over_R0
+    a['descent'] = (a.index > a.P_bar.idxmax())
+    return a
+
+
+def kcl_literature_table():
+    ff = load_fisher_fox_kcl(200.0)
+    ff2 = load_fisher_fox_kcl(20.0)
+    f62a, f62b = load_fisher_1962_kcl()
+    ah = load_adams_hall_kcl()
+    parts = [('Fisher and Fox 1979', 0.02, ff), ('Fisher and Fox 1979', 0.002, ff2),
+             ('Fisher 1962 (Table VIII)', 0.01, f62a), ('Fisher 1962 (Lambda ratio x Dorsey rho_r)', 0.02, f62b),
+             ('Adams and Hall 1931', 0.0502, ah)]
+    t = pd.concat([d[['P_MPa', 'ratio']].assign(source=s, c=c, T_C=LIT_T_C) for s, c, d in parts],
+                  ignore_index=True)
+    return t[['source', 'c', 'T_C', 'P_MPa', 'ratio']]
+
+
+def _plot_kcl_ratio(ax, rec):
+    """Lower panel: kappa(P)/kappa(0.1 MPa) for our KCl standards and literature KCl."""
+    for label, _, comp, mk, _ in RUNS_2026:
+        if comp != 'KCl':
+            continue
+        r = rec[rec.run == label].copy()
+        col = temp_color(r.T_C.mean())
+        r['ratio'] = r.R_amb_first / r.R
+        ax.plot(r.P_MPa, r.ratio, '-', color=col, lw=0.8, zorder=2)
+        for desc in (False, True):
+            q = r[r.descent == desc]
+            ax.plot(q.P_MPa, q.ratio, mk, color=col, mfc='#fcfcfb' if desc else col,
+                    mec=col if desc else '#fcfcfb', ms=5, mew=1.0, zorder=3)
+    dk = '#0b0b0b'
+    ff = load_fisher_fox_kcl(200.0)
+    ff2 = load_fisher_fox_kcl(20.0)
+    f62a, f62b = load_fisher_1962_kcl()
+    ah = load_adams_hall_kcl()
+    ends = []
+    ax.plot(ff.P_MPa, ff.ratio, '-^', color=dk, lw=1.1, ms=5, zorder=4)
+    ax.plot(ff2.P_MPa, ff2.ratio, '--', color='#6b6b68', lw=1, zorder=3)
+    ax.plot(f62a.P_MPa, f62a.ratio, 'v', color='#6b6b68', ms=6, zorder=4)
+    ax.plot(f62b.P_MPa, f62b.ratio, 'v', color='#6b6b68', mfc='#fcfcfb', ms=6, zorder=4)
+    up = ah[~ah.descent]
+    ax.plot(up.P_MPa, up.ratio, '-', color=dk, lw=0.8, zorder=2)
+    for desc in (False, True):
+        q = ah[ah.descent == desc]
+        ax.plot(q.P_MPa, q.ratio, 'X', color=dk, ms=7, mfc='#fcfcfb' if desc else dk,
+                mec=dk if desc else '#fcfcfb', mew=1.0, zorder=4)
+    deg = r'$^\circ$C'
+    items = [(ff.P_MPa.iloc[-1], ff.ratio.iloc[-1], r'KCl 0.02 M, Fisher \& Fox 1979, 25 ' + deg, dk, '-'),
+             (ff2.P_MPa.iloc[-1], ff2.ratio.iloc[-1], r'KCl 0.002 M, Fisher \& Fox 1979, 25 ' + deg, '#6b6b68', '--'),
+             (f62a.P_MPa.iloc[-1], f62a.ratio.iloc[-1], r'KCl 0.01 M, Fisher 1962, 25 ' + deg, '#6b6b68', '-'),
+             (f62b.P_MPa.iloc[-1], f62b.ratio.iloc[-1],
+              r'KCl 0.02 M, Fisher 1962 ($\Lambda_P/\Lambda_1\times\rho_r$), 25 ' + deg, '#6b6b68', '-'),
+             (up.P_MPa.iloc[-1], up.ratio.iloc[-1], r'KCl 0.05 m, Adams \& Hall 1931, 25 ' + deg, dk, '-')]
+    label_ends(ax, items, 310, gap=0.011)
+    ax.set_ylim(0.98, 1.15)
+    ax.set_ylabel(r'$\sigma(P)/\sigma(0.1\,\mathrm{MPa})$')
+    ax.set_xlabel('Pressure (MPa)')
+    ax.grid(True, color='#e4e3df', lw=0.6)
+    ax.set_axisbelow(True)
+    ax.text(0.015, 0.97, 'literature: dilute KCl (0.0005--0.05 mol/kg); ours: 0.70 mol/kg standard\n'
+            'filled: compression, hollow: decompression; colour: T of our runs (as above)',
+            transform=ax.transAxes, fontsize=7.4, va='top', color='#52514e')
+
+
 def _plot_pan(ax, st, rec):
     """Pan et al. (2021) on each measured NaCl isotherm."""
     P = np.linspace(0.1, 700, 300)
@@ -519,6 +648,8 @@ def main():
                                            index=False)
     recent, ex26 = load_2026()
     recent.round(5).to_csv(os.path.join(OUT, 'sigma_P_2026_steps.csv'), index=False)
+    kcl_literature_table().round(5).to_csv(os.path.join(OUT, 'kcl_literature_ratio.csv'),
+                                           index=False)
     plot(st, os.path.join(OUT, 'nacl_0p5m_sigma_P.png'), recent=recent)
     plot(st, os.path.join(OUT, 'nacl_0p5m_sigma_P_excluded.png'), show_excluded=True, recent=recent, ex26=ex26)
     print(f'{(st.excluded == "").sum()} steps kept, {(st.excluded != "").sum()} excluded -> {OUT}')
