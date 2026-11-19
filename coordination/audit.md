@@ -583,3 +583,18 @@ with bullets, or a one-line `- <date>: ...` bullet.
   - Ratios at 200 MPa: literature at 25 °C 1.072–1.079; our 0.70 m standard 1.078 at 24.9 °C, rising to 1.127 at 6.3 °C.
   - Verified: tests/test_kcl_literature_ratio.py plus vessel and supplement tests, 13 pass. nacl_0p5m_sigma_P.png viewed.
 - ThermoLit datasets fisher_fox_1979 and fisher_1962 are being added by a Sonnet agent (branch literature-ingest).
+
+## 2026-11-19 — σ(P) figures split: supplement (diagnostic) and main text (best assessment)
+- Steve: absolute units; keep every diagnostic in the supplement figure; NaCl and KCl in separate subplots; a separate main-text figure with the best assessment of σ(P, T) per concentration; documented scripts.
+- New cortes2026/sigma_P_sources.py: one documented loader per source, in absolute units.
+  - Fisher & Fox 1979: Λ·c0·ρr.
+  - Fisher 1962: ratios × Fisher & Fox 1-atm. Implied cell constant 0.733 vs his listed 0.732.
+  - Adams & Hall: σ0 from MC12, which sits +0.8% above Fisher & Fox at 0.02 M.
+  - Also: the 1-bar reference hierarchy (McCleskey 2011 measured, else MC12) and anchor_to_1bar.
+- plot_nacl_sigma_P.py now makes the supplement figure: NaCl | KCl columns, absolute σ (KCl log) over σ/σ(1 bar), with all exclusions, decompression and checks. `--figures-only` redraws it in seconds.
+- New plot_sigma_P_main.py makes the main figure: NaCl 0.5, NaCl 0.9, KCl 0.70 mol/kg; equilibrated runs only; each run anchored at its first 1-bar step.
+  - Anchor factors (sigma_P_main_anchor_factors.csv): Aug 2025 0.5 m NaCl −9.8% to +5.5%; Oct 7–8 and Nov 16 1.000; Nov KCl −1.9% to +0.5%.
+  - Anchor uncertainties (1% McC2011, 2% MC12) and the guide-curve choice (cubic for ≥9 points, quadratic for 4–8) are assumptions for Steve's review.
+- Hysteresis check: Fisher 1962 next-day 1 atm within 0.15%; Adams & Hall descending within 0.06%; ours mean −0.26 to +0.05%, worst steps 0.65–1.0%.
+- Verified: 17 tests pass (test_sigma_P_sources, test_kcl_literature_ratio, test_vessel_1bar_check, test_supplement_tables). Both PNGs viewed. Written by Sonnet agents, reviewed by Opus.
+- Removed nacl_0p5m_sigma_P_excluded.png (its content is in the supplement figure). nacl_0p5m_sigma_P.* is kept as a deprecated copy because the paper drafts reference it.

@@ -1,50 +1,62 @@
 #!/usr/bin/env python3
 """
-Clean sigma(P) for the Gamry high-pressure cell, all on one axis.
+Conductivity-pressure data processing and the SUPPLEMENT figure sigma(P).
 
-- Aug 2025 Cortes 0.5 mol/kg NaCl isotherms (circles, triangles, squares by
-  day; colour by temperature).
-- 2026 Diaz runs with the correct trend (Steve, 2026-11-08): 0.9 mol/kg
-  (5 wt%) NaCl Oct 7-8 (30-min steps) and Oct 9 (10-min steps); the 8 S/m
-  KCl standard Oct 14-15, Nov 5 and Nov 6 (squares). sigma = K / R with the
-  ambient-pressure 8 S/m standard of the nearest standard run setting K:
-  Oct 14 for the Oct NaCl runs (an estimate: measured five days later, after
-  the leak repair; open question 2026-10-19), each run's own first triplet
-  for the standard runs. NaCl 0.9 m Nov 16 (circles): K from its first 1-bar
-  step against McCleskey (2011), since its connection broke after loading.
-- Pan et al. (2021) NaCl model (pan2021_nacl.py) at 0.5 and 0.9 mol/kg on
-  the measured isotherms: solid inside the experimental envelope
-  (212-1713 MPa, 233-295 K), dashed where extrapolated.
-- Adams & Hall (1931) 2.8650 wt% (0.5047 mol/kg) NaCl at 25.00 C, Table I
-  (cortes2026/literature/adams_hall_1931_nacl_2p865.csv). They report only
-  R/R0, so sigma = sigma0 R0/R with sigma0 from McCleskey et al. (2012) at
-  25 C and that molality (the anchor is a model value, said in the legend).
-Lower panel: kappa(P)/kappa(0.1 MPa) for KCl. Ours: R_amb_first / R of each KCl
-standard run (0.70 mol/kg). Literature (all 25 C, dilute KCl, 0.0005-0.05 mol/kg):
-Fisher & Fox (1979) Table I, 0.02 mol/L, and Fisher (1962) Tables III/VIII
-(cortes2026/literature/fisher_*_kcl_25C.csv); Adams & Hall (1931) KCl 0.373 wt%
-(ThermoLit/data/adams_hall_1931), kappa_P/kappa_0 = 1/(R/R0). Molar conductances
-convert to conductivity ratios through the solvent density: kappa = Lambda c and
-c rises with the water density, so kappa_P/kappa_1 = (Lambda_P/Lambda_1) rho_r,
-rho_r = rho_water(P, 25 C)/rho_water(1 atm) from SeaFreeze 'water1' (Fisher 1962:
-Dorsey rho_r tabulated in the CSV). Table: nacl_sigma_P/kcl_literature_ratio.csv.
-Left out: the Aug 18 - Sep 10 2026 KCl runs, stepped too fast for the trend
-with pressure (Steve, 2026-11-08); Oct 6 NaCl (5-10 min steps, up/down
-mismatch in Diaz's notebook).
+Pipeline role (details: nacl_sigma_P/README.md)
+    1. This script fits every 2026 sweep (slow, ~30 s) and groups sweeps into
+       pressure steps. It writes the step CSVs that all other code reads.
+    2. The figure here is the supplement figure: ALL our data, diagnostics
+       included. The main-text figure is plot_sigma_P_main.py (fast, CSVs only).
+    3. The data model and every literature source (Fisher and Fox 1979, Fisher
+       1962, Adams and Hall 1931, Pan 2021, McCleskey 2011/2012 references) live
+       in sigma_P_sources.py; this script only plots them.
 
-Sweeps are grouped into pressure steps (consecutive sweeps < 4 min apart at
-the same nominal P); each point is a step mean with its min-max range. Near
-room temperature some steps were taken before T and P had equilibrated and
-break the concave-down sigma(P) seen on the other days (Steve, 2026-11-07).
-Those steps are listed in EXCLUDED with the reason; nothing is removed from
-the zAnalysis configs.
+Supplement figure layout: two columns, NaCl (left) and KCl (right).
+    top row     absolute sigma (S/m); KCl on a log axis because the dilute
+                literature KCl (0.01-0.3 S/m) and our 0.70 mol/kg standard
+                (5-9.5 S/m) differ by 30x
+    bottom row  sigma / sigma(first 1-bar step of the same run), the same
+                series: shows the pressure dependence and hysteresis without
+                the absolute calibration
+Marks: colour = temperature (TEMP_COLORS); filled = compression, hollow =
+decompression; black x = excluded step (reasons below); triangle / diamond at
+the left of the KCl panel = 1-bar bottle table / McCleskey et al. (2012) at the
+Nov KCl runs' temperatures (a check, not forced to either); dashed/thick lines
+= Pan et al. (2021) model (thick inside its fitted P-T range, dashed where
+extrapolated); labels sit at the ends of the curves.
 
-Usage:  python cortes2026/plot_nacl_sigma_P.py
-Writes: cortes2026/nacl_sigma_P/nacl_0p5m_sigma_P.{pdf,png}   clean figure
-        cortes2026/nacl_sigma_P/sigma_P_2026_steps.csv         2026 step table
-        cortes2026/diaz/diaz_hp_sweep_fits.csv                 2026 per-sweep fits
-        cortes2026/nacl_sigma_P/nacl_0p5m_sigma_P_excluded.png shows what was cut
-        cortes2026/nacl_sigma_P/nacl_0p5m_sigma_P_steps.csv    step table
+Our data
+- Aug 2025 Cortes 0.5 mol/kg NaCl isotherms (small vessel).
+- 2026 Diaz runs (large vessel): 0.9 mol/kg (5 wt%) NaCl Oct 7-8 (30-min steps),
+  Oct 9 (10-min steps) and Nov 16; the 8 S/m KCl standard Oct 14-15 and Nov 5-12.
+  sigma = K / R. K sources: the nearest ambient 8 S/m standard (Oct 14 for the
+  Oct NaCl runs, an estimate: measured five days later, after the leak repair;
+  open question 2026-10-19), each Oct 14-15 run's own first triplet, the common
+  Nov K (120.617, median of the settled 1-bar steps in vessel_1bar_check.py) for
+  Nov 5-12, and for NaCl Nov 16 the first 1-bar step against McCleskey (2011)
+  because its potentiostat connection broke after loading.
+- Left out entirely: the Aug 18 - Sep 10 2026 KCl runs (stepped too fast;
+  Steve 2026-11-08); Oct 6 NaCl (5-10 min steps, up/down mismatch in Diaz's
+  notebook), which is still fitted into the sweep table for the supplement tables.
+
+Steps and exclusions
+Sweeps are grouped into pressure steps (consecutive sweeps < 4 min apart at the
+same nominal P); each point is a step mean with its min-max range. Some steps
+were taken before T and P had equilibrated (Steve, 2026-11-07); they are listed
+in EXCLUDED (2025) and PROVISIONAL_2026 / the zAnalysis config exclusions (2026)
+with the reason, and drawn as black x. Nothing is removed from the configs.
+
+Usage:  python cortes2026/plot_nacl_sigma_P.py            (about 50 s)
+        python cortes2026/plot_nacl_sigma_P.py --figures-only   (redraw from the CSVs, seconds)
+Writes: nacl_sigma_P/nacl_0p5m_sigma_P_steps.csv   2025 step table (excluded column)
+        nacl_sigma_P/sigma_P_2026_steps.csv        2026 kept-step table
+        diaz/diaz_hp_sweep_fits.csv                every 2026 sweep, with exclusion reasons
+        nacl_sigma_P/kcl_literature_ratio.csv      KCl literature, absolute and ratio
+        nacl_sigma_P/sigma_P_supplement.{pdf,png}  the supplement figure
+        nacl_sigma_P/nacl_0p5m_sigma_P.{pdf,png}   DEPRECATED copy of the above,
+            kept so references in paper drafts do not break. The former
+            nacl_0p5m_sigma_P_excluded.png is gone: its excluded steps are now
+            black x in this figure (their times are in the CSVs above).
 """
 import os
 import sys
@@ -63,7 +75,7 @@ sys.path.insert(0, REPO)
 sys.path.insert(0, HERE)
 os.chdir(REPO)
 import cortes_data_processing as cdp  # noqa: E402
-import pan2021_nacl as pan  # noqa: E402
+import sigma_P_sources as src  # noqa: E402
 import vessel_1bar_check as vbc  # noqa: E402
 from gamryTools import Solution  # noqa: E402
 
@@ -75,17 +87,6 @@ MAX_GAP_MPA = 150
 # step is Aug 13's, so the segment is Aug 13's.
 ALWAYS_CONNECT = {('20250813', 20)}
 SIGMA_STD = 8.0
-ADAMS_CSV = os.path.join(HERE, 'literature', 'adams_hall_1931_nacl_2p865.csv')
-ADAMS_MOLAL = 0.02865 / (1 - 0.02865) / 0.05844
-ADAMS_T_C = 25.0
-# ThermoLit is a sibling checkout (../ThermoLit); override with THERMOLIT_DIR
-THERMOLIT = os.environ.get('THERMOLIT_DIR', os.path.join(os.path.dirname(REPO), 'ThermoLit'))
-ADAMS_KCL_CSV = os.path.join(THERMOLIT, 'data', 'adams_hall_1931',
-                             'table1_kcl_0.3730wt_25.00C.csv')
-FISHER_FOX_CSV = os.path.join(HERE, 'literature', 'fisher_fox_1979_kcl_25C.csv')
-FISHER_1962_CSV = os.path.join(HERE, 'literature', 'fisher_1962_kcl_25C.csv')
-ATM_MPA = 0.101325
-LIT_T_C = 25.0
 DIRS = {'20250813Cortes': '20250813', '20250814Cortes': '20250814',
         '20250818Cortes': '20250818', '20250819Cortes': '20250819',
         '20250820Cortes': '20250820'}
@@ -319,10 +320,18 @@ def prior_ticks():
     return out
 
 
+
+# ------------------------------------------------------------------ plotting
+INK, GREY, PAPER = '#0b0b0b', '#6b6b68', '#fcfcfb'
+DEG = r'$^\circ$C'
+MARKERS = {f"NaCl 0.5 m, Aug {int(d[6:])}, {s} C": mk for (d, s), (_, mk) in RUNS.items()}
+MARKERS.update({lbl: mk for lbl, _, _, mk, _ in RUNS_2026})
+
+
 def _style():
     plt.rcParams.update({
         'text.usetex': True, 'font.family': 'serif', 'font.size': 11,
-        'axes.edgecolor': '#52514e', 'axes.labelcolor': '#0b0b0b',
+        'axes.edgecolor': '#52514e', 'axes.labelcolor': INK,
         'xtick.color': '#52514e', 'ytick.color': '#52514e',
     })
 
@@ -337,306 +346,250 @@ def _spread(ys, gap):
     return out
 
 
-def label_ends(ax, items, x_text, gap):
+def label_ends(ax, items, x_text, gap, log=False):
     """Direct labels: text at x_text, y spread apart, a thin leader to (x, y).
 
-    items: list of (x_end, y_end, text, colour)."""
+    items: list of (x_end, y_end, text, colour[, linestyle]).  With log=True the
+    spreading is done in decades (gap in decades), for a log y axis."""
     if not items:
         return
-    ys = _spread([it[1] for it in items], gap)
+    f = np.log10 if log else (lambda v: v)
+    g = (lambda v: 10 ** v) if log else (lambda v: v)
+    xr = np.diff(ax.get_xlim())[0]
+    ys = _spread([f(it[1]) for it in items], gap)
     for (x, y, text, col, *ls), yt in zip(items, ys):
-        # Dotted grey leader from the curve end; a short swatch in the curve's
-        # colour and line style next to the text (no marker, so it can't be
-        # mistaken for a data point)
-        ax.plot([x, x_text - 16], [y, yt], ':', color='#9a9a9a', lw=0.7, zorder=1)
-        ax.plot([x_text - 15, x_text - 3], [yt, yt], ls[0] if ls else '-', color=col,
-                lw=2, zorder=5, clip_on=False)
-        ax.text(x_text, yt, text, fontsize=7.6, color='#0b0b0b', va='center', ha='left', zorder=5)
+        yt = g(yt)
+        ax.plot([x, x_text - 0.016 * xr], [y, yt], ':', color='#9a9a9a', lw=0.7, zorder=1)
+        ax.plot([x_text - 0.015 * xr, x_text - 0.003 * xr], [yt, yt], ls[0] if ls else '-',
+                color=col, lw=2, zorder=5, clip_on=False)
+        ax.text(x_text, yt, text, fontsize=7.4, color=INK, va='center', ha='left', zorder=5)
 
 
-def plot(st, path, show_excluded=False, recent=None, ex26=None):
-    two = recent is not None and not show_excluded
-    if two:
-        fig, (ax, ax2) = plt.subplots(2, 1, figsize=(10.5, 10.0), sharex=True,
-                                      gridspec_kw={'height_ratios': [1, 0.4], 'hspace': 0.08})
-    else:
-        fig, ax = plt.subplots(figsize=(10.5, 7.0))
-    ends, pan_ends = [], []
-    if show_excluded and recent is not None:
-        _plot_recent(ax, recent)
-        if ex26 is not None and len(ex26):
-            ax.plot(ex26.P_MPa, ex26.sigma_Sm, 'x', color='#0b0b0b', ms=7, mew=1.5, zorder=4)
-            for i, (_, r) in enumerate(ex26.sort_values('P_MPa').iterrows()):
-                dx, dy = ((8, 9), (8, 9), (-8, -16), (8, 24))[i % 4]  # staggered
-                ax.annotate(f"{r.time:%m/%d %H:%M}", (r.P_MPa, r.sigma_Sm),
-                            textcoords='offset points', xytext=(dx, dy), ha='right' if dx < 0 else 'left', va='center',
-                            fontsize=6.5, color='#52514e',
-                            arrowprops=dict(arrowstyle='-', color='#9a9a9a', lw=0.5))
-    if recent is not None and not show_excluded:
-        pan_ends = _plot_pan(ax, st, recent)
-    keep = st[st.excluded == '']
-    for run, (col, mk) in RUNS.items():
-        r = keep[keep.run.map(lambda x: x == run)].sort_values('P_MPa')
-        if r.empty:
+def prior_ticks():
+    """Bottle-table and McCleskey (2012) sigma at each Nov KCl run's 1-bar steps."""
+    k, _ = vbc.kcl_check(vbc.ambient_steps(vbc.load_sweeps()))
+    out = {}
+    for label, folders, comp, _, ksrc in RUNS_2026:
+        if ksrc != 'nov_common':
             continue
-        label = f"{datetime.strptime(run[0], '%Y%m%d'):%b} {int(run[0][6:])}, {r.T_C.mean():.1f}" 
-        yerr = [r.sigma_Sm - r.sigma_min, r.sigma_max - r.sigma_Sm]
-        # Connect neighbouring steps only; leave unmeasured spans open
-        P, S = r.P_MPa.to_numpy(), r.sigma_Sm.to_numpy()
-        for i in range(len(P) - 1):
-            # ALWAYS_CONNECT bridges only the gap up to its highest pressure
-            if P[i + 1] - P[i] <= MAX_GAP_MPA or (run in ALWAYS_CONNECT and i == len(P) - 2):
-                ax.plot(P[i:i + 2], S[i:i + 2], '-', color=col, lw=1.5, zorder=2)
-        ax.errorbar(r.P_MPa, r.sigma_Sm, yerr=yerr, fmt=mk, color=col, ms=6.5,
-                    mec='#fcfcfb', mew=1.2, elinewidth=1, capsize=0, zorder=3)
-        ends.append((P[-1], S[-1], r'NaCl 0.5 m, ' + label + r' $^\circ$C', col))
-    if show_excluded:
-        ex = st[st.excluded != '']
-        ax.plot(ex.P_MPa, ex.sigma_Sm, 'x', color='#0b0b0b', ms=7, mew=1.5,
-                label='excluded', zorder=4)
-        j = -1
-        for _, r in ex.sort_values(['P_MPa', 'sigma_Sm']).iterrows():
-            j += r.P_MPa <= 12
-            ax.annotate(f"{r.start:%m/%d %H:%M}", (r.P_MPa, r.sigma_Sm),
-                        textcoords='offset points',
-                        xytext=(6, -2) if r.P_MPa > 12 else (18, (-44, -30, -16, -2, 12, 26)[j % 6]),
-                        fontsize=6.5, color='#52514e', va='center',
-                        arrowprops=None if r.P_MPa > 12 else dict(arrowstyle='-', color='#9a9a9a', lw=0.5))
-    if not two:
-        ax.set_xlabel('Pressure (MPa)')
-    ax.set_ylabel(r'$\sigma$ (S/m)')
-    ax.grid(True, color='#e4e3df', lw=0.6)
-    ax.set_axisbelow(True)
-    recent_ends = []
-    if recent is not None and not show_excluded:
-        ends += pan_ends
-        recent_ends = _plot_recent(ax, recent)
-        ends.append(_plot_adams(ax))
-    ax.set_title(r'Gamry high-pressure cell: NaCl (Cortes 2025, Diaz 2026) and the 8 S/m KCl standard',
-                 fontsize=11)
-    if show_excluded:
-        ax.set_xlim(-22, 720)
-        ax.legend(fontsize=7.8, frameon=False, loc='upper left', bbox_to_anchor=(1.01, 1.0))
-    else:
-        # Curves ending above 400 MPa: labels to the right of 700 MPa. The
-        # 2026 runs (ending near 200 MPa): labels in the open space beside them.
-        far = [e for e in ends if e[0] > 400]
-        near = [e for e in ends if e[0] <= 400] + recent_ends
-        ax.set_xlim(-22, 960)
-        ax.set_xticks(np.arange(0, 701, 100))
-        label_ends(ax, far, 712, gap=0.16)
-        label_ends(ax, near, 240, gap=0.16)
-        _style_key(ax)
-    if two:
-        _plot_kcl_ratio(ax2, recent)
-    fig.tight_layout()
-    fig.savefig(path, dpi=200)
-    if path.endswith('.png') and not show_excluded:
-        fig.savefig(path[:-4] + '.pdf')
-    plt.close(fig)
-
-
-def _style_key(ax):
-    """Key for line and marker styles only; curve identities are labelled in place."""
-    from matplotlib.lines import Line2D
-    g = '#52514e'
-    h = [Line2D([], [], ls='--', color=g, lw=1),
-         Line2D([], [], ls='-', color=g, lw=2.6, alpha=0.35),
-         Line2D([], [], ls='', marker='s', color=g, ms=6),
-         Line2D([], [], ls='', marker='s', color=g, mfc='#fcfcfb', ms=6),
-         Line2D([], [], ls='', marker='X', color=g, ms=7),
-         Line2D([], [], ls='', marker='>', color='#0b0b0b', ms=4.5),
-         Line2D([], [], ls='', marker='D', color='#8a8a86', ms=3.6)]
-    ax.legend(h, ['Pan et al. (2021), extrapolated', 'Pan et al. (2021), in its P--T range',
-                  'KCl standard (squares)', 'hollow: decompression',
-                  r'Adams \& Hall (1931), $\sigma_0$ from MC12',
-                  'Nov KCl 1 bar, bottle table at run $T$',
-                  'Nov KCl 1 bar, McCleskey (2012) at run $T$'],
-              fontsize=7.4, frameon=False, loc='upper right')
-
-
-def _plot_recent(ax, rec):
-    ends = []
-    ticks = prior_ticks()
-    for label, _, comp, mk, _ in RUNS_2026:
-        r = rec[rec.run == label]
-        col = temp_color(r.T_C.mean())
-        ax.plot(r.P_MPa, r.sigma_Sm, '-', color=col, lw=1.2, zorder=2)
-        for desc in (False, True):
-            q = r[r.descent == desc]
-            ax.errorbar(q.P_MPa, q.sigma_Sm, yerr=[q.sigma_Sm - q.sigma_lo, q.sigma_hi - q.sigma_Sm],
-                        fmt=mk, color=col, mfc='#fcfcfb' if desc else col,
-                        mec=col if desc else '#fcfcfb', ms=6, mew=1.2, elinewidth=1,
-                        capsize=0, zorder=3)
-        if label in ticks:
-            t = ticks[label]
-            ax.plot([-6] * len(t), t.sigma_prior_Sm, '>', color='#0b0b0b', ms=4.5, mew=0,
-                    zorder=4, clip_on=False)
-            ax.plot([-13] * len(t), t.sigma_MC12_Sm, 'D', color='#8a8a86', ms=3.6, mew=0,
-                    zorder=4, clip_on=False)
-        top = r.loc[r.P_MPa.idxmax()]
-        ends.append((top.P_MPa, top.sigma_Sm, f'{label}, {r.T_C.mean():.1f} $^\\circ$C', col))
-    return ends
-
-
-def load_adams_hall():
-    """Adams & Hall (1931) 2.865 wt% NaCl, sigma anchored to MC12 at 1 bar."""
-    from study_plots import compute_mccleskey_model
-    a = pd.read_csv(ADAMS_CSV, comment='#')
-    sigma0 = compute_mccleskey_model([ADAMS_MOLAL], [ADAMS_T_C + 273.15], compound='NaCl')[0][0]
-    a['P_MPa'] = a.P_bar / 10
-    a['sigma_Sm'] = sigma0 / a.R_over_R0
-    a['descent'] = a.P_bar.cummax() > a.P_bar
-    return a, sigma0
-
-
-def _plot_adams(ax):
-    a, sigma0 = load_adams_hall()
-    col = temp_color(ADAMS_T_C)
-    up = a[~a.descent].sort_values('P_MPa')
-    ax.plot(up.P_MPa, up.sigma_Sm, '-', color=col, lw=1.2, zorder=2)
-    for desc in (False, True):
-        q = a[a.descent == desc]
-        ax.plot(q.P_MPa, q.sigma_Sm, 'X', color=col, ms=7.5,
-                mfc='#fcfcfb' if desc else col, mec=col if desc else '#fcfcfb', mew=1.2,
-                zorder=3)
-    top = up.iloc[-1]
-    return (top.P_MPa, top.sigma_Sm,
-            fr'NaCl 0.505 m, Adams \& Hall 1931, 25.0 $^\circ$C ($\sigma_0$ {sigma0:.2f} S/m)', col)
-
-
-def rho_r_water(P_MPa, T_C=25.0):
-    """Water density relative to 1 atm at T_C, SeaFreeze 'water1'."""
-    from seafreeze.seafreeze import seafreeze
-    T = np.array([T_C + 273.15])
-    P = np.atleast_1d(np.asarray(P_MPa, dtype=float))
-    rho = seafreeze(np.array([P, T], dtype=object), 'water1').rho[:, 0]
-    rho0 = seafreeze(np.array([np.array([ATM_MPA]), T], dtype=object), 'water1').rho[0, 0]
-    return rho / rho0
-
-
-def load_fisher_fox_kcl(c0_1e4=200.0):
-    """Fisher & Fox (1979) kappa_P/kappa_1 = (Lambda_P/Lambda_1) rho_r(P), 25 C."""
-    d = pd.read_csv(FISHER_FOX_CSV, comment='#')
-    d = d[np.isclose(d.c0_1e4_molL, c0_1e4)].sort_values('P_atm')
-    P = d.P_atm.to_numpy() * ATM_MPA
-    ratio = d.Lambda_Scm2mol.to_numpy() / d.Lambda_Scm2mol.iloc[0] * rho_r_water(P)
-    return pd.DataFrame({'P_MPa': P, 'ratio': ratio})
-
-
-def load_fisher_1962_kcl():
-    """Fisher (1962): 0.01 M kappa_P/kappa_1 (Table VIII) and 0.02 M Lambda_P/Lambda_1 x Dorsey rho_r."""
-    d = pd.read_csv(FISHER_1962_CSV, comment='#')
-    one = pd.DataFrame({'P_atm': [1], 'ratio': [1.0]})
-    a = d[(d.quantity == 'Lp_rho_over_L1') & np.isclose(d.c0_molL, 0.01, atol=1e-4)]
-    a = pd.concat([one, a[['P_atm', 'value']].rename(columns={'value': 'ratio'})])
-    lam = d[(d.quantity == 'Lp_over_L1') & np.isclose(d.c0_molL, 0.02)].set_index('P_atm').value
-    rho = d[d.quantity == 'rho_r'].set_index('P_atm').value
-    b = pd.concat([one, pd.DataFrame({'P_atm': lam.index, 'ratio': (lam * rho.loc[lam.index]).values})])
-    out = []
-    for df in (a, b):
-        df = df.sort_values('P_atm')
-        out.append(pd.DataFrame({'P_MPa': df.P_atm.to_numpy() * ATM_MPA, 'ratio': df.ratio.to_numpy()}))
+        t0, t1 = RUN_WINDOWS.get(label, (None, None))
+        m = k.folder.isin(folders)
+        if t0 is not None:
+            m &= k.start >= t0
+        if t1 is not None:
+            m &= k.start < t1
+        out[label] = k[m]
     return out
 
 
-def load_adams_hall_kcl():
-    """Adams & Hall (1931) KCl 0.373 wt%, 25 C: kappa_P/kappa_0 = 1/(R/R0)."""
-    a = pd.read_csv(ADAMS_KCL_CSV, comment='#')
-    a['P_MPa'] = a.P_bar / 10
-    a['ratio'] = 1 / a.R_over_R0
-    a['descent'] = (a.index > a.P_bar.idxmax())
-    return a
-
-
-def kcl_literature_table():
-    ff = load_fisher_fox_kcl(200.0)
-    ff2 = load_fisher_fox_kcl(20.0)
-    f62a, f62b = load_fisher_1962_kcl()
-    ah = load_adams_hall_kcl()
-    parts = [('Fisher and Fox 1979', 0.02, ff), ('Fisher and Fox 1979', 0.002, ff2),
-             ('Fisher 1962 (Table VIII)', 0.01, f62a), ('Fisher 1962 (Lambda ratio x Dorsey rho_r)', 0.02, f62b),
-             ('Adams and Hall 1931', 0.0502, ah)]
-    t = pd.concat([d[['P_MPa', 'ratio']].assign(source=s, c=c, T_C=LIT_T_C) for s, c, d in parts],
-                  ignore_index=True)
-    return t[['source', 'c', 'T_C', 'P_MPa', 'ratio']]
-
-
-def _plot_kcl_ratio(ax, rec):
-    """Lower panel: kappa(P)/kappa(0.1 MPa) for our KCl standards and literature KCl."""
-    for label, _, comp, mk, _ in RUNS_2026:
-        if comp != 'KCl':
+def _marks(ax, x, y, mk, col, desc, ms=6, mew=1.2, yerr=None):
+    """Filled markers for compression, hollow for decompression."""
+    for d in (True, False):  # hollow first and larger: filled ones stay visible on top
+        m = np.asarray(desc) == d
+        if not m.any():
             continue
-        r = rec[rec.run == label].copy()
-        col = temp_color(r.T_C.mean())
-        r['ratio'] = r.R_amb_first / r.R
-        ax.plot(r.P_MPa, r.ratio, '-', color=col, lw=0.8, zorder=2)
-        for desc in (False, True):
-            q = r[r.descent == desc]
-            ax.plot(q.P_MPa, q.ratio, mk, color=col, mfc='#fcfcfb' if desc else col,
-                    mec=col if desc else '#fcfcfb', ms=5, mew=1.0, zorder=3)
-    dk = '#0b0b0b'
-    ff = load_fisher_fox_kcl(200.0)
-    ff2 = load_fisher_fox_kcl(20.0)
-    f62a, f62b = load_fisher_1962_kcl()
-    ah = load_adams_hall_kcl()
-    ends = []
-    ax.plot(ff.P_MPa, ff.ratio, '-^', color=dk, lw=1.1, ms=5, zorder=4)
-    ax.plot(ff2.P_MPa, ff2.ratio, '--', color='#6b6b68', lw=1, zorder=3)
-    ax.plot(f62a.P_MPa, f62a.ratio, 'v', color='#6b6b68', ms=6, zorder=4)
-    ax.plot(f62b.P_MPa, f62b.ratio, 'v', color='#6b6b68', mfc='#fcfcfb', ms=6, zorder=4)
-    up = ah[~ah.descent]
-    ax.plot(up.P_MPa, up.ratio, '-', color=dk, lw=0.8, zorder=2)
-    for desc in (False, True):
-        q = ah[ah.descent == desc]
-        ax.plot(q.P_MPa, q.ratio, 'X', color=dk, ms=7, mfc='#fcfcfb' if desc else dk,
-                mec=dk if desc else '#fcfcfb', mew=1.0, zorder=4)
-    deg = r'$^\circ$C'
-    items = [(ff.P_MPa.iloc[-1], ff.ratio.iloc[-1], r'KCl 0.02 M, Fisher \& Fox 1979, 25 ' + deg, dk, '-'),
-             (ff2.P_MPa.iloc[-1], ff2.ratio.iloc[-1], r'KCl 0.002 M, Fisher \& Fox 1979, 25 ' + deg, '#6b6b68', '--'),
-             (f62a.P_MPa.iloc[-1], f62a.ratio.iloc[-1], r'KCl 0.01 M, Fisher 1962, 25 ' + deg, '#6b6b68', '-'),
-             (f62b.P_MPa.iloc[-1], f62b.ratio.iloc[-1],
-              r'KCl 0.02 M, Fisher 1962 ($\Lambda_P/\Lambda_1\times\rho_r$), 25 ' + deg, '#6b6b68', '-'),
-             (up.P_MPa.iloc[-1], up.ratio.iloc[-1], r'KCl 0.05 m, Adams \& Hall 1931, 25 ' + deg, dk, '-')]
-    label_ends(ax, items, 310, gap=0.011)
-    ax.set_ylim(0.98, 1.15)
-    ax.set_ylabel(r'$\sigma(P)/\sigma(0.1\,\mathrm{MPa})$')
-    ax.set_xlabel('Pressure (MPa)')
-    ax.grid(True, color='#e4e3df', lw=0.6)
-    ax.set_axisbelow(True)
-    ax.text(0.015, 0.97, 'literature: dilute KCl (0.0005--0.05 mol/kg); ours: 0.70 mol/kg standard\n'
-            'filled: compression, hollow: decompression; colour: T of our runs (as above)',
-            transform=ax.transAxes, fontsize=7.4, va='top', color='#52514e')
+        e = None if yerr is None else [yerr[0][m], yerr[1][m]]
+        ax.errorbar(np.asarray(x)[m], np.asarray(y)[m], yerr=e, fmt=mk, color=col,
+                    mfc=PAPER if d else col, mec=col if d else PAPER,
+                    ms=ms * (1.35 if d else 1), mew=mew if not d else 1.5,
+                    elinewidth=1, capsize=0, zorder=3 if not d else 2.8)
 
 
-def _plot_pan(ax, st, rec):
-    """Pan et al. (2021) on each measured NaCl isotherm."""
-    P = np.linspace(0.1, 700, 300)
-    iso = [(0.5, T, temp_color(T)) for T in
-           st[st.excluded == ''].groupby('run').T_C.mean()
-           if not 18 < T < 19.5]  # one curve for the three ~20 C days
-    iso += [(0.9, r.T_C.mean(), temp_color(r.T_C.mean()))
-            for _, r in rec[rec.comp == 'NaCl'].groupby('run')]
-    seen, ends = set(), []
-    for m, T, col in iso:
-        key = (m, round(T))
-        if key in seen:
+def _plot_ours(ax, ours, solute, ycol, label_items, errbars=True):
+    """Every run of one solute: kept steps (line + markers) and excluded steps (x)."""
+    for run, g in ours[ours.solute == solute].groupby('run', sort=False):
+        kept = g[g.excluded == '']
+        if kept.empty:
             continue
-        seen.add(key)
-        T_K = T + 273.15
-        Pm = P if m == 0.5 else P[P <= 215]
-        sig = pan.sigma_vs_P(m, T_K, Pm)
-        inside = pan.in_envelope(Pm, T_K)
-        ax.plot(Pm, sig, '--', color=col, lw=1, alpha=0.75, zorder=1)
-        ax.plot(np.where(inside, Pm, np.nan), np.where(inside, sig, np.nan), '-',
-                color=col, lw=2.6, alpha=0.35, zorder=1)
-        ends.append((Pm[-1], sig[-1], f'Pan et al. 2021, {m} m, {T:.1f} $^\\circ$C', col, '--'))
-    return ends
+        col, mk = temp_color(kept.T_C.mean()), MARKERS[run]
+        if kept.source.iloc[0] == 'Cortes 2025':
+            kept = kept.sort_values('P_MPa')
+            P, S = kept.P_MPa.to_numpy(), kept[ycol].to_numpy()
+            key = next(k for k in RUNS if run == f"NaCl 0.5 m, Aug {int(k[0][6:])}, {k[1]} C")
+            for i in range(len(P) - 1):  # connect neighbouring steps only
+                if P[i + 1] - P[i] <= MAX_GAP_MPA or (key in ALWAYS_CONNECT and i == len(P) - 2):
+                    ax.plot(P[i:i + 2], S[i:i + 2], '-', color=col, lw=1.5, zorder=2)
+        else:
+            ax.plot(kept.P_MPa, kept[ycol], '-', color=col, lw=1.2, zorder=2)
+        ye = ([kept.sigma_Sm - kept.sigma_lo, kept.sigma_hi - kept.sigma_Sm]
+              if errbars else None)
+        ye = None if ye is None else [np.asarray(v) for v in ye]
+        _marks(ax, kept.P_MPa, kept[ycol], mk, col, kept.descent, yerr=ye)
+        top = kept.loc[kept.P_MPa.idxmax()]
+        conc = {'Cortes 2025': '0.5 m', 'Diaz 2026': f'{top.molality:.2f} m'}[top.source]
+        label_items.append((top.P_MPa, top[ycol], f'{conc}, {top.run_short}, {top.T_C:.1f} {DEG}', col))
+    ex = ours[(ours.solute == solute) & (ours.excluded != '') & ours[ycol].notna()]
+    ax.plot(ex.P_MPa, ex[ycol], 'x', color=INK, ms=7, mew=1.5, zorder=4)
+
+
+def _plot_adams(ax, df, ycol, items=None, text=None):
+    up = df[~df.descent].sort_values('P_MPa')
+    ax.plot(up.P_MPa, up[ycol], '-', color=INK, lw=0.9, zorder=2)
+    _marks(ax, df.P_MPa, df[ycol], 'P', INK, df.descent, ms=6, mew=1.0)
+    if items is not None:
+        items.append((up.P_MPa.iloc[-1], up[ycol].iloc[-1], text, INK))
+
+
+def _plot_pan(ax, ours, ratio):
+    """Pan et al. (2021) on each measured NaCl isotherm (0.5 mol/kg: Aug 2025;
+    0.9 mol/kg: 2026 NaCl runs). Thick = inside the model's fitted P-T range."""
+    kept = ours[(ours.excluded == '') & (ours.solute == 'NaCl')]
+    iso, seen = [], set()
+    for (src_, run), g in kept.groupby(['source', 'run'], sort=False):
+        m, T = round(g.molality.iloc[0], 1), g.T_C.mean()
+        if 18 < T < 19.5 or (m, round(T)) in seen:  # one curve for the ~20 C days
+            continue
+        seen.add((m, round(T)))
+        iso.append((m, T))
+    for m, T in iso:
+        P = np.linspace(0.1, 700 if m == 0.5 else 215, 300)
+        p = src.pan_nacl(m, T, P)
+        y = p.sigma_Sm / p.sigma_Sm.iloc[0] if ratio else p.sigma_Sm
+        col = temp_color(T)
+        ax.plot(p.P_MPa, y, '--', color=col, lw=1, alpha=0.75, zorder=1)
+        ax.plot(np.where(p.in_envelope, p.P_MPa, np.nan), np.where(p.in_envelope, y, np.nan),
+                '-', color=col, lw=2.6, alpha=0.35, zorder=1)
+
+
+def _plot_kcl_lit(ax, lit, ycol, items, log):
+    """Fisher and Fox (1979), Fisher (1962): absolute (S/m) or ratio."""
+    for key, ls, col, lw in (('ff02', '-', INK, 1.1), ('ff002', '--', GREY, 1.0),
+                             ('ff0005', ':', GREY, 1.0)):
+        d = lit[key]
+        ax.plot(d.P_MPa, d[ycol], ls, color=col, lw=lw, zorder=3,
+                marker='^' if key == 'ff02' else None, ms=5)
+        items.append((d.P_MPa.iloc[-1], d[ycol].iloc[-1],
+                      f'KCl {d.molality.iloc[0]:g} M, Fisher \\& Fox 1979, 25 {DEG}', col, ls))
+    for key, mfc in (('f62_01', GREY), ('f62_02', PAPER)):
+        d = lit[key]
+        ax.plot(d.P_MPa, d[ycol], 'v', color=GREY, mfc=mfc, ms=6, zorder=4)
+        items.append((d.P_MPa.iloc[-1], d[ycol].iloc[-1],
+                      f'KCl {d.molality.iloc[0]:g} M, Fisher 1962, 25 {DEG}', GREY))
+
+
+def load_literature():
+    """All literature series with 'ratio' added (sigma_P_sources.with_ratio)."""
+    lit = dict(ff02=src.fisher_fox_kcl(0.02), ff002=src.fisher_fox_kcl(0.002),
+               ff0005=src.fisher_fox_kcl(0.0005), f62_01=src.fisher_1962_kcl(0.01),
+               f62_02=src.fisher_1962_kcl(0.02), ah_kcl=src.adams_hall_kcl(),
+               ah_nacl=src.adams_hall_nacl())
+    return {k: src.with_ratio(v) for k, v in lit.items()}
+
+
+def kcl_literature_table(lit):
+    """CSV of the KCl literature series (absolute and ratio), 25 C."""
+    parts = [(lit[k].source.iloc[0], lit[k].molality.iloc[0], lit[k]) for k in
+             ('ff02', 'ff002', 'ff0005', 'f62_01', 'f62_02', 'ah_kcl')]
+    t = pd.concat([d[['P_MPa', 'ratio', 'sigma_Sm']].assign(source=s, c=c, T_C=src.LIT_T_C)
+                   for s, c, d in parts], ignore_index=True)
+    return t[['source', 'c', 'T_C', 'P_MPa', 'ratio', 'sigma_Sm']]
+
+
+def build_figure(ours, lit):
+    """Supplement figure: columns NaCl | KCl, rows absolute sigma | ratio to 1 bar."""
+    fig, axs = plt.subplots(2, 2, figsize=(13.2, 9.6), gridspec_kw={
+        'height_ratios': [1, 0.55], 'hspace': 0.08, 'wspace': 0.2})
+    (a_n, a_k), (r_n, r_k) = axs
+    ticks = prior_ticks()
+    # --- NaCl
+    a_n.set_xlim(-22, 1000)
+    r_n.set_xlim(-22, 1000)
+    items = []
+    _plot_pan(a_n, ours, ratio=False)
+    _plot_pan(r_n, ours, ratio=True)
+    _plot_ours(a_n, ours, 'NaCl', 'sigma_Sm', items)
+    _plot_ours(r_n, ours, 'NaCl', 'ratio', [], errbars=False)
+    ah = lit['ah_nacl']
+    _plot_adams(a_n, ah, 'sigma_Sm', items,
+                fr'0.505 m, Adams \& Hall 1931, 25 {DEG}')
+    _plot_adams(r_n, ah, 'ratio')
+    far = [e for e in items if e[0] > 400]
+    near = [e for e in items if e[0] <= 400]
+    label_ends(a_n, far, 712, gap=0.2)
+    label_ends(a_n, near, 240, gap=0.2)
+    a_n.set_title('NaCl', fontsize=12)
+    # --- KCl
+    a_k.set_yscale('log')
+    a_k.set_ylim(0.005, 25)
+    a_k.set_xlim(-25, 560)
+    r_k.set_xlim(-25, 560)
+    items = []
+    _plot_ours(a_k, ours, 'KCl', 'sigma_Sm', items)
+    _plot_ours(r_k, ours, 'KCl', 'ratio', [], errbars=False)
+    for label, t in ticks.items():
+        a_k.plot([-6] * len(t), t.sigma_prior_Sm, '>', color=INK, ms=4.5, mew=0, zorder=4, clip_on=False)
+        a_k.plot([-13] * len(t), t.sigma_MC12_Sm, 'D', color='#8a8a86', ms=3.6, mew=0, zorder=4, clip_on=False)
+    lit_items = []
+    _plot_kcl_lit(a_k, lit, 'sigma_Sm', lit_items, log=True)
+    _plot_kcl_lit(r_k, lit, 'ratio', [], log=False)
+    kah = lit['ah_kcl']
+    _plot_adams(a_k, kah, 'sigma_Sm', lit_items,
+                fr'0.050 m, Adams \& Hall 1931, 25 {DEG}')
+    _plot_adams(r_k, kah, 'ratio')
+    label_ends(a_k, items, 245, gap=0.075, log=True)
+    label_ends(a_k, lit_items, 292, gap=0.11, log=True)
+    a_k.set_title('KCl', fontsize=12)
+    # --- shared decoration
+    a_n.set_ylabel(r'$\sigma$ (S/m)')
+    r_n.set_ylabel(r'$\sigma(P)/\sigma(\mathrm{first\ 1\ bar\ step})$')
+    r_n.set_ylim(0.88, 1.38)
+    r_k.set_ylim(0.97, 1.16)
+    for ax in (a_n, a_k, r_n, r_k):
+        ax.grid(True, color='#e4e3df', lw=0.6)
+        ax.set_axisbelow(True)
+    for ax in (a_n, a_k):
+        ax.tick_params(labelbottom=False)
+    for ax in (r_n, r_k):
+        ax.set_xlabel('Pressure (MPa)')
+    r_n.set_xticks(np.arange(0, 701, 100))
+    r_k.set_xticks(np.arange(0, 301, 50))
+    a_k.set_xticks(np.arange(0, 301, 50))
+    _style_key(fig)
+    fig.subplots_adjust(left=0.07, right=0.985, top=0.95, bottom=0.14)
+    return fig
+
+
+def _style_key(fig):
+    """Key for line and marker styles only; curve identities are labelled in place."""
+    from matplotlib.lines import Line2D
+    g = '#52514e'
+    h = [Line2D([], [], ls='', marker='o', color=g, ms=6),
+         Line2D([], [], ls='', marker='o', color=g, mfc=PAPER, ms=6),
+         Line2D([], [], ls='', marker='x', color=INK, ms=7, mew=1.5),
+         Line2D([], [], ls='--', color=g, lw=1),
+         Line2D([], [], ls='-', color=g, lw=2.6, alpha=0.35),
+         Line2D([], [], ls='', marker='>', color=INK, ms=4.5),
+         Line2D([], [], ls='', marker='D', color='#8a8a86', ms=3.6),
+         Line2D([], [], ls='', marker='P', color=INK, ms=6)]
+    fig.legend(h, ['compression (colour = temperature)', 'decompression',
+                   'excluded step (reasons in the CSVs)', 'Pan et al. (2021), extrapolated',
+                   'Pan et al. (2021), in its $P$--$T$ range',
+                   'KCl 1 bar, bottle table at run $T$', 'KCl 1 bar, McCleskey et al. (2012)',
+                   r'Adams \& Hall (1931), $\sigma_0$ from MC12'],
+               fontsize=7.8, frameon=False, loc='lower center', ncol=4, bbox_to_anchor=(0.5, 0.0))
+
+
+def tidy_ours():
+    """Our steps (2025 + 2026, excluded included) with the ratio column."""
+    return src.with_ratio(pd.concat([src.our_steps_2025(), src.our_steps_2026()],
+                                    ignore_index=True))
+
+
+def save_figures(ours, lit):
+    fig = build_figure(ours, lit)
+    for name in ('sigma_P_supplement', 'nacl_0p5m_sigma_P'):  # second: deprecated copy
+        fig.savefig(os.path.join(OUT, name + '.png'), dpi=200)
+        fig.savefig(os.path.join(OUT, name + '.pdf'))
+    plt.close(fig)
 
 
 def main():
     os.makedirs(OUT, exist_ok=True)
     _style()
+    if '--figures-only' in sys.argv:  # reuse the CSVs from the last full run
+        ours, lit = tidy_ours(), load_literature()
+        save_figures(ours, lit)
+        return
     st = steps_table(load_sweeps())
     missing = set(EXCLUDED) - set(st.key)
     if missing:
@@ -648,10 +601,11 @@ def main():
                                            index=False)
     recent, ex26 = load_2026()
     recent.round(5).to_csv(os.path.join(OUT, 'sigma_P_2026_steps.csv'), index=False)
-    kcl_literature_table().round(5).to_csv(os.path.join(OUT, 'kcl_literature_ratio.csv'),
-                                           index=False)
-    plot(st, os.path.join(OUT, 'nacl_0p5m_sigma_P.png'), recent=recent)
-    plot(st, os.path.join(OUT, 'nacl_0p5m_sigma_P_excluded.png'), show_excluded=True, recent=recent, ex26=ex26)
+    # the figure reads the CSVs just written, through sigma_P_sources
+    ours, lit = tidy_ours(), load_literature()
+    kcl_literature_table(lit).round(5).to_csv(os.path.join(OUT, 'kcl_literature_ratio.csv'),
+                                              index=False)
+    save_figures(ours, lit)
     print(f'{(st.excluded == "").sum()} steps kept, {(st.excluded != "").sum()} excluded -> {OUT}')
 
 
