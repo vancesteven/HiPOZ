@@ -223,3 +223,17 @@ Implemented: gamryTools.kcl_std_molal (all bottle labels now use it); tests/test
 - Nov 16 K = 120.36 m⁻¹ from McCleskey (2011) at 1 bar. Is a post-repair KCl standard run planned to confirm it? (The Nov 5–12 KCl median is 120.62, within 0.2 %.)
 - Nov 12 KCl 76 MPa (±12 Ω fits) and 52 MPa (13.30 Ω, off trend): exclude?
 - 8 S/m bottle table vs MC12 differs by 2 % at 6 °C; which reference should set K for cold runs?
+
+## 2026-11-20 — Nov 17–19 NaCl series and the post-repair KCl standard
+- New runs: 5 wt% NaCl (0.902 m), 0–200–0 MPa isotherms at 24.8, 20.5, 16.2 (Nov 17–18), 11.5, 7.0 (Nov 18) and 2 °C (Nov 19), with a KCl 8 S/m standard at 1 bar on Nov 19 at 17:21 (24.3 °C).
+- Cell constants:
+  - Diaz's configs use K = 116.84 m⁻¹. Its source is not recorded; the hipoz results CSV gives K_cell 116.84 ± 0.66.
+  - The Nov 19 standard against the bottle table gives K = 115.21 (MC12: 115.17).
+  - Before the repair the Nov 5–12 standard gave K = 120.62.
+  - So K changed about 4% across the repair, as expected if the soldered connection was redone.
+- 1-bar check: with either K the NaCl readings fall below McCleskey (2011) by an amount that grows on cooling (Diaz K: −2.7% at 24.8 °C to −6.8% at 7.0 °C). The KCl standard showed no such trend before the repair (±0.5%, 6–25 °C).
+  - Possible causes: thermal lag, or a series resistance in the repaired connection that matters more at high Z (cold, Z = 16–24 Ω vs 14.6 Ω for the standard).
+  - A temperature-dependent cell constant is the least likely cause.
+  - A KCl standard run at the cold temperatures would discriminate.
+- Nov 19 17:50: three 1-bar sweeps at 285 K read 10.1–10.4 Ω, drifting. The cell was probably being reloaded or cooled; not used.
+- Questions for Steve and Diaz: which K applies to Nov 17–19? Is a cold KCl standard run planned?
