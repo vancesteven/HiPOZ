@@ -1,0 +1,39 @@
+{
+  "calibration_groups": [
+    {
+      "name": "Group 1",
+      "standards": [
+        {
+          "filename": "Default_20261119_172145_P_0_T_297.txt",
+          "P_MPa": 0.0,
+          "T_K": 297.49,
+          "conductivity_Sm": 8.0
+        }
+      ],
+      "measurements": []
+    }
+  ],
+  "calibrations": [
+    {
+      "name": "Default group",
+      "standards": [
+        {
+          "filename": "Default_20261119_172145_P_0_T_297.txt",
+          "P_MPa": 0.0,
+          "T_K": 297.49,
+          "Z_Ohm": 14.57,
+          "Z_unc_Ohm": 0.6892,
+          "conductivity_Sm": 8.0
+        }
+      ],
+      "measurements": []
+    }
+  ],
+  "notes": [
+    "Updated from GUI at 2026-11-20 11:00:15",
+    "Updated from GUI at 2026-11-20 11:00:59",
+    "Updated from GUI at 2026-11-20 11:01:01",
+    "Updated from GUI at 2026-11-20 11:01:24",
+    "Updated from GUI at 2026-11-20 11:01:26"
+  ]
+}
