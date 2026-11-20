@@ -1,0 +1,2 @@
+group_name,filename,P_MPa,T_K,type,Z_Ohm,Z_unc_Ohm,conductivity_Sm,S_unc_pct,comp,w_ppt,w_molal,exclude,notes
+Group 1,Default_20261119_172145_P_0_T_297.txt,0.0,297.49,standard,14.57,0.6892,8,,,,,,
