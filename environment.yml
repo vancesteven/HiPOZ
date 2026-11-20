@@ -6,9 +6,9 @@
 #
 # Everything pip can install is declared in pyproject.toml; this file covers the
 # pieces conda handles better (or at all):
-#   - reaktoro: not published on PyPI, conda-forge only. Optional here -- only
-#     needed if you use PlanetProfile's Reaktoro-backed CustomSolution ocean EOS.
-#     Note PlanetProfile imports it unconditionally in that code path.
+#   - reaktoro: not published on PyPI, conda-forge only. Needed for WATEQ4F
+#     speciation of the McCleskey (2012) model (speciation.py) and for
+#     PlanetProfile's CustomSolution ocean EOS; everything else runs without it.
 #   - TeX: matplotlib renders labels with LaTeX (STIX fonts, siunitx, upgreek,
 #     mhchem). Install MacTeX/TeX Live separately -- conda's texlive-core is
 #     usually not sufficient for these packages.
