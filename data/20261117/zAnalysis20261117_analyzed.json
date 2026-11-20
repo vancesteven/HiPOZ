@@ -1,0 +1,578 @@
+{
+  "calibration_groups": [
+    {
+      "name": "Group 1",
+      "standards": [
+        {
+          "filename": "Default_20261117_094647_P_1_T_298.txt",
+          "conductivity_Sm": 7.5,
+          "P_MPa": 0.0,
+          "T_K": 297.95
+        }
+      ],
+      "measurements": [
+        {
+          "filename": "Default_20261117_094742_P_0_T_298.txt",
+          "comp": "NaCl",
+          "w_ppt": 50.073,
+          "w_molal": 0.902,
+          "P_MPa": 0.0,
+          "T_K": 297.95,
+          "conductivity_Sm": 7.5000284492852405
+        },
+        {
+          "filename": "Default_20261117_094837_P_1_T_298.txt",
+          "comp": "NaCl",
+          "w_ppt": 50.073,
+          "w_molal": 0.902,
+          "P_MPa": 1.0,
+          "T_K": 297.95,
+          "conductivity_Sm": 7.500064418759578
+        },
+        {
+          "filename": "Default_20261117_100605_P_48_T_298.txt",
+          "comp": "NaCl",
+          "w_ppt": 50.073,
+          "w_molal": 0.902,
+          "P_MPa": 48.0,
+          "T_K": 298.0,
+          "conductivity_Sm": 7.71345344367311
+        },
+        {
+          "filename": "Default_20261117_100701_P_47_T_298.txt",
+          "comp": "NaCl",
+          "w_ppt": 50.073,
+          "w_molal": 0.902,
+          "P_MPa": 47.0,
+          "T_K": 298.0,
+          "conductivity_Sm": 7.712273566204558
+        },
+        {
+          "filename": "Default_20261117_100756_P_49_T_298.txt",
+          "comp": "NaCl",
+          "w_ppt": 50.073,
+          "w_molal": 0.902,
+          "P_MPa": 48.0,
+          "T_K": 298.0,
+          "conductivity_Sm": 7.7105226631685895
+        },
+        {
+          "filename": "Default_20261117_102505_P_101_T_298.txt",
+          "comp": "NaCl",
+          "w_ppt": 50.073,
+          "w_molal": 0.902,
+          "P_MPa": 101.0,
+          "T_K": 298.03,
+          "conductivity_Sm": 7.86221188900805
+        },
+        {
+          "filename": "Default_20261117_102600_P_100_T_298.txt",
+          "comp": "NaCl",
+          "w_ppt": 50.073,
+          "w_molal": 0.902,
+          "P_MPa": 100.0,
+          "T_K": 298.03,
+          "conductivity_Sm": 7.859381018571926
+        },
+        {
+          "filename": "Default_20261117_102655_P_100_T_298.txt",
+          "comp": "NaCl",
+          "w_ppt": 50.073,
+          "w_molal": 0.902,
+          "P_MPa": 100.0,
+          "T_K": 298.03,
+          "conductivity_Sm": 7.857732396586331
+        },
+        {
+          "filename": "Default_20261117_104349_P_149_T_298.txt",
+          "comp": "NaCl",
+          "w_ppt": 50.073,
+          "w_molal": 0.902,
+          "P_MPa": 148.0,
+          "T_K": 298.06,
+          "conductivity_Sm": 7.938449965334515
+        },
+        {
+          "filename": "Default_20261117_104444_P_148_T_298.txt",
+          "comp": "NaCl",
+          "w_ppt": 50.073,
+          "w_molal": 0.902,
+          "P_MPa": 147.0,
+          "T_K": 298.06,
+          "conductivity_Sm": 7.9363086515793
+        },
+        {
+          "filename": "Default_20261117_104539_P_148_T_298.txt",
+          "comp": "NaCl",
+          "w_ppt": 50.073,
+          "w_molal": 0.902,
+          "P_MPa": 147.0,
+          "T_K": 298.06,
+          "conductivity_Sm": 7.934456563685326
+        },
+        {
+          "filename": "Default_20261117_110256_P_201_T_298.txt",
+          "comp": "NaCl",
+          "w_ppt": 50.073,
+          "w_molal": 0.902,
+          "P_MPa": 200.0,
+          "T_K": 298.09,
+          "conductivity_Sm": 7.969760113910835
+        },
+        {
+          "filename": "Default_20261117_110351_P_200_T_298.txt",
+          "comp": "NaCl",
+          "w_ppt": 50.073,
+          "w_molal": 0.902,
+          "P_MPa": 200.0,
+          "T_K": 298.09,
+          "conductivity_Sm": 7.967738088512605
+        },
+        {
+          "filename": "Default_20261117_110445_P_201_T_298.txt",
+          "comp": "NaCl",
+          "w_ppt": 50.073,
+          "w_molal": 0.902,
+          "P_MPa": 200.0,
+          "T_K": 298.09,
+          "conductivity_Sm": 7.965754320004292
+        },
+        {
+          "filename": "Default_20261117_112234_P_153_T_298.txt",
+          "comp": "NaCl",
+          "w_ppt": 50.073,
+          "w_molal": 0.902,
+          "P_MPa": 153.0,
+          "T_K": 298.09,
+          "conductivity_Sm": 7.925656700805007
+        },
+        {
+          "filename": "Default_20261117_112329_P_153_T_298.txt",
+          "comp": "NaCl",
+          "w_ppt": 50.073,
+          "w_molal": 0.902,
+          "P_MPa": 153.0,
+          "T_K": 298.08,
+          "conductivity_Sm": 7.926985349217701
+        },
+        {
+          "filename": "Default_20261117_112424_P_154_T_298.txt",
+          "comp": "NaCl",
+          "w_ppt": 50.073,
+          "w_molal": 0.902,
+          "P_MPa": 153.0,
+          "T_K": 298.08,
+          "conductivity_Sm": 7.9280954778307065
+        },
+        {
+          "filename": "Default_20261117_114409_P_99_T_298.txt",
+          "comp": "NaCl",
+          "w_ppt": 50.073,
+          "w_molal": 0.902,
+          "P_MPa": 99.0,
+          "T_K": 298.0,
+          "conductivity_Sm": 7.841441639407799
+        },
+        {
+          "filename": "Default_20261117_114504_P_99_T_298.txt",
+          "comp": "NaCl",
+          "w_ppt": 50.073,
+          "w_molal": 0.902,
+          "P_MPa": 99.0,
+          "T_K": 298.0,
+          "conductivity_Sm": 7.842737459474733
+        },
+        {
+          "filename": "Default_20261117_114559_P_99_T_298.txt",
+          "comp": "NaCl",
+          "w_ppt": 50.073,
+          "w_molal": 0.902,
+          "P_MPa": 99.0,
+          "T_K": 297.99,
+          "conductivity_Sm": 7.8444366982518225
+        },
+        {
+          "filename": "Default_20261117_120251_P_49_T_298.txt",
+          "comp": "NaCl",
+          "w_ppt": 50.073,
+          "w_molal": 0.902,
+          "P_MPa": 48.0,
+          "T_K": 298.0,
+          "conductivity_Sm": 7.695797261870939
+        },
+        {
+          "filename": "Default_20261117_120346_P_49_T_298.txt",
+          "comp": "NaCl",
+          "w_ppt": 50.073,
+          "w_molal": 0.902,
+          "P_MPa": 49.0,
+          "T_K": 298.0,
+          "conductivity_Sm": 7.698537803687782
+        },
+        {
+          "filename": "Default_20261117_120440_P_48_T_298.txt",
+          "comp": "NaCl",
+          "w_ppt": 50.073,
+          "w_molal": 0.902,
+          "P_MPa": 48.0,
+          "T_K": 298.0,
+          "conductivity_Sm": 7.699633376504293
+        },
+        {
+          "filename": "Default_20261117_122149_P_1_T_298.txt",
+          "comp": "NaCl",
+          "w_ppt": 50.073,
+          "w_molal": 0.902,
+          "P_MPa": 0.0,
+          "T_K": 298.03,
+          "conductivity_Sm": 7.495327784484395
+        },
+        {
+          "filename": "Default_20261117_122244_P_0_T_298.txt",
+          "comp": "NaCl",
+          "w_ppt": 50.073,
+          "w_molal": 0.902,
+          "P_MPa": 0.0,
+          "T_K": 298.03,
+          "conductivity_Sm": 7.49726577197527
+        },
+        {
+          "filename": "Default_20261117_122339_P_1_T_298.txt",
+          "comp": "NaCl",
+          "w_ppt": 50.073,
+          "w_molal": 0.902,
+          "P_MPa": 0.0,
+          "T_K": 298.04,
+          "conductivity_Sm": 7.498481068074534
+        },
+        {
+          "filename": "Default_20261117_133436_P_0_T_294.txt",
+          "comp": "NaCl",
+          "w_ppt": 50.073,
+          "w_molal": 0.902,
+          "P_MPa": 0.0,
+          "T_K": 293.75,
+          "conductivity_Sm": 6.827796711634059
+        },
+        {
+          "filename": "Default_20261117_133531_P_0_T_294.txt",
+          "comp": "NaCl",
+          "w_ppt": 50.073,
+          "w_molal": 0.902,
+          "P_MPa": 0.0,
+          "T_K": 293.75,
+          "conductivity_Sm": 6.828459832909211
+        },
+        {
+          "filename": "Default_20261117_133625_P_1_T_294.txt",
+          "comp": "NaCl",
+          "w_ppt": 50.073,
+          "w_molal": 0.902,
+          "P_MPa": 1.0,
+          "T_K": 293.75,
+          "conductivity_Sm": 6.827730838909373
+        },
+        {
+          "filename": "Default_20261117_135348_P_50_T_294.txt",
+          "comp": "NaCl",
+          "w_ppt": 50.073,
+          "w_molal": 0.902,
+          "P_MPa": 50.0,
+          "T_K": 293.73,
+          "conductivity_Sm": 7.053593791114447
+        },
+        {
+          "filename": "Default_20261117_135443_P_50_T_294.txt",
+          "comp": "NaCl",
+          "w_ppt": 50.073,
+          "w_molal": 0.902,
+          "P_MPa": 49.0,
+          "T_K": 293.73,
+          "conductivity_Sm": 7.051267966792505
+        },
+        {
+          "filename": "Default_20261117_135538_P_50_T_294.txt",
+          "comp": "NaCl",
+          "w_ppt": 50.073,
+          "w_molal": 0.902,
+          "P_MPa": 50.0,
+          "T_K": 293.73,
+          "conductivity_Sm": 7.049990920579272
+        },
+        {
+          "filename": "Default_20261117_141423_P_101_T_294.txt",
+          "comp": "NaCl",
+          "w_ppt": 50.073,
+          "w_molal": 0.902,
+          "P_MPa": 100.0,
+          "T_K": 293.73,
+          "conductivity_Sm": 7.194641763139997
+        },
+        {
+          "filename": "Default_20261117_141518_P_101_T_294.txt",
+          "comp": "NaCl",
+          "w_ppt": 50.073,
+          "w_molal": 0.902,
+          "P_MPa": 100.0,
+          "T_K": 293.73,
+          "conductivity_Sm": 7.192289091147618
+        },
+        {
+          "filename": "Default_20261117_141612_P_100_T_294.txt",
+          "comp": "NaCl",
+          "w_ppt": 50.073,
+          "w_molal": 0.902,
+          "P_MPa": 99.0,
+          "T_K": 293.74,
+          "conductivity_Sm": 7.190770363756273
+        },
+        {
+          "filename": "Default_20261117_143321_P_152_T_294.txt",
+          "comp": "NaCl",
+          "w_ppt": 50.073,
+          "w_molal": 0.902,
+          "P_MPa": 152.0,
+          "T_K": 293.73,
+          "conductivity_Sm": 7.274837216875443
+        },
+        {
+          "filename": "Default_20261117_143416_P_151_T_294.txt",
+          "comp": "NaCl",
+          "w_ppt": 50.073,
+          "w_molal": 0.902,
+          "P_MPa": 150.0,
+          "T_K": 293.73,
+          "conductivity_Sm": 7.2728912383957915
+        },
+        {
+          "filename": "Default_20261117_143510_P_151_T_294.txt",
+          "comp": "NaCl",
+          "w_ppt": 50.073,
+          "w_molal": 0.902,
+          "P_MPa": 151.0,
+          "T_K": 293.74,
+          "conductivity_Sm": 7.27153077121932
+        },
+        {
+          "filename": "Default_20261117_145402_P_200_T_294.txt",
+          "comp": "NaCl",
+          "w_ppt": 50.073,
+          "w_molal": 0.902,
+          "P_MPa": 199.0,
+          "T_K": 293.73,
+          "conductivity_Sm": 7.301485370521432
+        },
+        {
+          "filename": "Default_20261117_145456_P_201_T_294.txt",
+          "comp": "NaCl",
+          "w_ppt": 50.073,
+          "w_molal": 0.902,
+          "P_MPa": 200.0,
+          "T_K": 293.72,
+          "conductivity_Sm": 7.300999342114113
+        },
+        {
+          "filename": "Default_20261117_145551_P_199_T_294.txt",
+          "comp": "NaCl",
+          "w_ppt": 50.073,
+          "w_molal": 0.902,
+          "P_MPa": 199.0,
+          "T_K": 293.72,
+          "conductivity_Sm": 7.299874879635158
+        },
+        {
+          "filename": "Default_20261117_151618_P_150_T_294.txt",
+          "comp": "NaCl",
+          "w_ppt": 50.073,
+          "w_molal": 0.902,
+          "P_MPa": 149.0,
+          "T_K": 293.72,
+          "conductivity_Sm": 7.257679920880801
+        },
+        {
+          "filename": "Default_20261117_151713_P_150_T_294.txt",
+          "comp": "NaCl",
+          "w_ppt": 50.073,
+          "w_molal": 0.902,
+          "P_MPa": 149.0,
+          "T_K": 293.72,
+          "conductivity_Sm": 7.25874721004541
+        },
+        {
+          "filename": "Default_20261117_151808_P_149_T_294.txt",
+          "comp": "NaCl",
+          "w_ppt": 50.073,
+          "w_molal": 0.902,
+          "P_MPa": 149.0,
+          "T_K": 293.73,
+          "conductivity_Sm": 7.2602400124159345
+        },
+        {
+          "filename": "Default_20261117_153606_P_100_T_294.txt",
+          "comp": "NaCl",
+          "w_ppt": 50.073,
+          "w_molal": 0.902,
+          "P_MPa": 100.0,
+          "T_K": 293.72,
+          "conductivity_Sm": 7.177557362019452
+        },
+        {
+          "filename": "Default_20261117_153701_P_100_T_294.txt",
+          "comp": "NaCl",
+          "w_ppt": 50.073,
+          "w_molal": 0.902,
+          "P_MPa": 100.0,
+          "T_K": 293.72,
+          "conductivity_Sm": 7.178350438299941
+        },
+        {
+          "filename": "Default_20261117_153756_P_100_T_294.txt",
+          "comp": "NaCl",
+          "w_ppt": 50.073,
+          "w_molal": 0.902,
+          "P_MPa": 99.0,
+          "T_K": 293.71,
+          "conductivity_Sm": 7.179148892082616
+        },
+        {
+          "filename": "Default_20261117_155439_P_50_T_294.txt",
+          "comp": "NaCl",
+          "w_ppt": 50.073,
+          "w_molal": 0.902,
+          "P_MPa": 49.0,
+          "T_K": 293.71,
+          "conductivity_Sm": 7.036858721217466
+        },
+        {
+          "filename": "Default_20261117_155534_P_51_T_294.txt",
+          "comp": "NaCl",
+          "w_ppt": 50.073,
+          "w_molal": 0.902,
+          "P_MPa": 50.0,
+          "T_K": 293.71,
+          "conductivity_Sm": 7.037853605240745
+        },
+        {
+          "filename": "Default_20261117_155629_P_51_T_294.txt",
+          "comp": "NaCl",
+          "w_ppt": 50.073,
+          "w_molal": 0.902,
+          "P_MPa": 50.0,
+          "T_K": 293.71,
+          "conductivity_Sm": 7.038697803830081
+        },
+        {
+          "filename": "Default_20261117_161301_P_1_T_294.txt",
+          "comp": "NaCl",
+          "w_ppt": 50.073,
+          "w_molal": 0.902,
+          "P_MPa": 0.0,
+          "T_K": 293.62,
+          "conductivity_Sm": 6.8206212987908446
+        },
+        {
+          "filename": "Default_20261117_161355_P_1_T_294.txt",
+          "comp": "NaCl",
+          "w_ppt": 50.073,
+          "w_molal": 0.902,
+          "P_MPa": 0.0,
+          "T_K": 293.61,
+          "conductivity_Sm": 6.822192291796972
+        },
+        {
+          "filename": "Default_20261117_161450_P_1_T_294.txt",
+          "comp": "NaCl",
+          "w_ppt": 50.073,
+          "w_molal": 0.902,
+          "P_MPa": 1.0,
+          "T_K": 293.61,
+          "conductivity_Sm": 6.823410021416679
+        },
+        {
+          "filename": "Default_20261117_165100_P_1_T_289.txt",
+          "comp": "NaCl",
+          "w_ppt": 50.073,
+          "w_molal": 0.902,
+          "P_MPa": 0.0,
+          "T_K": 289.48,
+          "conductivity_Sm": 6.2263282363734955
+        },
+        {
+          "filename": "Default_20261117_165155_P_0_T_289.txt",
+          "comp": "NaCl",
+          "w_ppt": 50.073,
+          "w_molal": 0.902,
+          "P_MPa": 0.0,
+          "T_K": 289.46,
+          "conductivity_Sm": 6.219945910261137
+        },
+        {
+          "filename": "Default_20261117_165250_P_1_T_289.txt",
+          "comp": "NaCl",
+          "w_ppt": 50.073,
+          "w_molal": 0.902,
+          "P_MPa": 0.0,
+          "T_K": 289.44,
+          "conductivity_Sm": 6.214452994563914
+        },
+        {
+          "filename": "Default_20261117_171733_P_49_T_289.txt",
+          "comp": "NaCl",
+          "w_ppt": 50.073,
+          "w_molal": 0.902,
+          "P_MPa": 49.0,
+          "T_K": 289.36,
+          "conductivity_Sm": 6.38403000595551
+        },
+        {
+          "filename": "Default_20261117_171828_P_50_T_289.txt",
+          "comp": "NaCl",
+          "w_ppt": 50.073,
+          "w_molal": 0.902,
+          "P_MPa": 49.0,
+          "T_K": 289.36,
+          "conductivity_Sm": 6.382850636684359
+        },
+        {
+          "filename": "Default_20261117_171923_P_49_T_289.txt",
+          "comp": "NaCl",
+          "w_ppt": 50.073,
+          "w_molal": 0.902,
+          "P_MPa": 48.0,
+          "T_K": 289.35,
+          "conductivity_Sm": 6.381753345369064
+        },
+        {
+          "filename": "Default_20261117_173634_P_101_T_289.txt",
+          "comp": "NaCl",
+          "w_ppt": 50.073,
+          "w_molal": 0.902,
+          "P_MPa": 101.0,
+          "T_K": 289.34,
+          "conductivity_Sm": 6.540712633494696
+        },
+        {
+          "filename": "Default_20261117_173729_P_101_T_289.txt",
+          "comp": "NaCl",
+          "w_ppt": 50.073,
+          "w_molal": 0.902,
+          "P_MPa": 100.0,
+          "T_K": 289.34,
+          "conductivity_Sm": 6.53887471210355
+        },
+        {
+          "filename": "Default_20261117_173824_P_101_T_289.txt",
+          "comp": "NaCl",
+          "w_ppt": 50.073,
+          "w_molal": 0.902,
+          "P_MPa": 100.0,
+          "T_K": 289.34,
+          "conductivity_Sm": 6.536779189606786
+        }
+      ]
+    }
+  ],
+  "generated_by": "HiPOZ headless analysis",
+  "timestamp": "20261119_171551",
+  "source_csv": "data\\20261117\\zAnalysis20261117.csv"
+}
