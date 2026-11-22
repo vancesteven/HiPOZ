@@ -17,7 +17,7 @@ import pandas as pd
 import numpy as np
 from gamryPlots import plot_timeseries
 import logging
-from PlanetProfile.Thermodynamics.MgSO4.MgSO4Props import Ppt2molal, Molal2ppt
+from gamryTools import ppt_to_molal, molal_to_ppt
 from cortes_mccleskey import has_mccleskey_model, compute_mccleskey_for_data
 
 # Get logger
@@ -726,7 +726,7 @@ class DataSelector(QMainWindow):
                 if header == 'w (ppt)' and val is not None:
                     # Convert ppt to molal
                     try:
-                        molal_val = Ppt2molal(val, molar_mass)
+                        molal_val = ppt_to_molal(comp, val, molar_mass)
                         self.data.iat[row, molal_col] = molal_val
                         # Update table display
                         self.updating_table = True
@@ -738,7 +738,7 @@ class DataSelector(QMainWindow):
                 elif header == 'w (molal)' and val is not None:
                     # Convert molal to ppt
                     try:
-                        ppt_val = Molal2ppt(val, molar_mass)
+                        ppt_val = molal_to_ppt(comp, val, molar_mass)
                         self.data.iat[row, ppt_col] = ppt_val
                         # Update table display with appropriate precision
                         self.updating_table = True
@@ -756,7 +756,7 @@ class DataSelector(QMainWindow):
                     if ppt_val is not None and pd.notna(ppt_val):
                         # Convert ppt to molal
                         try:
-                            new_molal = Ppt2molal(ppt_val, molar_mass)
+                            new_molal = ppt_to_molal(comp, ppt_val, molar_mass)
                             self.data.iat[row, molal_col] = new_molal
                             self.updating_table = True
                             self.table.item(row, molal_col).setText(f"{new_molal:.4f}")
@@ -767,7 +767,7 @@ class DataSelector(QMainWindow):
                     elif molal_val is not None and pd.notna(molal_val):
                         # Convert molal to ppt
                         try:
-                            new_ppt = Molal2ppt(molal_val, molar_mass)
+                            new_ppt = molal_to_ppt(comp, molal_val, molar_mass)
                             self.data.iat[row, ppt_col] = new_ppt
                             self.updating_table = True
                             formatted_ppt = format_ppt(new_ppt, molal_val)
@@ -1137,7 +1137,7 @@ class DataSelector(QMainWindow):
                         if molal_val:
                             try:
                                 molal_float = float(self.data.iat[row, col_molal])
-                                ppt_result = Molal2ppt(molal_float, molar_mass)
+                                ppt_result = molal_to_ppt(comp, molal_float, molar_mass)
                                 self.data.iat[row, col_ppt] = ppt_result
                                 self.updating_table = True
                                 formatted_ppt = format_ppt(ppt_result, molal_float)
@@ -1148,7 +1148,7 @@ class DataSelector(QMainWindow):
                         elif ppt_val:
                             try:
                                 ppt_float = float(self.data.iat[row, col_ppt])
-                                molal_result = Ppt2molal(ppt_float, molar_mass)
+                                molal_result = ppt_to_molal(comp, ppt_float, molar_mass)
                                 self.data.iat[row, col_molal] = molal_result
                                 self.updating_table = True
                                 self.table.item(row, col_molal).setText(f"{molal_result:.4f}")
@@ -2697,7 +2697,7 @@ class DataSelector(QMainWindow):
                     if comp_str in MOLAR_MASSES:
                         try:
                             molal_val = float(w_molal)
-                            ppt_val = Molal2ppt(molal_val, MOLAR_MASSES[comp_str])
+                            ppt_val = molal_to_ppt(comp_str, molal_val, MOLAR_MASSES[comp_str])
                             self.data.iat[idx, col_w_ppt] = ppt_val
                             log.debug(f"Converted row {idx}: {molal_val} molal -> {ppt_val:.2f} ppt")
                         except Exception as e:
@@ -2715,7 +2715,7 @@ class DataSelector(QMainWindow):
                     if comp_str in MOLAR_MASSES:
                         try:
                             ppt_val = float(w_ppt)
-                            molal_val = Ppt2molal(ppt_val, MOLAR_MASSES[comp_str])
+                            molal_val = ppt_to_molal(comp_str, ppt_val, MOLAR_MASSES[comp_str])
                             self.data.iat[idx, col_w_molal] = molal_val
                             log.debug(f"Converted row {idx}: {ppt_val} ppt -> {molal_val:.4f} molal")
                         except Exception as e:
