@@ -18,7 +18,8 @@ Supplement figure layout: two columns, NaCl (left) and KCl (right).
     bottom row  sigma / sigma(first 1-bar step of the same run), the same
                 series: shows the pressure dependence and hysteresis without
                 the absolute calibration
-Marks: colour = temperature (TEMP_COLORS); filled = compression, hollow =
+Marks: colour = temperature (TEMP_COLORS; the 4-8 C bin was added for the Nov
+2026 7 C isotherm, not validated, see there); filled = compression, hollow =
 decompression; black x = excluded step (reasons below); triangle / diamond at
 the left of the KCl panel = 1-bar bottle table / McCleskey et al. (2012) at the
 Nov KCl runs' temperatures (a check, not forced to either); dashed/thick lines
@@ -35,6 +36,20 @@ Our data
   Nov K (120.617, median of the settled 1-bar steps in vessel_1bar_check.py) for
   Nov 5-12, and for NaCl Nov 16 the first 1-bar step against McCleskey (2011)
   because its potentiostat connection broke after loading.
+- Nov 17-19 2026 (Diaz): six 0.9 mol/kg (5 wt%, 0.902 mol/kg) NaCl isotherms of
+  one filling, 24.8, 20.5, 16.2, 11.5, 7.0 and ~2 C, 0 -> 200 -> 0 MPa, ~20-min
+  steps (RUN_WINDOWS gives the time boundaries, set at the chamber-T changes).
+  The potentiostat connection was repaired (K ~120.6 before), so K is re-set
+  from the data (PI 2026-11-20, 'yes to the self calibration'): ONE K for the
+  whole series, from the first 1-bar step of the 24.8 C isotherm (Nov 17 09:46)
+  against McCleskey (2011) at 0.902 mol/kg ('prior_nov17'). One K keeps the
+  temperature-dependent 1-bar offset of the colder isotherms visible here as a
+  diagnostic; the main figure anchors each isotherm separately.
+- Nov 19 from 16:44 (OOV_LABEL): a KCl 8 S/m calibration in a separate chiller
+  OUTSIDE the pressure vessel (PI), so the logged T is not the solution T. All
+  such sweeps are fitted and recorded in diaz_hp_sweep_fits.csv with an
+  exclusion reason and blank sigma, never plotted; the three 17:50 sweeps are
+  also flagged as suspected bad wire orientation (R 10.1-10.4 ohm, drifting).
 - Left out entirely: the Aug 18 - Sep 10 2026 KCl runs (stepped too fast;
   Steve 2026-11-08); Oct 6 NaCl (5-10 min steps, up/down mismatch in Diaz's
   notebook), which is still fitted into the sweep table for the supplement tables.
@@ -119,6 +134,13 @@ RUNS = {
     ('20250820', 35): ('#a8322f', 'o'),
 }
 
+# Nov 19 from 16:44: KCl 8 S/m calibration in a separate chiller OUTSIDE the
+# pressure vessel (PI). Fitted and recorded, never plotted, never used for K.
+OOV_LABEL = 'KCl 8 S/m, Nov 19 out-of-vessel calibration'
+OOV_REASON = 'out-of-vessel KCl calibration (separate chiller; logged T is the vessel sensor)'
+OOV_BAD_REASON = OOV_REASON + '; suspected bad wire orientation (R 10.1-10.4 ohm, drifting)'
+OOV_BAD_SWEEPS = {f'Default_20261119_{t}' for t in ('175006', '175101', '175155')}
+
 # 2026 runs: label, folders (fitted from the raw sweeps), solute, marker,
 # K source. Colour comes from temperature (TEMP_COLORS), as for Aug 2025.
 RUNS_2026 = [
@@ -132,10 +154,26 @@ RUNS_2026 = [
     ('KCl 8 S/m std, Nov 11', ['20261111'], 'KCl', 's', 'nov_common'),
     ('KCl 8 S/m std, Nov 11-12', ['20261111', '20261112'], 'KCl', 's', 'nov_common'),
     ('NaCl 0.9 m, Nov 16', ['20261116'], 'NaCl', 'o', 'prior'),
+    # Nov 17-19: six isotherms of one filling, one K ('prior_nov17')
+    ('NaCl 0.9 m, Nov 17, 24.8 C', ['20261117'], 'NaCl', 'o', 'prior_nov17'),
+    ('NaCl 0.9 m, Nov 17, 20.5 C', ['20261117'], 'NaCl', 'o', 'prior_nov17'),
+    ('NaCl 0.9 m, Nov 17-18, 16.2 C', ['20261117', '20261118'], 'NaCl', 'o', 'prior_nov17'),
+    ('NaCl 0.9 m, Nov 18, 11.5 C', ['20261118'], 'NaCl', 'o', 'prior_nov17'),
+    ('NaCl 0.9 m, Nov 18-19, 7.0 C', ['20261118', '20261119'], 'NaCl', 'o', 'prior_nov17'),
+    ('NaCl 0.9 m, Nov 19, 2 C', ['20261119'], 'NaCl', 'o', 'prior_nov17'),
 ]
 # Folder 20261111 holds two runs, split by time: the 6.3 C morning run and the
 # 29.5 C run that starts at 15:27 and continues into Nov 12.
 RUN_WINDOWS = {
+    # Nov 17-19 isotherms, split at the temperature changes (checked against
+    # the file timestamps and T_K: each break is a 3-6 K step in the chamber T)
+    'NaCl 0.9 m, Nov 17, 24.8 C': (None, datetime(2026, 11, 17, 13, 0)),
+    'NaCl 0.9 m, Nov 17, 20.5 C': (datetime(2026, 11, 17, 13, 0), datetime(2026, 11, 17, 16, 30)),
+    'NaCl 0.9 m, Nov 17-18, 16.2 C': (datetime(2026, 11, 17, 16, 30), datetime(2026, 11, 18, 12, 0)),
+    'NaCl 0.9 m, Nov 18, 11.5 C': (datetime(2026, 11, 18, 12, 0), datetime(2026, 11, 18, 15, 30)),
+    'NaCl 0.9 m, Nov 18-19, 7.0 C': (datetime(2026, 11, 18, 15, 30), datetime(2026, 11, 19, 10, 30)),
+    'NaCl 0.9 m, Nov 19, 2 C': (datetime(2026, 11, 19, 10, 30), datetime(2026, 11, 19, 16, 30)),
+    OOV_LABEL: (datetime(2026, 11, 19, 16, 30), None),
     'KCl 8 S/m std, Nov 11': (None, datetime(2026, 11, 11, 14, 0)),
     'KCl 8 S/m std, Nov 11-12': (datetime(2026, 11, 11, 14, 0), None),
 }
@@ -151,11 +189,16 @@ RUN_WINDOWS = {
 _PROV = 'provisional: +/-12 ohm CPE fits (~93 %), Steve 2026-11-18'
 PROVISIONAL_2026 = {f'Default_20261112_{t}': _PROV for t in ('111506', '111559', '111652')}
 PRIOR_MOLAL = {'NaCl 0.9 m, Nov 16': 0.902}
+NOV17_FIRST = 'NaCl 0.9 m, Nov 17, 24.8 C'  # its first 1-bar step sets K for Nov 17-19
+NOV17_MOLAL = 0.902
 # Temperature -> colour, validated together (dataviz validate_palette,
 # --pairs all, light surface): 1, 10, 19-20, 23, 25, 35 C. The 16 C cyan and
 # the 8/13 C breaks (Nov 2026 KCl runs at 6, 11, 16 C) were NOT validated
-# (validator not found).
-TEMP_COLORS = [(8, '#184f95'), (13, '#5598e7'), (17.5, '#0f9fb0'), (21.5, '#1baf7a'),
+# (validator not found). Nov 17-19 added the 4-8 C bin (violet, 7.0 C isotherm)
+# so that 2 C (dark blue, as the 0.85 C Aug run) and 7 C differ; the violet and
+# its pairwise distances to the neighbours were judged by eye only, NOT run
+# through the validator (not installed). This also recolours the 6.3 C KCl run.
+TEMP_COLORS = [(4, '#184f95'), (8, '#7b4fb0'), (13, '#5598e7'), (17.5, '#0f9fb0'), (21.5, '#1baf7a'),
                (24, '#eda100'), (27, '#e87ba4'), (99, '#a8322f')]
 
 
@@ -165,6 +208,7 @@ F_RANGE_HZ = 1e3 * np.array([10, 100])
 # Fitted for the supplement tables only, not plotted: label, folders, solute,
 # K source, reason
 EXTRA_2026 = [
+    (OOV_LABEL, ['20261119'], 'KCl', None, OOV_REASON),
     ('NaCl 0.9 m, Oct 6, 5-10-min steps', ['20261006'], 'NaCl', 'oct14',
      'left out: 5-10 min steps, up/down mismatch (Diaz notebook p. 22-23)'),
 ]
@@ -266,7 +310,17 @@ def load_2026():
         st['run'], st['comp'] = label, comp
         rows.append(st)
     for label, folders, comp, _, reason in EXTRA_2026:
-        sweeps.append(fit_sweeps(folders).assign(run=label, comp=comp, excluded=reason))
+        sw_x = fit_sweeps(folders)
+        t0, t1 = RUN_WINDOWS.get(label, (None, None))
+        if t0 is not None:
+            sw_x = sw_x[sw_x.time >= t0]
+        if t1 is not None:
+            sw_x = sw_x[sw_x.time < t1]
+        sw_x = sw_x.assign(run=label, comp=comp, excluded=reason)
+        if label == OOV_LABEL:
+            bad = sw_x.filename.str.startswith(tuple(OOV_BAD_SWEEPS))
+            sw_x.loc[bad, 'excluded'] = OOV_BAD_REASON
+        sweeps.append(sw_x)
     rec = pd.concat(rows, ignore_index=True)
     sw_all = pd.concat(sweeps, ignore_index=True)
     K = {lbl: SIGMA_STD * rec.loc[rec.run == lbl, 'R_amb_first'].iloc[0]
@@ -276,7 +330,13 @@ def load_2026():
     for lbl, m in PRIOR_MOLAL.items():
         r = rec[rec.run == lbl]
         K[lbl] = vbc.sigma_prior_nacl(m, r.T_K.iloc[0] - 273.15) * r.R_amb_first.iloc[0]
+    r0 = rec[rec.run == NOV17_FIRST]
+    K['prior_nov17'] = (vbc.sigma_prior_nacl(NOV17_MOLAL, r0.T_K.iloc[0] - 273.15)
+                        * r0.R_amb_first.iloc[0])
     for lbl, _, _, _, ksrc in RUNS_2026 + [(e[0], None, None, None, e[3]) for e in EXTRA_2026]:
+        if lbl == OOV_LABEL:  # out of the vessel: no K applies, sigma left blank
+            sw_all.loc[sw_all.run == lbl, ['K_cell', 'sigma_Sm']] = np.nan
+            continue
         if lbl not in set(rec.run):
             ms = sw_all.run == lbl
             sw_all.loc[ms, 'K_cell'] = K[ksrc]
@@ -346,7 +406,7 @@ def _spread(ys, gap):
     return out
 
 
-def label_ends(ax, items, x_text, gap, log=False):
+def label_ends(ax, items, x_text, gap, log=False, y_override=None):
     """Direct labels: text at x_text, y spread apart, a thin leader to (x, y).
 
     items: list of (x_end, y_end, text, colour[, linestyle]).  With log=True the
@@ -356,13 +416,15 @@ def label_ends(ax, items, x_text, gap, log=False):
     f = np.log10 if log else (lambda v: v)
     g = (lambda v: 10 ** v) if log else (lambda v: v)
     xr = np.diff(ax.get_xlim())[0]
-    ys = _spread([f(it[1]) for it in items], gap)
+    ys = _spread([f(it[1]) if not (y_override and it[2] in y_override) else f(y_override[it[2]])
+                  for it in items], gap)
     for (x, y, text, col, *ls), yt in zip(items, ys):
         yt = g(yt)
         ax.plot([x, x_text - 0.016 * xr], [y, yt], ':', color='#9a9a9a', lw=0.7, zorder=1)
         ax.plot([x_text - 0.015 * xr, x_text - 0.003 * xr], [yt, yt], ls[0] if ls else '-',
                 color=col, lw=2, zorder=5, clip_on=False)
-        ax.text(x_text, yt, text, fontsize=7.4, color=INK, va='center', ha='left', zorder=5)
+        ax.text(x_text, yt, text, fontsize=7.4, color=INK, va='center', ha='left', zorder=6,
+                bbox=dict(boxstyle='square,pad=0.12', fc=PAPER, ec='none', alpha=0.88))
 
 
 def prior_ticks():
@@ -417,7 +479,11 @@ def _plot_ours(ax, ours, solute, ycol, label_items, errbars=True):
         _marks(ax, kept.P_MPa, kept[ycol], mk, col, kept.descent, yerr=ye)
         top = kept.loc[kept.P_MPa.idxmax()]
         conc = {'Cortes 2025': '0.5 m', 'Diaz 2026': f'{top.molality:.2f} m'}[top.source]
-        label_items.append((top.P_MPa, top[ycol], f'{conc}, {top.run_short}, {top.T_C:.1f} {DEG}', col))
+        # the six Nov 17-19 isotherms: compact label (the 0.9 m column is crowded)
+        txt = (f'{top.T_C:.1f} {DEG}, {top.run_short}' if top.run.startswith('NaCl 0.9 m, Nov 1[789]'[:16])
+               and top.run_short.startswith(('Nov 17', 'Nov 18', 'Nov 19'))
+               else f'{conc}, {top.run_short}, {top.T_C:.1f} {DEG}')
+        label_items.append((top.P_MPa, top[ycol], txt, col))
     ex = ours[(ours.solute == solute) & (ours.excluded != '') & ours[ycol].notna()]
     ax.plot(ex.P_MPa, ex[ycol], 'x', color=INK, ms=7, mew=1.5, zorder=4)
 
@@ -506,7 +572,10 @@ def build_figure(ours, lit):
     far = [e for e in items if e[0] > 400]
     near = [e for e in items if e[0] <= 400]
     label_ends(a_n, far, 712, gap=0.2)
-    label_ends(a_n, near, 240, gap=0.2)
+    # the coldest Nov 19 label would sit on the Aug 18/Adams and Hall/excluded
+    # marks near 4.8 S/m; its leader goes down to the empty gap at 3.8 S/m
+    cold = {e[2]: 3.8 for e in near if e[2].startswith('1.7 ')}
+    label_ends(a_n, near, 240, gap=0.2, y_override=cold)
     a_n.set_title('NaCl', fontsize=12)
     # --- KCl
     a_k.set_yscale('log')

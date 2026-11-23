@@ -7,6 +7,12 @@ run,solute,m_mol_kg,T_C,sigma_meas_1bar_Sm,sigma_ref_Sm,ref_source,factor,pct_ch
 "NaCl 0.5 m, Aug 20, 35 C",NaCl,0.5,34.85,5.317,5.61016,McCleskey (2011),1.05514,5.51363
 "NaCl 0.9 m, Oct 7-8, 30-min steps",NaCl,0.9006,22.92,7.4101,7.4101,McCleskey (2011),1.0,-2e-05
 "NaCl 0.9 m, Nov 16",NaCl,0.902,29.3,8.42622,8.42622,McCleskey (2011),1.0,0.0
+"NaCl 0.9 m, Nov 17, 24.8 C",NaCl,0.902,24.8,7.70851,7.70851,McCleskey (2011),1.0,-3e-05
+"NaCl 0.9 m, Nov 17, 20.5 C",NaCl,0.902,20.6,7.01779,7.07321,McCleskey (2011),1.0079,0.78968
+"NaCl 0.9 m, Nov 17-18, 16.2 C",NaCl,0.902,16.31,6.39314,6.45919,McCleskey (2011),1.01033,1.03321
+"NaCl 0.9 m, Nov 18, 11.5 C",NaCl,0.902,11.51,5.67779,5.80923,McCleskey (2011),1.02315,2.31503
+"NaCl 0.9 m, Nov 18-19, 7.0 C",NaCl,0.902,6.97667,5.00806,5.22657,McCleskey (2011),1.04363,4.36318
+"NaCl 0.9 m, Nov 19, 2 C",NaCl,0.902,1.68667,4.32143,4.45346,McCleskey et al. (2012),1.03055,3.05519
 "KCl 8 S/m std, Nov 5",KCl,0.69977,24.85333,8.0054,7.96162,McCleskey (2011),0.99453,-0.54688
 "KCl 8 S/m std, Nov 6",KCl,0.69977,20.43,7.35023,7.34237,McCleskey (2011),0.99893,-0.107
 "KCl 8 S/m std, Nov 9",KCl,0.69977,16.26,6.74378,6.76622,McCleskey (2011),1.00333,0.33273

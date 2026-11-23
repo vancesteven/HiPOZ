@@ -3,6 +3,7 @@ import os
 import sys
 
 import numpy as np
+import pandas as pd
 import pytest
 
 REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -39,3 +40,27 @@ def test_anchor_factor_nov16_is_unity():
     assert f == pytest.approx(1.0, abs=0.002)
     r = S.with_ratio(g).ratio.to_numpy()
     assert (S.with_ratio(scaled).ratio.to_numpy() == pytest.approx(r))  # shape kept
+
+
+def test_nov19_out_of_vessel_sweeps_excluded():
+    """Nov 19 >= 16:44 is the KCl calibration outside the vessel: every sweep
+    carries an exclusion reason, the 17:50 ones the bad-orientation reason, and
+    none reaches the kept steps."""
+    sw = pd.read_csv(S.SWEEPS_2026_CSV, parse_dates=['time'], keep_default_na=False)
+    late = sw[sw.time >= '2026-11-19 16:44']
+    assert len(late) == 12 and late.excluded.str.startswith('out-of-vessel KCl calibration').all()
+    bad = late[late.filename.str.contains('_17(5006|5101|5155)_')]
+    assert len(bad) == 3 and bad.excluded.str.contains('suspected bad wire orientation').all()
+    assert not late.excluded.str.contains('bad wire').iloc[:9].any()
+    kept = S.our_steps_2026(False)
+    assert not ((kept.time >= '2026-11-19 16:44')).any()
+
+
+def test_nov17_first_1bar_anchor_is_unity_in_supplement_K():
+    g = S.our_steps_2026(False)
+    g = g[g.run == 'NaCl 0.9 m, Nov 17, 24.8 C']
+    f, _ = S.anchor_to_1bar(g)
+    assert f == pytest.approx(1.000, abs=0.002)
+    # one K for all six isotherms
+    k = pd.read_csv(S.STEPS_2026_CSV)
+    assert k[k.run.str.contains('Nov 1[789]')].K_cell.nunique() == 1

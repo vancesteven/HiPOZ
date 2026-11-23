@@ -1,6 +1,6 @@
 # Status — hipozgenai
 
-Updated: 2026-11-20
+Updated: 2026-11-23
 
 Refresh the `Updated:` line and the affected sections in any session that
 pushes commits, integrates artifacts, or changes a queue.
@@ -15,7 +15,7 @@ lab data merged in from origin/main. PR #3 (still open) now carries all of it.
 
 | Item | Owner | Status | Artifact |
 |---|---|---|---|
-| ON HOLD (Steve 2026-11-20): add Nov 17–19 NaCl 0.902 m isotherms (24.8, 20.5, 16.2, 11.5, 7.0, ~2 °C) to sigma_P figures, self-calibrated at 1 bar (Steve: yes). Exclude Nov 19 ≥16:44, the out-of-vessel KCl calibration (separate chiller; bad wire-orientation sweeps at 17:50) | claude-code | not implemented | data merged c73b9cf; open-questions 2026-11-20; agent stopped before editing |
+| Add Nov 17–19 NaCl 0.902 m isotherms (24.8, 20.5, 16.2, 11.5, 7.0, ~2 °C) to sigma_P figures, self-calibrated at 1 bar (Steve: yes). Exclude Nov 19 ≥16:44, the out-of-vessel KCl calibration (separate chiller; bad wire-orientation sweeps at 17:50) | claude-code | verified | data merged c73b9cf; open-questions 2026-11-20; sigma_P_supplement.png, sigma_P_main.png viewed; 19 tests; audit 2026-11-23 |
 | sigma(P) supplement + main-text figures, sigma_P_sources.py | claude-code | verified | cfb5ec2; 17 tests; cortes2026/nacl_sigma_P/sigma_P_{supplement,main}.png |
 | Jesus-Conductivity draft (quarantined_AI_stuff, main_AI.tex with marks) | claude-code | verified | pushed 1e7b2d9; main_AI.pdf 26 pp, 0 errors |
 | ThermoLit: Fisher & Fox 1979, Fisher 1962 datasets | claude-code | verified | branch literature-ingest pushed; 76 tests; validate 0 errors |

@@ -29,8 +29,13 @@ The former `nacl_0p5m_sigma_P_excluded.png` was removed: its excluded steps are 
 Each run is multiplied by (reference sigma at the run's first ascending 1-bar step) / (measured sigma there). The measured pressure dependence is kept; the run's own absolute calibration is replaced by prior 1-bar data ("trust the composition, calibrate the 1-bar point against prior data", PI 2026-11-18, applied to Nov 16). Assumed anchor uncertainty: 1 % (McCleskey 2011), 2 % (MC12): for PI review. Factors: `sigma_P_main_anchor_factors.csv`.
 
 ## Main-figure runs (`MAIN_RUNS`)
-Aug 2025 0.5 m NaCl kept steps; NaCl 0.9 m Oct 7-8 and Nov 16; KCl 0.70 m Nov 5, 6, 9, 10, 11, 11-12.
+Aug 2025 0.5 m NaCl kept steps; NaCl 0.9 m Oct 7-8, Nov 16 and the six Nov 17-19 isotherms (24.8, 20.5, 16.2, 11.5, 7.0, ~2 C; boundaries `RUN_WINDOWS` in `plot_nacl_sigma_P.py`); KCl 0.70 m Nov 5, 6, 9, 10, 11, 11-12.
 Not shown: Oct 6, Oct 9 (10-min steps), Oct 14-15 (leak during run), excluded/provisional steps, Aug-Sep 2026.
 
 ## Exclusions
 2025: `EXCLUDED` in `plot_nacl_sigma_P.py` (reason per first-sweep time). 2026: zAnalysis config `exclude` flags plus `PROVISIONAL_2026` (Nov 12 +/-12 ohm CPE fits). Nothing is removed from the configs.
+
+## Nov 17-19 2026 (Diaz, 0.902 mol/kg NaCl)
+- Cell constant: the potentiostat connection was repaired, so K is re-set from the data (PI 2026-11-20, "yes to the self calibration"). Supplement: ONE K (120.093 1/m) for all six isotherms, from the first 1-bar step of the 24.8 C isotherm (Nov 17 09:46) vs McCleskey (2011); the colder isotherms' 1-bar offsets from the reference then remain visible as a diagnostic. Main figure: each isotherm anchored at its own first ascending 1-bar step; the ~2 C isotherm uses MC12 (below 5 C), recorded in the factors table.
+- Out of the vessel: Nov 19 from 16:44 (sweeps 164412 ... 175155) is a KCl 8 S/m calibration in a separate chiller; the logged T is the vessel sensor. These 12 sweeps are in `diaz/diaz_hp_sweep_fits.csv` with an exclusion reason (the 17:50 ones, R 10.1-10.4 ohm drifting, also "suspected bad wire orientation") and no sigma; they are not part of any isotherm.
+- Colours: `TEMP_COLORS` gained a 4-8 C bin (violet) so 2 C and 7 C differ; the palette was not run through the dataviz validator (not installed).

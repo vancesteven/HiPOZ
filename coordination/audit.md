@@ -598,3 +598,13 @@ with bullets, or a one-line `- <date>: ...` bullet.
 - Hysteresis check: Fisher 1962 next-day 1 atm within 0.15%; Adams & Hall descending within 0.06%; ours mean −0.26 to +0.05%, worst steps 0.65–1.0%.
 - Verified: 17 tests pass (test_sigma_P_sources, test_kcl_literature_ratio, test_vessel_1bar_check, test_supplement_tables). Both PNGs viewed. Written by Sonnet agents, reviewed by Opus.
 - Removed nacl_0p5m_sigma_P_excluded.png (its content is in the supplement figure). nacl_0p5m_sigma_P.* is kept as a deprecated copy because the paper drafts reference it.
+
+## 2026-11-23 — Nov 17–19 NaCl isotherms added, self-calibrated
+- Steve (2026-11-20): yes to self-calibration. The Nov 19 sweeps from 16:44 on are a KCl calibration in a separate chiller outside the vessel; bad sweeps came from wire orientation.
+- Sonnet agent (reviewed) added six 0.902 m NaCl isotherms: 24.8, 20.6, 16.1, 11.5, 7.0 and 1.7 °C, 0–200–0 MPa. Run boundaries were checked against the T steps.
+- Supplement figure: one K = 120.09 m⁻¹ for the series, from the Nov 17 09:46 1-bar step vs McCleskey (2011). The 1-bar offsets vs reference fall from 0 to −4.2% at 7 °C (−3.0% vs MC12 at 1.7 °C).
+- Main figure: each isotherm anchored (factors 1.000–1.044).
+- Up/down agreement: mean 0.14–0.50%. Worst is 16.1 °C, −1% at the 1-bar decompression steps after the overnight hold.
+- Excluded: the 12 Nov 19 sweeps from 16:44 on (out-of-vessel calibration). The three 17:50 sweeps are also flagged as suspected bad wire orientation. Rows are kept in diaz_hp_sweep_fits.csv.
+- A new 4–8 °C colour bin (violet) recolours the 6.3 °C KCl run. Not palette-validated: the validator is not installed.
+- Verified: 19 tests pass. Both PNGs viewed by Opus.

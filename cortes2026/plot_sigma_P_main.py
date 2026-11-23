@@ -25,6 +25,11 @@ Policy (edit the constants below; each is a decision for PI review)
       tabulated, else McCleskey et al. 2012; sigma_P_sources.sigma_ref_1bar).
       The MEASURED pressure dependence is kept; the run's own absolute
       calibration is replaced by prior data.
+    * Nov 17-19 2026 NaCl (six isotherms, 24.8 to ~2 C) sit in the 0.9 mol/kg
+      panel; each is anchored at its own first ascending 1-bar step (the ~2 C
+      one against MC12, below 5 C), so the factors table records the offsets
+      of the series' single supplement K from the reference. The out-of-vessel
+      KCl calibration of Nov 19 after 16:44 is not shown.
     * Error bars: step min-max range combined in quadrature with the anchor
       uncertainty (ANCHOR_UNC, relative). ASSUMPTIONS, not derived.
     * Guide: a polynomial of P fitted to each isotherm's anchored points
@@ -52,8 +57,12 @@ MAIN_RUNS = [
     # Aug 2025 0.5 mol/kg NaCl isotherms, kept steps only (Aug 14: all excluded)
     'NaCl 0.5 m, Aug 13, 20 C', 'NaCl 0.5 m, Aug 18, 20 C', 'NaCl 0.5 m, Aug 19, 0 C',
     'NaCl 0.5 m, Aug 19, 10 C', 'NaCl 0.5 m, Aug 20, 20 C', 'NaCl 0.5 m, Aug 20, 35 C',
-    # 0.9 mol/kg NaCl: Oct 7-8 (30-min steps), Nov 16
+    # 0.9 mol/kg NaCl: Oct 7-8 (30-min steps), Nov 16, Nov 17-19 (six isotherms,
+    # each anchored at its own first 1-bar step; the ~2 C one against MC12)
     'NaCl 0.9 m, Oct 7-8, 30-min steps', 'NaCl 0.9 m, Nov 16',
+    'NaCl 0.9 m, Nov 17, 24.8 C', 'NaCl 0.9 m, Nov 17, 20.5 C',
+    'NaCl 0.9 m, Nov 17-18, 16.2 C', 'NaCl 0.9 m, Nov 18, 11.5 C',
+    'NaCl 0.9 m, Nov 18-19, 7.0 C', 'NaCl 0.9 m, Nov 19, 2 C',
     # 0.70 mol/kg KCl standard
     'KCl 8 S/m std, Nov 5', 'KCl 8 S/m std, Nov 6', 'KCl 8 S/m std, Nov 9',
     'KCl 8 S/m std, Nov 10', 'KCl 8 S/m std, Nov 11', 'KCl 8 S/m std, Nov 11-12',
@@ -71,7 +80,7 @@ ANCHOR_NOTE = ('1-bar values anchored to McCleskey (2011)/(2012); '
 
 # Temperature palette shared with the supplement (validated colours; the
 # 8/13 C and 16 C breaks are not, see plot_nacl_sigma_P.TEMP_COLORS)
-TEMP_COLORS = [(8, '#184f95'), (13, '#5598e7'), (17.5, '#0f9fb0'), (21.5, '#1baf7a'),
+TEMP_COLORS = [(4, '#184f95'), (8, '#7b4fb0'), (13, '#5598e7'), (17.5, '#0f9fb0'), (21.5, '#1baf7a'),
                (24, '#eda100'), (27, '#e87ba4'), (99, '#a8322f')]
 PAPER = '#fcfcfb'
 MARK = {'Cortes 2025': 'o', 'Diaz 2026': 's'}

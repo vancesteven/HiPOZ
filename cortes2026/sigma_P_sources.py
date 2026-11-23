@@ -36,7 +36,12 @@ Data model (columns of every DataFrame returned by a source function)
     ratio      sigma / sigma at the run's first 1-bar step (added by with_ratio)
 Rows are in measurement order within a run.
 
-Our own steps
+Our own steps (Nov 17-19 2026: six 0.9 mol/kg NaCl isotherms, 24.8 to 2 C,
+    all with ONE K from the first 1-bar step of the 24.8 C isotherm against
+    McCleskey 2011, so the 1-bar offsets of the colder isotherms are visible in
+    the supplement; the main figure anchors each isotherm separately. Nov 19
+    from 16:44 is a KCl calibration outside the vessel: recorded in
+    diaz_hp_sweep_fits.csv with an exclusion reason, not a run here.)
     Each step is a group of consecutive sweeps (< 4 min apart at the same
     nominal pressure): sigma is the mean, sigma_lo/sigma_hi the extremes. Cell
     constants K (sigma = K / R) come from different places in different runs;
@@ -102,6 +107,8 @@ _K_OCT14 = 'Oct 14 8 S/m KCl standard (estimate, measured 5 days later)'
 _K_OWN = "own first 1-bar triplet = 8 S/m bottle value"
 _K_NOV = 'common Nov K 120.617 (median of settled 1-bar steps vs bottle table)'
 _K_PRIOR = 'first 1-bar step vs McCleskey (2011), soldered connection broke (PI 2026-11-18)'
+_K_NOV17 = ('ONE K for Nov 17-19: first 1-bar step (Nov 17 09:46, 24.8 C) vs McCleskey (2011); '
+            'connection repaired, PI 2026-11-20')
 RUN_META_2026 = {
     'NaCl 0.9 m, Oct 7-8, 30-min steps': ('Oct 7-8', 'NaCl', 0.9006, _K_OCT14),
     'NaCl 0.9 m, Oct 9, 10-min steps': ('Oct 9', 'NaCl', 0.9006, _K_OCT14),
@@ -113,6 +120,12 @@ RUN_META_2026 = {
     'KCl 8 S/m std, Nov 11': ('Nov 11', 'KCl', vbc.KCL_STD_MOLAL, _K_NOV),
     'KCl 8 S/m std, Nov 11-12': ('Nov 11-12', 'KCl', vbc.KCL_STD_MOLAL, _K_NOV),
     'NaCl 0.9 m, Nov 16': ('Nov 16', 'NaCl', 0.902, _K_PRIOR),
+    'NaCl 0.9 m, Nov 17, 24.8 C': ('Nov 17', 'NaCl', 0.902, _K_NOV17),
+    'NaCl 0.9 m, Nov 17, 20.5 C': ('Nov 17', 'NaCl', 0.902, _K_NOV17),
+    'NaCl 0.9 m, Nov 17-18, 16.2 C': ('Nov 17-18', 'NaCl', 0.902, _K_NOV17),
+    'NaCl 0.9 m, Nov 18, 11.5 C': ('Nov 18', 'NaCl', 0.902, _K_NOV17),
+    'NaCl 0.9 m, Nov 18-19, 7.0 C': ('Nov 18-19', 'NaCl', 0.902, _K_NOV17),
+    'NaCl 0.9 m, Nov 19, 2 C': ('Nov 19', 'NaCl', 0.902, _K_NOV17),
 }
 
 
@@ -173,6 +186,8 @@ def our_steps_2026(include_excluded=True):
     if include_excluded:
         sw = pd.read_csv(SWEEPS_2026_CSV, parse_dates=['time'], keep_default_na=False)
         sw['excluded'] = sw.excluded.astype(str)
+        for c in ('sigma_Sm', 'K_cell'):  # blank for the out-of-vessel sweeps
+            sw[c] = pd.to_numeric(sw[c], errors='coerce')
         for run, s in sw[sw.run.isin(RUN_META_2026)].groupby('run', sort=False):
             s = s.sort_values('time')
             desc = pd.Series(_descent(s.P_MPa), index=s.index)
