@@ -244,7 +244,11 @@ class DataSelector(QMainWindow):
         self.selected_points = []
         self.ax1 = []
         self.ax2 = []
-        self.config_file_paths = {}  # Track config file paths for each date
+        self.config_file_paths = {}  # Track config file paths, keyed by data folder name
+        # What the user did this session. The config save changes an existing
+        # row's type / P / T only for these (see _merge_into_config).
+        self.explicit_types = {}   # filename -> 'standard' (Mark as Standard)
+        self.edited_cells = set()  # (filename, config field) typed into the table
 
         # Removed auto-plotting debounce timer - caused sluggish GUI
         # User will manually trigger plot updates via button clicks
@@ -672,6 +676,12 @@ class DataSelector(QMainWindow):
         if 'Std' in self.timeseries.filenames[ind]:
             return True  # Example condition
 
+    _TABLE_TO_CONFIG = {
+        'Comp': 'comp', 'w (ppt)': 'w_ppt', 'w (molal)': 'w_molal',
+        'T (K)': 'T_K', 'P (MPa)': 'P_MPa', 'Z (Ohm)': 'Z_Ohm',
+        'Z± (Ohm)': 'Z_unc_Ohm', 'σ (S/m)': 'conductivity_Sm',
+        'σ± (S/m)': 'S_unc_pct'}
+
     def on_table_item_changed(self, item):
         if self.updating_table:
             return
@@ -711,6 +721,9 @@ class DataSelector(QMainWindow):
 
         # Update DataFrame
         self.data.iat[row, col] = val
+        cfg_field = self._TABLE_TO_CONFIG.get(header)
+        if cfg_field:
+            self.edited_cells.add((str(self.data.iat[row, 0]), cfg_field))
 
         # Auto-convert between ppt and molal when comp is recognized
         comp_col = self.data.columns.get_loc('Comp')
@@ -941,6 +954,7 @@ class DataSelector(QMainWindow):
 
             # Mark this row as a standard
             self.standard_mask[row] = True
+            self.explicit_types[str(self.data.iat[row, 0])] = 'standard'
 
         if not cell_consts:
             QMessageBox.warning(self, "No Valid Rows", "Provide valid S and Z values.")
@@ -2194,7 +2208,7 @@ class DataSelector(QMainWindow):
                         # P and T
                         if std_metadata.get('P_MPa') is not None:
                             col_P = self.data.columns.get_loc('P (MPa)')
-                            self.data.iat[std_idx, col_P] = std_metadata['P_MPa']
+                            self._set_P(std_idx, std_metadata['P_MPa'])
                             try:
                                 self.timeseries.Ps[std_idx] = std_metadata['P_MPa']
                             except Exception:
@@ -2264,7 +2278,7 @@ class DataSelector(QMainWindow):
                         # Update P and T columns
                         if metadata.get('P_MPa') is not None:
                             col_P = self.data.columns.get_loc('P (MPa)')
-                            self.data.iat[idx, col_P] = metadata['P_MPa']
+                            self._set_P(idx, metadata['P_MPa'])
                             try:
                                 self.timeseries.Ps[idx] = metadata['P_MPa']
                             except Exception:
@@ -2368,6 +2382,49 @@ class DataSelector(QMainWindow):
                             else:
                                 item.setToolTip(f"Measurement: {result['name']}")
 
+    def _set_P(self, idx, value):
+        """Set a P (MPa) cell; the column is int when every file-header P is
+        whole, so widen it to float for a fractional config value (pandas
+        refuses to upcast on assignment)."""
+        col = self.data.columns.get_loc('P (MPa)')
+        try:
+            self.data.iat[idx, col] = value
+        except TypeError:
+            self.data['P (MPa)'] = self.data['P (MPa)'].astype(float)
+            self.data.iat[idx, col] = value
+
+    @staticmethod
+    def _folder_key(filename):
+        """(key, folder) of the data folder a measurement file lives in.
+
+        key is the folder name (e.g. '20250819Cortes'); folder is the path of
+        that folder as the file was loaded (data/<folder>). Files outside a
+        recognisable folder fall back to the 8-digit date in the name, with
+        folder data/<date>. (None, None) if nothing identifies it."""
+        path = Path(str(filename))
+        parts = path.parts
+        folder = None
+        if len(parts) >= 3 and path.parent.name == 'ConductivityData_Default':
+            folder = path.parent.parent
+        else:
+            for i, part in enumerate(parts[:-1]):
+                if re.match(r'\d{8}', part):
+                    folder = Path(*parts[:i + 1])
+                    break
+        if folder is not None and folder.name:
+            return folder.name, folder
+        m = re.search(r'_(\d{8})_', str(filename))
+        if m:
+            date = m.group(1)
+        else:
+            m = re.search(r'(\d{1,2})[._](\d{1,2})[._](\d{2,4})', str(filename))
+            if not m:
+                return None, None
+            month, day, year = m.groups()
+            year = '20' + year if len(year) == 2 else year
+            date = f"{year}{month.zfill(2)}{day.zfill(2)}"
+        return date, Path('data') / date
+
     def check_config_file_locations(self):
         """
         Validate that zAnalysis<date>.json files exist in the correct data/<date>/ directories.
@@ -2379,87 +2436,55 @@ class DataSelector(QMainWindow):
 
         Displays status in the status bar and logs findings.
         """
-        # Extract dates from filenames and directory paths
-        dates_found = set()
-        filename_by_date = {}  # Track filenames for each date
-        dir_by_date = {}  # Track directory paths for each date
-
+        # Group the measurement files by data folder. Config files are keyed by
+        # folder (data/20250813 and data/20250813Cortes are different configs
+        # even though they share a date).
+        dates_found = set()   # folder keys (historic name)
+        filename_by_date = {}
+        dir_by_date = {}      # key -> folder path (as the files were loaded)
         for filename in self.timeseries.filenames:
-            # Parse date from filename (format: Default_YYYYMMDD_... or similar patterns)
-            # Try YYYYMMDD format first
-            match = re.search(r'_(\d{8})_', filename)
-            if match:
-                date = match.group(1)
-                dates_found.add(date)
-                if date not in filename_by_date:
-                    filename_by_date[date] = []
-                filename_by_date[date].append(Path(filename).name)
-            else:
-                # Try other date formats like MM.DD.YY
-                match = re.search(r'(\d{1,2})[._](\d{1,2})[._](\d{2,4})', filename)
-                if match:
-                    month, day, year = match.groups()
-                    # Convert to YYYYMMDD format
-                    if len(year) == 2:
-                        year = '20' + year
-                    date_str = f"{year}{month.zfill(2)}{day.zfill(2)}"
-                    dates_found.add(date_str)
-                    if date_str not in filename_by_date:
-                        filename_by_date[date_str] = []
-                    filename_by_date[date_str].append(Path(filename).name)
-                else:
-                    # No date in filename - try to extract from directory path
-                    # Look for patterns like data/20250813Cortes/ or data/20250813/
-                    # Match YYYYMMDD at start of directory name
-                    match = re.search(r'/(\d{8})(?:[A-Za-z_-]|/)', str(filename))
-                    if match:
-                        date = match.group(1)
-                        dates_found.add(date)
-                        if date not in filename_by_date:
-                            filename_by_date[date] = []
-                        filename_by_date[date].append(Path(filename).name)
-                        # Extract directory name for this date
-                        # Find the directory that contains the date
-                        path_parts = Path(filename).parts
-                        for part in path_parts:
-                            if part.startswith(date):
-                                dir_by_date[date] = part
-                                break
+            key, folder = self._folder_key(filename)
+            if key is None:
+                continue
+            dates_found.add(key)
+            filename_by_date.setdefault(key, []).append(Path(filename).name)
+            dir_by_date.setdefault(key, folder)
 
         if not dates_found:
             log.warning("Could not extract dates from filenames for config file validation")
             self.status_bar.showMessage("⚠️ No dates found in data filenames")
             return
 
-        # Check each date for config files
+        from config_store import find_config
+
+        # Check each folder for a config file
         found_configs = []
         created_configs = []
         misplaced_configs = []
 
+        loaded_cfg = None
+        if self.analysis_config and getattr(self.analysis_config, 'config_path', None):
+            loaded_cfg = Path(self.analysis_config.config_path)
+
         for date in sorted(dates_found):
-            # Determine directory name - might be just date or date+suffix (e.g., 20250813Cortes)
-            dir_name = dir_by_date.get(date, date)
+            folder = Path(dir_by_date[date])
+            csv_path = folder / f'zAnalysis{folder.name}.csv'
 
-            # Check for both CSV and JSON (CSV preferred for Excel users)
-            csv_path = Path('data') / dir_name / f'zAnalysis{date}.csv'
-            json_path = Path('data') / dir_name / f'zAnalysis{date}.json'
+            # The config the analysis was started with wins for its own folder
+            if loaded_cfg is not None and loaded_cfg.exists() and (
+                    loaded_cfg.parent.name == folder.name):
+                expected_path = loaded_cfg
+                found = expected_path
+            else:
+                found = find_config(folder, date)
+                expected_path = found or csv_path
+            self.config_file_paths[date] = expected_path
 
-            if csv_path.exists():
-                expected_path = csv_path
-                self.config_file_paths[date] = expected_path
+            if found:
                 found_configs.append(date)
-                log.info(f"✓ Found CSV config: {expected_path}")
-            elif json_path.exists():
-                expected_path = json_path
-                self.config_file_paths[date] = expected_path
-                found_configs.append(date)
-                log.info(f"✓ Found JSON config: {expected_path}")
+                log.info(f"✓ Found config: {found}")
             else:
                 # No config exists - check for misplaced files
-                expected_path = csv_path  # Default to CSV for new files
-                self.config_file_paths[date] = expected_path
-
-                # Check multiple possible wrong locations
                 wrong_csv = Path(f'zAnalysis{date}.csv')
                 wrong_json = Path(f'zAnalysis{date}.json')
 
@@ -2541,10 +2566,12 @@ class DataSelector(QMainWindow):
         all_standards = []  # List of (conductivity_Sm, resistance_ohm) tuples
 
         # Create filename to index mapping
-        filename_to_idx = {}
+        # (per data folder, so same-named files in data/<date> and
+        # data/<date>Cortes are never mixed up)
+        idx_by_folder = {}
         for idx, full_path in enumerate(self.timeseries.filenames):
-            filename = Path(full_path).name
-            filename_to_idx[filename] = idx
+            folder_key = self._folder_key(full_path)[0]
+            idx_by_folder.setdefault(folder_key, {})[Path(full_path).name] = idx
 
         # Load each config file
         for date, config_path in self.config_file_paths.items():
@@ -2553,6 +2580,7 @@ class DataSelector(QMainWindow):
                 continue
 
             log.info(f"Loading config: {config_path}")
+            filename_to_idx = idx_by_folder.get(date, {})
 
             # Parse config file (CSV or JSON)
             standards = []
@@ -2698,7 +2726,7 @@ class DataSelector(QMainWindow):
                     self.data.iat[idx, col_w_molal] = std['w_molal']
 
                 if std.get('P_MPa') is not None:
-                    self.data.iat[idx, col_P] = std['P_MPa']
+                    self._set_P(idx, std['P_MPa'])
                     try:
                         self.timeseries.Ps[idx] = std['P_MPa']
                     except:
@@ -2721,7 +2749,9 @@ class DataSelector(QMainWindow):
                 if std.get('Z_unc_Ohm') is not None:
                     self.data.iat[idx, col_Z_unc] = std['Z_unc_Ohm']
 
-                log.info(f"  Restored standard: {filename} (σ={std['conductivity_Sm']:.4f} S/m)")
+                sig = std['conductivity_Sm']
+                log.info(f"  Restored standard: {filename} (σ={sig:.4f} S/m)" if isinstance(sig, float)
+                         else f"  Restored standard: {filename}")
 
             # Apply measurements (associated)
             for meas in measurements:
@@ -2764,7 +2794,7 @@ class DataSelector(QMainWindow):
                     self.data.iat[idx, col_w_molal] = meas['w_molal']
 
                 if meas.get('P_MPa') is not None:
-                    self.data.iat[idx, col_P] = meas['P_MPa']
+                    self._set_P(idx, meas['P_MPa'])
                     try:
                         self.timeseries.Ps[idx] = meas['P_MPa']
                     except:
@@ -2968,39 +2998,32 @@ class DataSelector(QMainWindow):
         import json
         import csv as csv_module
 
-        # Determine which config files to save to
-        save_paths = {}
+        # Determine which config files to save to, keyed by data folder (the
+        # config check_config_file_locations actually found or created).
+        save_paths = dict(self.config_file_paths or {})
 
-        # First priority: if we loaded a config via analysis_config, save to that path
+        # A config loaded via analysis_config also gets saved to, under its
+        # folder name and (for files outside a data folder) its date. It never
+        # displaces a path already found for a folder.
         if self.analysis_config and hasattr(self.analysis_config, 'config_path') and self.analysis_config.config_path:
             config_path = Path(self.analysis_config.config_path)
-            # Extract date from the config path
-            match = re.search(r'zAnalysis(\d{8})', str(config_path))
+            keys = [config_path.parent.name]
+            match = re.search(r'zAnalysis(\d{8})', config_path.name)
             if match:
-                date = match.group(1)
-                save_paths[date] = config_path
-                log.info(f"Will save GUI state to loaded config: {config_path}")
-
-        # Also save to any config file paths we discovered during initialization
-        if self.config_file_paths:
-            for date, path in self.config_file_paths.items():
-                if date not in save_paths:  # Don't duplicate if already in save_paths
-                    save_paths[date] = path
+                keys.append(match.group(1))
+            for key in keys:
+                save_paths.setdefault(key, config_path)
+            log.info(f"Will save GUI state to loaded config: {config_path}")
 
         if not save_paths:
             log.warning("No config file paths to save to")
             return
 
-        # Group data by date, maintaining chronological order
+        # Group data by folder, maintaining chronological order
         data_by_date = {}
         for idx, filename in enumerate(self.timeseries.filenames):
-            # Extract date from filename
-            match = re.search(r'_(\d{8})_', filename)
-            if not match:
-                # Try extracting from directory path (e.g., data/20250813Cortes/)
-                match = re.search(r'/(\d{8})(?:[A-Za-z_-]|/)', str(filename))
-            if match:
-                date = match.group(1)
+            date = self._folder_key(filename)[0]
+            if date is not None:
                 if date not in data_by_date:
                     data_by_date[date] = []  # Single list to preserve chronological order
 
@@ -3087,30 +3110,103 @@ class DataSelector(QMainWindow):
             if date not in data_by_date:
                 continue
             try:
-                self._merge_into_config(Path(file_path), data_by_date[date])
-                log.info(f"Saved GUI state to {Path(file_path).with_suffix('.csv')} (+ .json)")
+                if self._merge_into_config(Path(file_path), data_by_date[date]):
+                    log.info(f"Saved GUI state to {Path(file_path).with_suffix('.csv')} (+ .json)")
             except Exception as e:
                 log.error(f"Failed to save GUI state to {file_path}: {e}")
 
+    # Fields compared at 4 significant figures (the GUI shows and saves them so)
+    _SIG4_FIELDS = ('Z_Ohm', 'Z_unc_Ohm', 'conductivity_Sm', 'S_unc_pct')
+
+    @classmethod
+    def _same_config_value(cls, field, existing, new):
+        """True when writing `new` over `existing` would change nothing the
+        GUI can resolve: equal strings, or equal numbers to the GUI's own
+        rounding (4 s.f. for Z and sigma; the new value's decimals for
+        w_ppt / w_molal)."""
+        e, n = str(existing).strip(), str(new).strip()
+        if e == n:
+            return True
+        try:
+            ef, nf = float(e), float(n)
+        except ValueError:
+            return False
+        if field in cls._SIG4_FIELDS:
+            return float(f"{ef:.4g}") == float(f"{nf:.4g}")
+        decimals = len(n.split('.')[1]) if '.' in n and 'e' not in n.lower() else None
+        if decimals is not None:
+            return round(ef, decimals) == round(nf, decimals)
+        return ef == nf
+
     def _merge_into_config(self, file_path: Path, data: list):
-        """Merge GUI rows into a config file without losing anything else."""
+        """Merge GUI rows into a config file without losing anything else.
+
+        For a row already in the config:
+        - `type` changes only when the user marked it in this session;
+        - P_MPa / T_K change only when the user edited that cell;
+        - other fields are rewritten only when the GUI value differs from the
+          config value beyond the GUI's rounding, or the config cell is empty
+          (Z and Z+- are filled into an empty cell only alongside a new sigma);
+        - excluded rows change only through cells the user edited.
+        Rows new to the config get the GUI's values and type. When nothing
+        changes the file is not written at all (a session with no user action
+        leaves the CSV byte-identical)."""
         from config_store import read_rows, merge_rows, write_rows
-        from analysis_config import bath_state
+
+        explicit_types = getattr(self, 'explicit_types', {})
+        edited = getattr(self, 'edited_cells', set())
 
         fieldnames, rows = read_rows(file_path)
         existing = {r.get('filename'): r for r in rows}
         updates = {}
         for entry in sorted(data, key=lambda x: x.get('index', 0)):
+            name = entry['filename']
             fields = self._gui_row_fields(entry)
-            row = existing.get(entry['filename'])
-            # A chiller-bath row (P_MPa = 0) keeps its P/T unless the GUI
-            # also shows 0 MPa; otherwise the vessel header would replace it.
-            if row is not None and bath_state(row) and fields.get('P_MPa') not in (0, 0.0):
-                fields.pop('P_MPa', None)
-                fields.pop('T_K', None)
-            updates[entry['filename']] = fields
+            row = existing.get(name)
+            if row is None:
+                updates[name] = fields
+                continue
+            excluded = str(row.get('exclude') or '').strip().lower() in ('x', 'yes', 'true', '1')
+            keep = {}
+            for key, value in fields.items():
+                cur = row.get(key)
+                empty = cur is None or str(cur).strip() == ''
+                if key == 'type':
+                    # only an explicit Mark as Standard changes a row's type
+                    if name in explicit_types and str(cur).strip() != explicit_types[name]:
+                        keep[key] = explicit_types[name]
+                    continue
+                if (name, key) in edited:
+                    if key in ('P_MPa', 'T_K'):
+                        try:
+                            changed = empty or float(cur) != float(value)
+                        except ValueError:
+                            changed = True
+                    else:
+                        changed = empty or not self._same_config_value(key, cur, value)
+                elif excluded:
+                    changed = False
+                elif key in ('P_MPa', 'T_K'):
+                    changed = False   # the file header never replaces config P/T
+                elif key in ('Z_Ohm', 'Z_unc_Ohm'):
+                    # the GUI always has a fitted Z; an empty config cell is
+                    # filled only together with a new sigma (see below)
+                    changed = not empty and not self._same_config_value(key, cur, value)
+                else:
+                    changed = empty or not self._same_config_value(key, cur, value)
+                if changed:
+                    keep[key] = value
+            if 'conductivity_Sm' in keep:
+                for key in ('Z_Ohm', 'Z_unc_Ohm'):
+                    if key in fields and key not in keep and str(row.get(key) or '').strip() == '':
+                        keep[key] = fields[key]
+            if keep:
+                updates[name] = keep
+        if not updates:
+            return False
         merge_rows(rows, updates)
         write_rows(file_path, rows, fieldnames)
+        return True
 
     @staticmethod
     def _gui_row_fields(entry: dict) -> dict:

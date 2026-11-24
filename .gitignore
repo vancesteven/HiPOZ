@@ -65,3 +65,7 @@ COMMIT_MESSAGE.md
 
 # LaTeX paper repositories (separate git repos, e.g. Jesus-Conductivity)
 /external/
+
+# Steve's AGU poster draft and abstract (kept local)
+/*AGU*.pptx
+/*AGU*.docx

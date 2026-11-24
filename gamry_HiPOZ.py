@@ -108,6 +108,13 @@ Examples:
     )
 
     parser.add_argument(
+        '--multistart',
+        action='store_true',
+        help='Try extra data-driven starting guesses for the CPE fit and keep '
+             'the lowest-residual one (removes fit jumps; off by default '
+             'because it also shifts R on some other sweeps).')
+
+    parser.add_argument(
         '--cal-map',
         type=str,
         nargs='+',
@@ -177,7 +184,11 @@ Examples:
         help='Harmonize CSV and JSON config files (creates matching format) and exit'
     )
 
-    return parser.parse_args()
+    args = parser.parse_args()
+    if args.multistart:
+        import gamryTools
+        gamryTools.MULTISTART_DEFAULT = True
+    return args
 
 def select_data_directories():
     """
@@ -239,12 +250,13 @@ def find_config_in_dir(data_dir):
     if not os.path.exists(data_path):
         return None
 
-    # Prefer any zAnalysis*.csv, then zAnalysis*.json
-    for pattern in ('zAnalysis*.csv', 'zAnalysis*.json'):
-        matches = sorted(glob(os.path.join(data_path, pattern)))
-        if matches:
-            log.info(f"Found analysis config: {matches[0]}")
-            return matches[0]
+    # Shared rule with the GUI (config_store.find_config): zAnalysis<dir>.csv,
+    # then any other zAnalysis*.csv (not *_analyzed), then JSON
+    from config_store import find_config
+    found = find_config(data_path)
+    if found:
+        log.info(f"Found analysis config: {found}")
+        return str(found)
 
     # Backward compatibility: old naming conventions
     legacy_names = ['calibration_config.csv', 'calibration.csv',

@@ -1,15 +1,15 @@
 # Status — hipozgenai
 
-Updated: 2026-11-23
+Updated: 2026-11-24
 
 Refresh the `Updated:` line and the affected sections in any session that
 pushes commits, integrates artifacts, or changes a queue.
 
 ## Current focus
 
-Cortes 2026 paper: McCleskey/WATEQ4F model corrections — see audit 2026-10-05.
-Previous: New sigma(P,T) GUI tab for diagnosing KCl-standard pressure trends; Sept 17-25
-lab data merged in from origin/main. PR #3 (still open) now carries all of it.
+AGU 2026 poster: revise the draft with the Aug 2025 and Oct-Nov 2026 sigma(P) results
+(cortes2026/agu2026_poster/). Cortes 2026 paper: sigma(P) figures and supplement tables.
+PR #3 (hipozgenai -> main) and PR #5 (KCl water basis) are open, awaiting Steve.
 
 ## In flight
 
@@ -25,13 +25,13 @@ lab data merged in from origin/main. PR #3 (still open) now carries all of it.
 | Curate uncommitted working tree per Steve's decisions | claude-code | verified | commits `978540a` (tests/infra/docs), `e7b5f6f` (Aug 2025 Cortes + JesusCortes data), `af53f12` (mahboub2026 drafts); audit entry 2026-09-15 |
 | New test suites pass in full project env (TeX + GUI) | claude-code | verified | Steve's macOS run 2026-10-05: 82 passed, 1 failed (the open KCl reference question), 9 skipped (Reaktoro absent in that env) |
 | sigma(P,T) 2D map plot function (gamryPlots.plot_conductivity_PT) | claude-code | verified | commit `1f33a65`; tests/test_pt_map.py (8 passing); real-data map from 13 KCl dates sent to Steve 2026-09-15 |
-| sigma(P,T) GUI tab in DataSelector | claude-code | implemented, unverified | commit `1f33a65`; container lacks libEGL - launch GUI on macOS and view the new tab |
+| sigma(P,T) GUI tab in DataSelector | claude-code | verified (Steve 2026-11-24) | commit `1f33a65`; container lacks libEGL - launch GUI on macOS and view the new tab |
 | Merge origin/main Sept 17-25 data uploads | claude-code | verified | merge commit `58906cd`; `git merge-base --is-ancestor origin/main HEAD` passes; 248 files under data/20260917-20260925 |
 | plot_sigma_PT.py CLI (map from curated/raw data) | claude-code | verified | tests/test_plot_sigma_PT.py (4 passing); full KCl run reproduces delivered figures in sigma_PT_plots/ |
 | 3D sigma(P,T) surface (function + CLI output) | claude-code | verified | tests/test_pt_map.py 15/15 passing; sigma_PT_surface.png delivered 2026-10-03 |
-| 3D sigma(P,T) GUI tab ("σ(P,T) 3D", drag-to-rotate) | claude-code | implemented, unverified | needs GUI launch on macOS (no libEGL in container) |
+| 3D sigma(P,T) GUI tab ("σ(P,T) 3D", drag-to-rotate) | claude-code | verified (Steve 2026-11-24) | needs GUI launch on macOS (no libEGL in container) |
 | sigma vs P isotherms (function + CLI output) | claude-code | verified | tests/test_pt_map.py 19/19; sigma_P_isotherms.png delivered 2026-10-03 |
-| sigma vs P isotherms GUI tab ("σ(P) isotherms") | claude-code | implemented, unverified | needs GUI launch on macOS (no libEGL in container) |
+| sigma vs P isotherms GUI tab ("σ(P) isotherms") | claude-code | verified (Steve 2026-11-24) | needs GUI launch on macOS (no libEGL in container) |
 | McCleskey total-ionic-strength fix | claude-code | verified | tests/test_mccleskey_ionic_strength.py (KCl standards within 1%); audit 2026-10-05 |
 | WATEQ4F speciation in Cortes pipeline (auto mode) | claude-code | verified | regenerated cortes_plots/na2so4_vs_concentration.pdf (Reaktoro, macOS) matches independent PHREEQC 3.8.6 + wateq4f.dat at all 6 (T,m) points; audit 2026-10-08 |
 | Cortes paper figures regenerated with corrected model | claude-code | verified | Steve ran regenerate_cortes_figures.sh 2026-10-08; committed; old figures in cortes2026/figures_archive_20261005_pre_mccleskey_fix/ |
@@ -52,13 +52,13 @@ lab data merged in from origin/main. PR #3 (still open) now carries all of it.
 | Exclude Oct 9 run and end-of-Trial-2 triplet; document Diaz analysis | claude-code | verified | curate_diaz_2026.py; docs/DIAZ_2026_ANALYSIS.md; tests/test_curate_diaz_2026.py (4 pass); headless 20260923 analyses 45 of 49 rows and the config keeps all 49 rows, 14 columns, 3 excluded |
 | Analysis never erases config contents: headless write-back, --cal-map, load-time CSV/JSON sync | claude-code | verified | config_store.py; tests/test_config_store.py (6 pass); real-data headless runs on 20260923 and 20260925 (--cal-map, stale JSON) changed only sigma and the borrowed row; docs/CONFIG_PRESERVATION.md |
 | CSV is the source of truth; JSON only mirrors it (load-time sync, AnalysisConfig, config_store) | claude-code | verified | tests/test_config_store.py::test_csv_is_source_of_truth_at_load; real-data headless 20260923 with a corrupted newer JSON left the CSV byte-identical |
-| Same, GUI save path | claude-code | implemented, unverified | tests/test_config_store.py::test_gui_save_merges_without_erasing calls save_gui_state_to_config directly; not yet exercised in the running GUI (no display/TeX here) |
+| GUI save path: merge only (no erased rows/columns) | claude-code | verified | superseded by the 2026-11-24 row below; tests/test_config_store.py::test_gui_save_merges_without_erasing |
 | Chiller-bath P/T (config P_MPa = 0) overrides vessel header values | claude-code | verified | tests/test_bath_state.py (4 pass); headless re-fit reports bath setpoint T and P = 0 for all 108 Sep measurements; GUI path unverified on macOS |
 | Mac run: full suite in `impedance` env (Reaktoro, PyQt6, TeX) | claude-code | verified | 2026-11-05: 135 passed, 1 failed (open KCl reference), 2 skipped (Reaktoro present); two tests chdir'd into a stale Dropbox copy, now repo-relative |
 | Speciated mixture + Aug 2025 HP figures regenerated on the Mac | claude-code | verified | regenerate_cortes_figures.sh 2026-11-05 (Reaktoro); cortes2026/prepost_comparison/prepost_summary.txt; NaCl_0.5M_vs_pressure and nacl-mgso4_1-1 inspected |
-| sigma(P,T), 3D, isotherm GUI tabs | claude-code | implemented, unverified | 2026-11-05 GUI launched on Aug 19 Cortes; log shows all three tabs lazy-loaded without error; visual check by Steve not yet recorded |
-| GUI save path preserves config | claude-code | not implemented | 2026-11-05 GUI run turned the Aug 19 standard into a measurement, overwrote P/T with header values, rounded sigma; config restored from pre-GUI backup |
-| GUI config discovery misses folder-suffixed configs (zAnalysis<date>Cortes.csv) | claude-code | not implemented | created a stray zAnalysis20250819.csv (moved to /tmp/gui_check/) |
+| sigma(P,T), 3D, isotherm GUI tabs | claude-code | verified | 2026-11-05 GUI launched on Aug 19 Cortes, all three tabs loaded without error; Steve 2026-11-24: "sigma(P,T) looks ok" |
+| GUI save path preserves config (type, P/T, precision; no write when nothing changed) | claude-code | implemented, unverified | tests/test_gui_config_save.py (10 pass, real DataSelector offscreen); offscreen open+close on data/20250819Cortes left CSV/JSON md5-identical (mock fits); a real-window session on the Mac not yet run |
+| GUI and headless share config discovery (config_store.find_config); folder-suffixed configs found, no stray file | claude-code | verified | tests/test_gui_config_save.py::test_folder_suffixed_config_found_no_stray_file, ::test_same_date_folders_do_not_cross_write; offscreen run on data/20250819Cortes found zAnalysis20250819Cortes.csv |
 | Cortes assessment: P < 10 MPa taken as 0.1 MPa (gauge value kept in P_MPa_raw) | claude-code | verified | cortes_data_processing.assess_low_pressure_as_ambient; tests/test_cortes_loader.py::test_low_pressure_readings_are_assessed_at_ambient; figures regenerated 2026-11-05 |
 | Garrity RoseData (2026-02-19) provisional fit | claude-code | implemented, unverified | cortes2026/garrity/fit_rosedata.py; M = mol/kg (Steve 2026-11-07); cell-constant standard and Default triplet still open; not merged into Cortes |
 | Lab notebooks transcribed (Diaz pp. 11-27, Garrity pp. 1-8) | claude-code | verified | cortes2026/diaz/LABNOTES.md, cortes2026/garrity/LABNOTES.md from labnotes/ photos |
@@ -80,7 +80,7 @@ lab data merged in from origin/main. PR #3 (still open) now carries all of it.
 | Nov 5 2026 8 S/m KCl standard sigma(P) (Diaz) fitted | claude-code | verified | data/20261105/zAnalysis20261105.csv (comp KCl, all rows); K = 120.54; unreliable sweeps kept per Steve |
 | Diaz 8 S/m KCl sigma(P) (Oct 14-15, Nov 5) plotted alongside Cortes NaCl | claude-code | verified | cortes2026/diaz/standard_sigma_P_vs_cortes.png inspected; plot_standard_sigma_P.py |
 | Diagnose unreliable sweeps (fit jumps at Oct 14 124 MPa, Nov 5 152-177 MPa) | claude-code | verified | cortes2026/diaz/refit_chained.py: chained initial guess removes all 20 jumps; sigma within 0.11% of phase-zero |Z|; refit_chained.png inspected |
-| Production fitter: chained or multi-start initial guess | claude-code | not implemented | awaiting Steve's decision; fixed guess lands in a worse local minimum on ~20% of Oct 14-15 sweeps |
+| Production fitter: multi-start CPE fit (data-driven starts, lowest residual), opt-in via `--multistart` / gamryTools.MULTISTART_DEFAULT | claude-code | verified (off by default) | tests/test_fit_multistart.py (4 pass); 102 Oct 14-15/Nov 5 sweeps within 9.1e-5 of the chained refit; default path bit-identical; cortes2026/diaz/multistart_refit.csv; switching the default awaits Steve (open-questions 2026-11-24) |
 | McCleskey method write-up | claude-code | verified | docs/MCCLESKEY_METHOD.md; quoted lambda0(25 C) and ion-pair shares recomputed from code 2026-11-05; README limitation note replaced |
 | Flexible Gamry date parser on main | claude-code | implemented, unverified | branch gamry-date-parser off origin/main (tests/test_gamry_time.py 3 pass there); PR awaiting merge |
 | Stale pre-fix eis_plots not rebuilt by current script (4 PDFs) | claude-code | not implemented | see open-questions 2026-10-08 |

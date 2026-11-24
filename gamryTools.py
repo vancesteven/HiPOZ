@@ -211,6 +211,75 @@ def get_w_from_descrip(descrip, lbl_uScm=None):
     return comp, w_ppt, w_molal
 
 
+# --- Multi-start CPE fit -------------------------------------------------------
+# The single fixed initial guess lands in a worse local minimum on ~5-20% of sweeps
+# (R off by ~5%, fit uncertainty inflated). The fixed-guess fit is kept as the
+# "default" candidate; data-driven starts are tried as well and one replaces it only
+# if its relative residual is lower by more than MULTISTART_MIN_IMPROVEMENT.
+# Data-driven starts depend only on the sweep itself (no chaining across sweeps), so
+# results are independent of file order and worker scheduling.
+MULTISTART_MIN_IMPROVEMENT = 0.01   # candidate must beat default residual by >1%
+# Off by default: besides removing the known fit jumps (Oct 14 124 MPa, Nov 5
+# 152-177 MPa) it moves R on other sweeps by 0.05-5 % (open-questions
+# 2026-11-24). Turn on per call (multistart=True), with `--multistart`, or
+# by setting this to True.
+MULTISTART_DEFAULT = False
+# [R_1, Q_1, n_1, C_1]; R_0 is set from the data
+MULTISTART_GUESSES = ([1.0, 1e-5, 0.9, 1e-6], [10.0, 1e-5, 0.8, 1e-6], [0.02, 1e-4, 0.7, 1e-6])
+
+
+def fit_residual(circuit, f_Hz, Z_ohm):
+    """Relative misfit sum(|Z_fit - Z|^2 / |Z|^2) on the fitted frequencies (same for all candidates)."""
+    return float(np.sum(np.abs(circuit.predict(f_Hz) - Z_ohm) ** 2 / np.abs(Z_ohm) ** 2))
+
+
+def phase_zero_resistance(f_Hz, Z_ohm):
+    """|Z| interpolated at the lowest-frequency phase zero crossing; falls back to |Z| at min |phase|."""
+    o = np.argsort(f_Hz)
+    Z = np.asarray(Z_ohm)[o]
+    ph, mag = np.angle(Z), np.abs(Z)
+    idx = np.where(np.diff(np.sign(ph)) != 0)[0]
+    if len(idx):
+        i = idx[0]
+        w = -ph[i] / (ph[i + 1] - ph[i])
+        return float(mag[i] + w * (mag[i + 1] - mag[i]))
+    return float(mag[np.argmin(np.abs(ph))])
+
+
+def select_best_candidate(candidates, min_improvement=MULTISTART_MIN_IMPROVEMENT):
+    """candidates: list of (label, obj, residual); the first entry is the default start.
+    Returns the lowest-residual entry, but a non-default entry is chosen only if its
+    residual is lower than the default's by more than min_improvement (relative), so a
+    default that is already good is left unchanged."""
+    default = candidates[0]
+    best = default
+    for c in candidates[1:]:
+        if np.isfinite(c[2]) and c[2] < default[2] * (1 - min_improvement) and c[2] < best[2]:
+            best = c
+    return best
+
+
+def _multistart_refine(default_circuit, circ_str, f_Hz, Z_ohm, label=''):
+    cands = [('default', default_circuit, fit_residual(default_circuit, f_Hz, Z_ohm))]
+    try:
+        R0 = phase_zero_resistance(f_Hz, Z_ohm)
+    except Exception:
+        return default_circuit, 'default'
+    for k, g in enumerate(MULTISTART_GUESSES):
+        try:
+            c = CustomCircuit(circ_str, initial_guess=[R0] + list(g))
+            c.fit(f_Hz, Z_ohm)
+            cands.append((f'phase0_{k}', c, fit_residual(c, f_Hz, Z_ohm)))
+        except Exception:
+            continue
+    best = select_best_candidate(cands)
+    if best[0] != 'default':
+        log.info(f'multi-start fit: {best[0]} beat default start '
+                 f'(residual {best[2]:.3g} vs {cands[0][2]:.3g}; R {best[1].parameters_[0]:.4g} vs '
+                 f'{cands[0][1].parameters_[0]:.4g}) for {os.path.basename(str(label))}')
+    return best[1], best[0]
+
+
 class Solution:
     def __init__(self, comp=None, cmap_name='viridis'):
         self.comp = comp  # Solute composition
@@ -331,7 +400,7 @@ class Solution:
             self.Z_ohm = Zabs_ohm * np.exp(1j * np.deg2rad(Phi_ohm))
         return
 
-    def fit_circuit(self, circ_type=None, initial_guess=None, basin_hopping=False, multiproc=False, k_est_pm=None, print_circuit=True, circ_file=None, f_range_hz=None):
+    def fit_circuit(self, circ_type=None, initial_guess=None, basin_hopping=False, multiproc=False, k_est_pm=None, print_circuit=True, circ_file=None, f_range_hz=None, multistart=None):
         # Validate input data before fitting
         if self.f_Hz is None or len(self.f_Hz) == 0:
             raise ValueError("No frequency data available for circuit fitting")
@@ -476,7 +545,13 @@ class Solution:
             if len(self.f_Hz) < 5:
                 raise ValueError(f"Too few data points in frequency range {f_range_hz}: only {len(self.f_Hz)} points remain")
 
-        self.circuit.fit(self.f_Hz, self.Z_ohm)
+        self.circuit.fit(self.f_Hz, self.Z_ohm)  # a failure of the default start still raises, as before
+        self.fit_start = 'default'
+        if multistart is None:
+            multistart = MULTISTART_DEFAULT
+        if circ_type == 'CPE' and multistart:
+            self.circuit, self.fit_start = _multistart_refine(
+                self.circuit, self.circStr, self.f_Hz, self.Z_ohm, self.file)
         self.Zfit_ohm = self.circuit.predict(self.f_Hz)
         self.Rcalc_ohm = self.circuit.parameters_[0]
         self.Runc_ohm = self.circuit.conf_[0]

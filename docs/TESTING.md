@@ -438,7 +438,7 @@ python test_conductivity_writeback.py && \
 python test_mahboub_analysis.py
 
 # Quick syntax check
-python -m py_compile gamry_HiPOZ.py DataSelector.py gamryTools.py
+python -m py_compile gamry_HiPOZ.py hipoz_data_selector_gui.py gamryTools.py
 
 # Check imports
 python -c "import gamryTools; import analysis_config; import harmonize_config"
@@ -509,7 +509,7 @@ python gamry_HiPOZ.py --dates TestData
 - Check file format matches Gamry output
 
 **Import errors**
-- Install missing dependencies: `pip install impedance PyQt5`
+- Install missing dependencies: `pip install impedance PyQt6`
 - Check Python version (3.7+)
 
 ### Test Performance

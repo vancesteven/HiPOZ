@@ -135,3 +135,27 @@ def update_config(path, updates: Dict[str, dict], **kwargs) -> Tuple[int, int]:
     counts = merge_rows(rows, updates, **kwargs)
     write_rows(path, rows, fieldnames)
     return counts
+
+
+def find_config(folder, key=None) -> Optional[Path]:
+    """The zAnalysis config of one data folder, or None.
+
+    Order: zAnalysis<folder name>.csv, zAnalysis<key>.csv (the 8-digit date),
+    then any other zAnalysis*.csv (not *_analyzed.csv, sorted); JSON only when
+    the folder has no CSV, in the same order. The GUI and gamry_HiPOZ share
+    this rule so a folder-suffixed config (zAnalysis20250819Cortes.csv in
+    data/20250819Cortes) is found and no second config is created."""
+    folder = Path(folder)
+    if not folder.is_dir():
+        return None
+    names = [folder.name] + ([key] if key and key != folder.name else [])
+    for ext in ('.csv', '.json'):
+        for n in names:
+            p = folder / f'zAnalysis{n}{ext}'
+            if p.exists():
+                return p
+        others = sorted(p for p in folder.glob(f'zAnalysis*{ext}')
+                        if not p.stem.endswith('_analyzed'))
+        if others:
+            return others[0]
+    return None

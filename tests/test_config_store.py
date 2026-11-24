@@ -108,6 +108,8 @@ def test_gui_save_merges_without_erasing(tmp_path):
         associated_mask=[False, True, True, False])
     fake._merge_into_config = lambda p, d: DataSelector._merge_into_config(fake, p, d)
     fake._gui_row_fields = DataSelector._gui_row_fields
+    fake._folder_key = DataSelector._folder_key
+    fake._same_config_value = DataSelector._same_config_value
     DataSelector.save_gui_state_to_config(fake)
 
     df = _assert_intact(path, n=5).set_index('filename')

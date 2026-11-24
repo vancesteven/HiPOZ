@@ -244,3 +244,14 @@ Implemented: gamryTools.kcl_std_molal (all bottle labels now use it); tests/test
 - **Nov 17 4:52 pm (p. 33):** "1st 1 atm measurement is off due to not waiting long enough for temp. to settle. Wait 1 hour btw 5°C minimum". The 16.2 °C isotherm's anchor step (20261117_165100–165250) may therefore be unsettled. Proposed: anchor it on its closing 1-bar step instead. Steve to decide.
 - **Nov 6 (p. 28):** "adjusted Chassis Ground before 100 MPa measurement", affecting sweeps from 20261106_133700 on. Check for a step change at 100 MPa.
 - **10 wt% NaCl (Nov 20–23, pp. 36–37):** recorded in the notebook, but no data folders yet.
+
+## 2026-11-24 — Turn the multi-start CPE fit on by default?
+- `gamryTools` now has an opt-in multi-start fit (`--multistart`): the usual fixed-guess fit plus three starts with R0 from |Z| at the phase zero crossing; the lowest-residual fit wins if it beats the default by more than 1%. With it off (the default) every result is bit-identical to before.
+- It removes the known jumps: all 102 Oct 14-15 and Nov 5 sweeps agree with the chained refit within 0.009%, including the Oct 14 124 MPa triplet (13.65 -> 14.55 ohm) and the five Nov 5 152-177 MPa sweeps (+2.2-2.4%), which are currently excluded as fit jumps.
+- It also moves sweeps nobody flagged (per-sweep old/new R in cortes2026/diaz/multistart_refit.csv, 233 sweeps, 45 changed):
+  - Sep 17: 095303-095450 and 103348-103441 by +4.3 to +5.2% (16.88 -> 17.75 ohm; the phase-zero |Z| is 24.1 ohm, so neither fit matches the model-free value); nine sweeps 111914-115136 by +0.46%; 165019/165112 by +0.88%.
+  - Sep 23: six sweeps 170109-171320 by +0.26%. Sep 24: 122834 by +2.1%.
+  - Oct 14 101-102 MPa (3) and Oct 15 (9) by +0.05-0.07%.
+- Caveat: some winning fits are degenerate (e.g. CPE exponent ~1e-21 at Oct 14 125613; boundary R1 in the old fits). A lower residual with unphysical parameters is not evidence of a better R.
+- Diaz's Z_Ohm tables came from the single-start fitter, so the supplement tables and sigma(P) figures would change if the default flips.
+- Questions for Steve: (1) switch the default on? (2) add a physical-parameter screen (bounds on the CPE exponent and R1) first? (3) if on, re-include the Nov 5 152-177 MPa and Oct 14 124 MPa sweeps? (4) are the early Sep 17 sweeps (09:53-10:34) equilibration data that should be excluded regardless?

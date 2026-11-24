@@ -613,3 +613,12 @@ with bullets, or a one-line `- <date>: ...` bullet.
 - Sonnet agent transcribed labnotes/IMG_6027–6036.heic (Tesseract cannot read the handwriting) into cortes2026/diaz/LABNOTES.md, with a cross-check against sweep timestamps. Opus checked pp. 31 and 35 against the images.
 - Nov 19 ≥16:44 exclusion reasons now follow the notebook groups: 5 wt% NaCl (16:44), KCl standard (17:11, 17:21 "True Standard"), 10 wt% NaCl (17:50). This replaces the 'suspected bad wire orientation' label. Every sweep stays excluded.
 - Verified: the step CSVs, anchor factors and figure PNGs are unchanged (only diaz_hp_sweep_fits.csv and diaz_tables.tex labels). 19 tests pass.
+
+## 2026-11-24 — GUI config save, config discovery, opt-in multi-start fit
+- Steve: "fix the open problems. sigma(P,T) looks ok." The three sigma(P,T) GUI tabs are recorded as verified on his check.
+- GUI save (Sonnet agent, reviewed): for rows already in the config, type changes only after Mark as Standard in the session, P/T only when the cell was edited, other values only when they differ beyond the GUI's rounding; nothing is written when nothing changed. Tracks explicit_types and edited_cells. Fixed a restore crash for standards without sigma and a pandas-3 TypeError on fractional P.
+- Config discovery: config_store.find_config (zAnalysis<folder>.csv, zAnalysis<date>.csv, any other zAnalysis*.csv except *_analyzed, JSON only without a CSV) is used by the GUI and gamry_HiPOZ; GUI state is keyed by folder, so same-date folders do not cross-write.
+- Verified: tests/test_gui_config_save.py 10 pass with the real DataSelector offscreen; offscreen open+close on data/20250819Cortes left the CSV, JSON and _analyzed files md5-identical (mock fits), no stray config. Not yet run in a real window on the Mac.
+- Fitter (Sonnet agent, reviewed): multi-start CPE fit added. Adjudication: shipped off by default (MULTISTART_DEFAULT = False, `--multistart`) because it also changes R on 25 unflagged sweeps (Sep 17/23/24) and some winners are degenerate; see open-questions 2026-11-24 and cortes2026/diaz/multistart_refit.csv. tests/test_fit_multistart.py 4 pass.
+- Suite in the rebuilt container env (numpy 2.5, pandas 3.1, scipy 1.18): 162 passed, 6 failed: the known test_kcl_extraction plus five scipy/SeaFreeze dtype errors (test_kcl_literature_ratio 2, test_sigma_P_sources 2, test_pan2021_nacl 1) that fail identically on unmodified HEAD in this env.
+- .gitignore: /*AGU*.pptx and /*AGU*.docx (Steve's poster draft and abstract stay local). docs/TESTING.md: PyQt6 and module-name corrections.
