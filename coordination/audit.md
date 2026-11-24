@@ -608,3 +608,8 @@ with bullets, or a one-line `- <date>: ...` bullet.
 - Excluded: the 12 Nov 19 sweeps from 16:44 on (out-of-vessel calibration). The three 17:50 sweeps are also flagged as suspected bad wire orientation. Rows are kept in diaz_hp_sweep_fits.csv.
 - A new 4–8 °C colour bin (violet) recolours the 6.3 °C KCl run. Not palette-validated: the validator is not installed.
 - Verified: 19 tests pass. Both PNGs viewed by Opus.
+
+## 2026-11-23 — Diaz notebook pp. 28–37 transcribed; Nov 19 labels corrected
+- Sonnet agent transcribed labnotes/IMG_6027–6036.heic (Tesseract cannot read the handwriting) into cortes2026/diaz/LABNOTES.md, with a cross-check against sweep timestamps. Opus checked pp. 31 and 35 against the images.
+- Nov 19 ≥16:44 exclusion reasons now follow the notebook groups: 5 wt% NaCl (16:44), KCl standard (17:11, 17:21 "True Standard"), 10 wt% NaCl (17:50). This replaces the 'suspected bad wire orientation' label. Every sweep stays excluded.
+- Verified: the step CSVs, anchor factors and figure PNGs are unchanged (only diaz_hp_sweep_fits.csv and diaz_tables.tex labels). 19 tests pass.

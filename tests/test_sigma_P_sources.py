@@ -43,18 +43,19 @@ def test_anchor_factor_nov16_is_unity():
 
 
 def test_nov19_out_of_vessel_sweeps_excluded():
-    """Nov 19 >= 16:44 is the KCl calibration outside the vessel: every sweep
-    carries an exclusion reason, the 17:50 ones the bad-orientation reason, and
-    none reaches the kept steps."""
+    """Nov 19 >= 16:44 is the sample holder in an external chiller (Diaz
+    notebook p. 35): every sweep is excluded, and each group carries the
+    notebook's identification (5 wt% NaCl, KCl true standard at 17:21,
+    10 wt% NaCl at 17:50). None reaches the kept steps."""
     sw = pd.read_csv(S.SWEEPS_2026_CSV, parse_dates=['time'], keep_default_na=False)
     late = sw[sw.time >= '2026-11-19 16:44']
-    assert len(late) == 12 and late.excluded.str.startswith('out-of-vessel KCl calibration').all()
-    bad = late[late.filename.str.contains('_17(5006|5101|5155)_')]
-    assert len(bad) == 3 and bad.excluded.str.contains('suspected bad wire orientation').all()
-    assert not late.excluded.str.contains('bad wire').iloc[:9].any()
-    kept = S.our_steps_2026(False)
-    assert not ((kept.time >= '2026-11-19 16:44')).any()
-
+    assert len(late) == 12 and late.excluded.str.startswith('out-of-vessel check').all()
+    hh = late.filename.str.slice(17, 23)
+    assert late[hh.str.startswith('1644') | hh.str.startswith('1645') | hh.str.startswith('1646')].excluded.str.contains('5 wt% NaCl').all()
+    assert late[hh.str.startswith('172')].excluded.str.contains('True Standard at 5:21 pm').all()
+    assert (late[hh.str.startswith('175')].excluded.str.contains('10 wt% NaCl').sum() == 3)
+    steps = pd.read_csv(S.STEPS_2026_CSV, parse_dates=['time'])
+    assert not (steps.time >= '2026-11-19 16:44').any()
 
 def test_nov17_first_1bar_anchor_is_unity_in_supplement_K():
     g = S.our_steps_2026(False)

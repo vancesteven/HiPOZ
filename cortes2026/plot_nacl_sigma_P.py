@@ -45,11 +45,15 @@ Our data
   against McCleskey (2011) at 0.902 mol/kg ('prior_nov17'). One K keeps the
   temperature-dependent 1-bar offset of the colder isotherms visible here as a
   diagnostic; the main figure anchors each isotherm separately.
-- Nov 19 from 16:44 (OOV_LABEL): a KCl 8 S/m calibration in a separate chiller
-  OUTSIDE the pressure vessel (PI), so the logged T is not the solution T. All
-  such sweeps are fitted and recorded in diaz_hp_sweep_fits.csv with an
-  exclusion reason and blank sigma, never plotted; the three 17:50 sweeps are
-  also flagged as suspected bad wire orientation (R 10.1-10.4 ohm, drifting).
+- Nov 19 from 16:44 (OOV_LABEL): the sample holder taken OUT of the pressure
+  vessel into a separate chiller to calibrate (PI; Diaz notebook p. 35), so the
+  logged T is the vessel sensor, not the solution T. Per the notebook: 16:44-
+  16:46 is the 5 wt% NaCl in the external chiller ("Got it to work at 4:45 pm",
+  after angling/tensioning the wires); 17:11-17:23 is the 8 S/m KCl standard
+  ("True Standard at 5:21 pm", i.e. 17:21-17:23; earlier attempts deleted);
+  17:50-17:52 is 10 wt% NaCl ("confirmed correct impedance curve - 5:51 pm").
+  All are fitted and recorded in diaz_hp_sweep_fits.csv with an exclusion
+  reason and blank sigma, and never plotted.
 - Left out entirely: the Aug 18 - Sep 10 2026 KCl runs (stepped too fast;
   Steve 2026-11-08); Oct 6 NaCl (5-10 min steps, up/down mismatch in Diaz's
   notebook), which is still fitted into the sweep table for the supplement tables.
@@ -134,12 +138,17 @@ RUNS = {
     ('20250820', 35): ('#a8322f', 'o'),
 }
 
-# Nov 19 from 16:44: KCl 8 S/m calibration in a separate chiller OUTSIDE the
-# pressure vessel (PI). Fitted and recorded, never plotted, never used for K.
-OOV_LABEL = 'KCl 8 S/m, Nov 19 out-of-vessel calibration'
-OOV_REASON = 'out-of-vessel KCl calibration (separate chiller; logged T is the vessel sensor)'
-OOV_BAD_REASON = OOV_REASON + '; suspected bad wire orientation (R 10.1-10.4 ohm, drifting)'
-OOV_BAD_SWEEPS = {f'Default_20261119_{t}' for t in ('175006', '175101', '175155')}
+# Nov 19 from 16:44: sample holder out of the vessel, in a separate chiller
+# (PI; Diaz notebook p. 35). Fitted and recorded, never plotted, never used
+# for K. Reason per sweep group, from the notebook:
+OOV_LABEL = 'Nov 19 out-of-vessel checks (external chiller)'
+OOV_REASON = 'out-of-vessel check in external chiller (logged T is the vessel sensor)'
+OOV_REASONS = {  # first sweep time (HHMMSS) of each group -> what it is (notebook p. 35)
+    '164412': OOV_REASON + '; 5 wt% NaCl, "got it to work at 4:45 pm" after angling/tensioning wires',
+    '171146': OOV_REASON + '; KCl 8 S/m standard, before the "true standard" (not in the notebook)',
+    '172145': OOV_REASON + '; KCl 8 S/m standard, "True Standard at 5:21 pm"',
+    '175006': OOV_REASON + '; 10 wt% NaCl, "confirmed correct impedance curve - 5:51 pm"',
+}
 
 # 2026 runs: label, folders (fitted from the raw sweeps), solute, marker,
 # K source. Colour comes from temperature (TEMP_COLORS), as for Aug 2025.
@@ -208,7 +217,7 @@ F_RANGE_HZ = 1e3 * np.array([10, 100])
 # Fitted for the supplement tables only, not plotted: label, folders, solute,
 # K source, reason
 EXTRA_2026 = [
-    (OOV_LABEL, ['20261119'], 'KCl', None, OOV_REASON),
+    (OOV_LABEL, ['20261119'], 'NaCl/KCl', None, OOV_REASON),
     ('NaCl 0.9 m, Oct 6, 5-10-min steps', ['20261006'], 'NaCl', 'oct14',
      'left out: 5-10 min steps, up/down mismatch (Diaz notebook p. 22-23)'),
 ]
@@ -317,9 +326,12 @@ def load_2026():
         if t1 is not None:
             sw_x = sw_x[sw_x.time < t1]
         sw_x = sw_x.assign(run=label, comp=comp, excluded=reason)
-        if label == OOV_LABEL:
-            bad = sw_x.filename.str.startswith(tuple(OOV_BAD_SWEEPS))
-            sw_x.loc[bad, 'excluded'] = OOV_BAD_REASON
+        if label == OOV_LABEL:  # one reason per notebook group (OOV_REASONS)
+            hhmmss = sw_x.filename.str.slice(17, 23)
+            for start in sorted(OOV_REASONS):
+                group = hhmmss >= start
+                sw_x.loc[group, 'excluded'] = OOV_REASONS[start]
+                sw_x.loc[group, 'comp'] = 'KCl' if 'KCl' in OOV_REASONS[start] else 'NaCl'
         sweeps.append(sw_x)
     rec = pd.concat(rows, ignore_index=True)
     sw_all = pd.concat(sweeps, ignore_index=True)

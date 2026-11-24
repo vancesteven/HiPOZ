@@ -237,3 +237,10 @@ Implemented: gamryTools.kcl_std_molal (all bottle labels now use it); tests/test
   - A KCl standard run at the cold temperatures would discriminate.
 - Nov 19 17:50: three 1-bar sweeps at 285 K read 10.1–10.4 Ω, drifting. The cell was probably being reloaded or cooled; not used.
 - Questions for Steve and Diaz: which K applies to Nov 17–19? Is a cold KCl standard run planned?
+
+## 2026-11-23 — From Diaz notebook pp. 28–37 (cortes2026/diaz/LABNOTES.md)
+- **Wire break (p. 31):** after "4:20 pm - swapped out KCl standard w/ 5 wt% NaCl", "wire broke - remade connection". Undated: Nov 12 or later. There was no KCl standard between Nov 12 and Nov 19. Ask Zach for the date and time.
+- **Nov 19 external chiller (p. 35):** the 5 wt% NaCl "got it to work at 4:45 pm" after angling/tensioning the wires. The notebook gives "σ ≈ 1.5 S/m", which disagrees with the ~6 S/m expected; ask Zach what it refers to. "True Standard at 5:21 pm" is the KCl 8 S/m standard, so its K ≈ 115.2 is the one Zach accepts, if the solution T is the logged 24.3 °C. The 17:50 sweeps are 10 wt% NaCl, not bad KCl (labels corrected 2026-11-23).
+- **Nov 17 4:52 pm (p. 33):** "1st 1 atm measurement is off due to not waiting long enough for temp. to settle. Wait 1 hour btw 5°C minimum". The 16.2 °C isotherm's anchor step (20261117_165100–165250) may therefore be unsettled. Proposed: anchor it on its closing 1-bar step instead. Steve to decide.
+- **Nov 6 (p. 28):** "adjusted Chassis Ground before 100 MPa measurement", affecting sweeps from 20261106_133700 on. Check for a step change at 100 MPa.
+- **10 wt% NaCl (Nov 20–23, pp. 36–37):** recorded in the notebook, but no data folders yet.
