@@ -15,6 +15,7 @@ PR #3 (hipozgenai -> main) and PR #5 (KCl water basis) are open, awaiting Steve.
 
 | Item | Owner | Status | Artifact |
 |---|---|---|---|
+| AGU 2026 poster: facts, poster-size figures, revised copy of the draft (rev1) | claude-code | implemented, unverified | cortes2026/agu2026_poster/ (poster_facts.md from poster_facts.py; fig_A/B/C; build_poster_rev1.py; POSTER_REVISION.md; poster_rev1_bottom.png inspected); 2026AGU_Vance_Electrical_rev1.pptx (local, git-ignored) not yet opened in PowerPoint |
 | Add Nov 17–19 NaCl 0.902 m isotherms (24.8, 20.5, 16.2, 11.5, 7.0, ~2 °C) to sigma_P figures, self-calibrated at 1 bar (Steve: yes). Exclude Nov 19 ≥16:44, the out-of-vessel KCl calibration (separate chiller; bad wire-orientation sweeps at 17:50) | claude-code | verified | data merged c73b9cf; open-questions 2026-11-20; sigma_P_supplement.png, sigma_P_main.png viewed; 19 tests; audit 2026-11-23 |
 | sigma(P) supplement + main-text figures, sigma_P_sources.py | claude-code | verified | cfb5ec2; 17 tests; cortes2026/nacl_sigma_P/sigma_P_{supplement,main}.png |
 | Jesus-Conductivity draft (quarantined_AI_stuff, main_AI.tex with marks) | claude-code | verified | pushed 1e7b2d9; main_AI.pdf 26 pp, 0 errors |
