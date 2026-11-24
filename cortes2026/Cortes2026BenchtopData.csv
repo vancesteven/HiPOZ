@@ -14,7 +14,7 @@
 # Columns:,,,,,,,,,,
 #   compound: Chemical formula or mixture notation,,,,,,,,,,
 #   concentration_molal: Molality (mol/kg_H2O),,,,,,,,,,
-#     NOTE: Original data in M/L, assuming molal ≈ molar for dilute solutions,,,,,,,,,
+#     NOTE: Solutions are prepared molal; labels such as "0.5 M/L" are mol/kg (Steve 2026-11-07),,,,,,,,,
 #   temperature_C: Temperature (Celsius),,,,,,,,,,
 #   temperature_K: Temperature (Kelvin),,,,,,,,,,
 #   conductivity_Sm: Conductivity (S/m),,,,,,,,,,
@@ -23,7 +23,7 @@
 #   source: Data source ('benchtop'),,,,,,,,,,
 #   notes: Additional notes,,,,,,,,,,
 #,,,,,,,,,,
-compound,concentration_molal,temperature_C,temperature_K,conductivity_Sm,replicate,source,notes,,,
+compound,concentration_molal,temperature_C,temperature_K,conductivity_Sm,replicate,source,notes,Unnamed: 8,Unnamed: 9,Unnamed: 10
 Alanine,0.1,20,293.15,0.702,1,benchtop,"100 mM/L Alanine, replicate 1",,,correct
 Alanine,0.1,20,293.15,0.717,2,benchtop,"100 mM/L Alanine, replicate 2",,,correct
 Alanine,0.1,20,293.15,0.731,3,benchtop,"100 mM/L Alanine, replicate 3",,,correct
@@ -62,15 +62,15 @@ Glycine,0.1,20,293.15,1.169,8,benchtop,"100 mM/L Glycine, replicate 8",,,correct
 Glycine,0.1,20,293.15,1.174,9,benchtop,"100 mM/L Glycine, replicate 9",,,correct
 KCl,0.5,5,278.15,3.907,1,benchtop,0.5 M/L,,,fixed
 KCl,0.75,5,278.15,5.943,1,benchtop,0.75 M/L,,,fixed
-KCl,1,5,278.15,7.884,1,benchtop,1.0 M/L,,,fixed
+KCl,1.0,5,278.15,7.884,1,benchtop,1.0 M/L,,,fixed
 KCl,1.5,5,278.15,11.345,1,benchtop,1.5 M/L,,,fixed
 KCl,0.5,10,283.15,4.473,1,benchtop,0.5 M/L,,,fixed
 KCl,0.75,10,283.15,6.762,1,benchtop,0.75 M/L,,,fixed
-KCl,1,10,283.15,8.807,1,benchtop,1.0 M/L,,,fixed
+KCl,1.0,10,283.15,8.807,1,benchtop,1.0 M/L,,,fixed
 KCl,1.5,10,283.15,12.742,1,benchtop,1.5 M/L,,,fixed
 KCl,0.5,20,293.15,5.379,1,benchtop,0.5 M/L,,,fixed
 KCl,0.75,20,293.15,8.088,1,benchtop,0.75 M/L,,,fixed
-KCl,1,20,293.15,10.613,1,benchtop,1.0 M/L,,,fixed
+KCl,1.0,20,293.15,10.613,1,benchtop,1.0 M/L,,,fixed
 KCl,1.5,20,293.15,15.173,1,benchtop,1.5 M/L,,,fixed
 Na2SO4,0.5,5,278.15,4.82,1,benchtop,0.5 M/L,,,fixed
 Na2SO4,0.75,5,278.15,4.964,1,benchtop,0.75 M/L,,,fixed
@@ -80,13 +80,13 @@ Na2SO4,0.5,20,293.15,5.511,1,benchtop,0.5 M/L,,,fixed
 Na2SO4,0.75,20,293.15,7.182,1,benchtop,0.75 M/L,,,fixed
 Na2SO4:KCl_1:1,0.5,5,278.15,6.875,1,benchtop,"1:1 mixture, 0.5 M/L each",,,fixed
 Na2SO4:KCl_1:1,0.75,5,278.15,8.999,1,benchtop,"1:1 mixture, 0.75 M/L each",,,fixed
-Na2SO4:KCl_1:1,1,5,278.15,10.767,1,benchtop,"1:1 mixture, 1.0 M/L each",,,fixed
+Na2SO4:KCl_1:1,1.0,5,278.15,10.767,1,benchtop,"1:1 mixture, 1.0 M/L each",,,fixed
 Na2SO4:KCl_1:1,0.5,10,283.15,7.694,1,benchtop,"1:1 mixture, 0.5 M/L each",,,fixed
 Na2SO4:KCl_1:1,0.75,10,283.15,10.305,1,benchtop,"1:1 mixture, 0.75 M/L each",,,fixed
-Na2SO4:KCl_1:1,1,10,283.15,12.388,1,benchtop,"1:1 mixture, 1.0 M/L each",,,fixed
+Na2SO4:KCl_1:1,1.0,10,283.15,12.388,1,benchtop,"1:1 mixture, 1.0 M/L each",,,fixed
 Na2SO4:KCl_1:1,0.5,20,293.15,9.685,1,benchtop,"1:1 mixture, 0.5 M/L each",,,fixed
 Na2SO4:KCl_1:1,0.75,20,293.15,12.572,1,benchtop,"1:1 mixture, 0.75 M/L each",,,fixed
-Na2SO4:KCl_1:1,1,20,293.15,15.157,1,benchtop,"1:1 mixture, 1.0 M/L each",,,fixed
+Na2SO4:KCl_1:1,1.0,20,293.15,15.157,1,benchtop,"1:1 mixture, 1.0 M/L each",,,fixed
 Na2SO4:KCl_2:1,1.5,5,278.15,9.854,1,benchtop,1.5:0.75 M/L Na2SO4:KCl,,,fixed
 Na2SO4:KCl_2:1,1.5,10,283.15,11.315,1,benchtop,1.5:0.75 M/L Na2SO4:KCl,,,fixed
 Na2SO4:KCl_2:1,1.5,20,293.15,14.248,1,benchtop,1.5:0.75 M/L Na2SO4:KCl,,,fixed
@@ -105,12 +105,12 @@ NaCl,0.75,20,293.15,6.326,3,benchtop,"0.75 M/L, replicate 3",,,correct
 NaCl,0.75,20,293.15,6.469,4,benchtop,"0.75 M/L, replicate 4",,,correct
 NaCl,0.75,20,293.15,6.459,5,benchtop,"0.75 M/L, replicate 5",,,correct
 NaCl,0.75,20,293.15,6.457,6,benchtop,"0.75 M/L, replicate 6",,,correct
-NaCl,1,20,293.15,8.027,1,benchtop,"1.0 M/L, replicate 1",,,correct
-NaCl,1,20,293.15,8.033,2,benchtop,"1.0 M/L, replicate 2",,,correct
-NaCl,1,20,293.15,8.039,3,benchtop,"1.0 M/L, replicate 3",,,correct
-NaCl,1,20,293.15,8.399,4,benchtop,"1.0 M/L, replicate 4",,,correct
-NaCl,1,20,293.15,8.431,5,benchtop,"1.0 M/L, replicate 5",,,correct
-NaCl,1,20,293.15,8.429,6,benchtop,"1.0 M/L, replicate 6",,,correct
+NaCl,1.0,20,293.15,8.027,1,benchtop,"1.0 M/L, replicate 1",,,correct
+NaCl,1.0,20,293.15,8.033,2,benchtop,"1.0 M/L, replicate 2",,,correct
+NaCl,1.0,20,293.15,8.039,3,benchtop,"1.0 M/L, replicate 3",,,correct
+NaCl,1.0,20,293.15,8.399,4,benchtop,"1.0 M/L, replicate 4",,,correct
+NaCl,1.0,20,293.15,8.431,5,benchtop,"1.0 M/L, replicate 5",,,correct
+NaCl,1.0,20,293.15,8.429,6,benchtop,"1.0 M/L, replicate 6",,,correct
 NaCl,1.5,20,293.15,11.45,1,benchtop,"1.5 M/L, replicate 1",,,correct
 NaCl,1.5,20,293.15,11.42,2,benchtop,"1.5 M/L, replicate 2",,,correct
 NaCl,1.5,20,293.15,11.43,3,benchtop,"1.5 M/L, replicate 3",,,correct
@@ -129,12 +129,12 @@ NaCl+Glycine,0.75,20,293.15,6.537,3,benchtop,"0.75 M/L NaCl + 100mM/L glycine, r
 NaCl+Glycine,0.75,20,293.15,6.4,4,benchtop,"0.75 M/L NaCl + 100mM/L glycine, replicate 4",,,correct
 NaCl+Glycine,0.75,20,293.15,6.401,5,benchtop,"0.75 M/L NaCl + 100mM/L glycine, replicate 5",,,correct
 NaCl+Glycine,0.75,20,293.15,6.412,6,benchtop,"0.75 M/L NaCl + 100mM/L glycine, replicate 6",,,correct
-NaCl+Glycine,1,20,293.15,8.475,1,benchtop,"1.0 M/L NaCl + 100mM/L glycine, replicate 1",,,correct
-NaCl+Glycine,1,20,293.15,8.492,2,benchtop,"1.0 M/L NaCl + 100mM/L glycine, replicate 2",,,correct
-NaCl+Glycine,1,20,293.15,8.504,3,benchtop,"1.0 M/L NaCl + 100mM/L glycine, replicate 3",,,correct
-NaCl+Glycine,1,20,293.15,8.089,4,benchtop,"1.0 M/L NaCl + 100mM/L glycine, replicate 4",,,correct
-NaCl+Glycine,1,20,293.15,8.113,5,benchtop,"1.0 M/L NaCl + 100mM/L glycine, replicate 5",,,correct
-NaCl+Glycine,1,20,293.15,8.108,6,benchtop,"1.0 M/L NaCl + 100mM/L glycine, replicate 6",,,correct
+NaCl+Glycine,1.0,20,293.15,8.475,1,benchtop,"1.0 M/L NaCl + 100mM/L glycine, replicate 1",,,correct
+NaCl+Glycine,1.0,20,293.15,8.492,2,benchtop,"1.0 M/L NaCl + 100mM/L glycine, replicate 2",,,correct
+NaCl+Glycine,1.0,20,293.15,8.504,3,benchtop,"1.0 M/L NaCl + 100mM/L glycine, replicate 3",,,correct
+NaCl+Glycine,1.0,20,293.15,8.089,4,benchtop,"1.0 M/L NaCl + 100mM/L glycine, replicate 4",,,correct
+NaCl+Glycine,1.0,20,293.15,8.113,5,benchtop,"1.0 M/L NaCl + 100mM/L glycine, replicate 5",,,correct
+NaCl+Glycine,1.0,20,293.15,8.108,6,benchtop,"1.0 M/L NaCl + 100mM/L glycine, replicate 6",,,correct
 NaCl+Glycine,1.5,20,293.15,11.7,1,benchtop,"1.5 M/L NaCl + 100mM/L glycine, replicate 1",,,correct
 NaCl+Glycine,1.5,20,293.15,11.7,2,benchtop,"1.5 M/L NaCl + 100mM/L glycine, replicate 2",,,correct
 NaCl+Glycine,1.5,20,293.15,11.71,3,benchtop,"1.5 M/L NaCl + 100mM/L glycine, replicate 3",,,correct
@@ -143,15 +143,15 @@ NaCl+Glycine,1.5,20,293.15,11.5,5,benchtop,"1.5 M/L NaCl + 100mM/L glycine, repl
 NaCl+Glycine,1.5,20,293.15,11.53,6,benchtop,"1.5 M/L NaCl + 100mM/L glycine, replicate 6",,,correct
 NaCl:MgSO4_1:1,0.5,5,278.15,4.415,1,benchtop,Original: 0.5 M/L,,,fixed
 NaCl:MgSO4_1:1,0.75,5,278.15,5.616,1,benchtop,Original: 0.75 M/L,,,fixed
-NaCl:MgSO4_1:1,1,5,278.15,6.312,1,benchtop,Original: 1.0 M/L,,,fixed
+NaCl:MgSO4_1:1,1.0,5,278.15,6.312,1,benchtop,Original: 1.0 M/L,,,fixed
 NaCl:MgSO4_1:1,1.5,5,278.15,6.492,1,benchtop,Original: 1.5 M/L,,,fixed
 NaCl:MgSO4_1:1,0.5,10,283.15,5.051,1,benchtop,Original: 0.5 M/L,,,fixed
 NaCl:MgSO4_1:1,0.75,10,283.15,6.514,1,benchtop,Original: 0.75 M/L,,,fixed
-NaCl:MgSO4_1:1,1,10,283.15,7.32,1,benchtop,Original: 1.0 M/L,,,fixed
+NaCl:MgSO4_1:1,1.0,10,283.15,7.32,1,benchtop,Original: 1.0 M/L,,,fixed
 NaCl:MgSO4_1:1,1.5,10,283.15,7.608,1,benchtop,Original: 1.5 M/L,,,fixed
 NaCl:MgSO4_1:1,0.5,20,293.15,6.288,1,benchtop,Original: 0.5 M/L,,,fixed
 NaCl:MgSO4_1:1,0.75,20,293.15,8.07,1,benchtop,Original: 0.75 M/L,,,fixed
-NaCl:MgSO4_1:1,1,20,293.15,9.155,1,benchtop,Original: 1.0 M/L,,,fixed
+NaCl:MgSO4_1:1,1.0,20,293.15,9.155,1,benchtop,Original: 1.0 M/L,,,fixed
 NaCl:MgSO4_1:1,1.5,20,293.15,9.756,1,benchtop,Original: 1.5 M/L,,,fixed
 NaCl:MgSO4_1:2,0.75,5,278.15,5.189,1,benchtop,0.75:1.5 M/L NaCl:MgSO4,,,fixed
 NaCl:MgSO4_1:2,0.75,10,283.15,6.003,1,benchtop,0.75:1.5 M/L NaCl:MgSO4,,,fixed

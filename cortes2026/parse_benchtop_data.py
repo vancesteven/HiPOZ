@@ -28,7 +28,8 @@ def parse_temperature(temp_str):
 def parse_concentration(conc_str):
     """
     Extract concentration from string like '.5 M/L', '0.75 M/L', '1.0 M/L'.
-    Returns concentration in mol/L (will need to convert to molal later if needed).
+    Returns concentration in mol/kg: the lab prepares molal solutions, so the
+    'M/L' in the spreadsheet headers is mol/kg H2O (Steve, 2026-11-07).
     """
     if pd.isna(conc_str):
         return None
@@ -259,8 +260,7 @@ def main():
     # Add source
     data_df['source'] = 'benchtop'
 
-    # For now, assume molar ≈ molal (valid for dilute solutions)
-    # TODO: Proper conversion requires density data
+    # Solutions are prepared molal (Steve, 2026-11-07)
     data_df['concentration_molal'] = data_df['concentration_molar']
 
     # Assign replicate numbers (group by compound, temp, conc and number them)
@@ -309,7 +309,7 @@ def main():
         "# Columns:",
         "#   compound: Chemical formula or mixture notation",
         "#   concentration_molal: Molality (mol/kg_H2O)",
-        "#     NOTE: Original data in M/L, assuming molal ≈ molar for dilute solutions",
+        "#     NOTE: Solutions are prepared molal; labels such as \"0.5 M/L\" are mol/kg (Steve 2026-11-07)",
         "#   temperature_C: Temperature (Celsius)",
         "#   temperature_K: Temperature (Kelvin)",
         "#   conductivity_Sm: Conductivity (S/m)",

@@ -6,7 +6,9 @@ Usage:
     python harmonize_config.py data/20250815Mahboub2026/zAnalysis20250815Mahboub2026.csv
     python harmonize_config.py data/20250815Mahboub2026/zAnalysis20250815Mahboub2026.json
 
-Reads the specified file and creates/updates the matching format.
+Reads the specified file and creates/updates the matching format. The CSV
+is the source of truth: with auto_detect (used at load), an existing CSV is
+always synced to the JSON, never the reverse.
 """
 
 import sys
@@ -14,6 +16,41 @@ import json
 import csv
 from pathlib import Path
 import argparse
+
+FIELDNAMES = ['group_name', 'filename', 'P_MPa', 'T_K', 'type',
+              'conductivity_Sm', 'comp', 'w_ppt', 'w_molal', 'exclude', 'notes']
+
+
+def _extras(entry):
+    """Columns outside FIELDNAMES (e.g. Z_Ohm in imported workbooks), kept
+    verbatim so a CSV -> JSON -> CSV round trip does not drop them."""
+    return {k: v for k, v in entry.items()
+            if k and k not in FIELDNAMES and v not in (None, '')}
+
+
+def sync_rows(new_rows: list, old_rows: list) -> list:
+    """JSON rows (new) merged onto an existing CSV (old), for an explicit
+    JSON -> CSV harmonize. Additive: rows and columns only the CSV has are
+    kept, and a blank JSON value does not overwrite a filled CSV value, so a
+    stale or older-format JSON cannot delete CSV data."""
+    old = {r.get('filename'): r for r in old_rows}
+    seen = set()
+    out = []
+    for r in new_rows:
+        merged = dict(old.get(r.get('filename'), {}))
+        merged.update({k: v for k, v in r.items() if v not in ('', None) or k not in merged})
+        out.append(merged)
+        seen.add(r.get('filename'))
+    kept = [r for r in old_rows if r.get('filename') not in seen]
+    if kept:
+        print(f"NOTE: kept {len(kept)} CSV row(s) missing from the JSON: "
+              + ', '.join(str(r.get('filename')) for r in kept[:5]))
+    return out + kept
+
+
+def _read_csv_rows(csv_path: Path) -> list:
+    with open(csv_path, 'r', newline='') as f:
+        return list(csv.DictReader(f))
 
 
 def csv_to_json(csv_path: Path) -> dict:
@@ -24,10 +61,17 @@ def csv_to_json(csv_path: Path) -> dict:
         reader = csv.DictReader(f)
         rows = list(reader)
 
+    return rows_to_json(rows)
+
+
+def rows_to_json(rows: list) -> dict:
+    """Convert CSV-style row dicts (values str or numbers) to JSON structure."""
+
     # Group by calibration group
     groups = {}
     for row in rows:
-        group_name = row.get('group_name', 'Group 1')
+        row = {k: '' if v is None else str(v) for k, v in row.items() if k}
+        group_name = row.get('group_name') or 'Group 1'
         if group_name not in groups:
             groups[group_name] = {
                 'name': group_name,
@@ -37,7 +81,7 @@ def csv_to_json(csv_path: Path) -> dict:
 
         # Build entry
         entry = {
-            'filename': row['filename']
+            'filename': row.get('filename', '')
         }
 
         # Add optional fields if present
@@ -80,6 +124,8 @@ def csv_to_json(csv_path: Path) -> dict:
         if row.get('notes'):
             entry['notes'] = row['notes']
 
+        entry.update(_extras(row))
+
         # Add to appropriate list
         file_type = row.get('type', 'measurement').lower()
         if file_type == 'standard':
@@ -103,7 +149,7 @@ def json_to_csv(json_path: Path) -> list:
         data = json.load(f)
 
     # Extract groups
-    groups = data.get('calibration_groups', [])
+    groups = data.get('calibration_groups', data.get('calibrations', []))
 
     rows = []
     for group in groups:
@@ -111,6 +157,8 @@ def json_to_csv(json_path: Path) -> list:
 
         # Process standards
         for std in group.get('standards', []):
+            if not isinstance(std, dict):
+                std = {'filename': str(std)}
             row = {
                 'group_name': group_name,
                 'filename': std.get('filename', ''),
@@ -124,23 +172,27 @@ def json_to_csv(json_path: Path) -> list:
                 'exclude': 'x' if std.get('exclude') else '',
                 'notes': std.get('notes', '')
             }
+            row.update(_extras(std))
             rows.append(row)
 
         # Process measurements
         for meas in group.get('measurements', []):
+            if not isinstance(meas, dict):
+                meas = {'filename': str(meas)}
             row = {
                 'group_name': group_name,
                 'filename': meas.get('filename', ''),
                 'P_MPa': meas.get('P_MPa', ''),
                 'T_K': meas.get('T_K', ''),
                 'type': 'measurement',
-                'conductivity_Sm': '',  # Measurements don't have known conductivity
+                'conductivity_Sm': meas.get('conductivity_Sm', ''),  # computed; the GUI restores it
                 'comp': meas.get('comp', ''),
                 'w_ppt': meas.get('w_ppt', ''),
                 'w_molal': meas.get('w_molal', ''),
                 'exclude': 'x' if meas.get('exclude') else '',
                 'notes': meas.get('notes', '')
             }
+            row.update(_extras(meas))
             rows.append(row)
 
     return rows
@@ -167,46 +219,37 @@ def harmonize_config(file_path: Path, force: bool = False, verbose: bool = True,
 
     is_csv = file_path.suffix.lower() == '.csv'
 
-    # Auto-detect: check which file is newer
+    # Auto-detect: the CSV is the source of truth whenever it exists; the
+    # JSON is a mirror. JSON -> CSV only for folders that have no CSV yet.
     if auto_detect:
-        counterpart_path = file_path.with_suffix('.json' if is_csv else '.csv')
-
-        if counterpart_path.exists():
-            file_mtime = file_path.stat().st_mtime
-            counterpart_mtime = counterpart_path.stat().st_mtime
-
-            if counterpart_mtime > file_mtime:
-                # Counterpart is newer, switch to harmonize from that one
-                if verbose:
-                    from datetime import datetime
-                    file_time = datetime.fromtimestamp(file_mtime).strftime('%Y-%m-%d %H:%M:%S')
-                    counter_time = datetime.fromtimestamp(counterpart_mtime).strftime('%Y-%m-%d %H:%M:%S')
-                    print(f"Auto-detect: {counterpart_path.name} is newer ({counter_time} vs {file_time})")
-                    print(f"Syncing from {counterpart_path.name} → {file_path.name}")
-
-                file_path = counterpart_path
-                is_csv = file_path.suffix.lower() == '.csv'
-            elif verbose:
-                from datetime import datetime
-                file_time = datetime.fromtimestamp(file_mtime).strftime('%Y-%m-%d %H:%M:%S')
-                counter_time = datetime.fromtimestamp(counterpart_mtime).strftime('%Y-%m-%d %H:%M:%S')
-                print(f"Auto-detect: {file_path.name} is newer ({file_time} vs {counter_time})")
-                print(f"Syncing from {file_path.name} → {counterpart_path.name}")
+        csv_path = file_path.with_suffix('.csv')
+        if csv_path.exists():
+            file_path, is_csv = csv_path, True
+        if verbose:
+            print(f"Auto-detect: syncing from {file_path.name}")
 
     if is_csv:
         # CSV → JSON
         if verbose:
             print(f"Reading CSV: {file_path}")
 
-        json_data = csv_to_json(file_path)
-
-        # Determine output path
         json_path = file_path.with_suffix('.json')
 
         if json_path.exists() and not force:
             print(f"WARNING: JSON file already exists: {json_path}")
             print("Use --force to overwrite")
             return None
+
+        rows = _read_csv_rows(file_path)
+        json_data = {}
+        if json_path.exists():
+            try:
+                with open(json_path) as f:
+                    json_data = {k: v for k, v in json.load(f).items()
+                                 if k not in ('calibration_groups', 'calibrations')}
+            except (OSError, ValueError, AttributeError) as e:
+                print(f"WARNING: could not read existing {json_path}: {e}")
+        json_data['calibration_groups'] = rows_to_json(rows)['calibration_groups']
 
         # Write JSON
         with open(json_path, 'w') as f:
@@ -237,12 +280,19 @@ def harmonize_config(file_path: Path, force: bool = False, verbose: bool = True,
             print("Use --force to overwrite")
             return None
 
+        fieldnames = list(FIELDNAMES)
+        if csv_path.exists():
+            with open(csv_path, newline='') as f:
+                fieldnames = list(csv.DictReader(f).fieldnames or FIELDNAMES)
+            fieldnames += [k for k in FIELDNAMES if k not in fieldnames]
+            csv_rows = sync_rows(csv_rows, _read_csv_rows(csv_path))
+
         # Write CSV
-        fieldnames = ['group_name', 'filename', 'P_MPa', 'T_K', 'type',
-                     'conductivity_Sm', 'comp', 'w_ppt', 'w_molal', 'exclude', 'notes']
+        for row in csv_rows:
+            fieldnames += [k for k in row if k and k not in fieldnames]
 
         with open(csv_path, 'w', newline='') as f:
-            writer = csv.DictWriter(f, fieldnames=fieldnames)
+            writer = csv.DictWriter(f, fieldnames=fieldnames, extrasaction='ignore')
             writer.writeheader()
             writer.writerows(csv_rows)
 

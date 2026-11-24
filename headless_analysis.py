@@ -11,8 +11,20 @@ import numpy as np
 from pathlib import Path
 import pandas as pd
 
+from analysis_config import bath_state
+
 log = logging.getLogger('HiPOZ')
 
+
+def _state(sol, entry):
+    """(P, T) for a result row: chiller-bath config values (see
+    bath_state), else the Gamry file header, else the config entry."""
+    bath = bath_state(entry, getattr(sol, 'P_MPa', None))
+    if bath:
+        return bath
+    P = sol.P_MPa if getattr(sol, 'P_MPa', None) is not None else entry.get('P_MPa', '')
+    T = sol.T_K if getattr(sol, 'T_K', None) is not None else entry.get('T_K', '')
+    return P, T
 
 def build_solution_lookup(measurements):
     """
@@ -150,9 +162,7 @@ def run_headless_analysis(timeseries, analysis_config, output_dir=None,
                     (R_unc / sol.Rcalc_ohm)**2
                 ) if R_unc > 0 else 0
 
-                # Get P and T from solution object (highest priority) or config entry
-                P_val = sol.P_MPa if hasattr(sol, 'P_MPa') and sol.P_MPa is not None else meas_entry.get('P_MPa', '')
-                T_val = sol.T_K if hasattr(sol, 'T_K') and sol.T_K is not None else meas_entry.get('T_K', '')
+                P_val, T_val = _state(sol, meas_entry)
 
                 # Build result row
                 result = {
@@ -188,9 +198,7 @@ def run_headless_analysis(timeseries, analysis_config, output_dir=None,
 
                 sol = solution_lookup[std_fname]
 
-                # Get P and T from solution object (highest priority) or config entry
-                P_val = sol.P_MPa if hasattr(sol, 'P_MPa') and sol.P_MPa is not None else std_entry.get('P_MPa', '')
-                T_val = sol.T_K if hasattr(sol, 'T_K') and sol.T_K is not None else std_entry.get('T_K', '')
+                P_val, T_val = _state(sol, std_entry)
 
                 result = {
                     'group_name': group_name,
@@ -290,165 +298,35 @@ def _update_config_with_conductivities(analysis_config, results, output_path: Pa
 
     log.info(f"Updated {updated_count} measurement entries with computed conductivities")
 
-    # Write back to both CSV and JSON formats
+    # Merge into the file itself, not calibration_groups: the loaded view
+    # lacks excluded rows and extra columns, which must survive.
+    from config_store import update_config
     config_path = Path(analysis_config.config_path)
-    is_csv_input = config_path.suffix.lower() == '.csv'
-
-    import json
-    import csv as csv_module
-
-    # Update CSV
-    csv_path = config_path if is_csv_input else config_path.with_suffix('.csv')
-    log.info(f"Writing updated config to CSV: {csv_path}")
-
-    fieldnames = ['group_name', 'filename', 'P_MPa', 'T_K', 'type',
-                 'conductivity_Sm', 'comp', 'w_ppt', 'w_molal', 'exclude', 'notes']
-
-    with open(csv_path, 'w', newline='') as f:
-        writer = csv_module.DictWriter(f, fieldnames=fieldnames)
-        writer.writeheader()
-
-        for group in analysis_config.calibration_groups:
-            group_name = group['name']
-
-            # Write standards
-            for std in group.get('standards', []):
-                if isinstance(std, dict):
-                    row = {
-                        'group_name': group_name,
-                        'filename': std.get('filename', ''),
-                        'P_MPa': std.get('P_MPa', ''),
-                        'T_K': std.get('T_K', ''),
-                        'type': 'standard',
-                        'conductivity_Sm': std.get('conductivity_Sm', ''),
-                        'comp': std.get('comp', ''),
-                        'w_ppt': std.get('w_ppt', ''),
-                        'w_molal': std.get('w_molal', ''),
-                        'exclude': 'x' if std.get('exclude') else '',
-                        'notes': std.get('notes', '')
-                    }
-                    writer.writerow(row)
-
-            # Write measurements (now with computed conductivities)
-            for meas in group.get('measurements', []):
-                if isinstance(meas, dict):
-                    row = {
-                        'group_name': group_name,
-                        'filename': meas.get('filename', ''),
-                        'P_MPa': meas.get('P_MPa', ''),
-                        'T_K': meas.get('T_K', ''),
-                        'type': 'measurement',
-                        'conductivity_Sm': meas.get('conductivity_Sm', ''),  # Now populated!
-                        'comp': meas.get('comp', ''),
-                        'w_ppt': meas.get('w_ppt', ''),
-                        'w_molal': meas.get('w_molal', ''),
-                        'exclude': 'x' if meas.get('exclude') else '',
-                        'notes': meas.get('notes', '')
-                    }
-                    writer.writerow(row)
-
-    # Update JSON
-    json_path = config_path if not is_csv_input else config_path.with_suffix('.json')
-    log.info(f"Writing updated config to JSON: {json_path}")
-
-    with open(json_path, 'w') as f:
-        json.dump({
-            'calibration_groups': analysis_config.calibration_groups,
-            'generated_by': 'HiPOZ headless analysis',
-            'updated_with_conductivities': True
-        }, f, indent=2)
-
+    updates = {f: {'conductivity_Sm': s} for f, s in conductivity_lookup.items()}
+    update_config(config_path, updates, add_missing=False)
+    log.info(f"Writing updated config to CSV: {config_path.with_suffix('.csv')}")
+    log.info(f"Writing updated config to JSON: {config_path.with_suffix('.json')}")
     log.info("✓ Original config files updated with computed conductivities")
 
 
 def _save_config_with_results(analysis_config, output_dir: Path, timestamp: str):
     """
-    Save/update config file with analysis results.
-    If input was CSV, also create matching JSON. If input was JSON, also create matching CSV.
+    Save a backup of the config with analysis results as
+    <config>_analyzed.csv and <config>_analyzed.json.
     """
-    import json
-    import csv as csv_module
+    from config_store import read_rows, write_rows
 
     if not analysis_config or not analysis_config.config_path:
         return
 
     config_path = Path(analysis_config.config_path)
-    is_csv_input = config_path.suffix.lower() == '.csv'
-
-    # Determine output paths for both formats
-    base_name = config_path.stem  # e.g., "zAnalysis20250813Mahboub2026"
-    csv_output = output_dir / f"{base_name}_analyzed.csv"
-    json_output = output_dir / f"{base_name}_analyzed.json"
-
-    if is_csv_input:
-        # Input was CSV → also create/update matching JSON
-        log.info(f"Updating CSV config: {csv_output}")
-        # CSV is already up to date from original, just copy with timestamp
-        import shutil
-        shutil.copy(config_path, csv_output)
-
-        # Create matching JSON
-        log.info(f"Creating matching JSON: {json_output}")
-        with open(json_output, 'w') as f:
-            json.dump({
-                'calibration_groups': analysis_config.calibration_groups,
-                'generated_by': 'HiPOZ headless analysis',
-                'timestamp': timestamp,
-                'source_csv': str(config_path)
-            }, f, indent=2)
-
-    else:
-        # Input was JSON → also create/update matching CSV
-        log.info(f"Updating JSON config: {json_output}")
-        import shutil
-        shutil.copy(config_path, json_output)
-
-        # Create matching CSV
-        log.info(f"Creating matching CSV: {csv_output}")
-        with open(csv_output, 'w', newline='') as f:
-            fieldnames = ['group_name', 'filename', 'P_MPa', 'T_K', 'type',
-                         'conductivity_Sm', 'comp', 'w_ppt', 'w_molal', 'exclude', 'notes']
-            writer = csv_module.DictWriter(f, fieldnames=fieldnames)
-            writer.writeheader()
-
-            for group in analysis_config.calibration_groups:
-                group_name = group['name']
-
-                # Write standards
-                for std in group.get('standards', []):
-                    if isinstance(std, dict):
-                        row = {
-                            'group_name': group_name,
-                            'filename': std.get('filename', ''),
-                            'P_MPa': std.get('P_MPa', ''),
-                            'T_K': std.get('T_K', ''),
-                            'type': 'standard',
-                            'conductivity_Sm': std.get('conductivity_Sm', ''),
-                            'comp': std.get('comp', ''),
-                            'w_ppt': std.get('w_ppt', ''),
-                            'w_molal': std.get('w_molal', ''),
-                            'exclude': std.get('exclude', ''),
-                            'notes': std.get('notes', '')
-                        }
-                        writer.writerow(row)
-
-                # Write measurements
-                for meas in group.get('measurements', []):
-                    if isinstance(meas, dict):
-                        row = {
-                            'group_name': group_name,
-                            'filename': meas.get('filename', ''),
-                            'P_MPa': meas.get('P_MPa', ''),
-                            'T_K': meas.get('T_K', ''),
-                            'type': 'measurement',
-                            'conductivity_Sm': '',
-                            'comp': meas.get('comp', ''),
-                            'w_ppt': meas.get('w_ppt', ''),
-                            'w_molal': meas.get('w_molal', ''),
-                            'exclude': meas.get('exclude', ''),
-                            'notes': meas.get('notes', '')
-                        }
-                        writer.writerow(row)
+    fieldnames, rows = read_rows(config_path)
+    csv_output = Path(output_dir) / f"{config_path.stem}_analyzed.csv"
+    log.info(f"Updating CSV config: {csv_output}")
+    log.info(f"Creating matching JSON: {csv_output.with_suffix('.json')}")
+    write_rows(csv_output, rows, fieldnames,
+               json_extra={'generated_by': 'HiPOZ headless analysis',
+                           'timestamp': timestamp, 'source': str(config_path)})
 
 
 def should_run_headless(analysis_config):

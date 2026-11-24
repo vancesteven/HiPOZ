@@ -1,0 +1,269 @@
+{
+  "calibration_groups": [
+    {
+      "name": "Group 1",
+      "standards": [
+        {
+          "filename": "Default_20261014_094111_P_2_T_296.txt",
+          "conductivity_Sm": 8.0,
+          "comp": "KCl",
+          "w_ppt": 52.168,
+          "w_molal": 0.699772,
+          "notes": "8 S/m KCl standard at ~1 atm; sets K (Diaz notebook p. 26); KCl 80 mS/cm standard, Environmental Express 00653-32; 52.168 g/kg water."
+        },
+        {
+          "filename": "Default_20261014_094205_P_2_T_296.txt",
+          "conductivity_Sm": 8.0,
+          "comp": "KCl",
+          "w_ppt": 52.168,
+          "w_molal": 0.699772,
+          "notes": "8 S/m KCl standard at ~1 atm; sets K (Diaz notebook p. 26); KCl 80 mS/cm standard, Environmental Express 00653-32; 52.168 g/kg water."
+        },
+        {
+          "filename": "Default_20261014_094259_P_1_T_296.txt",
+          "conductivity_Sm": 8.0,
+          "comp": "KCl",
+          "w_ppt": 52.168,
+          "w_molal": 0.699772,
+          "notes": "8 S/m KCl standard at ~1 atm; sets K (Diaz notebook p. 26); KCl 80 mS/cm standard, Environmental Express 00653-32; 52.168 g/kg water."
+        }
+      ],
+      "measurements": [
+        {
+          "filename": "Default_20261014_102201_P_24_T_296.txt",
+          "comp": "KCl",
+          "w_ppt": 52.168,
+          "w_molal": 0.699772,
+          "notes": "8 S/m KCl standard sigma(P), Z. Diaz (notebook p. 26); KCl 80 mS/cm standard, Environmental Express 00653-32; 52.168 g/kg water."
+        },
+        {
+          "filename": "Default_20261014_102255_P_24_T_296.txt",
+          "comp": "KCl",
+          "w_ppt": 52.168,
+          "w_molal": 0.699772,
+          "notes": "8 S/m KCl standard sigma(P), Z. Diaz (notebook p. 26); KCl 80 mS/cm standard, Environmental Express 00653-32; 52.168 g/kg water."
+        },
+        {
+          "filename": "Default_20261014_102348_P_25_T_296.txt",
+          "comp": "KCl",
+          "w_ppt": 52.168,
+          "w_molal": 0.699772,
+          "notes": "8 S/m KCl standard sigma(P), Z. Diaz (notebook p. 26); KCl 80 mS/cm standard, Environmental Express 00653-32; 52.168 g/kg water."
+        },
+        {
+          "filename": "Default_20261014_105631_P_52_T_296.txt",
+          "comp": "KCl",
+          "w_ppt": 52.168,
+          "w_molal": 0.699772,
+          "notes": "8 S/m KCl standard sigma(P), Z. Diaz (notebook p. 26); KCl 80 mS/cm standard, Environmental Express 00653-32; 52.168 g/kg water."
+        },
+        {
+          "filename": "Default_20261014_105725_P_52_T_296.txt",
+          "comp": "KCl",
+          "w_ppt": 52.168,
+          "w_molal": 0.699772,
+          "notes": "8 S/m KCl standard sigma(P), Z. Diaz (notebook p. 26); KCl 80 mS/cm standard, Environmental Express 00653-32; 52.168 g/kg water."
+        },
+        {
+          "filename": "Default_20261014_105818_P_52_T_296.txt",
+          "comp": "KCl",
+          "w_ppt": 52.168,
+          "w_molal": 0.699772,
+          "notes": "8 S/m KCl standard sigma(P), Z. Diaz (notebook p. 26); KCl 80 mS/cm standard, Environmental Express 00653-32; 52.168 g/kg water."
+        },
+        {
+          "filename": "Default_20261014_121009_P_72_T_296.txt",
+          "comp": "KCl",
+          "w_ppt": 52.168,
+          "w_molal": 0.699772,
+          "notes": "8 S/m KCl standard sigma(P), Z. Diaz (notebook p. 26); KCl 80 mS/cm standard, Environmental Express 00653-32; 52.168 g/kg water."
+        },
+        {
+          "filename": "Default_20261014_121103_P_72_T_296.txt",
+          "comp": "KCl",
+          "w_ppt": 52.168,
+          "w_molal": 0.699772,
+          "notes": "8 S/m KCl standard sigma(P), Z. Diaz (notebook p. 26); KCl 80 mS/cm standard, Environmental Express 00653-32; 52.168 g/kg water."
+        },
+        {
+          "filename": "Default_20261014_121156_P_73_T_296.txt",
+          "comp": "KCl",
+          "w_ppt": 52.168,
+          "w_molal": 0.699772,
+          "notes": "8 S/m KCl standard sigma(P), Z. Diaz (notebook p. 26); KCl 80 mS/cm standard, Environmental Express 00653-32; 52.168 g/kg water."
+        },
+        {
+          "filename": "Default_20261014_125613_P_102_T_296.txt",
+          "comp": "KCl",
+          "w_ppt": 52.168,
+          "w_molal": 0.699772,
+          "notes": "8 S/m KCl standard sigma(P), Z. Diaz (notebook p. 26); KCl 80 mS/cm standard, Environmental Express 00653-32; 52.168 g/kg water."
+        },
+        {
+          "filename": "Default_20261014_125707_P_101_T_296.txt",
+          "comp": "KCl",
+          "w_ppt": 52.168,
+          "w_molal": 0.699772,
+          "notes": "8 S/m KCl standard sigma(P), Z. Diaz (notebook p. 26); KCl 80 mS/cm standard, Environmental Express 00653-32; 52.168 g/kg water."
+        },
+        {
+          "filename": "Default_20261014_125801_P_102_T_296.txt",
+          "comp": "KCl",
+          "w_ppt": 52.168,
+          "w_molal": 0.699772,
+          "notes": "8 S/m KCl standard sigma(P), Z. Diaz (notebook p. 26); KCl 80 mS/cm standard, Environmental Express 00653-32; 52.168 g/kg water."
+        },
+        {
+          "filename": "Default_20261014_133735_P_124_T_296.txt",
+          "comp": "KCl",
+          "w_ppt": 52.168,
+          "w_molal": 0.699772,
+          "exclude": true,
+          "notes": "8 S/m KCl standard sigma(P), Z. Diaz (notebook p. 26); excluded: CPE fit jump, sigma 6.6% off trend (refit puts it on the curve) (Steve, 2026-11-05); KCl 80 mS/cm standard, Environmental Express 00653-32; 52.168 g/kg water."
+        },
+        {
+          "filename": "Default_20261014_133829_P_124_T_296.txt",
+          "comp": "KCl",
+          "w_ppt": 52.168,
+          "w_molal": 0.699772,
+          "exclude": true,
+          "notes": "8 S/m KCl standard sigma(P), Z. Diaz (notebook p. 26); excluded: CPE fit jump, sigma 6.6% off trend (refit puts it on the curve) (Steve, 2026-11-05); KCl 80 mS/cm standard, Environmental Express 00653-32; 52.168 g/kg water."
+        },
+        {
+          "filename": "Default_20261014_133922_P_124_T_296.txt",
+          "comp": "KCl",
+          "w_ppt": 52.168,
+          "w_molal": 0.699772,
+          "exclude": true,
+          "notes": "8 S/m KCl standard sigma(P), Z. Diaz (notebook p. 26); excluded: CPE fit jump, sigma 6.6% off trend (refit puts it on the curve) (Steve, 2026-11-05); KCl 80 mS/cm standard, Environmental Express 00653-32; 52.168 g/kg water."
+        },
+        {
+          "filename": "Default_20261014_141109_P_150_T_296.txt",
+          "comp": "KCl",
+          "w_ppt": 52.168,
+          "w_molal": 0.699772,
+          "notes": "8 S/m KCl standard sigma(P), Z. Diaz (notebook p. 26); KCl 80 mS/cm standard, Environmental Express 00653-32; 52.168 g/kg water."
+        },
+        {
+          "filename": "Default_20261014_141203_P_150_T_296.txt",
+          "comp": "KCl",
+          "w_ppt": 52.168,
+          "w_molal": 0.699772,
+          "notes": "8 S/m KCl standard sigma(P), Z. Diaz (notebook p. 26); KCl 80 mS/cm standard, Environmental Express 00653-32; 52.168 g/kg water."
+        },
+        {
+          "filename": "Default_20261014_141257_P_150_T_296.txt",
+          "comp": "KCl",
+          "w_ppt": 52.168,
+          "w_molal": 0.699772,
+          "notes": "8 S/m KCl standard sigma(P), Z. Diaz (notebook p. 26); KCl 80 mS/cm standard, Environmental Express 00653-32; 52.168 g/kg water."
+        },
+        {
+          "filename": "Default_20261014_144628_P_175_T_296.txt",
+          "comp": "KCl",
+          "w_ppt": 52.168,
+          "w_molal": 0.699772,
+          "notes": "8 S/m KCl standard sigma(P), Z. Diaz (notebook p. 26); KCl 80 mS/cm standard, Environmental Express 00653-32; 52.168 g/kg water."
+        },
+        {
+          "filename": "Default_20261014_144722_P_175_T_296.txt",
+          "comp": "KCl",
+          "w_ppt": 52.168,
+          "w_molal": 0.699772,
+          "notes": "8 S/m KCl standard sigma(P), Z. Diaz (notebook p. 26); KCl 80 mS/cm standard, Environmental Express 00653-32; 52.168 g/kg water."
+        },
+        {
+          "filename": "Default_20261014_144816_P_174_T_296.txt",
+          "comp": "KCl",
+          "w_ppt": 52.168,
+          "w_molal": 0.699772,
+          "notes": "8 S/m KCl standard sigma(P), Z. Diaz (notebook p. 26); KCl 80 mS/cm standard, Environmental Express 00653-32; 52.168 g/kg water."
+        },
+        {
+          "filename": "Default_20261014_152110_P_201_T_296.txt",
+          "comp": "KCl",
+          "w_ppt": 52.168,
+          "w_molal": 0.699772,
+          "notes": "8 S/m KCl standard sigma(P), Z. Diaz (notebook p. 26); KCl 80 mS/cm standard, Environmental Express 00653-32; 52.168 g/kg water."
+        },
+        {
+          "filename": "Default_20261014_152204_P_201_T_296.txt",
+          "comp": "KCl",
+          "w_ppt": 52.168,
+          "w_molal": 0.699772,
+          "notes": "8 S/m KCl standard sigma(P), Z. Diaz (notebook p. 26); KCl 80 mS/cm standard, Environmental Express 00653-32; 52.168 g/kg water."
+        },
+        {
+          "filename": "Default_20261014_152257_P_200_T_296.txt",
+          "comp": "KCl",
+          "w_ppt": 52.168,
+          "w_molal": 0.699772,
+          "notes": "8 S/m KCl standard sigma(P), Z. Diaz (notebook p. 26); KCl 80 mS/cm standard, Environmental Express 00653-32; 52.168 g/kg water."
+        },
+        {
+          "filename": "Default_20261014_155511_P_175_T_296.txt",
+          "comp": "KCl",
+          "w_ppt": 52.168,
+          "w_molal": 0.699772,
+          "notes": "8 S/m KCl standard sigma(P), Z. Diaz (notebook p. 26); KCl 80 mS/cm standard, Environmental Express 00653-32; 52.168 g/kg water."
+        },
+        {
+          "filename": "Default_20261014_155605_P_174_T_296.txt",
+          "comp": "KCl",
+          "w_ppt": 52.168,
+          "w_molal": 0.699772,
+          "notes": "8 S/m KCl standard sigma(P), Z. Diaz (notebook p. 26); KCl 80 mS/cm standard, Environmental Express 00653-32; 52.168 g/kg water."
+        },
+        {
+          "filename": "Default_20261014_155659_P_176_T_296.txt",
+          "comp": "KCl",
+          "w_ppt": 52.168,
+          "w_molal": 0.699772,
+          "notes": "8 S/m KCl standard sigma(P), Z. Diaz (notebook p. 26); KCl 80 mS/cm standard, Environmental Express 00653-32; 52.168 g/kg water."
+        },
+        {
+          "filename": "Default_20261014_162853_P_151_T_296.txt",
+          "comp": "KCl",
+          "w_ppt": 52.168,
+          "w_molal": 0.699772,
+          "notes": "8 S/m KCl standard sigma(P), Z. Diaz (notebook p. 26); KCl 80 mS/cm standard, Environmental Express 00653-32; 52.168 g/kg water."
+        },
+        {
+          "filename": "Default_20261014_162947_P_151_T_296.txt",
+          "comp": "KCl",
+          "w_ppt": 52.168,
+          "w_molal": 0.699772,
+          "notes": "8 S/m KCl standard sigma(P), Z. Diaz (notebook p. 26); KCl 80 mS/cm standard, Environmental Express 00653-32; 52.168 g/kg water."
+        },
+        {
+          "filename": "Default_20261014_163041_P_151_T_296.txt",
+          "comp": "KCl",
+          "w_ppt": 52.168,
+          "w_molal": 0.699772,
+          "notes": "8 S/m KCl standard sigma(P), Z. Diaz (notebook p. 26); KCl 80 mS/cm standard, Environmental Express 00653-32; 52.168 g/kg water."
+        },
+        {
+          "filename": "Default_20261014_170148_P_124_T_296.txt",
+          "comp": "KCl",
+          "w_ppt": 52.168,
+          "w_molal": 0.699772,
+          "notes": "8 S/m KCl standard sigma(P), Z. Diaz (notebook p. 26); KCl 80 mS/cm standard, Environmental Express 00653-32; 52.168 g/kg water."
+        },
+        {
+          "filename": "Default_20261014_170242_P_124_T_296.txt",
+          "comp": "KCl",
+          "w_ppt": 52.168,
+          "w_molal": 0.699772,
+          "notes": "8 S/m KCl standard sigma(P), Z. Diaz (notebook p. 26); KCl 80 mS/cm standard, Environmental Express 00653-32; 52.168 g/kg water."
+        },
+        {
+          "filename": "Default_20261014_170336_P_125_T_296.txt",
+          "comp": "KCl",
+          "w_ppt": 52.168,
+          "w_molal": 0.699772,
+          "notes": "8 S/m KCl standard sigma(P), Z. Diaz (notebook p. 26); KCl 80 mS/cm standard, Environmental Express 00653-32; 52.168 g/kg water."
+        }
+      ]
+    }
+  ]
+}

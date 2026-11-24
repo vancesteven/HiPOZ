@@ -50,6 +50,43 @@ wKCl_ppt = {23:    0.0116,
             2764:  1.382,
             15000: 8.759,
             80000: 52.168}  # Concentration of KCl standards as reported on the bottles
+# The bottle values are g KCl per kg WATER (Steve, 2026-11-06; 80 mS/cm bottle:
+# Environmental Express 00653-32). On that basis 52.168 ppt is 0.6998 mol/kg,
+# which McCleskey (2012) puts at 7.998 S/m at 25 C against the 8.000 S/m
+# label; read per kg of solution it would be 0.7383 mol/kg (+5.1%).
+
+
+def kcl_std_molal(w_ppt):
+    """Molality (mol/kg water) of a KCl standard from its bottle ppt value."""
+    return w_ppt / Constants.m_gmol['KCl']
+
+
+def _kcl_bottle_ppt(w_ppt):
+    """The bottle ppt value matching w_ppt, or None if it is not a bottle value."""
+    for bottle_ppt in wKCl_ppt.values():
+        if np.isclose(w_ppt, bottle_ppt, rtol=1e-4, atol=0):
+            return bottle_ppt
+    return None
+
+
+def ppt_to_molal(comp, w_ppt, m_gmol=None):
+    """Molality from ppt. KCl bottle values are g/kg water; all else g/kg solution."""
+    if m_gmol is None:
+        m_gmol = Constants.m_gmol[comp]
+    if comp == 'KCl' and np.ndim(w_ppt) == 0 and _kcl_bottle_ppt(w_ppt) is not None:
+        return w_ppt / m_gmol
+    return Ppt2molal(w_ppt, m_gmol)
+
+
+def molal_to_ppt(comp, w_molal, m_gmol=None):
+    """Inverse of ppt_to_molal: KCl standard molalities map back to their bottle ppt."""
+    if m_gmol is None:
+        m_gmol = Constants.m_gmol[comp]
+    if comp == 'KCl' and np.ndim(w_molal) == 0:
+        bottle_ppt = _kcl_bottle_ppt(w_molal * m_gmol)
+        if bottle_ppt is not None:
+            return bottle_ppt
+    return Molal2ppt(w_molal, m_gmol)
 pptUnits = ['ppt', 'gkg', 'g/kg']  # Available options for indicating pptm units
 molalUnits = ['molal', 'molkg', 'mol/kg','mol_kg']  # Available options for indicating molal units
 SiemensUnits = ['us_cm','ms_cm']
@@ -111,7 +148,7 @@ def get_w_from_descrip(descrip, lbl_uScm=None):
     if lbl_uScm is not None and not np.isnan(lbl_uScm):
         comp = 'KCl'
         w_ppt = wKCl_ppt[lbl_uScm]
-        w_molal = Ppt2molal(w_ppt, Constants.m_gmol[comp])
+        w_molal = kcl_std_molal(w_ppt)
     elif any(soluteCompare):
         if 'DIwater' in descrip:
             comp = 'PureH2O'
@@ -151,7 +188,7 @@ def get_w_from_descrip(descrip, lbl_uScm=None):
                 raise ValueError('Concentration and units must appear at the beginning of descrip.')
             if unit in pptUnits:
                 w_ppt = w + 0
-                w_molal = Ppt2molal(w_ppt, Constants.m_gmol[comp])
+                w_molal = ppt_to_molal(comp, w_ppt)
             elif unit in Saturated:
                 w_molal = 1000
                 w_ppt = 1000
@@ -162,7 +199,7 @@ def get_w_from_descrip(descrip, lbl_uScm=None):
                     w_ppt = wKCl_ppt[w]
                 except KeyError:
                     print(f"No matching key for w={w} found in wKCl_ppt")
-                w_molal = Ppt2molal(w_ppt, Constants.m_gmol[comp])
+                w_molal = kcl_std_molal(w_ppt)
             else:
                 # w_molal = w + 0
                 # w_ppt = Molal2ppt(w_molal, Constants.m_gmol[comp])
@@ -172,6 +209,75 @@ def get_w_from_descrip(descrip, lbl_uScm=None):
         log.warning(f'Unable to interpret descrip "{descrip}".')
         comp, w_ppt, w_molal = (None, None, None)
     return comp, w_ppt, w_molal
+
+
+# --- Multi-start CPE fit -------------------------------------------------------
+# The single fixed initial guess lands in a worse local minimum on ~5-20% of sweeps
+# (R off by ~5%, fit uncertainty inflated). The fixed-guess fit is kept as the
+# "default" candidate; data-driven starts are tried as well and one replaces it only
+# if its relative residual is lower by more than MULTISTART_MIN_IMPROVEMENT.
+# Data-driven starts depend only on the sweep itself (no chaining across sweeps), so
+# results are independent of file order and worker scheduling.
+MULTISTART_MIN_IMPROVEMENT = 0.01   # candidate must beat default residual by >1%
+# Off by default: besides removing the known fit jumps (Oct 14 124 MPa, Nov 5
+# 152-177 MPa) it moves R on other sweeps by 0.05-5 % (open-questions
+# 2026-11-24). Turn on per call (multistart=True), with `--multistart`, or
+# by setting this to True.
+MULTISTART_DEFAULT = False
+# [R_1, Q_1, n_1, C_1]; R_0 is set from the data
+MULTISTART_GUESSES = ([1.0, 1e-5, 0.9, 1e-6], [10.0, 1e-5, 0.8, 1e-6], [0.02, 1e-4, 0.7, 1e-6])
+
+
+def fit_residual(circuit, f_Hz, Z_ohm):
+    """Relative misfit sum(|Z_fit - Z|^2 / |Z|^2) on the fitted frequencies (same for all candidates)."""
+    return float(np.sum(np.abs(circuit.predict(f_Hz) - Z_ohm) ** 2 / np.abs(Z_ohm) ** 2))
+
+
+def phase_zero_resistance(f_Hz, Z_ohm):
+    """|Z| interpolated at the lowest-frequency phase zero crossing; falls back to |Z| at min |phase|."""
+    o = np.argsort(f_Hz)
+    Z = np.asarray(Z_ohm)[o]
+    ph, mag = np.angle(Z), np.abs(Z)
+    idx = np.where(np.diff(np.sign(ph)) != 0)[0]
+    if len(idx):
+        i = idx[0]
+        w = -ph[i] / (ph[i + 1] - ph[i])
+        return float(mag[i] + w * (mag[i + 1] - mag[i]))
+    return float(mag[np.argmin(np.abs(ph))])
+
+
+def select_best_candidate(candidates, min_improvement=MULTISTART_MIN_IMPROVEMENT):
+    """candidates: list of (label, obj, residual); the first entry is the default start.
+    Returns the lowest-residual entry, but a non-default entry is chosen only if its
+    residual is lower than the default's by more than min_improvement (relative), so a
+    default that is already good is left unchanged."""
+    default = candidates[0]
+    best = default
+    for c in candidates[1:]:
+        if np.isfinite(c[2]) and c[2] < default[2] * (1 - min_improvement) and c[2] < best[2]:
+            best = c
+    return best
+
+
+def _multistart_refine(default_circuit, circ_str, f_Hz, Z_ohm, label=''):
+    cands = [('default', default_circuit, fit_residual(default_circuit, f_Hz, Z_ohm))]
+    try:
+        R0 = phase_zero_resistance(f_Hz, Z_ohm)
+    except Exception:
+        return default_circuit, 'default'
+    for k, g in enumerate(MULTISTART_GUESSES):
+        try:
+            c = CustomCircuit(circ_str, initial_guess=[R0] + list(g))
+            c.fit(f_Hz, Z_ohm)
+            cands.append((f'phase0_{k}', c, fit_residual(c, f_Hz, Z_ohm)))
+        except Exception:
+            continue
+    best = select_best_candidate(cands)
+    if best[0] != 'default':
+        log.info(f'multi-start fit: {best[0]} beat default start '
+                 f'(residual {best[2]:.3g} vs {cands[0][2]:.3g}; R {best[1].parameters_[0]:.4g} vs '
+                 f'{cands[0][1].parameters_[0]:.4g}) for {os.path.basename(str(label))}')
+    return best[1], best[0]
 
 
 class Solution:
@@ -294,7 +400,7 @@ class Solution:
             self.Z_ohm = Zabs_ohm * np.exp(1j * np.deg2rad(Phi_ohm))
         return
 
-    def fit_circuit(self, circ_type=None, initial_guess=None, basin_hopping=False, multiproc=False, k_est_pm=None, print_circuit=True, circ_file=None, f_range_hz=None):
+    def fit_circuit(self, circ_type=None, initial_guess=None, basin_hopping=False, multiproc=False, k_est_pm=None, print_circuit=True, circ_file=None, f_range_hz=None, multistart=None):
         # Validate input data before fitting
         if self.f_Hz is None or len(self.f_Hz) == 0:
             raise ValueError("No frequency data available for circuit fitting")
@@ -439,7 +545,13 @@ class Solution:
             if len(self.f_Hz) < 5:
                 raise ValueError(f"Too few data points in frequency range {f_range_hz}: only {len(self.f_Hz)} points remain")
 
-        self.circuit.fit(self.f_Hz, self.Z_ohm)
+        self.circuit.fit(self.f_Hz, self.Z_ohm)  # a failure of the default start still raises, as before
+        self.fit_start = 'default'
+        if multistart is None:
+            multistart = MULTISTART_DEFAULT
+        if circ_type == 'CPE' and multistart:
+            self.circuit, self.fit_start = _multistart_refine(
+                self.circuit, self.circStr, self.f_Hz, self.Z_ohm, self.file)
         self.Zfit_ohm = self.circuit.predict(self.f_Hz)
         self.Rcalc_ohm = self.circuit.parameters_[0]
         self.Runc_ohm = self.circuit.conf_[0]
@@ -512,10 +624,10 @@ class Solution:
 
         # Set either missing w field
         if self.w_molal is None:
-            self.w_molal = Ppt2molal(self.w_ppt, Constants.m_gmol[self.comp])
+            self.w_molal = ppt_to_molal(self.comp, self.w_ppt)
             log.debug('Added w_molal to Solution.')
         elif self.w_ppt is None:
-            self.w_ppt = Molal2ppt(self.w_molal, Constants.m_gmol[self.comp])
+            self.w_ppt = molal_to_ppt(self.comp, self.w_molal)
             log.debug('Added w_ppt to Solution.')
 
         rhoH2O_kgm3 = seafreeze(np.array(tuple((Constants.P0, TH2O_C+Constants.T0))), 'water1').rho[0,0]

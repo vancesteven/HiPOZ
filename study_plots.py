@@ -62,9 +62,11 @@ def compute_mccleskey_model(conc_molal, temps_K, compound=None, ion_spec=None,
         calculation (via `speciation.py`, which needs Reaktoro) instead of
         assuming full dissociation. This is what McCleskey et al. actually
         specify: neutral complexes such as MgSO4(aq) carry no current and are
-        excluded from the sum. Requires `compound` (a speciation recipe cannot
-        be inferred from a bare ion_spec) and leaves 1:1 salts such as NaCl and
-        KCl essentially unchanged, since WATEQ4F returns them fully dissociated.
+        excluded from the sum. Single salts use their recipe from
+        speciation.SALT_RECIPES; otherwise the ion_spec itself is speciated
+        (mixtures such as NaCl + MgSO4), provided every ion maps to a PHREEQC
+        input species. Leaves 1:1 salts such as NaCl and KCl essentially
+        unchanged, since WATEQ4F returns them fully dissociated.
         Default False, which reproduces the historical behaviour exactly.
 
     Returns
@@ -83,12 +85,18 @@ def compute_mccleskey_model(conc_molal, temps_K, compound=None, ion_spec=None,
     concs = np.asarray(conc_molal, dtype=float)
     temps_C = np.asarray(temps_K, dtype=float) - 273.15
 
+    use_recipe = False
     if speciation:
         import speciation as _spec
-        if compound is None or compound not in _spec.SALT_RECIPES:
+        # Single salts use their recipe; anything else (e.g. a mixture) is
+        # speciated from its ion_spec, which must map onto PHREEQC inputs.
+        use_recipe = compound is not None and compound in _spec.SALT_RECIPES
+        if not use_recipe and not _spec.can_speciate_spec(ion_spec):
             raise ValueError(
-                f"speciation=True needs a compound with a speciation recipe; "
-                f"got {compound!r}. Known: {sorted(_spec.SALT_RECIPES)}")
+                f"speciation=True needs a compound with a speciation recipe "
+                f"or an ion_spec whose ions all map to PHREEQC inputs; got "
+                f"compound={compound!r}, ion_spec={ion_spec!r}. Known "
+                f"recipes: {sorted(_spec.SALT_RECIPES)}")
 
     sigma_by_temp = []
     for T_C in temps_C:
@@ -96,7 +104,10 @@ def compute_mccleskey_model(conc_molal, temps_K, compound=None, ion_spec=None,
         if speciation:
             # Free charged-species molalities from WATEQ4F; neutral complexes
             # (e.g. MgSO4(aq)) are absent, which is the whole point.
-            ions = _spec.speciated_ions_dict(compound, concs, float(T_C) + 273.15)
+            if use_recipe:
+                ions = _spec.speciated_ions_dict(compound, concs, float(T_C) + 273.15)
+            else:
+                ions = _spec.speciated_ions_from_spec(ion_spec, concs, float(T_C) + 273.15)
         else:
             ions = {ion: {"mols": concs * mult} for ion, mult in ion_spec.items()}
 
@@ -370,14 +381,10 @@ def plot_study_concentration(data, compound, output_file,
     model_data = None
     if show_delta:
         try:
-            if ion_spec is not None:
-                # Use custom ion spec (for mixtures). Speciation recipes are
-                # per-compound, so a bare ion_spec cannot be speciated.
-                model_data = compute_mccleskey_model(concs, unique_temps_K, ion_spec=ion_spec)
-            else:
-                # Use default ion spec (for single salts)
-                model_data = compute_mccleskey_model(concs, unique_temps_K, compound=compound,
-                                                     speciation=speciation)
+            # Mixtures pass ion_spec; compute_mccleskey_model speciates it
+            # when speciation is on (single salts use their recipe)
+            model_data = compute_mccleskey_model(concs, unique_temps_K, compound=compound,
+                                                 ion_spec=ion_spec, speciation=speciation)
         except ValueError:
             # No model available for this compound
             model_data = None
@@ -429,11 +436,9 @@ def plot_study_concentration(data, compound, output_file,
             # Assume EIS data is at ~293 K (20°C) - find closest temperature
             eis_temp_K = 293.15  # Default assumption for 1 bar measurements
             try:
-                if ion_spec is not None:
-                    g_model = compute_mccleskey_model(g_conc, [eis_temp_K], ion_spec=ion_spec)[0]
-                else:
-                    g_model = compute_mccleskey_model(g_conc, [eis_temp_K], compound=compound,
-                                                      speciation=speciation)[0]
+                g_model = compute_mccleskey_model(g_conc, [eis_temp_K], compound=compound,
+                                                  ion_spec=ion_spec,
+                                                  speciation=speciation)[0]
 
                 # Compute percent difference
                 g_delta = 100.0 * (g_sigma - g_model) / g_model
@@ -459,7 +464,7 @@ def plot_study_temperature(data, compound, output_file,
                           show_legend=False, show_title=True,
                           compound_latex=None, colormap='tab10',
                           fontsize_label=14, fontsize_title=16, fontsize_legend=10,
-                          ion_spec=None, speciation=False):
+                          ion_spec=None, speciation=False, mccleskey_limit=None):
     """
     Generate σ vs temperature plot with Delta subplot.
 
@@ -482,6 +487,9 @@ def plot_study_temperature(data, compound, output_file,
     speciation : bool, optional
         Use WATEQ4F speciation for the model curve (see
         compute_mccleskey_model). Default False.
+    mccleskey_limit : float, optional
+        McCleskey applicability limit (mol/kg). Curves at higher
+        concentration get a '*' label and a footnote.
 
     Returns
     -------
@@ -489,6 +497,11 @@ def plot_study_temperature(data, compound, output_file,
     """
     # Get benchtop data
     temps, sigmas, errors, conc_labels = organize_for_temp_plot(data, compound)
+    beyond_limit = (mccleskey_limit is not None
+                    and any(float(c) > mccleskey_limit for c in conc_labels))
+    if mccleskey_limit is not None:
+        conc_labels = [f'{c}*' if float(c) > mccleskey_limit else c
+                       for c in conc_labels]
 
     # Get unique concentrations
     comp_data = data[compound]
@@ -500,13 +513,8 @@ def plot_study_temperature(data, compound, output_file,
     if show_delta:
         try:
             # Compute McCleskey model (transposed: one array per concentration)
-            if ion_spec is not None:
-                # Use custom ion spec (for mixtures)
-                model_by_temp = compute_mccleskey_model(unique_concs, temps, ion_spec=ion_spec)
-            else:
-                # Use default ion spec (for single salts)
-                model_by_temp = compute_mccleskey_model(unique_concs, temps, compound=compound,
-                                                        speciation=speciation)
+            model_by_temp = compute_mccleskey_model(unique_concs, temps, compound=compound,
+                                                    ion_spec=ion_spec, speciation=speciation)
             # Transpose to get one array per concentration
             model_by_conc = []
             for i in range(len(unique_concs)):
@@ -534,6 +542,13 @@ def plot_study_temperature(data, compound, output_file,
         fontsize_title=fontsize_title,
         fontsize_legend=fontsize_legend
     )
+
+    if show_delta and beyond_limit:
+        fig.axes[0].text(0.02, 0.98,
+                         r"* beyond MC12 range ($I_\mathrm{eff} > 0.7$ mol/kg)",
+                         transform=fig.axes[0].transAxes, ha='left', va='top',
+                         color=(0.8, 0, 0), fontsize=fontsize_legend)
+        fig.savefig(output_file, dpi=300, bbox_inches='tight')
 
     return fig
 

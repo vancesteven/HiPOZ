@@ -1,14 +1,57 @@
+"""
+McCleskey et al. (2012) electrical conductivity of natural waters.
+
+McCleskey, R. B., Nordstrom, D. K., Ryan, J. N., Ball, J. W. (2012), A new
+method of calculating electrical conductivity with applications to natural
+waters, Geochim. Cosmochim. Acta 77, 369-382.
+
+    lambda_i(T, I) = lambda0_i(T) - A_i(T) sqrt(I) / (1 + B_i sqrt(I))   (Eq. 8)
+    I = 0.5 sum_i m_i z_i^2                                              (Eq. 9)
+    kappa = sum_i lambda_i m_i                                           (Eq. 7)
+
+lambda0_i and A_i are quadratics in T (deg C) with the Table 1 coefficients;
+lambda in mS kg cm^-1 mol^-1, kappa returned in S/m. Validated range: 0-95 C,
+effective ionic strength 0.0004-0.7 mol/kg, 0.1 MPa.
+
+The m_i are FREE molalities of the charged species from a WATEQ4F speciation
+(speciation.py), not total salt molalities; neutral complexes such as
+MgSO4(aq) have no entry and carry no current. Passing total molality is exact
+for salts WATEQ4F leaves dissociated (NaCl, KCl) and overestimates sigma for
+associating salts (MgSO4, Na2SO4).
+
+I sums over the species in the table only. A charged species WATEQ4F returns
+without Table 1 parameters (MgOH+, ~1e-6 mol/kg in 0.5-1.5 m MgSO4) adds to
+neither I nor kappa; speciation.py warns once per such species.
+
+Needs only numpy. Speciation (speciation.py) needs Reaktoro (conda-forge).
+"""
 import numpy as np
-
-# def getSigmaMC2012(T_C,ions)
-
 
 
 def elecCondMcCleskey2012(T_C, ions):
-    # Full data structure including all ions from the MATLAB data matrix
-    # Negative lam2/A2 values for H_p1, CO3_m2, HCO3_m1, Fe_p3, and KSO4_m1 restore
-    # signs dropped when transcribing McCleskey et al. (2012); CO3_m2 lam2 also had a
-    # missing zero (-0.00326 -> -0.000326). Matches PlanetProfile commit b6a34e2.
+    """
+    Conductivity from speciated molalities, McCleskey et al. (2012).
+
+    Parameters
+    ----------
+    T_C : float or array, shape (nT,)
+        Temperature, deg C.
+    ions : dict
+        {ion_key: {'mols': array, shape (nM,)}} with keys from the table below
+        (e.g. 'Na_p1', 'SO4_m2', 'NaSO4_m1'). Every entry must have the same
+        number of molalities. Keys not in the table are ignored.
+
+    Returns
+    -------
+    dict
+        The input dict, with 'sigma_Sm' (shape (nT, nM)) added and, on each
+        known ion, the shared ionic strength 'I', 'z', 'xI' and its 'lamda'.
+    """
+    # Table 1 of McCleskey et al. (2012): lambda0 = lam2 T^2 + lam1 T + lam0,
+    # A = A2 T^2 + A1 T + A0, T in deg C. Checked row by row against the page
+    # image of the paper (p. 372) and against conductivity-jpl's independent
+    # transcription, 2026-11-12. Negative entries (H+, CO3-2, HCO3-, Fe+3,
+    # KSO4-) are as printed; an earlier transcription had dropped those signs.
     data = {
         'K_p1': {'z': 1, 'lam2': 0.003046, 'lam1': 1.261, 'lam0': 40.7, 'A2': 0.00535, 'A1': 0.9316, 'A0': 22.59, 'B': 1.5},
         'Na_p1': {'z': 1, 'lam2': 0.003763, 'lam1': 0.877, 'lam0': 26.23, 'A2': 0.00027, 'A1': 1.141, 'A0': 32.07, 'B': 1.7},
@@ -31,7 +74,7 @@ def elecCondMcCleskey2012(T_C, ions):
         'Al_p3': {'z': 3, 'lam2': 0.02376, 'lam1': 3.227, 'lam0': 90.24, 'A2': 0.06484, 'A1': 5.149, 'A0': 76.79, 'B': 3},
         'Cu_p2': {'z': 2, 'lam2': 0.00818, 'lam1': 1.939, 'lam0': 53.26, 'A2': 0.0292, 'A1': 6.745, 'A0': 151.5, 'B': 8},
         'Fe_p2': {'z': 2, 'lam2': 0.009939, 'lam1': 1.878, 'lam0': 54.8, 'A2': 0.03997, 'A1': 3.217, 'A0': 164.5, 'B': 4},
-        'Fe_p3': {'z': 3, 'lam2': 0.02077, 'lam1': 4.39, 'lam0': 82.42, 'A2': -0.09676, 'A1': 20.76, 'A0': 22.18, 'B': 4},
+        'Fe_p3': {'z': 3, 'lam2': 0.02077, 'lam1': 4.39, 'lam0': 82.42, 'A2': -0.09676, 'A1': 20.76, 'A0': -22.18, 'B': 4},
         'Mn_p2': {'z': 2, 'lam2': 0.01275, 'lam1': 2.109, 'lam0': 46.19, 'A2': 0.1071, 'A1': 9.023, 'A0': 135.4, 'B': 7.6},
         'Zn_p2': {'z': 2, 'lam2': 0.01249, 'lam1': 1.912, 'lam0': 48.2, 'A2': 0.08284, 'A1': 5.188, 'A0': 75.73, 'B': 7},
         'KSO4_m1': {'z': -1, 'lam2': -0.002439, 'lam1': 4.253, 'lam0': 129.7, 'A2': -0.01576, 'A1': 6.21, 'A0': 146.8, 'B': 1.3},
@@ -53,6 +96,20 @@ def elecCondMcCleskey2012(T_C, ions):
     else:
         raise ValueError("No ion data available")
 
+    # Effective ionic strength of the WHOLE solution, I = 0.5 * sum_i m_i z_i^2.
+    # McCleskey et al. (2012) evaluate every lambda_i(T, I) at this shared I,
+    # not at a per-ion partial value; using per-ion I under-corrects lambda and
+    # overestimates sigma by several percent at molal concentrations
+    # (e.g. +4.6% vs the 111.3 mS/cm KCl standard at 1 molal).
+    # Ions without parameters (e.g. neutral MgSO4(aq)) carry no current and
+    # add nothing to I; if none are known, I is zero and sigma stays 0.
+    I = np.zeros(size_mols)
+    for ion_name, ion_data in ions.items():
+        if ion_name in data:
+            mols = np.atleast_1d(ion_data['mols'])
+            I = I + 0.5 * mols * data[ion_name]['z']**2
+    I2 = np.sqrt(I)
+
     for ion_name, ion_data in ions.items():
         if ion_name in data:
             mols = np.atleast_1d(ion_data['mols'])
@@ -60,10 +117,6 @@ def elecCondMcCleskey2012(T_C, ions):
             B = data[ion_name]['B']
             Ad = np.array([data[ion_name]['A2'], data[ion_name]['A1'], data[ion_name]['A0']])
             l210 = np.array([data[ion_name]['lam2'], data[ion_name]['lam1'], data[ion_name]['lam0']])
-
-            # Ionic strength calculations
-            I = 0.5 * mols * z**2
-            I2 = np.sqrt(I)
 
             # Evaluate polynomial coefficients for temperature dependency
             lam0 = np.polyval(l210, T_C)  # (num_TC,)
